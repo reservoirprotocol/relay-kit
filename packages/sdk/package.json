@@ -34,11 +34,11 @@
     "rimraf": "^5.0.5"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "viem": "~1.19.15"
   },
   "dependencies": {
-    "axios": "^1.6.5",
-    "viem": "~1.19.15"
+    "axios": "^1.6.5"
   },
   "keywords": [
     "eth",
