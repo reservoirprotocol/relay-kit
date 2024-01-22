@@ -1,9 +1,8 @@
 import type { Address } from 'viem'
 import type { paths } from './api.js'
 
-// export type CallFees =
-//   paths['/execute/call']['post']['responses']['200']['content']['application/json']['fees']
-export type CallFees = any
+export type CallFees =
+  paths['/execute/call']['post']['responses']['200']['content']['application/json']['fees']
 export type CheckApi = NonNullable<
   NonNullable<
     paths['/execute/call']['post']['responses']['200']['content']['application/json']['steps']
