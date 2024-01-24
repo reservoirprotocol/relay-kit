@@ -60,8 +60,8 @@ export const configureViemChain = (
     ...chain,
     viemChain,
     icon: {
-      dark: `http://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `http://assets.relay.link/icons/${chain.id}/light.png`,
+      dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
+      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
     },
   }
 }
@@ -80,8 +80,8 @@ export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
         ? chain.rpcUrls.default.webSocket[0] ?? ''
         : '',
     icon: {
-      dark: `http://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `http://assets.relay.link/icons/${chain.id}/light.png`,
+      dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
+      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
     },
     currency: chain.nativeCurrency,
     explorerUrl: chain.blockExplorers?.default.url ?? '',
