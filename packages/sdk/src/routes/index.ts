@@ -1,6 +1,7 @@
 export const routes = [
   "/chains",
   "/chains/add",
+  "/chains/update",
   "/config",
   "/execute/call",
   "/lives",

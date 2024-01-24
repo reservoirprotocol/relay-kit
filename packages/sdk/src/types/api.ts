@@ -20,6 +20,7 @@ export interface paths {
                   wsRpcUrl?: string;
                   explorerUrl?: string;
                   explorerName?: string;
+                  depositEnabled?: boolean;
                   currency?: {
                     symbol?: string;
                     name?: string;
@@ -55,6 +56,70 @@ export interface paths {
             explorerUrl: string;
             explorerName: string;
             displayName: string;
+            depositAddress?: string;
+            baseChainId?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/update": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            id: number;
+            name?: string;
+            httpRpcUrl?: string;
+            wsRpcUrl?: string;
+            targetBalance?: string;
+            capacityPerRequest?: string;
+            feeBpsPrice?: string;
+            stack?: string;
+            httpRpcUrlPublic?: string;
+            wsRpcUrlPublic?: string;
+            explorerUrl?: string;
+            explorerName?: string;
+            displayName?: string;
             depositAddress?: string;
           };
         };

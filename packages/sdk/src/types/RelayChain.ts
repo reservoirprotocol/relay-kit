@@ -16,5 +16,6 @@ export type RelayChain = {
     name?: string
     decimals?: number
   }
+  depositEnabled?: boolean
   viemChain?: Chain
 }
