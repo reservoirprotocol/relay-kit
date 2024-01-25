@@ -69,7 +69,7 @@ export const configureViemChain = (
 export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
   return {
     id: chain.id,
-    name: chain.name,
+    name: chain.network ?? chain.name.replace(' ', '-'),
     displayName: chain.name,
     httpRpcUrl:
       chain.rpcUrls.default && chain.rpcUrls.default && chain.rpcUrls.default
