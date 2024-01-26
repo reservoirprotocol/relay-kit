@@ -25,5 +25,8 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.1"
   }
 }
