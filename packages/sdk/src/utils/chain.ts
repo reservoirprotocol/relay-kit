@@ -3,10 +3,15 @@ import type { RelayChain, paths } from '../types/index.js'
 import {
   arbitrum,
   arbitrumNova,
+  arbitrumSepolia,
   base,
+  baseGoerli,
+  goerli,
   mainnet,
   optimism,
+  sepolia,
   zora,
+  zoraSepolia,
 } from 'viem/chains'
 
 type RelayAPIChain = Required<
@@ -19,7 +24,21 @@ export const configureViemChain = (
   chain: RelayAPIChain
 ): RelayChain & Required<Pick<RelayChain, 'viemChain'>> => {
   let viemChain: Chain
-  const staticChains = [mainnet, arbitrumNova, arbitrum, base, optimism, zora]
+  const staticChains = [
+    // mainnets
+    mainnet,
+    arbitrumNova,
+    arbitrum,
+    base,
+    optimism,
+    zora,
+    //testnets
+    sepolia,
+    goerli,
+    baseGoerli,
+    zoraSepolia,
+    arbitrumSepolia,
+  ]
   const staticChain = staticChains.find(({ id }) => id === chain.id)
   if (staticChain) {
     viemChain = staticChain
