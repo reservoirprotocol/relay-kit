@@ -1,7 +1,7 @@
-import { type TypedDataSigner } from '@ethersproject/abstract-signer/lib/index'
+import { type TypedDataSigner } from '@ethersproject/abstract-signer/lib/index.js'
 import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
-import { Signer } from 'ethers/lib/ethers'
-import { arrayify } from 'ethers/lib/utils'
+import { Signer } from 'ethers/lib/ethers.js'
+import { arrayify } from 'ethers/lib/utils.js'
 import { hexToBigInt, type CustomTransport, type HttpTransport } from 'viem'
 
 export const adaptEthersSigner = (
@@ -36,7 +36,7 @@ export const adaptEthersSigner = (
       }
       return signature
     },
-    handleSendTransactionStep: async (chainId, stepItem) => {
+    handleSendTransactionStep: async (_, stepItem) => {
       const stepData = stepItem.data
       const transaction = await signer.sendTransaction({
         data: stepData.data,
