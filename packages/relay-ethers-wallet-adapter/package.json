@@ -47,7 +47,8 @@
     },
     "devDependencies": {
         "@types/bun": "latest",
-        "rimraf": "^5.0.5"
+        "rimraf": "^5.0.5",
+        "ethers": "^5.6.1"
       },
     "dependencies": {
         "axios": "^0.27.2"
