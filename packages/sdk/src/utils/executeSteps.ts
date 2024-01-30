@@ -2,7 +2,7 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  SignatureStepItem
+  SignatureStepItem,
 } from '../types/index.js'
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
 import type { Address } from 'viem'
@@ -33,7 +33,7 @@ export async function executeSteps(
   request: AxiosRequestConfig,
   wallet: AdaptedWallet,
   setState: (steps: Execute['steps'], fees?: Execute['fees']) => any,
-  newJson?: Execute
+  newJson?: Execute,
 ) {
   const client = getClient()
 
@@ -55,7 +55,7 @@ export async function executeSteps(
 
   const viemClient = createPublicClient({
     chain: chain?.viemChain,
-    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
+    transport: wallet.transport ? fallback([wallet.transport, http()]) : http(),
   })
 
   let json = newJson
@@ -82,7 +82,7 @@ export async function executeSteps(
       }
 
       incompleteStepItemIndex = step.items.findIndex(
-        (item) => item.status == 'incomplete'
+        (item) => item.status == 'incomplete',
       )
       if (incompleteStepItemIndex !== -1) {
         incompleteStepIndex = i
@@ -102,7 +102,7 @@ export async function executeSteps(
     if (!stepItems) {
       client.log(
         ['Execute Steps: skipping step, no items in step'],
-        LogLevel.Verbose
+        LogLevel.Verbose,
       )
       return
     }
@@ -113,12 +113,12 @@ export async function executeSteps(
     if (!stepItem.data) {
       client.log(
         ['Execute Steps: step item data is missing, begin polling'],
-        LogLevel.Verbose
+        LogLevel.Verbose,
       )
       json = (await pollUntilHasData(request, (json) => {
         client.log(
           ['Execute Steps: step item data is missing, polling', json],
-          LogLevel.Verbose
+          LogLevel.Verbose,
         )
         const data = json as Execute
         // An item is ready if:
@@ -147,7 +147,7 @@ export async function executeSteps(
     }
     client.log(
       [`Execute Steps: Begin processing step items for: ${step.action}`],
-      LogLevel.Verbose
+      LogLevel.Verbose,
     )
 
     const promises = stepItems
@@ -167,9 +167,9 @@ export async function executeSteps(
                 try {
                   client.log(
                     [
-                      'Execute Steps: Begin transaction step for, sending transaction'
+                      'Execute Steps: Begin transaction step for, sending transaction',
                     ],
-                    LogLevel.Verbose
+                    LogLevel.Verbose,
                   )
 
                   // if chainId is present in the tx data field then you should relay the tx on that chain
@@ -188,9 +188,9 @@ export async function executeSteps(
                       client.log(
                         [
                           'Execute Steps: Transaction step, got transactions',
-                          txHashes
+                          txHashes,
                         ],
-                        LogLevel.Verbose
+                        LogLevel.Verbose,
                       )
                       stepItem.txHashes = txHashes
                       if (json) {
@@ -205,7 +205,7 @@ export async function executeSteps(
                     },
                     request,
                     undefined,
-                    crossChainIntentChainId
+                    crossChainIntentChainId,
                   )
                 } catch (e) {
                   throw e
@@ -220,18 +220,18 @@ export async function executeSteps(
                 const postData = stepData['post']
                 client.log(
                   ['Execute Steps: Begin signature step'],
-                  LogLevel.Verbose
+                  LogLevel.Verbose,
                 )
                 if (signData) {
                   signature = await wallet.handleSignMessageStep(
                     stepItem as SignatureStepItem,
-                    step
+                    step,
                   )
 
                   if (signature) {
                     request.params = {
                       ...request.params,
-                      signature
+                      signature,
                     }
                   }
                 }
@@ -239,10 +239,10 @@ export async function executeSteps(
                 if (postData) {
                   client.log(['Execute Steps: Posting order'], LogLevel.Verbose)
                   const postOrderUrl = new URL(
-                    `${request.baseURL}${postData.endpoint}`
+                    `${request.baseURL}${postData.endpoint}`,
                   )
                   const headers = {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                   }
 
                   try {
@@ -254,7 +254,7 @@ export async function executeSteps(
                           : undefined,
                         method: postData.method,
                         params: request.params,
-                        headers
+                        headers,
                       })
 
                       return response
@@ -268,15 +268,15 @@ export async function executeSteps(
                         {
                           url: `${request.baseURL}${stepItem?.check.endpoint}`,
                           method: stepItem?.check.method,
-                          headers
+                          headers,
                         },
                         (res) => {
                           client.log(
                             [
                               `Execute Steps: Polling execute status to check if indexed`,
-                              res
+                              res,
                             ],
-                            LogLevel.Verbose
+                            LogLevel.Verbose,
                           )
                           if (
                             res?.data?.status === 'success' &&
@@ -289,22 +289,22 @@ export async function executeSteps(
                                 return {
                                   txHash: hash,
                                   chainId:
-                                    res.data.destinationChainId ?? chain?.id
+                                    res.data.destinationChainId ?? chain?.id,
                                 }
-                              }
+                              },
                             )
                             stepItem.txHashes = chainTxHashes
                             return true
                           } else if (res?.data?.status === 'failure') {
                             throw Error(
-                              res?.data?.details || 'Transaction failed'
+                              res?.data?.details || 'Transaction failed',
                             )
                           }
                           return false
                         },
                         maximumAttempts,
                         0,
-                        pollingInterval
+                        pollingInterval,
                       )
                     }
 
@@ -317,8 +317,8 @@ export async function executeSteps(
                         {
                           orderId: res.data.orderId,
                           crossPostingOrderId: res.data.crossPostingOrderId,
-                          orderIndex: res.data.orderIndex || 0
-                        }
+                          orderIndex: res.data.orderIndex || 0,
+                        },
                       ]
                     }
                     setState([...json?.steps], { ...json?.fees })
@@ -365,12 +365,12 @@ export async function executeSteps(
     } catch (blockError) {
       client.log(
         ['Execute Steps: Failed to get block number', blockError],
-        LogLevel.Error
+        LogLevel.Error,
       )
     }
     client.log(
       ['Execute Steps: An error occurred', err, 'Block Number:', blockNumber],
-      LogLevel.Error
+      LogLevel.Error,
     )
 
     if (json) {
@@ -379,7 +379,7 @@ export async function executeSteps(
     } else {
       json = {
         error: err && err?.response?.data ? err.response.data : err,
-        steps: []
+        steps: [],
       }
     }
 
