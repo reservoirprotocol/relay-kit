@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "concurrently": "^8.2.2",
+    "@changesets/cli": "^2.27.1",
     "openapi-typescript": "^6.7.3"
   },
   "peerDependencies": {
@@ -25,8 +26,5 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.27.1"
   }
 }
