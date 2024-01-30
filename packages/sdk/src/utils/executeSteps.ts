@@ -2,7 +2,7 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  SignatureStepItem,
+  SignatureStepItem
 } from '../types/index.js'
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
 import type { Address } from 'viem'
@@ -55,7 +55,7 @@ export async function executeSteps(
 
   const viemClient = createPublicClient({
     chain: chain?.viemChain,
-    transport: wallet.transport ? fallback([wallet.transport, http()]) : http(),
+    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
   })
 
   let json = newJson
@@ -167,7 +167,7 @@ export async function executeSteps(
                 try {
                   client.log(
                     [
-                      'Execute Steps: Begin transaction step for, sending transaction',
+                      'Execute Steps: Begin transaction step for, sending transaction'
                     ],
                     LogLevel.Verbose
                   )
@@ -188,7 +188,7 @@ export async function executeSteps(
                       client.log(
                         [
                           'Execute Steps: Transaction step, got transactions',
-                          txHashes,
+                          txHashes
                         ],
                         LogLevel.Verbose
                       )
@@ -231,7 +231,7 @@ export async function executeSteps(
                   if (signature) {
                     request.params = {
                       ...request.params,
-                      signature,
+                      signature
                     }
                   }
                 }
@@ -242,7 +242,7 @@ export async function executeSteps(
                     `${request.baseURL}${postData.endpoint}`
                   )
                   const headers = {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                   }
 
                   try {
@@ -254,7 +254,7 @@ export async function executeSteps(
                           : undefined,
                         method: postData.method,
                         params: request.params,
-                        headers,
+                        headers
                       })
 
                       return response
@@ -268,13 +268,13 @@ export async function executeSteps(
                         {
                           url: `${request.baseURL}${stepItem?.check.endpoint}`,
                           method: stepItem?.check.method,
-                          headers,
+                          headers
                         },
                         (res) => {
                           client.log(
                             [
                               `Execute Steps: Polling execute status to check if indexed`,
-                              res,
+                              res
                             ],
                             LogLevel.Verbose
                           )
@@ -288,7 +288,8 @@ export async function executeSteps(
                               (hash: Address) => {
                                 return {
                                   txHash: hash,
-                                  chainId: chain?.id,
+                                  chainId:
+                                    res.data.destinationChainId ?? chain?.id
                                 }
                               }
                             )
@@ -316,8 +317,8 @@ export async function executeSteps(
                         {
                           orderId: res.data.orderId,
                           crossPostingOrderId: res.data.crossPostingOrderId,
-                          orderIndex: res.data.orderIndex || 0,
-                        },
+                          orderIndex: res.data.orderIndex || 0
+                        }
                       ]
                     }
                     setState([...json?.steps], { ...json?.fees })
@@ -378,7 +379,7 @@ export async function executeSteps(
     } else {
       json = {
         error: err && err?.response?.data ? err.response.data : err,
-        steps: [],
+        steps: []
       }
     }
 
