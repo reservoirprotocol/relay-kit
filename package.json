@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "demo": "bun run --cwd demo dev",
+    "release": "bun run deploy && changeset publish",
     "build:sdk": "bun run --cwd packages/sdk build",
     "syncSdkTypes": "bun run --cwd packages/sdk ./scripts/sync-api.mjs",
     "deploy": "bun build:sdk && bun run --cwd packages/sdk deploy",
