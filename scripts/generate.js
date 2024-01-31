@@ -1,7 +1,7 @@
 /**
- * DO NOT RUN THIS FILE MANUALLY - 
- * Run `bun package:change` to first generate a base changeset file. 
- * This script will then append your commits to that changeset for a more descriptive update.
+ * DO NOT RUN THIS FILE MANUALLY
+ * Run `bun package:change` to first generate a base changeset file.
+ * This script will then append your commits to that changeset for a more descriptive changelog.
  */
 
 const { exec } = require('child_process')
@@ -31,12 +31,14 @@ exec('git rev-parse --abbrev-ref HEAD', (error, stdout, stderr) => {
           fs.readFile(filePath, 'utf8', (readErr, data) => {
             handleError(readErr)
 
+            /**
+             * Try to split by proper commit lines where possible
+             */
             const commitLines = logStdout
               .split(/(?=feat:|fix:|chore:)/g)
               .filter(Boolean)
               .join('\n')
 
-            console.log(commitLines)
             const updatedContent = `${data}\n\n${commitLines}`
 
             fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
