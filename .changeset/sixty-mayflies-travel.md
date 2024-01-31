@@ -3,3 +3,5 @@
 ---
 
 Add comment
+
+We addded a new method
