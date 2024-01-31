@@ -14,14 +14,12 @@
     "syncSdkTypes": "bun run --cwd packages/sdk ./scripts/sync-api.mjs",
     "deploy": "bun build:sdk && bun run --cwd packages/sdk deploy",
     "sdk": "bun run --cwd packages/sdk dev",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/bun": "latest",
     "concurrently": "^8.2.2",
-    "husky": "^9.0.7",
     "openapi-typescript": "^6.7.3"
   },
   "peerDependencies": {
