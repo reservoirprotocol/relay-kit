@@ -3,29 +3,31 @@ const fs = require('fs')
 const path = require('path')
 
 
-console.log(__dirname)
 
-// Function to append commit messages to the Markdown file
 function appendCommitsToFile(filePath, commitMessages) {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(`Error reading file: ${err}`)
-      return
-    }
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
 
-    // Append commit messages to the content
-    const updatedContent = `${data}\n\n${commitMessages}`
+        // Split commit messages into lines and join them with \n
+        const commitLines = commitMessages.split('\n').join('\n');
 
-    // Write the updated content back to the file
-    fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
-      if (writeErr) {
-        console.error(`Error writing to file: ${writeErr}`)
-      } else {
-        console.log(`Commit messages have been appended to ${filePath}`)
-      }
-    })
-  })
+        // Append commit messages to the content, each on a new line
+        const updatedContent = `${data}\n\n${commitLines}`;
+
+        // Write the updated content back to the file
+        fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
+            if (writeErr) {
+                console.error(`Error writing to file: ${writeErr}`);
+            } else {
+                console.log(`Commit messages have been appended to ${filePath}`);
+            }
+        });
+    });
 }
+
 
 // Function to find the Markdown file in .changesets directory
 function findMarkdownFileAndAppendCommits(commitMessages) {
