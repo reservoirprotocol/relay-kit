@@ -28,14 +28,14 @@ export async function sendTransactionSafely(
   step: Execute['steps'][0],
   wallet: AdaptedWallet,
   setTxHashes: (
-    tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes']
+    tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes'],
   ) => void,
   setInternalTxHashes: (
-    tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
+    tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes'],
   ) => void,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
-  crossChainIntentChainId?: number
+  crossChainIntentChainId?: number,
 ) {
   const client = getClient()
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
@@ -77,7 +77,7 @@ export async function sendTransactionSafely(
         attemptCount = 0 // reset attempt count
         getClient()?.log(
           ['Transaction replaced', replacement],
-          LogLevel.Verbose
+          LogLevel.Verbose,
         )
         triggerIntent({
           chainId,
@@ -92,14 +92,14 @@ export async function sendTransactionSafely(
     .catch((error) => {
       getClient()?.log(
         ['Error in waitForTransactionReceipt', error],
-        LogLevel.Error
+        LogLevel.Error,
       )
     })
 
   const validate = (res: AxiosResponse) => {
     getClient()?.log(
       ['Execute Steps: Polling for confirmation', res],
-      LogLevel.Verbose
+      LogLevel.Verbose,
     )
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
@@ -112,7 +112,10 @@ export async function sendTransactionSafely(
       const chainTxHashes: NonNullable<
         Execute['steps'][0]['items']
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
-        return { txHash: hash, chainId: crossChainIntentChainId }
+        return {
+          txHash: hash,
+          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId,
+        }
       })
       setTxHashes(chainTxHashes)
       return true
@@ -196,7 +199,7 @@ const triggerIntent = async ({
           v: tx.v < 27n ? tx.v + 27n : tx.v,
           r: tx.r,
           s: tx.s,
-        }
+        },
       )
 
       const triggerData: NonNullable<

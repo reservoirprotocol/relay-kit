@@ -228,12 +228,13 @@ export interface paths {
               fees?: {
                 gas?: string;
                 relayer?: string;
+                relayerGas?: string;
+                relayerService?: string;
               };
+              timeEstimate?: number;
               balances?: {
                 userBalance?: string;
                 requiredToSolve?: string;
-                needsDeposit?: boolean;
-                neededDepositAmount?: string;
               };
             };
           };
@@ -295,6 +296,8 @@ export interface paths {
               details?: string;
               txHashes?: string[];
               time?: number;
+              originChainId?: number;
+              destinationChainId?: number;
             };
           };
         };
@@ -342,7 +345,6 @@ export interface paths {
             request?: Record<string, never>;
             signature?: string;
             tx?: string;
-            chainId?: number;
           };
         };
       };
