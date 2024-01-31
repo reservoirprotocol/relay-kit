@@ -3,8 +3,7 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*",
-    "demo"
+    "packages/*"
   ],
   "scripts": {
     "demo": "bun run --cwd demo dev",
