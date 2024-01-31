@@ -23,12 +23,12 @@ exec('git rev-parse --abbrev-ref HEAD', (error, stdout, stderr) => {
       handleError(logStderr)
       handleError(logError)
 
-      fs.readdir('.changesets', (dirErr, files) => {
+      fs.readdir('.changeset', (dirErr, files) => {
         handleError(dirErr)
 
         const mdFile = files.find((file) => file.endsWith('.md'))
         if (mdFile) {
-          const filePath = path.join('.changesets', mdFile)
+          const filePath = path.join('.changeset', mdFile)
           fs.readFile(filePath, 'utf8', (readErr, data) => {
             handleError(readErr)
 
@@ -36,6 +36,8 @@ exec('git rev-parse --abbrev-ref HEAD', (error, stdout, stderr) => {
               .split(/(?=feat:|fix:|chore:)/g)
               .filter(Boolean)
               .join('\n')
+
+            console.log(commitLines)
             const updatedContent = `${data}\n\n${commitLines}`
 
             fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
