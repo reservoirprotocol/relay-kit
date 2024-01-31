@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "demo": "bun run --cwd demo dev",
-    "package:change": "bun changeset",
+    "package:change": "bun changeset && sleep 2 && bun ./scripts/generate.js",
     "package:version": "bun changeset version",
     "package:release": "bun run deploy && changeset publish",
     "build:sdk": "bun run --cwd packages/sdk build",
