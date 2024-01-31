@@ -6,25 +6,26 @@ const path = require('path')
 
 function appendCommitsToFile(filePath, commitMessages) {
   fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-          console.error(`Error reading file: ${err}`);
-          return;
+    if (err) {
+      console.error(`Error reading file: ${err}`);
+      return;
+    }
+
+    // Use regular expression to split the commitMessages by prefixes 'feat:', 'fix:', or 'chore:'
+    // and filter out any empty strings from the result
+    const commitLines = commitMessages.split(/(?=feat:|fix:|chore:)/g).filter(Boolean).join('\n');
+
+    // Append commit messages to the content, each on a new line
+    const updatedContent = `${data}\n\n${commitLines}`;
+
+    // Write the updated content back to the file
+    fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
+      if (writeErr) {
+        console.error(`Error writing to file: ${writeErr}`);
+      } else {
+        console.log(`Commit messages have been appended to ${filePath}`);
       }
-
-      // Assuming commit messages are separated by a space and should be split into lines
-      const commitLines = commitMessages.trim().split(' ').join('\n');
-
-      // Append commit messages to the content, each on a new line
-      const updatedContent = `${data}\n\n${commitLines}`;
-
-      // Write the updated content back to the file
-      fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
-          if (writeErr) {
-              console.error(`Error writing to file: ${writeErr}`);
-          } else {
-              console.log(`Commit messages have been appended to ${filePath}`);
-          }
-      });
+    });
   });
 }
 
