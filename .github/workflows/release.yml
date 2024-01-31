@@ -20,6 +20,11 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Setup Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
       - name: Install Dependencies
         run: bun install
 
@@ -27,7 +32,6 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: bun package:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
