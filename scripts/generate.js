@@ -1,8 +1,7 @@
 /**
- * This script appends commits to a changeset.
- * It's used to automatically expand upon the changeset without the need for manual work.
- * 
- * `bun package:change` will execute this file along with generating a changeset.
+ * DO NOT RUN THIS FILE MANUALLY - 
+ * Run `bun package:change` to first generate a base changeset file. 
+ * This script will then append your commits to that changeset for a more descriptive update.
  */
 
 const { exec } = require('child_process')
