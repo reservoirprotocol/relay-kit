@@ -1,6 +1,6 @@
 {
-  "name": "relay-testing-deployment",
   "version": "1.0.0",
+  "name": "@relay/relay-testing-deployment",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",
