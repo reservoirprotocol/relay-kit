@@ -11,11 +11,19 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Install Bun
+      - name: Setup Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Setup Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
           echo "$HOME/.bun/bin" >> $GITHUB_PATH
@@ -23,14 +31,13 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
+      - name: Creating .npmrc
+        run: |
+              cat << EOF > "$HOME/.npmrc"
+              //registry.npmjs.org/:_authToken=$NPM_TOKEN
+              EOF
+              
       - name: Create Release Pull Request or Publish to npm
-        id: changesets
         uses: changesets/action@v1
         with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: bun release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          HUSKY: 0 ## Prevents Husky install
-
+          publish: bun package:release
