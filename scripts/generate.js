@@ -1,79 +1,54 @@
+/**
+ * This script appends commits to a changeset.
+ * It's used to automatically expand upon the changeset without the need for manual work.
+ * 
+ * `bun package:change` will execute this file along with generating a changeset.
+ */
+
 const { exec } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 
-
-
-function appendCommitsToFile(filePath, commitMessages) {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(`Error reading file: ${err}`);
-      return;
-    }
-
-    // Use regular expression to split the commitMessages by prefixes 'feat:', 'fix:', or 'chore:'
-    // and filter out any empty strings from the result
-    const commitLines = commitMessages.split(/(?=feat:|fix:|chore:)/g).filter(Boolean).join('\n');
-
-    // Append commit messages to the content, each on a new line
-    const updatedContent = `${data}\n\n${commitLines}`;
-
-    // Write the updated content back to the file
-    fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
-      if (writeErr) {
-        console.error(`Error writing to file: ${writeErr}`);
-      } else {
-        console.log(`Commit messages have been appended to ${filePath}`);
-      }
-    });
-  });
+const handleError = (error) => {
+  if (error) throw error
 }
 
-
-
-
-// Function to find the Markdown file in .changesets directory
-function findMarkdownFileAndAppendCommits(commitMessages) {
-  fs.readdir('.changeset', (err, files) => {
-    if (err) {
-      console.error(`Error reading directory: ${err}`)
-      return
-    }
-
-    const mdFile = files.find((file) => file.endsWith('.md'))
-    if (mdFile) {
-      appendCommitsToFile(path.join('.changeset', mdFile), commitMessages)
-    } else {
-      console.error('No Markdown file found in .changesets directory')
-    }
-  })
-}
-
-// Get the current branch name and fetch commits
 exec('git rev-parse --abbrev-ref HEAD', (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Error: ${error.message}`)
-    return
-  }
-  if (stderr) {
-    console.error(`Stderr: ${stderr}`)
-    return
-  }
+  handleError(error)
+  handleError(stderr)
 
-  const currentBranch = stdout.trim()
   exec(
-    `git log main..${currentBranch} --pretty=format:%s`,
+    `git log main..${stdout.trim()} --pretty=format:%s`,
     (logError, logStdout, logStderr) => {
-      if (logError) {
-        console.error(`Error: ${logError.message}`)
-        return
-      }
-      if (logStderr) {
-        console.error(`Stderr: ${logStderr}`)
-        return
-      }
+      handleError(logStderr)
+      handleError(logError)
 
-      findMarkdownFileAndAppendCommits(logStdout)
+      fs.readdir('.changesets', (dirErr, files) => {
+        handleError(dirErr)
+
+        const mdFile = files.find((file) => file.endsWith('.md'))
+        if (mdFile) {
+          const filePath = path.join('.changesets', mdFile)
+          fs.readFile(filePath, 'utf8', (readErr, data) => {
+            handleError(readErr)
+
+            const commitLines = logStdout
+              .split(/(?=feat:|fix:|chore:)/g)
+              .filter(Boolean)
+              .join('\n')
+            const updatedContent = `${data}\n\n${commitLines}`
+
+            fs.writeFile(filePath, updatedContent, 'utf8', (writeErr) => {
+              handleError(writeErr)
+              console.info(`Commit messages have been appended to ${filePath}`)
+            })
+          })
+        } else {
+          handleError(
+            new Error(`No changeset file found in .changesets directory`)
+          )
+        }
+      })
     }
   )
 })
