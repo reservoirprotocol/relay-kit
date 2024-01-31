@@ -11,6 +11,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -28,11 +31,13 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
+      - name: Creating .npmrc
+        run: |
+              cat << EOF > "$HOME/.npmrc"
+              //registry.npmjs.org/:_authToken=$NPM_TOKEN
+              EOF
+
       - name: Create Release Pull Request or Publish to npm
-        id: changesets
         uses: changesets/action@v1
         with:
           publish: bun package:release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
