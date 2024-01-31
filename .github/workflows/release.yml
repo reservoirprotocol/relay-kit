@@ -36,10 +36,18 @@ jobs:
               cat << EOF > "$HOME/.npmrc"
               //registry.npmjs.org/:_authToken=$NPM_TOKEN
               EOF
-      - name: Check NPM
-        run: npm whoami
+
+      - name: Get Title From Datamuse API
+        id: datamuse
+        run: |
+          response=$(curl -s "https://api.datamuse.com/words?ml=animal")
+          title=$(echo $response | jq -r '.[0].word') 
+          echo "Title is $title"
+          echo "RELEASE_TITLE=$title" >> $GITHUB_ENV
 
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v1
         with:
+          title: 
           publish: bun package:release
+
