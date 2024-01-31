@@ -11,8 +11,8 @@ function appendCommitsToFile(filePath, commitMessages) {
           return;
       }
 
-      // Split commit messages into lines and join them with \n
-      const commitLines = commitMessages.split('\n').join('\n');
+      // Assuming commit messages are separated by a space and should be split into lines
+      const commitLines = commitMessages.trim().split(' ').join('\n');
 
       // Append commit messages to the content, each on a new line
       const updatedContent = `${data}\n\n${commitLines}`;
@@ -27,6 +27,7 @@ function appendCommitsToFile(filePath, commitMessages) {
       });
   });
 }
+
 
 
 
