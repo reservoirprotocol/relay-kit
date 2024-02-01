@@ -3,15 +3,17 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "demo"
   ],
   "scripts": {
     "demo": "bun run --cwd demo dev",
-    "package:change": "bun changeset && sleep 2 && bun ./scripts/generate.js && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
-    "package:release": "bun run deploy && changeset version && changeset publish",
+    "package:change": "bun changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
+    "package:release": "bun run deploy && && bun run package:patch && changeset version && changeset publish",
+    "package:patch": "rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz ",
     "build:sdk": "bun run --cwd packages/sdk build",
     "syncSdkTypes": "bun run --cwd packages/sdk ./scripts/sync-api.mjs",
-    "deploy": "bun build:sdk",
+    "deploy": "bun build:sdk && bun run --cwd packages/sdk deploy",
     "sdk": "bun run --cwd packages/sdk dev",
     "typecheck": "tsc --noEmit"
   },
