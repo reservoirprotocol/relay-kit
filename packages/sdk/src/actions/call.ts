@@ -65,7 +65,7 @@ export async function call(data: Data) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0']
+          tx as Parameters<typeof prepareCallTransaction>['0'],
         )
       }
       return tx
@@ -99,7 +99,7 @@ export async function call(data: Data) {
         adaptedWallet,
         (steps: Execute['steps'], fees: Execute['fees']) => {
           onProgress(steps, fees)
-        }
+        },
       )
       return true
     }
