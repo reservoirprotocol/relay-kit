@@ -13,7 +13,7 @@
   "scripts": {
     "demo": "pnpm run -C demo dev",
     "package:change": "pnpm changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
-    "package:release": "pnpm run deploy && changeset version && pnpm -r publish --tolerate-republish --access public && changeset tag && git push --follow-tags",
+    "package:release": "pnpm run deploy && changeset version && pnpm -r publish --access public && changeset tag && git push --follow-tags",
     "build:sdk": "pnpm run -C packages/sdk build",
     "syncSdkTypes": "pnpm run -C packages/sdk ./scripts/sync-api.mjs",
     "deploy": "pnpm build:sdk && pnpm run -C packages/sdk deploy",
