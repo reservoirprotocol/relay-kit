@@ -1,17 +1,21 @@
 {
   "name": "relay",
   "private": true,
+  "engines": {
+        "node": "^18.x",
+        "pnpm": "8.15.1"
+  },
   "type": "module",
   "workspaces": [
     "packages/*",
     "demo"
   ],
   "scripts": {
-    "demo": "pnpm run --cwd demo dev",
-    "build:sdk": "pnpm run --cwd packages/sdk build",
-    "syncSdkTypes": "pnpm run --cwd packages/sdk ./scripts/sync-api.mjs",
-    "deploy": "pnpm build:sdk && pnpm run --cwd packages/sdk deploy",
-    "sdk": "pnpm run --cwd packages/sdk dev",
+    "demo": "pnpm run -C demo dev",
+    "build:sdk": "pnpm run -C packages/sdk build",
+    "syncSdkTypes": "pnpm run -C packages/sdk ./scripts/sync-api.mjs",
+    "deploy": "pnpm build:sdk && pnpm run -C packages/sdk deploy",
+    "sdk": "pnpm run -C packages/sdk dev",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
