@@ -38,8 +38,16 @@ jobs:
       - name: Get Title From Datamuse API
         id: datamuse
         run: |
-          response=$(curl -s "https://api.datamuse.com/words?ml=animal")
-          title=$(echo $response | jq -r '.[0].word') 
+          response=$(curl -s "https://api.datamuse.com/words?ml=animal&max=1000")
+          length=$(echo $response | jq length)
+          random_index1=$(($RANDOM % length))
+          random_index2=$(($RANDOM % length))
+          while [ $random_index1 -eq $random_index2 ]; do
+            random_index2=$(($RANDOM % length))
+          done
+          word1=$(echo $response | jq -r ".[$random_index1].word")
+          word2=$(echo $response | jq -r ".[$random_index2].word")
+          title="$word1 $word2"
           echo "Title is $title"
           echo "RELEASE_TITLE=$title" >> $GITHUB_ENV
 
