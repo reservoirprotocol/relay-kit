@@ -12,8 +12,8 @@
   ],
   "scripts": {
     "demo": "pnpm run -C demo dev",
-    "package:change": "bun changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
-    "package:release": "bun run deploy && changeset version && changeset publish",
+    "package:change": "pnpm changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
+    "package:release": "pnpm run deploy && changeset version && changeset publish",
     "build:sdk": "pnpm run -C packages/sdk build",
     "syncSdkTypes": "pnpm run -C packages/sdk ./scripts/sync-api.mjs",
     "deploy": "pnpm build:sdk && pnpm run -C packages/sdk deploy",

@@ -23,10 +23,8 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: Setup Bun
-        run: |
-          curl -fsSL https://bun.sh/install | bash
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+      - name: Setup pnpm
+        run: npm install pnpm
 
       - name: Install Dependencies
         run: bun install
@@ -49,5 +47,5 @@ jobs:
         uses: changesets/action@v1
         with:
           title: ${{ env.RELEASE_TITLE }}
-          publish: bun package:release
+          publish: pnpm package:release
 
