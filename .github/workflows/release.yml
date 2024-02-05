@@ -35,19 +35,30 @@ jobs:
               //registry.npmjs.org/:_authToken=$NPM_TOKEN
               EOF
 
-      - name: Get Title From Datamuse API
+      - name: Generate Random Release Title
         id: datamuse
         run: |
-          response=$(curl -s "https://api.datamuse.com/words?ml=animal&max=1000")
-          length=$(echo $response | jq length)
-          random_index1=$(($RANDOM % length))
-          random_index2=$(($RANDOM % length))
+          title_case() {
+            echo "$1" | awk '{
+              for(i=1;i<=NF;i++){
+                $i=toupper(substr($i,1,1)) tolower(substr($i,2))
+              }
+            }1'
+          }
+
+          responseAdj=$(curl -s "https://api.datamuse.com/words?rel_jjb=animal&max=1000")
+          responseAnimal=$(curl -s "https://gist.githubusercontent.com/pedromcunha/d2b7f7b7e295cbafdd03af73bcd168ba/raw/c1d4b618da5051519c5d8ffce73d0ec6b018f356/animals.json")
+          lengthAdj=$(echo $responseAdj | jq length)
+          lengthAnimal=$(echo $responseAnimal | jq length)
+          random_index1=$(($RANDOM % lengthAdj))
+          random_index2=$(($RANDOM % lengthAnimal))
           while [ $random_index1 -eq $random_index2 ]; do
             random_index2=$(($RANDOM % length))
           done
-          word1=$(echo $response | jq -r ".[$random_index1].word")
-          word2=$(echo $response | jq -r ".[$random_index2].word")
+          word1=$(echo $responseAdj | jq -r ".[$random_index1].word")
+          word2=$(echo $responseAnimal | jq -r ".[$random_index2].name")
           title="$word1 $word2"
+          title=$(title_case "$title")
           echo "Title is $title"
           echo "RELEASE_TITLE=$title" >> $GITHUB_ENV
 
