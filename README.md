@@ -10,7 +10,6 @@
 </br>
 </br>
 </br>
-<p align="center"> Made with <span style="color: #e25555;">&hearts;</span> by the team @ <a href="https://reservoir.tools/">Reservoir</a></p>
 
 ## Contributing
 
@@ -38,3 +37,5 @@ When you're ready to contribute, submit a pull request with your changes. Our te
 <p align="center">
   <a href="https://reservoir.tools/">Home</a> • <a href="https://docs.relay.link">Documentation</a> • <a href="https://github.com/reservoir-tools/relay-sdk">GitHub</a>
 </p>
+
+<p align="center"> Made with <span style="color: #e25555;">&hearts;</span> by the team @ <a href="https://reservoir.tools/">Reservoir</a></p>
