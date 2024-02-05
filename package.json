@@ -2,8 +2,8 @@
   "name": "relay",
   "private": true,
   "engines": {
-        "node": "^18.x",
-        "pnpm": "8.15.1"
+    "node": "^18.x",
+    "pnpm": "8.15.1"
   },
   "type": "module",
   "workspaces": [
@@ -21,8 +21,10 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "concurrently": "^8.2.2",
-    "openapi-typescript": "^6.7.3"
+    "openapi-typescript": "^6.7.3",
+    "tslib": "^2.6.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

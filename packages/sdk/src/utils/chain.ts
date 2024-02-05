@@ -1,18 +1,6 @@
 import type { Chain } from 'viem'
 import type { RelayChain, paths } from '../types/index.js'
-import {
-  arbitrum,
-  arbitrumNova,
-  arbitrumSepolia,
-  base,
-  baseGoerli,
-  goerli,
-  mainnet,
-  optimism,
-  sepolia,
-  zora,
-  zoraSepolia,
-} from 'viem/chains'
+import * as viemChains from 'viem/chains'
 
 type RelayAPIChain = Required<
   NonNullable<
@@ -20,26 +8,19 @@ type RelayAPIChain = Required<
   >['0']
 >
 
+const viemChainMap = Object.values(viemChains).reduce(
+  (chains, chain) => {
+    chains[chain.id] = chain
+    return chains
+  },
+  {} as Record<number, Chain>,
+)
+
 export const configureViemChain = (
-  chain: RelayAPIChain
+  chain: RelayAPIChain,
 ): RelayChain & Required<Pick<RelayChain, 'viemChain'>> => {
   let viemChain: Chain
-  const staticChains = [
-    // mainnets
-    mainnet,
-    arbitrumNova,
-    arbitrum,
-    base,
-    optimism,
-    zora,
-    //testnets
-    sepolia,
-    goerli,
-    baseGoerli,
-    zoraSepolia,
-    arbitrumSepolia,
-  ]
-  const staticChain = staticChains.find(({ id }) => id === chain.id)
+  const staticChain = viemChainMap[chain.id]
   if (staticChain) {
     viemChain = staticChain
   } else {
