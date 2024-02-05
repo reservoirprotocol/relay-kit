@@ -8,8 +8,6 @@
 <p align="center">Head over to the <a href="https://docs.relay.link/references/sdk/getting-started">sdk docs</a> to learn more about configuring and using the SDK in your application.</p>
 </br>
 </br>
-</br>
-</br>
 
 ## Contributing
 
