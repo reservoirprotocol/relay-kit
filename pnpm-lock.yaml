@@ -21,6 +21,9 @@ importers:
       openapi-typescript:
         specifier: ^6.7.3
         version: 6.7.4
+      tslib:
+        specifier: ^2.6.2
+        version: 2.6.2
 
   packages/sdk:
     dependencies:
