@@ -6,7 +6,7 @@ import { hexToBigInt, type CustomTransport, type HttpTransport } from 'viem'
 
 export const adaptEthersSigner = (
   signer: Signer,
-  transport?: CustomTransport | HttpTransport
+  transport?: CustomTransport | HttpTransport,
 ): AdaptedWallet => {
   return {
     transport,
@@ -48,7 +48,7 @@ export const adaptEthersSigner = (
         }),
         ...(stepData.maxPriorityFeePerGas && {
           maxPriorityFeePerGas: hexToBigInt(
-            stepData.maxPriorityFeePerGas as any
+            stepData.maxPriorityFeePerGas as any,
           ),
         }),
         ...(stepData.gas && {

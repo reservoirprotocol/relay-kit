@@ -27,6 +27,9 @@ importers:
 
   packages/relay-ethers-wallet-adapter:
     dependencies:
+      '@ethersproject/abstract-signer':
+        specifier: ^5.7.0
+        version: 5.7.0
       '@reservoir0x/relay-sdk':
         specifier: workspace:*
         version: link:../sdk
