@@ -16,7 +16,7 @@
     "package:release": "pnpm run deploy && changeset version && pnpm -r publish --access public && changeset tag && git push --follow-tags",
     "build:sdk": "pnpm run -C packages/sdk build",
     "build:adapter": "pnpm run -C packages/relay-ethers-wallet-adapter build",
-    "syncSdkTypes": "pnpm run -C packages/sdk ./scripts/sync-api.mjs",
+    "syncSdkTypes": "node packages/sdk/scripts/sync-api.mjs",
     "deploy": "pnpm build:sdk && pnpm build:adapter",
     "sdk": "pnpm run -C packages/sdk dev",
     "typecheck": "tsc --noEmit"
