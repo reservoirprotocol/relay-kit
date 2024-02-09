@@ -33,6 +33,52 @@ export interface paths {
       };
     };
   };
+  "/admin/chains": {
+    get: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              chains?: ({
+                  id?: number;
+                  name?: string;
+                  httpRpcUrl?: string;
+                  wsRpcUrl?: string | null;
+                  targetBalance?: string;
+                  capacityPerRequest?: string;
+                  feeBpsPrice?: string | null;
+                  stack?: string | null;
+                  httpRpcUrlPublic?: string | null;
+                  wsRpcUrlPublic?: string | null;
+                  explorerUrl?: string | null;
+                  explorerName?: string | null;
+                  displayName?: string | null;
+                  depositAddress?: string | null;
+                  baseChainId?: number | null;
+                  enabled?: boolean;
+                  rebalancePercentage?: string | null;
+                  bufferPercentage?: string | null;
+                })[];
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/chains/add": {
     post: {
       parameters: {
@@ -58,6 +104,8 @@ export interface paths {
             displayName: string;
             depositAddress?: string;
             baseChainId?: number;
+            rebalancePercentage?: string;
+            bufferPercentage?: string;
           };
         };
       };
@@ -121,6 +169,8 @@ export interface paths {
             explorerName?: string;
             displayName?: string;
             depositAddress?: string;
+            rebalancePercentage?: string;
+            bufferPercentage?: string;
           };
         };
       };
@@ -151,6 +201,41 @@ export interface paths {
         };
         /** @description Default Response */
         500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/status": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId?: number;
+            enabled: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
           content: {
             "application/json": {
               message?: string;
@@ -203,6 +288,7 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
+            source?: string;
           };
         };
       };
@@ -310,6 +396,7 @@ export interface paths {
         content: {
           "application/json": {
             request: Record<string, never>;
+            source?: string;
           };
         };
       };
@@ -441,6 +528,11 @@ export interface paths {
   };
   "/transactions/index": {
     post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
       requestBody: {
         content: {
           "application/json": {
@@ -503,6 +595,33 @@ export interface paths {
           content: {
             "application/json": {
               balance?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/admin/rebalance": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
             };
           };
         };
