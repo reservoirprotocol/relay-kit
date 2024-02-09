@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.13
+
+### Patch Changes
+
+- 3c6c3fc: Add source attribution parameter to call action
+
 ## 0.0.12
 
 ### Patch Changes
