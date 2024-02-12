@@ -40,7 +40,7 @@ importers:
         specifier: 1.3.1-1
         version: 1.3.1-1(react@18.2.0)
       next:
-        specifier: ^14.1.0
+        specifier: latest
         version: 14.1.0(react-dom@18.2.0)(react@18.2.0)
       next-remote-watch:
         specifier: ^1.0.0
