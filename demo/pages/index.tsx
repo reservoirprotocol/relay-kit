@@ -19,6 +19,9 @@ const Index: NextPage = () => {
         <Link href="/sdk/callAction">
           Call
         </Link>
+        <Link href="/sdk/bridgeAction">
+          Bridge
+        </Link>
       </nav>
     </div>
   )
