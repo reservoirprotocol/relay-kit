@@ -60,7 +60,6 @@ export class RelayClient {
 
   constructor(options: RelayClientOptions) {
     this.baseApiUrl = options.baseApiUrl
-    this.source = options.source
     this.logLevel =
       options.logLevel !== undefined ? options.logLevel : LogLevel.None
     this.pollingInterval = options.pollingInterval
@@ -72,6 +71,21 @@ export class RelayClient {
       this.chains = _backupTestnetChains
     } else {
       this.chains = _backupChains
+    }
+
+    if (!options.source) {
+      if (typeof window !== 'undefined') {
+        let host = location.hostname
+        if (host.indexOf('www.') === 0) {
+          host = host.replace('www.', '')
+        }
+        this.source = host
+        console.warn(
+          'RelaySDK automatically generated a source based on the url, we recommend providing a source when initializing the sdk. Refer to our docs for steps on how to do this: https://docs.relay.link/references/sdk/getting-started#configuration'
+        )
+      }
+    } else {
+      this.source = options.source
     }
   }
 
