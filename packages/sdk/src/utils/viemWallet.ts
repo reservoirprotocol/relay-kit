@@ -7,11 +7,14 @@ import { custom, hexToBigInt } from 'viem'
 export function isViemWalletClient(
   wallet: WalletClient | AdaptedWallet
 ): wallet is WalletClient {
-  return (wallet as WalletClient).getChainId !== undefined
+  return (wallet as WalletClient).extend !== undefined && (wallet as WalletClient).getPermissions !== undefined
 }
 
 export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
   return {
+    getChainId: async () => {
+      return wallet.getChainId()
+    },
     transport: custom(wallet.transport),
     address: async () => {
       let address = wallet.account?.address

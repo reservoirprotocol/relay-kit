@@ -4,6 +4,7 @@ import type { SignatureStepItem } from './SignatureStepItem.js'
 import type { TransactionStepItem } from './TransactionStepItem.js'
 
 export type AdaptedWallet = {
+  getChainId: () => Promise<number>
   handleSignMessageStep: (
     item: SignatureStepItem,
     step: Execute['steps'][0]

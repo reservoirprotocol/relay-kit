@@ -10,6 +10,9 @@ export const adaptEthersSigner = (
 ): AdaptedWallet => {
   return {
     transport,
+    getChainId: () => {
+      return signer.getChainId()
+    },
     address: async () => {
       return signer.getAddress()
     },
