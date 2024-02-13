@@ -28,7 +28,7 @@ jobs:
           node-version: 18.x
 
       - name: Setup pnpm
-        run: sudo npm i -g pnpm
+        run: sudo npm i -g pnpm@8.15.1
 
       - name: Install Dependencies
         run: pnpm install
