@@ -56,6 +56,6 @@
         "@reservoir0x/relay-sdk": "workspace:*",
         "@ethersproject/abstract-signer": "^5.7.0",
         "ethers": "^5.6.1",
-        "viem": "~1.19.15"
+        "viem": "^2.7.3"
     }
 }

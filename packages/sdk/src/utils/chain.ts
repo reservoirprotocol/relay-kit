@@ -8,16 +8,13 @@ type RelayAPIChain = Required<
   >['0']
 >
 
-const viemChainMap = Object.values(viemChains).reduce(
-  (chains, chain) => {
-    chains[chain.id] = chain
-    return chains
-  },
-  {} as Record<number, Chain>,
-)
+const viemChainMap = Object.values(viemChains).reduce((chains, chain) => {
+  chains[chain.id] = chain
+  return chains
+}, {} as Record<number, Chain>)
 
 export const configureViemChain = (
-  chain: RelayAPIChain,
+  chain: RelayAPIChain
 ): RelayChain & Required<Pick<RelayChain, 'viemChain'>> => {
   let viemChain: Chain
   const staticChain = viemChainMap[chain.id]
@@ -27,7 +24,6 @@ export const configureViemChain = (
     viemChain = {
       id: chain.id,
       name: chain.displayName,
-      network: chain.name,
       nativeCurrency: {
         name: chain.currency.name ?? 'Ethereum',
         decimals: chain.currency.decimals ?? 18,
@@ -69,7 +65,7 @@ export const configureViemChain = (
 export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
   return {
     id: chain.id,
-    name: chain.network ?? chain.name.replace(' ', '-'),
+    name: chain.name.replace(' ', '-'),
     displayName: chain.name,
     httpRpcUrl:
       chain.rpcUrls.default && chain.rpcUrls.default && chain.rpcUrls.default

@@ -34,7 +34,7 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0",
-    "viem": "~1.19.15"
+    "viem": "^2.7.3"
   },
   "dependencies": {
     "axios": "^1.6.5"
