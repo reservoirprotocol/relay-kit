@@ -1,14 +1,15 @@
 import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect } from 'react'
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit'
-import { WagmiConfig, createConfig, configureChains, Chain } from 'wagmi'
-import { publicProvider } from 'wagmi/providers/public'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { WagmiProvider } from 'wagmi'
 import '../fonts.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
 import { createClient, LogLevel, configureDynamicChains, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowKitProvider/RainbowKitChainContext'
+import { Chain, mainnet } from 'wagmi/chains'
+
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ''
@@ -26,6 +27,8 @@ const relayClient = createClient({
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<ReturnType<typeof createWagmiConfig>['wagmiConfig'] | undefined>();
   const [chains, setChains] = useState<RainbowKitChain[]>([]);
+
+  const queryClient = new QueryClient()
 
   useEffect(() => {
     configureDynamicChains().then((newChains) => {
@@ -45,9 +48,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   }
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 
@@ -61,21 +66,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 function createWagmiConfig(dynamicChains: Chain[]) {
-  const { chains, publicClient } = configureChains(
-    dynamicChains,
-    [alchemyProvider({ apiKey: ALCHEMY_KEY }), publicProvider()]
-  )
-  
-  const { connectors } = getDefaultWallets({
-    appName: 'Relay Demo',
+  const chains = (dynamicChains.length === 0 ? [mainnet] : dynamicChains) as [Chain, ...Chain[]]
+
+  const wagmiConfig = getDefaultConfig({
+    appName: 'Relay SDK Demo',
     projectId: WALLET_CONNECT_PROJECT_ID,
-    chains,
-  })
-  
-  const wagmiConfig = createConfig({
-    autoConnect: true,
-    connectors,
-    publicClient,
+    chains: chains,
   })
 
   return {
