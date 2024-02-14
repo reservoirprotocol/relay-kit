@@ -1,5 +1,17 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 3.0.0
+
+### Minor Changes
+
+- 53f089b: Handle mismatched chain prior to execution
+
+### Patch Changes
+
+- Updated dependencies [0fbab53]
+- Updated dependencies [53f089b]
+  - @reservoir0x/relay-sdk@0.2.0
+
 ## 2.0.0
 
 ### Minor Changes
