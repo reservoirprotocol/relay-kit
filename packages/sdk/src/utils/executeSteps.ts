@@ -48,9 +48,12 @@ export async function executeSteps(
     (2.5 * 60 * 1000) / pollingInterval
 
   const chain = client.chains.find((chain) => chain.id === chainId)
+  const walletChainId = await wallet.getChainId()
 
   if (!chain) {
     throw `Unable to find chain: Chain id ${chainId}`
+  } else if (chain.id !== walletChainId) {
+    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chain.id} `
   }
 
   const viemClient = createPublicClient({
