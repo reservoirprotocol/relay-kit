@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- 53f089b: Handle mismatched chain prior to execution
+
+### Patch Changes
+
+- 0fbab53: Add simplified bridge action for convenience
+
 ## 0.1.0
 
 ### Minor Changes
