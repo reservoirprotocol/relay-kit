@@ -19,7 +19,7 @@ type SimulateContractRequest = WriteContractParameters<any>
 
 type Data = {
   chainId: number
-  txs: [NonNullable<CallBody['txs']>[0] | SimulateContractRequest]
+  txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   wallet: AdaptedWallet | WalletClient
   toChainId: number
   options?: CallBody
