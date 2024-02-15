@@ -39,8 +39,22 @@ jobs:
               //registry.npmjs.org/:_authToken=$NPM_TOKEN
               EOF
 
-      - name: Generate Random Release Title
-        id: datamuse
+      - name: Get Open PRs Created by Bots
+        id: get_bot_prs
+        run: |
+          prs=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&per_page=100" | \
+           jq -r '[.[] | select(.user.type == "Bot")][0] | {url: .html_url, title: .title} | @json')
+          echo "Found PRs: $prs"
+          if [[ $prs == "null" || $prs == "{}" ]]; then
+          echo "BOT_PR_TITLE=NULL" >> $GITHUB_ENV
+          else
+          bot_pr_title=$(echo $prs | jq -r .title)
+          echo "BOT_PR_TITLE=$bot_pr_title" >> $GITHUB_ENV
+          fi
+
+      - name: Generate Animal Title
         run: |
           title_case() {
             echo "$1" | awk '{
@@ -66,9 +80,17 @@ jobs:
           echo "Title is $title"
           echo "RELEASE_TITLE=$title" >> $GITHUB_ENV
 
+      - name: Determine Release Title
+        run: |
+            if [[ "${{ env.BOT_PR_TITLE }}" == "NULL" ]]; then
+            echo "FINAL_RELEASE_TITLE=${{ env.RELEASE_TITLE }}" >> $GITHUB_ENV
+            else
+            echo "FINAL_RELEASE_TITLE=${{ env.BOT_PR_TITLE }}" >> $GITHUB_ENV
+            fi
+
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v1
         with:
-          title: ${{ env.RELEASE_TITLE }}
+          title: ${{ env.FINAL_RELEASE_TITLE }}
           publish: pnpm package:release
 
