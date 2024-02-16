@@ -24,11 +24,11 @@ const relayClient = createClient({
   logLevel: LogLevel.Verbose,
 })
 
+const queryClient = new QueryClient()
+
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<ReturnType<typeof createWagmiConfig>['wagmiConfig'] | undefined>();
   const [chains, setChains] = useState<RainbowKitChain[]>([]);
-
-  const queryClient = new QueryClient()
 
   useEffect(() => {
     configureDynamicChains().then((newChains) => {
