@@ -76,13 +76,13 @@ jobs:
           word1=$(echo $responseAdj | jq -r ".[$random_index1].word")
           word2=$(echo $responseAnimal | jq -r ".[$random_index2].name")
           title="$word1 $word2"
-          title=$(title_case "$title")
+          title="Release the: $(title_case "$title")!"
           echo "Title is $title"
           echo "RELEASE_TITLE=$title" >> $GITHUB_ENV
 
       - name: Determine Release Title
         run: |
-            if [[ "${{ env.BOT_PR_TITLE }}" == "NULL" ]]; then
+            if [[ "${{ env.BOT_PR_TITLE }}" == "null" ]]; then
             echo "FINAL_RELEASE_TITLE=${{ env.RELEASE_TITLE }}" >> $GITHUB_ENV
             else
             echo "FINAL_RELEASE_TITLE=${{ env.BOT_PR_TITLE }}" >> $GITHUB_ENV
