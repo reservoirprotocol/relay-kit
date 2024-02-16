@@ -125,6 +125,23 @@ export function getClient() {
   return _client
 }
 
+/**
+ * Creates a Relay Client
+ *
+ * - Docs: https://docs.relay.link/references/sdk/createClient
+ *
+ * @param options - {@link RelayClientOptions}
+ * @returns A Relay Client. {@link RelayClient}
+ *
+ * @example
+ * import { createClient, LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+ *
+ * const relayClient = createClient({
+ *    baseApiUrl: MAINNET_RELAY_API,
+ *    source: "YOUR-SOURCE",
+ *    logLevel: LogLevel.Verbose,
+ * })
+ */
 export function createClient(options: RelayClientOptions) {
   if (!_client) {
     _client = new RelayClient(options)
