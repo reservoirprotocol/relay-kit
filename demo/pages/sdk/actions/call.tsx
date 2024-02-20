@@ -69,30 +69,32 @@ const CallActionPage: NextPage = () => {
           </div>
         ))}
       </div>
-      <button style={{
-              marginTop: 50,
-              padding: 24,
-              background: 'blue',
-              color: 'white',
-              fontSize: 18,
-              border: '1px solid #ffffff',
-              borderRadius: 8,
-              fontWeight: 800,
-              cursor: 'pointer',
-            }} onClick={() => {
-        if (!wallet) {
-          throw "Please connect to execute transactions"
-        }
-        getClient()?.actions.call({
-          chainId: fromChainId,
-          wallet,
-          txs: txs as any,
-          toChainId,
-          onProgress: (steps: any, fees: any) => {
-            console.log(steps, fees)
+      <button 
+        style={{
+          marginTop: 50,
+          padding: 24,
+          background: 'blue',
+          color: 'white',
+          fontSize: 18,
+          border: '1px solid #ffffff',
+          borderRadius: 8,
+          fontWeight: 800,
+          cursor: 'pointer',
+        }} 
+        onClick={() => {
+          if (!wallet) {
+            throw "Please connect to execute transactions"
           }
-        })
-      }}>
+          getClient()?.actions.call({
+            chainId: fromChainId,
+            wallet,
+            txs: txs as any,
+            toChainId,
+            onProgress: (steps: any, fees: any) => {
+              console.log(steps, fees)
+            }
+          })
+        }}>
         Execute Transactions
       </button>
     </div>

@@ -1,16 +1,10 @@
-import type { Execute, paths, AdaptedWallet } from '../types/index.js'
-import {
-  adaptViemWallet,
-} from '../utils/index.js'
+import type { Execute, AdaptedWallet } from '../types/index.js'
+import { adaptViemWallet } from '../utils/index.js'
 import type { Address, WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import { call } from './call.js'
+import { call, type CallBody } from './call.js'
 
-type CallBody = NonNullable<
-  paths['/execute/call']['post']['requestBody']['content']['application/json']
->
-
-type Data = {
+export type BridgeActionParameters = {
   chainId: number
   value: string
   to?: Address
@@ -31,13 +25,8 @@ type Data = {
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
  * @param data.onProgress Callback to update UI state as execution progresses
  */
-export async function bridge(data: Data) {
-  const {
-    to,
-    wallet,
-    value,
-    ...proxiedData
-  } = data
+export async function bridge(data: BridgeActionParameters) {
+  const { to, wallet, value, ...proxiedData } = data
   const adaptedWallet: AdaptedWallet = isViemWalletClient(wallet)
     ? adaptViemWallet(wallet as WalletClient)
     : wallet
@@ -45,10 +34,12 @@ export async function bridge(data: Data) {
 
   return call({
     wallet: adaptedWallet,
-    txs: [{
-      to:  to ?? caller,
-      value
-    }],
-    ...proxiedData
+    txs: [
+      {
+        to: to ?? caller,
+        value,
+      },
+    ],
+    ...proxiedData,
   })
 }

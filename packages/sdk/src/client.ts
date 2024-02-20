@@ -8,10 +8,11 @@ import {
   sepolia,
   zora,
 } from 'viem/chains'
-import * as actions from './actions/index.js'
 import type { RelayChain } from './types/index.js'
-import * as utils from './utils/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
+import * as actions from './actions/index.js'
+import * as methods from './methods/index.js'
+import * as utils from './utils/index.js'
 
 /**
  * RelayClient Configuration Options
@@ -57,6 +58,7 @@ export class RelayClient {
 
   readonly utils = { ...utils }
   readonly actions = actions
+  readonly methods = methods
 
   constructor(options: RelayClientOptions) {
     this.baseApiUrl = options.baseApiUrl
