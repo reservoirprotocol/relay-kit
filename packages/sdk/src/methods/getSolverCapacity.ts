@@ -2,6 +2,7 @@ import type { paths } from '../types/index.js'
 import { axios } from '../utils/axios.js'
 import { getClient } from '../client.js'
 import { zeroAddress } from 'viem'
+import type { AxiosInstance } from 'axios'
 
 export type GetConfigQueryParams = Required<
   Pick<
@@ -18,7 +19,8 @@ export type GetConfigResponse =
   paths['/config']['get']['responses']['200']['content']['application/json']
 
 export async function getSolverCapacity(
-  data: GetConfigQueryParams
+  data: GetConfigQueryParams,
+  axiosInstance: AxiosInstance = axios
 ): Promise<GetConfigResponse> {
   const client = getClient()
 
@@ -30,7 +32,7 @@ export async function getSolverCapacity(
   data.user = data.user || zeroAddress
   data.currency = data.currency || zeroAddress
 
-  const response = await axios.get<GetConfigResponse>(
+  const response = await axiosInstance.get<GetConfigResponse>(
     `${client.baseApiUrl}/config`,
     { params: data }
   )
