@@ -11,13 +11,13 @@ import type { AxiosRequestConfig } from 'axios'
 import type { WalletClient, WriteContractParameters } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
-type CallBody = NonNullable<
+export type CallBody = NonNullable<
   paths['/execute/call']['post']['requestBody']['content']['application/json']
 >
 
 type SimulateContractRequest = WriteContractParameters<any>
 
-type Data = {
+export type CallActionParamaters = {
   chainId: number
   txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   wallet: AdaptedWallet | WalletClient
@@ -41,7 +41,7 @@ function isSimulateContractRequest(tx: any): tx is SimulateContractRequest {
  * @param
  * @param data.onProgress Callback to update UI state as execution progresses
  */
-export async function call(data: Data) {
+export async function call(data: CallActionParamaters) {
   const {
     toChainId,
     txs,

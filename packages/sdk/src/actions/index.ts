@@ -1,2 +1,2 @@
-export { call } from './call.js'
-export { bridge } from './bridge.js'
+export * from './call.js'
+export * from './bridge.js'
