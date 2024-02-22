@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- b59c35a: Add getSolverCapacity, getCallQuote, getBridgeQuote methods
+
 ## 0.2.0
 
 ### Minor Changes
