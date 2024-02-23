@@ -90,7 +90,7 @@ const CallActionPage: NextPage = () => {
             wallet,
             txs: txs as any,
             toChainId,
-            onProgress: (steps: any, fees: any) => {
+            onProgress: (steps, fees, currentStep, currentStepItem) => {
               console.log(steps, fees)
             }
           })

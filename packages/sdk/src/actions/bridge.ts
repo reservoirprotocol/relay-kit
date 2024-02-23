@@ -2,7 +2,12 @@ import type { Execute, AdaptedWallet } from '../types/index.js'
 import { adaptViemWallet } from '../utils/index.js'
 import type { Address, WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import { call, type CallBody } from './call.js'
+import {
+  call,
+  type CallBody,
+  type ExecuteStep,
+  type ExecuteStepItem,
+} from './call.js'
 
 export type BridgeActionParameters = {
   chainId: number
@@ -12,7 +17,12 @@ export type BridgeActionParameters = {
   toChainId: number
   options?: CallBody
   precheck?: boolean
-  onProgress?: (steps: Execute['steps'], fees?: Execute['fees']) => any
+  onProgress?: (
+    steps: Execute['steps'],
+    fees?: Execute['fees'],
+    currentStep?: ExecuteStep | null,
+    currentStepItem?: ExecuteStepItem
+  ) => any
 }
 
 /**
