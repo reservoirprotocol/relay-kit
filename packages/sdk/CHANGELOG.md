@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- 90e4d58: Add ability to pass in a gasLimit for deposit transactions
+- 8a5fdda: Add currentStep and currentStep item to onProgress callback
+
 ## 0.2.1
 
 ### Patch Changes
