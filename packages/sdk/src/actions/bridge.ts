@@ -4,7 +4,7 @@ import type { Address, WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 import {
   call,
-  type CallBody,
+  type CallBodyOptions,
   type ExecuteStep,
   type ExecuteStepItem,
 } from './call.js'
@@ -15,8 +15,9 @@ export type BridgeActionParameters = {
   to?: Address
   wallet: AdaptedWallet | WalletClient
   toChainId: number
-  options?: CallBody
+  options?: CallBodyOptions
   precheck?: boolean
+  depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],

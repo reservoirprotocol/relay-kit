@@ -34,6 +34,11 @@ export async function executeSteps(
   wallet: AdaptedWallet,
   setState: (steps: Execute['steps'], fees?: Execute['fees']) => any,
   newJson?: Execute,
+  stepOptions?: {
+    [stepId: string]: {
+      gasLimit?: string
+    }
+  },
 ) {
   const client = getClient()
 
@@ -100,6 +105,16 @@ export async function executeSteps(
     }
 
     const step = json.steps[incompleteStepIndex]
+
+    if (stepOptions && stepOptions[step.id]) {
+      const currentStepOptions = stepOptions[step.id]
+      step.items?.forEach((stepItem) => {
+        if (currentStepOptions.gasLimit) {
+          stepItem.data.gas = currentStepOptions.gasLimit
+        }
+      })
+    }
+
     let stepItems = json.steps[incompleteStepIndex].items
 
     if (!stepItems) {
@@ -360,7 +375,7 @@ export async function executeSteps(
     await Promise.all(promises)
 
     // Recursively call executeSteps()
-    await executeSteps(chainId, request, wallet, setState, json)
+    await executeSteps(chainId, request, wallet, setState, json, stepOptions)
   } catch (err: any) {
     let blockNumber = 0n
     try {

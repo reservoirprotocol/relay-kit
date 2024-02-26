@@ -10,6 +10,7 @@ const CallActionPage: NextPage = () => {
   const [tx, setTx] = useState<string>("")
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
+  const [depositGasLimit, setDepositGasLimit] = useState("")
   const { data: wallet } = useWalletClient()
 
   return (
@@ -35,6 +36,10 @@ const CallActionPage: NextPage = () => {
         <input type="number" placeholder='Which chain to deposit on?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
       </div>
       <textarea style={{minHeight: 100, minWidth: 300}} placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}' value={tx} onChange={(e) => setTx(e.target.value)}/>
+      <div>
+        <label>Deposit Gas Limit: </label>
+        <input type="number" value={depositGasLimit} onChange={(e) => setDepositGasLimit(e.target.value)} />
+      </div>
       <button
       style={{
         background: 'blue',
@@ -90,9 +95,10 @@ const CallActionPage: NextPage = () => {
             wallet,
             txs: txs as any,
             toChainId,
+            depositGasLimit,
             onProgress: (steps, fees, currentStep, currentStepItem) => {
               console.log(steps, fees)
-            }
+            },
           })
         }}>
         Execute Transactions

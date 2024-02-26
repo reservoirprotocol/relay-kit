@@ -11,6 +11,7 @@ const BridgeActionPage: NextPage = () => {
   const [value, setValue] = useState<string>("")
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
+  const [depositGasLimit, setDepositGasLimit] = useState("")
   const { data: wallet } = useWalletClient()
 
   return (
@@ -43,6 +44,10 @@ const BridgeActionPage: NextPage = () => {
         <label>To: </label>
         <input type="number" placeholder='Who is the receiver?' value={to} onChange={(e) => setTo(e.target.value)} />
       </div>
+      <div>
+        <label>Deposit Gas Limit: </label>
+        <input type="number" value={depositGasLimit} onChange={(e) => setDepositGasLimit(e.target.value)} />
+      </div>
       <button 
         style={{
           marginTop: 50,
@@ -72,6 +77,7 @@ const BridgeActionPage: NextPage = () => {
             toChainId,
             value,
             to: to ? to as Address : undefined,
+            depositGasLimit,
             onProgress: (steps, fees, currentStep, currentStepItem) => {
               console.log(steps, fees, currentStep, currentStepItem)
             }
