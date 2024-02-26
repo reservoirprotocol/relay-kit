@@ -72,8 +72,8 @@ const BridgeActionPage: NextPage = () => {
             toChainId,
             value,
             to: to ? to as Address : undefined,
-            onProgress: (steps: any, fees: any) => {
-              console.log(steps, fees)
+            onProgress: (steps, fees, currentStep, currentStepItem) => {
+              console.log(steps, fees, currentStep, currentStepItem)
             }
           })
         }}>
