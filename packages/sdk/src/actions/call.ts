@@ -13,7 +13,8 @@ import { isViemWalletClient } from '../utils/viemWallet.js'
 
 export type CallBody = NonNullable<
   paths['/execute/call']['post']['requestBody']['content']['application/json']
->
+  >
+export type CallBodyOptions = Omit<CallBody, 'txs' | 'destinationChainId' | 'originChainId'>
 export type ExecuteStep = NonNullable<Execute['steps']>['0']
 export type ExecuteStepItem = NonNullable<Execute['steps'][0]['items']>[0]
 export type SimulateContractRequest = WriteContractParameters<any>
@@ -23,13 +24,14 @@ export type CallActionParamaters = {
   txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   wallet: AdaptedWallet | WalletClient
   toChainId: number
-  options?: CallBody
+  options?: CallBodyOptions
   precheck?: boolean
+  depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem
+    currentStepItem?: ExecuteStepItem,
   ) => any
 }
 
@@ -56,6 +58,7 @@ export async function call(data: CallActionParamaters) {
     options,
     onProgress = () => {},
     precheck,
+    depositGasLimit,
   } = data
   const client = getClient()
   const adaptedWallet: AdaptedWallet = isViemWalletClient(wallet)
@@ -71,7 +74,7 @@ export async function call(data: CallActionParamaters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0']
+          tx as Parameters<typeof prepareCallTransaction>['0'],
         )
       }
       return tx
@@ -122,7 +125,15 @@ export async function call(data: CallActionParamaters) {
           }
 
           onProgress(steps, fees, currentStep, currentStepItem)
-        }
+        },
+        undefined,
+        depositGasLimit
+          ? {
+              deposit: {
+                gasLimit: depositGasLimit,
+              },
+            }
+          : undefined,
       )
       return true
     }
