@@ -57,9 +57,6 @@ const GetBridgeQuotePage: NextPage = () => {
           cursor: 'pointer',
         }} 
         onClick={async () => {
-          if (!wallet) {
-            throw "Please connect to execute transactions"
-          }
           if (to && !isAddress(to)) {
             throw "To must be an address"
           }
@@ -69,7 +66,7 @@ const GetBridgeQuotePage: NextPage = () => {
 
           const quote = await getClient()?.methods.getBridgeQuote({
             chainId: fromChainId,
-            wallet,
+            wallet, // optional
             toChainId,
             value,
             to: to ? to as Address : undefined,

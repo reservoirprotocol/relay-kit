@@ -1,6 +1,6 @@
 import type { Execute, AdaptedWallet } from '../types/index.js'
 import { adaptViemWallet } from '../utils/index.js'
-import type { Address, WalletClient } from 'viem'
+import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 import {
   call,
@@ -13,10 +13,8 @@ export type BridgeActionParameters = {
   chainId: number
   value: string
   to?: Address
-  wallet: AdaptedWallet | WalletClient
   toChainId: number
   options?: CallBodyOptions
-  precheck?: boolean
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
@@ -24,7 +22,10 @@ export type BridgeActionParameters = {
     currentStep?: ExecuteStep | null,
     currentStepItem?: ExecuteStepItem
   ) => any
-}
+} & (
+  | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
+  | { precheck?: false; wallet: AdaptedWallet | WalletClient }
+)
 
 /**
  * Method to abstract call action parameters
@@ -37,20 +38,33 @@ export type BridgeActionParameters = {
  * @param data.onProgress Callback to update UI state as execution progresses
  */
 export async function bridge(data: BridgeActionParameters) {
-  const { to, wallet, value, ...proxiedData } = data
-  const adaptedWallet: AdaptedWallet = isViemWalletClient(wallet)
-    ? adaptViemWallet(wallet as WalletClient)
-    : wallet
-  const caller = await adaptedWallet.address()
+  const { to, wallet, value, precheck, ...proxiedData } = data
+
+  let adaptedWallet: AdaptedWallet | undefined
+  let caller: string | undefined
+
+  if (wallet) {
+    adaptedWallet = isViemWalletClient(wallet)
+      ? adaptViemWallet(wallet as WalletClient)
+      : wallet
+    caller = await adaptedWallet.address()
+  }
+
+  if (!precheck && !adaptedWallet) {
+    throw new Error(
+      'Wallet is required for executing the bridge action when precheck is not true.'
+    )
+  }
 
   return call({
-    wallet: adaptedWallet,
+    ...proxiedData,
+    wallet: adaptedWallet as AdaptedWallet,
     txs: [
       {
-        to: to ?? caller,
+        to: to ?? caller ?? zeroAddress,
         value,
       },
     ],
-    ...proxiedData,
+    precheck,
   })
 }

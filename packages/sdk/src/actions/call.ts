@@ -8,32 +8,40 @@ import {
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
-import type { WalletClient, WriteContractParameters } from 'viem'
+import {
+  zeroAddress,
+  type WalletClient,
+  type WriteContractParameters,
+} from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
 export type CallBody = NonNullable<
   paths['/execute/call']['post']['requestBody']['content']['application/json']
-  >
-export type CallBodyOptions = Omit<CallBody, 'txs' | 'destinationChainId' | 'originChainId'>
+>
+export type CallBodyOptions = Omit<
+  CallBody,
+  'txs' | 'destinationChainId' | 'originChainId'
+>
 export type ExecuteStep = NonNullable<Execute['steps']>['0']
 export type ExecuteStepItem = NonNullable<Execute['steps'][0]['items']>[0]
 export type SimulateContractRequest = WriteContractParameters<any>
 
-export type CallActionParamaters = {
+export type CallActionParameters = {
   chainId: number
   txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
-  wallet: AdaptedWallet | WalletClient
   toChainId: number
   options?: CallBodyOptions
-  precheck?: boolean
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem,
+    currentStepItem?: ExecuteStepItem
   ) => any
-}
+} & (
+  | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
+  | { precheck?: false; wallet: AdaptedWallet | WalletClient }
+)
 
 function isSimulateContractRequest(tx: any): tx is SimulateContractRequest {
   return (tx as SimulateContractRequest).abi !== undefined
@@ -46,10 +54,10 @@ function isSimulateContractRequest(tx: any): tx is SimulateContractRequest {
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.originChainId The chain to pay the solver on
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
- * @param
+ * @param data.options - {@link CallBodyOptions}
  * @param data.onProgress Callback to update UI state as execution progresses
  */
-export async function call(data: CallActionParamaters) {
+export async function call(data: CallActionParameters) {
   const {
     toChainId,
     txs,
@@ -61,27 +69,39 @@ export async function call(data: CallActionParamaters) {
     depositGasLimit,
   } = data
   const client = getClient()
-  const adaptedWallet: AdaptedWallet = isViemWalletClient(wallet)
-    ? adaptViemWallet(wallet as WalletClient)
-    : wallet
-  const caller = await adaptedWallet.address()
 
   if (!client.baseApiUrl || !client.baseApiUrl.length) {
     throw new ReferenceError('RelayClient missing api url configuration')
+  }
+
+  let adaptedWallet: AdaptedWallet | undefined
+  if (wallet) {
+    adaptedWallet = isViemWalletClient(wallet)
+      ? adaptViemWallet(wallet as WalletClient)
+      : wallet
+  }
+
+  let caller = adaptedWallet ? await adaptedWallet.address() : undefined
+
+  // Ensure wallet is provided when precheck is false or undefined
+  if (!precheck && !adaptedWallet) {
+    throw new Error(
+      'Wallet is required when precheck is false or not provided.'
+    )
   }
 
   try {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
     })
 
     const data: CallBody = {
-      user: caller,
+      user: caller || zeroAddress,
       txs: preparedTransactions,
       originChainId: chainId,
       destinationChainId: toChainId,
@@ -103,6 +123,10 @@ export async function call(data: CallActionParamaters) {
       onProgress(data['steps'], data['fees'])
       return data
     } else {
+      if (!adaptedWallet) {
+        throw new Error('AdaptedWallet is required to execute steps')
+      }
+
       await executeSteps(
         chainId,
         request,
@@ -133,7 +157,7 @@ export async function call(data: CallActionParamaters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }
