@@ -75,13 +75,13 @@ export async function call(data: CallActionParameters) {
   }
 
   let adaptedWallet: AdaptedWallet | undefined
+  let caller: string | undefined
   if (wallet) {
     adaptedWallet = isViemWalletClient(wallet)
       ? adaptViemWallet(wallet as WalletClient)
       : wallet
+    caller = await adaptedWallet.address()
   }
-
-  let caller = adaptedWallet ? await adaptedWallet.address() : undefined
 
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {

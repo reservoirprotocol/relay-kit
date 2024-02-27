@@ -52,7 +52,7 @@ export async function bridge(data: BridgeActionParameters) {
 
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required for executing the bridge action when precheck is not true.'
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
