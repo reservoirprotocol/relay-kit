@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.3
+
+### Patch Changes
+
+- 10c3e03: Make wallet parameter optional for get quote methods
+
 ## 0.2.2
 
 ### Patch Changes
