@@ -84,15 +84,11 @@ const GetCallQuotePage: NextPage = () => {
           cursor: 'pointer',
         }} 
         onClick={async () => {
-          if (!wallet) {
-            throw "Please connect to execute transactions"
-          }
           const quote = await getClient()?.methods.getCallQuote({
             chainId: fromChainId,
-            wallet,
+            wallet,  // optional
             txs: txs as any,
             toChainId,
-            precheck: true
           })
 
           setResponse(quote as Execute)
