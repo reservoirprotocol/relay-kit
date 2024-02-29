@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.4
+
+### Patch Changes
+
+- ade63ae: Sync sdk types with api
+- 2624964: Added readme to sdk
+
 ## 0.2.3
 
 ### Patch Changes
