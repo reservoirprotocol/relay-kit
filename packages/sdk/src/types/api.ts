@@ -64,6 +64,9 @@ export interface paths {
                   enabled?: boolean;
                   rebalancePercentage?: string | null;
                   bufferPercentage?: string | null;
+                  optimismPortal?: string | null;
+                  l1CrossDomainMessenger?: string | null;
+                  l2OutputOracle?: string | null;
                 })[];
             };
           };
@@ -95,6 +98,7 @@ export interface paths {
             wsRpcUrl: string;
             targetBalance: string;
             capacityPerRequest: string;
+            partialCapacityPerRequestAmount: string;
             feeBpsPrice?: string;
             stack?: string;
             httpRpcUrlPublic: string;
@@ -103,7 +107,10 @@ export interface paths {
             explorerName: string;
             displayName: string;
             depositAddress?: string;
-            baseChainId?: number;
+            baseChainId: number;
+            optimismPortal?: string;
+            l1CrossDomainMessenger?: string;
+            l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
           };
@@ -161,6 +168,7 @@ export interface paths {
             wsRpcUrl?: string;
             targetBalance?: string;
             capacityPerRequest?: string;
+            partialCapacityPerRequestAmount?: string;
             feeBpsPrice?: string;
             stack?: string;
             httpRpcUrlPublic?: string;
@@ -169,6 +177,10 @@ export interface paths {
             explorerName?: string;
             displayName?: string;
             depositAddress?: string;
+            baseChainId?: number;
+            optimismPortal?: string;
+            l1CrossDomainMessenger?: string;
+            l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
           };
@@ -217,11 +229,12 @@ export interface paths {
           "x-admin-api-key": string;
         };
       };
-      requestBody: {
+      requestBody?: {
         content: {
           "application/json": {
             chainId?: number;
-            enabled: boolean;
+            enabled?: boolean;
+            partialDisable?: boolean;
           };
         };
       };
@@ -289,6 +302,7 @@ export interface paths {
                 data?: string;
               }[];
             source?: string;
+            allowSplitRouting?: boolean;
           };
         };
       };
@@ -317,7 +331,10 @@ export interface paths {
                 relayerGas?: string;
                 relayerService?: string;
               };
-              timeEstimate?: number;
+              breakdown?: {
+                  value?: string;
+                  timeEstimate?: number;
+                }[];
               balances?: {
                 userBalance?: string;
                 requiredToSolve?: string;
@@ -407,6 +424,7 @@ export interface paths {
             "application/json": {
               requestId?: string;
               shortRequestId?: string;
+              currency?: string;
               price?: string;
               relayerFee?: string;
               depositGasFee?: string;
@@ -431,7 +449,6 @@ export interface paths {
           "application/json": {
             request?: Record<string, never>;
             signature?: string;
-            tx?: string;
           };
         };
       };
@@ -488,6 +505,9 @@ export interface paths {
                       fixed?: string;
                       price?: string;
                     };
+                    externalActions?: {
+                        price?: string;
+                      }[];
                     inTxs?: {
                         fee?: string;
                         data?: {
@@ -606,6 +626,41 @@ export interface paths {
       parameters: {
         header: {
           "x-admin-api-key": string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/admin/tx-confirmation-delay": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            delay?: number;
+            threshold?: number;
+          };
         };
       };
       responses: {
