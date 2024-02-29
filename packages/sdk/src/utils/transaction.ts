@@ -205,6 +205,7 @@ const triggerIntent = async ({
       const triggerData: NonNullable<
         paths['/intents/trigger']['post']['requestBody']
       >['content']['application/json'] = {
+        //@ts-ignore
         tx: serializedTx,
       }
 
