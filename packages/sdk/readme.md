@@ -1,5 +1,5 @@
 <p align="center">
-<img src="relay-black.svg" width="200" height="100" align="center">
+<img src="../../relay-black.svg" width="200" height="100" align="center">
 </p>
   <p align="center">
     Relay is the Fastest and Cheapest Way to Bridge and Transact Across Chains.
