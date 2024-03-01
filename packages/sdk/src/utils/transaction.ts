@@ -1,11 +1,9 @@
-import { serializeTransaction } from 'viem'
 import type { Address, PublicClient } from 'viem'
 import { LogLevel } from './logger.js'
 import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  paths,
 } from '../types/index.js'
 import axios from 'axios'
 import type {
@@ -39,14 +37,6 @@ export async function sendTransactionSafely(
 ) {
   const client = getClient()
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
-  triggerIntent({
-    chainId,
-    viemClient,
-    step,
-    request,
-    headers,
-    txHash,
-  })
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
@@ -79,14 +69,6 @@ export async function sendTransactionSafely(
           ['Transaction replaced', replacement],
           LogLevel.Verbose,
         )
-        triggerIntent({
-          chainId,
-          viemClient,
-          step,
-          request,
-          headers,
-          txHash,
-        })
       },
     })
     .catch((error) => {
@@ -159,68 +141,4 @@ export async function sendTransactionSafely(
   }
 
   return true
-}
-
-const triggerIntent = async ({
-  chainId,
-  viemClient,
-  request,
-  headers,
-  step,
-  txHash,
-}: {
-  chainId: number
-  viemClient: PublicClient
-  step: Execute['steps'][0]
-  request: AxiosRequestConfig
-  headers?: AxiosRequestHeaders
-  txHash: Address | undefined
-}) => {
-  if (step.id === 'sale' && txHash) {
-    getClient()?.log(['Triggering intent on solver'], LogLevel.Verbose)
-    try {
-      const tx = await viemClient.getTransaction({
-        hash: txHash,
-      })
-      const serializedTx = serializeTransaction(
-        {
-          type: tx.type,
-          chainId: tx.chainId ?? chainId,
-          gas: tx.gas,
-          nonce: tx.nonce,
-          to: tx.to || undefined,
-          value: tx.value,
-          maxFeePerGas: tx.maxFeePerGas,
-          maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-          accessList: tx.accessList,
-          data: tx.input,
-        },
-        {
-          v: tx.v < 27n ? tx.v + 27n : tx.v,
-          r: tx.r,
-          s: tx.s,
-        },
-      )
-
-      const triggerData: NonNullable<
-        paths['/intents/trigger']['post']['requestBody']
-      >['content']['application/json'] = {
-        //@ts-ignore
-        tx: serializedTx,
-      }
-
-      axios
-        .request({
-          url: `${request.baseURL}/intents/trigger`,
-          method: 'POST',
-          headers: headers,
-          data: triggerData,
-        })
-        .then(() => {
-          getClient()?.log(['Intent triggered on solver'], LogLevel.Verbose)
-        })
-    } catch (e) {
-      getClient()?.log(['Failed to trigger intent on solver', e], LogLevel.Warn)
-    }
-  }
 }
