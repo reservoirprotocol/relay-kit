@@ -30,7 +30,7 @@ export type CallActionParameters = {
   chainId: number
   txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   toChainId: number
-  options?: CallBodyOptions
+  options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],

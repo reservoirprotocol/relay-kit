@@ -14,7 +14,7 @@ export type BridgeActionParameters = {
   value: string
   to?: Address
   toChainId: number
-  options?: CallBodyOptions
+  options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
