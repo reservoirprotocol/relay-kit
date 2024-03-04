@@ -35,8 +35,9 @@ export type CallActionParameters = {
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],
+    breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem
+    currentStepItem?: ExecuteStepItem,
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -86,7 +87,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
@@ -94,7 +95,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0']
+          tx as Parameters<typeof prepareCallTransaction>['0'],
         )
       }
       return tx
@@ -120,7 +121,7 @@ export async function call(data: CallActionParameters) {
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
       const data = res.data as Execute
-      onProgress(data['steps'], data['fees'])
+      onProgress(data['steps'], data['fees'], data['breakdown'])
       return data
     } else {
       if (!adaptedWallet) {
@@ -131,7 +132,11 @@ export async function call(data: CallActionParameters) {
         chainId,
         request,
         adaptedWallet,
-        (steps: Execute['steps'], fees: Execute['fees']) => {
+        (
+          steps: Execute['steps'],
+          fees: Execute['fees'],
+          breakdown: Execute['breakdown'],
+        ) => {
           let currentStep: NonNullable<Execute['steps']>['0'] | null = null
           let currentStepItem:
             | NonNullable<Execute['steps'][0]['items']>[0]
@@ -148,7 +153,7 @@ export async function call(data: CallActionParameters) {
             if (currentStep && currentStepItem) break // Exit the outer loop if the current step and item have been found
           }
 
-          onProgress(steps, fees, currentStep, currentStepItem)
+          onProgress(steps, fees, breakdown, currentStep, currentStepItem)
         },
         undefined,
         depositGasLimit
@@ -157,7 +162,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined
+          : undefined,
       )
       return true
     }

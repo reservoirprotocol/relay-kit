@@ -32,7 +32,11 @@ export async function executeSteps(
   chainId: number,
   request: AxiosRequestConfig,
   wallet: AdaptedWallet,
-  setState: (steps: Execute['steps'], fees?: Execute['fees']) => any,
+  setState: (
+    steps: Execute['steps'],
+    fees?: Execute['fees'],
+    breakdown?: Execute['breakdown'],
+  ) => any,
   newJson?: Execute,
   stepOptions?: {
     [stepId: string]: {
@@ -80,7 +84,7 @@ export async function executeSteps(
     if (json.error || !json.steps) throw json
 
     // Update state on first call or recursion
-    setState([...json?.steps], { ...json?.fees })
+    setState([...json?.steps], { ...json?.fees }, json?.breakdown)
 
     let incompleteStepIndex = -1
     let incompleteStepItemIndex = -1
@@ -161,7 +165,7 @@ export async function executeSteps(
       }
       stepItems = items
       stepItem = items[incompleteStepItemIndex]
-      setState([...json?.steps], { ...json?.fees })
+      setState([...json?.steps], { ...json?.fees }, json?.breakdown)
     }
     client.log(
       [`Execute Steps: Begin processing step items for: ${step.action}`],
@@ -212,13 +216,21 @@ export async function executeSteps(
                       )
                       stepItem.txHashes = txHashes
                       if (json) {
-                        setState([...json.steps], { ...json?.fees })
+                        setState(
+                          [...json.steps],
+                          { ...json?.fees },
+                          json?.breakdown,
+                        )
                       }
                     },
                     (internalTxHashes) => {
                       stepItem.internalTxHashes = internalTxHashes
                       if (json) {
-                        setState([...json.steps], { ...json?.fees })
+                        setState(
+                          [...json.steps],
+                          { ...json?.fees },
+                          json?.breakdown,
+                        )
                       }
                     },
                     request,
@@ -339,7 +351,11 @@ export async function executeSteps(
                         },
                       ]
                     }
-                    setState([...json?.steps], { ...json?.fees })
+                    setState(
+                      [...json?.steps],
+                      { ...json?.fees },
+                      json?.breakdown,
+                    )
                   } catch (err) {
                     throw err
                   }
@@ -353,7 +369,7 @@ export async function executeSteps(
             }
 
             stepItem.status = 'complete'
-            setState([...json?.steps], { ...json?.fees })
+            setState([...json?.steps], { ...json?.fees }, json?.breakdown)
             resolve(stepItem)
           } catch (e) {
             const error = e as Error
@@ -365,7 +381,7 @@ export async function executeSteps(
               json.steps[incompleteStepIndex].error = errorMessage
               stepItem.error = errorMessage
               stepItem.errorData = (e as any)?.response?.data || e
-              setState([...json?.steps], { ...json?.fees })
+              setState([...json?.steps], { ...json?.fees }, json?.breakdown)
             }
             reject(error)
           }
@@ -393,7 +409,7 @@ export async function executeSteps(
 
     if (json) {
       json.error = err && err?.response?.data ? err.response.data : err
-      setState([...json?.steps], { ...json?.fees })
+      setState([...json?.steps], { ...json?.fees }, json?.breakdown)
     } else {
       json = {
         error: err && err?.response?.data ? err.response.data : err,
