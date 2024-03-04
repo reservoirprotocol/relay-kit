@@ -19,8 +19,9 @@ export type BridgeActionParameters = {
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],
+    breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem
+    currentStepItem?: ExecuteStepItem,
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -52,7 +53,7 @@ export async function bridge(data: BridgeActionParameters) {
 
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
