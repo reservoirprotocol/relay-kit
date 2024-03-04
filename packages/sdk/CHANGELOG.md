@@ -1,5 +1,13 @@
 # @reservoir0x/relay-sdk
 
+## 0.2.5
+
+### Patch Changes
+
+- 180d1c7: Omit duplicate types from call and bridge action options
+- 4910cbf: Return route breakdown in onProgress callback
+- f454345: Remove tx intent trigger api call
+
 ## 0.2.4
 
 ### Patch Changes
