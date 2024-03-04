@@ -14,13 +14,13 @@ export type BridgeActionParameters = {
   value: string
   to?: Address
   toChainId: number
-  options?: CallBodyOptions
+  options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
     fees?: Execute['fees'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem
+    currentStepItem?: ExecuteStepItem,
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -52,7 +52,7 @@ export async function bridge(data: BridgeActionParameters) {
 
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
