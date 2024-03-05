@@ -14,6 +14,7 @@ export type BridgeActionParameters = {
   value: string
   to?: Address
   toChainId: number
+  estimatedQuote?: Execute
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (
@@ -36,6 +37,7 @@ export type BridgeActionParameters = {
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.originChainId The chain to pay the solver on
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
+ * @param data.estimatedQuote Set this property to check if
  * @param data.onProgress Callback to update UI state as execution progresses
  */
 export async function bridge(data: BridgeActionParameters) {

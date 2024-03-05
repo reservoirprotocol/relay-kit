@@ -30,6 +30,7 @@ export type CallActionParameters = {
   chainId: number
   txs: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   toChainId: number
+  estimatedQuote?: Execute
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (
@@ -55,6 +56,7 @@ function isSimulateContractRequest(tx: any): tx is SimulateContractRequest {
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.originChainId The chain to pay the solver on
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
+ * @param data.estimatedQuote Set this property to check if
  * @param data.options - {@link CallBodyOptions}
  * @param data.onProgress Callback to update UI state as execution progresses
  */
@@ -65,6 +67,7 @@ export async function call(data: CallActionParameters) {
     wallet,
     chainId,
     options,
+    estimatedQuote,
     onProgress = () => {},
     precheck,
     depositGasLimit,
@@ -163,6 +166,7 @@ export async function call(data: CallActionParameters) {
               },
             }
           : undefined,
+        estimatedQuote,
       )
       return true
     }

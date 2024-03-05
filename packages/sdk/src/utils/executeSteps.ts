@@ -7,7 +7,7 @@ import type {
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
 import type { Address } from 'viem'
 import { createPublicClient, fallback, http } from 'viem'
-import { axios } from '../utils/index.js'
+import { axios, compareQuotes } from '../utils/index.js'
 import type { AxiosRequestConfig } from 'axios'
 import { getClient } from '../client.js'
 import { LogLevel } from '../utils/logger.js'
@@ -43,6 +43,7 @@ export async function executeSteps(
       gasLimit?: string
     }
   },
+  estimatedQuote?: Execute,
 ) {
   const client = getClient()
 
@@ -78,6 +79,10 @@ export async function executeSteps(
       json = res.data as Execute
       if (res.status !== 200) throw json
       client.log(['Execute Steps: Steps retrieved', json], LogLevel.Verbose)
+    }
+
+    if (estimatedQuote) {
+      compareQuotes(estimatedQuote, json)
     }
 
     // Handle errors
