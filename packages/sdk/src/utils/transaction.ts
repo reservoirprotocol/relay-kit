@@ -37,6 +37,9 @@ export async function sendTransactionSafely(
 ) {
   const client = getClient()
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
+  if ((txHash as any) === 'null') {
+    throw 'User rejected the request'
+  }
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
