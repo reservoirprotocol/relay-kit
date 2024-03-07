@@ -1,14 +1,15 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { Execute, getClient } from '@reservoir0x/relay-sdk'
+import { BridgeActionParameters, Execute, getClient } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
 
 const GetBridgeQuotePage: NextPage = () => {
   const [to, setTo] = useState<string | undefined>()
-  const [value, setValue] = useState<string>("")
+  const [amount, setAmount] = useState<string>("")
+  const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const { data: wallet } = useWalletClient()
@@ -37,12 +38,35 @@ const GetBridgeQuotePage: NextPage = () => {
         <input type="number" placeholder='Which chain to deposit on?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
       </div>
       <div>
-        <label>Value: </label>
-        <input type="number" placeholder='How much to bridge?' value={value} onChange={(e) => setValue(e.target.value)} />
+        <label>Amount: </label>
+        <input type="number" placeholder='How much to bridge?' value={amount} onChange={(e) => setAmount(e.target.value)} />
+      </div>
+      <div>
+        <label>Currency: </label>
+        <div>
+          <input 
+            type="radio" 
+            value="eth" 
+            name="currency" 
+            checked={currency === "eth"} 
+            onChange={(e) => setCurrency(e.target.value as 'eth')} 
+          />
+          <label>ETH</label>
+        </div>
+        <div>
+          <input 
+            type="radio" 
+            value="usdc" 
+            name="currency" 
+            checked={currency === "usdc"} 
+            onChange={(e) => setCurrency(e.target.value as 'usdc')} 
+          />
+          <label>USDC</label>
+        </div>
       </div>
       <div>
         <label>To: </label>
-        <input type="number" placeholder='Who is the receiver?' value={to} onChange={(e) => setTo(e.target.value)} />
+        <input placeholder='Who is the receiver?' value={to} onChange={(e) => setTo(e.target.value)} />
       </div>
       <button 
         style={{
@@ -60,7 +84,7 @@ const GetBridgeQuotePage: NextPage = () => {
           if (to && !isAddress(to)) {
             throw "To must be an address"
           }
-          if (!value) {
+          if (!amount) {
             throw "Must include a value for bridging"
           }
 
@@ -68,7 +92,8 @@ const GetBridgeQuotePage: NextPage = () => {
             chainId: fromChainId,
             wallet, // optional
             toChainId,
-            value,
+            amount,
+            currency,
             to: to ? to as Address : undefined,
           })
           setResponse(quote as Execute)

@@ -1,4 +1,10 @@
-import type { Execute, paths, AdaptedWallet } from '../types/index.js'
+import type {
+  Execute,
+  paths,
+  AdaptedWallet,
+  ExecuteStep,
+  ExecuteStepItem,
+} from '../types/index.js'
 import { getClient } from '../client.js'
 import {
   executeSteps,
@@ -22,8 +28,7 @@ export type CallBodyOptions = Omit<
   CallBody,
   'txs' | 'destinationChainId' | 'originChainId'
 >
-export type ExecuteStep = NonNullable<Execute['steps']>['0']
-export type ExecuteStepItem = NonNullable<Execute['steps'][0]['items']>[0]
+
 export type SimulateContractRequest = WriteContractParameters<any>
 
 export type CallActionParameters = {
@@ -37,7 +42,7 @@ export type CallActionParameters = {
     fees?: Execute['fees'],
     breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem,
+    currentStepItem?: ExecuteStepItem
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -87,7 +92,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -95,7 +100,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
@@ -135,7 +140,7 @@ export async function call(data: CallActionParameters) {
         (
           steps: Execute['steps'],
           fees: Execute['fees'],
-          breakdown: Execute['breakdown'],
+          breakdown: Execute['breakdown']
         ) => {
           let currentStep: NonNullable<Execute['steps']>['0'] | null = null
           let currentStepItem:
@@ -162,7 +167,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }
