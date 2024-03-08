@@ -1,20 +1,42 @@
-import type { Execute, AdaptedWallet } from '../types/index.js'
-import { adaptViemWallet } from '../utils/index.js'
+import type {
+  Execute,
+  AdaptedWallet,
+  ExecuteStep,
+  ExecuteStepItem,
+  paths,
+} from '../types/index.js'
+import {
+  APIError,
+  adaptViemWallet,
+  executeSteps,
+  getCurrentStepData,
+} from '../utils/index.js'
 import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import {
-  call,
-  type CallBodyOptions,
-  type ExecuteStep,
-  type ExecuteStepItem,
-} from './call.js'
+import { getClient } from '../client.js'
+import type { AxiosRequestConfig } from 'axios'
+import axios from 'axios'
+
+export type BridgeBody = NonNullable<
+  paths['/execute/bridge']['post']['requestBody']['content']['application/json']
+>
+export type BridgeBodyOptions = Omit<
+  BridgeBody,
+  | 'user'
+  | 'destinationChainId'
+  | 'originChainId'
+  | 'amount'
+  | 'currency'
+  | 'recipient'
+>
 
 export type BridgeActionParameters = {
   chainId: number
-  value: string
-  to?: Address
   toChainId: number
-  options?: Omit<CallBodyOptions, 'user' | 'source'>
+  amount: string
+  currency: BridgeBody['currency']
+  recipient?: Address
+  options?: BridgeBodyOptions
   depositGasLimit?: string
   onProgress?: (
     steps: Execute['steps'],
@@ -22,6 +44,7 @@ export type BridgeActionParameters = {
     breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
     currentStepItem?: ExecuteStepItem,
+    txHashes?: { txHash: Address; chainId: number }[]
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -29,21 +52,38 @@ export type BridgeActionParameters = {
 )
 
 /**
- * Method to abstract call action parameters
- * @param data.chainId destination chain id
- * @param data.value Value to bridge, wei value represented as a string
- * @param data.to Address of the receiver of funds on the provided chain id
+ * @param data.chainId The from chain id
+ * @param data.toChainId The chain to pay the solver on
+ * @param data.amount The amount to bridge
+ * @param data.currency The currency to bridge
+ * @param data.recipient The address that will receive the bridge
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
- * @param data.originChainId The chain to pay the solver on
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
+ * @param data.options - {@link BridgeBodyOptions}
  * @param data.onProgress Callback to update UI state as execution progresses
  */
+
 export async function bridge(data: BridgeActionParameters) {
-  const { to, wallet, value, precheck, ...proxiedData } = data
+  const {
+    chainId,
+    toChainId,
+    wallet,
+    amount,
+    currency = 'eth',
+    recipient,
+    onProgress = () => {},
+    precheck,
+    depositGasLimit,
+    options,
+  } = data
+  const client = getClient()
+
+  if (!client.baseApiUrl || !client.baseApiUrl.length) {
+    throw new ReferenceError('RelayClient missing api url configuration')
+  }
 
   let adaptedWallet: AdaptedWallet | undefined
   let caller: string | undefined
-
   if (wallet) {
     adaptedWallet = isViemWalletClient(wallet)
       ? adaptViemWallet(wallet as WalletClient)
@@ -51,21 +91,77 @@ export async function bridge(data: BridgeActionParameters) {
     caller = await adaptedWallet.address()
   }
 
+  // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
-  return call({
-    ...proxiedData,
-    wallet: adaptedWallet as AdaptedWallet,
-    txs: [
-      {
-        to: to ?? caller ?? zeroAddress,
-        value,
-      },
-    ],
-    precheck,
-  })
+  try {
+    const data: BridgeBody = {
+      user: caller || zeroAddress,
+      recipient: recipient,
+      originChainId: chainId,
+      destinationChainId: toChainId,
+      currency,
+      amount,
+      source: client.source || undefined,
+      ...options,
+    }
+
+    const request: AxiosRequestConfig = {
+      url: `${client.baseApiUrl}/execute/bridge`,
+      method: 'post',
+      data,
+    }
+
+    if (precheck) {
+      const res = await axios.request(request)
+      if (res.status !== 200)
+        throw new APIError(res?.data?.message, res.status, res.data)
+      const data = res.data as Execute
+      onProgress(data['steps'], data['fees'], data['breakdown'])
+      return data
+    } else {
+      if (!adaptedWallet) {
+        throw new Error('AdaptedWallet is required to execute steps')
+      }
+
+      await executeSteps(
+        chainId,
+        request,
+        adaptedWallet,
+        (
+          steps: Execute['steps'],
+          fees: Execute['fees'],
+          breakdown: Execute['breakdown']
+        ) => {
+          const { currentStep, currentStepItem, txHashes } =
+            getCurrentStepData(steps)
+
+          onProgress(
+            steps,
+            fees,
+            breakdown,
+            currentStep,
+            currentStepItem,
+            txHashes
+          )
+        },
+        undefined,
+        depositGasLimit
+          ? {
+              deposit: {
+                gasLimit: depositGasLimit,
+              },
+            }
+          : undefined
+      )
+      return true
+    }
+  } catch (err: any) {
+    console.error(err)
+    throw err
+  }
 }

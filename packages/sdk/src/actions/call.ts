@@ -1,10 +1,17 @@
-import type { Execute, paths, AdaptedWallet } from '../types/index.js'
+import type {
+  Execute,
+  paths,
+  AdaptedWallet,
+  ExecuteStep,
+  ExecuteStepItem,
+} from '../types/index.js'
 import { getClient } from '../client.js'
 import {
   executeSteps,
   APIError,
   prepareCallTransaction,
   adaptViemWallet,
+  getCurrentStepData,
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
@@ -12,6 +19,7 @@ import {
   zeroAddress,
   type WalletClient,
   type WriteContractParameters,
+  type Address,
 } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
@@ -22,8 +30,7 @@ export type CallBodyOptions = Omit<
   CallBody,
   'txs' | 'destinationChainId' | 'originChainId'
 >
-export type ExecuteStep = NonNullable<Execute['steps']>['0']
-export type ExecuteStepItem = NonNullable<Execute['steps'][0]['items']>[0]
+
 export type SimulateContractRequest = WriteContractParameters<any>
 
 export type CallActionParameters = {
@@ -38,6 +45,7 @@ export type CallActionParameters = {
     breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
     currentStepItem?: ExecuteStepItem,
+    txHashes?: { txHash: Address; chainId: number }[]
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -87,7 +95,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -95,7 +103,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
@@ -135,25 +143,19 @@ export async function call(data: CallActionParameters) {
         (
           steps: Execute['steps'],
           fees: Execute['fees'],
-          breakdown: Execute['breakdown'],
+          breakdown: Execute['breakdown']
         ) => {
-          let currentStep: NonNullable<Execute['steps']>['0'] | null = null
-          let currentStepItem:
-            | NonNullable<Execute['steps'][0]['items']>[0]
-            | undefined
+          const { currentStep, currentStepItem, txHashes } =
+            getCurrentStepData(steps)
 
-          for (const step of steps) {
-            for (const item of step.items || []) {
-              if (item.status === 'incomplete') {
-                currentStep = step
-                currentStepItem = item
-                break // Exit the inner loop once the first incomplete item is found
-              }
-            }
-            if (currentStep && currentStepItem) break // Exit the outer loop if the current step and item have been found
-          }
-
-          onProgress(steps, fees, breakdown, currentStep, currentStepItem)
+          onProgress(
+            steps,
+            fees,
+            breakdown,
+            currentStep,
+            currentStepItem,
+            txHashes
+          )
         },
         undefined,
         depositGasLimit
@@ -162,7 +164,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }

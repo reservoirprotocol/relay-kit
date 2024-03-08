@@ -49,3 +49,6 @@ export type Execute = {
     }[]
   }[]
 }
+
+export type ExecuteStep = NonNullable<Execute['steps']>['0']
+export type ExecuteStepItem = NonNullable<Execute['steps'][0]['items']>[0]

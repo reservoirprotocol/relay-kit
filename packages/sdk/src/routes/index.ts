@@ -4,6 +4,7 @@ export const routes = [
   "/chains/update",
   "/chains/status",
   "/config",
+  "/execute/bridge",
   "/execute/call",
   "/lives",
   "/intents/status",

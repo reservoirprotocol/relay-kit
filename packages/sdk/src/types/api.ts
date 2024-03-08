@@ -22,10 +22,17 @@ export interface paths {
                   explorerName?: string;
                   depositEnabled?: boolean;
                   currency?: {
+                    id?: string;
                     symbol?: string;
                     name?: string;
                     decimals?: number;
                   };
+                  erc20Currencies?: {
+                      id?: string;
+                      symbol?: string;
+                      name?: string;
+                      decimals?: number;
+                    }[];
                 }[];
             };
           };
@@ -288,6 +295,86 @@ export interface paths {
       };
     };
   };
+  "/execute/bridge": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            user: string;
+            recipient?: string;
+            originChainId: number;
+            destinationChainId: number;
+            /** @enum {string} */
+            currency: "eth" | "usdc";
+            amount: string;
+            source?: string;
+            allowSplitRouting?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              steps?: {
+                  id?: string;
+                  action?: string;
+                  description?: string;
+                  kind?: string;
+                  items?: {
+                      status?: string;
+                      data?: unknown;
+                      check?: {
+                        endpoint?: string;
+                        method?: string;
+                      };
+                    }[];
+                }[];
+              fees?: {
+                gas?: string;
+                relayer?: string;
+                relayerGas?: string;
+                relayerService?: string;
+              };
+              breakdown?: {
+                  value?: string;
+                  timeEstimate?: number;
+                }[];
+              balances?: {
+                userBalance?: string;
+                requiredToSolve?: string;
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/execute/call": {
     post: {
       requestBody: {
@@ -302,7 +389,6 @@ export interface paths {
                 data?: string;
               }[];
             source?: string;
-            allowSplitRouting?: boolean;
           };
         };
       };
@@ -521,6 +607,7 @@ export interface paths {
                         chainId?: number;
                         timestamp?: number;
                       }[];
+                    currency?: string;
                     price?: string;
                     outTxs?: {
                         fee?: string;

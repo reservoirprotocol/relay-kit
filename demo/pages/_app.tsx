@@ -6,7 +6,7 @@ import { WagmiProvider } from 'wagmi'
 import '../fonts.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
-import { createClient, LogLevel, configureDynamicChains, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { createClient, LogLevel, configureDynamicChains, MAINNET_RELAY_API, TESTNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowKitProvider/RainbowKitChainContext'
 import { Chain, mainnet } from 'wagmi/chains'
 
