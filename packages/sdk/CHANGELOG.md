@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- e41c632: Update bridge action to use new bridge api + usdc support
+
+### Patch Changes
+
+- a572a48: Handle rainbow wallet bug where txHash of "null" is returned when tx rejected
+
 ## 0.2.5
 
 ### Patch Changes
