@@ -106,8 +106,8 @@ const BridgeActionPage: NextPage = () => {
             currency,
             recipient: recipient ? recipient as Address : undefined,
             depositGasLimit,
-            onProgress: (steps, fees, currentStep, currentStepItem) => {
-              console.log(steps, fees, currentStep, currentStepItem)
+            onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
+              console.log(steps, fees, currentStep, currentStepItem, txHashes)
             }
           })
         }}>

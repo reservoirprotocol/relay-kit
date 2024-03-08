@@ -5,7 +5,12 @@ import type {
   ExecuteStepItem,
   paths,
 } from '../types/index.js'
-import { APIError, adaptViemWallet, executeSteps } from '../utils/index.js'
+import {
+  APIError,
+  adaptViemWallet,
+  executeSteps,
+  getCurrentStepData,
+} from '../utils/index.js'
 import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 import { getClient } from '../client.js'
@@ -38,7 +43,8 @@ export type BridgeActionParameters = {
     fees?: Execute['fees'],
     breakdown?: Execute['breakdown'],
     currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem
+    currentStepItem?: ExecuteStepItem,
+    txHashes?: { txHash: Address; chainId: number }[]
   ) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -131,23 +137,17 @@ export async function bridge(data: BridgeActionParameters) {
           fees: Execute['fees'],
           breakdown: Execute['breakdown']
         ) => {
-          let currentStep: NonNullable<Execute['steps']>['0'] | null = null
-          let currentStepItem:
-            | NonNullable<Execute['steps'][0]['items']>[0]
-            | undefined
+          const { currentStep, currentStepItem, txHashes } =
+            getCurrentStepData(steps)
 
-          for (const step of steps) {
-            for (const item of step.items || []) {
-              if (item.status === 'incomplete') {
-                currentStep = step
-                currentStepItem = item
-                break // Exit the inner loop once the first incomplete item is found
-              }
-            }
-            if (currentStep && currentStepItem) break // Exit the outer loop if the current step and item have been found
-          }
-
-          onProgress(steps, fees, breakdown, currentStep, currentStepItem)
+          onProgress(
+            steps,
+            fees,
+            breakdown,
+            currentStep,
+            currentStepItem,
+            txHashes
+          )
         },
         undefined,
         depositGasLimit
