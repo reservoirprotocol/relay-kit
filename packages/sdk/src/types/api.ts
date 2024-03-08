@@ -301,6 +301,7 @@ export interface paths {
         content: {
           "application/json": {
             user: string;
+            recipient?: string;
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
@@ -606,6 +607,7 @@ export interface paths {
                         chainId?: number;
                         timestamp?: number;
                       }[];
+                    currency?: string;
                     price?: string;
                     outTxs?: {
                         fee?: string;

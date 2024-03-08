@@ -7,7 +7,7 @@ import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
 
 const GetBridgeQuotePage: NextPage = () => {
-  const [to, setTo] = useState<string | undefined>()
+  const [recipient, setRecipient] = useState<string | undefined>()
   const [amount, setAmount] = useState<string>("")
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [toChainId, setToChainId] = useState<number>(zora.id)
@@ -66,7 +66,7 @@ const GetBridgeQuotePage: NextPage = () => {
       </div>
       <div>
         <label>To: </label>
-        <input placeholder='Who is the receiver?' value={to} onChange={(e) => setTo(e.target.value)} />
+        <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
       </div>
       <button 
         style={{
@@ -81,8 +81,8 @@ const GetBridgeQuotePage: NextPage = () => {
           cursor: 'pointer',
         }} 
         onClick={async () => {
-          if (to && !isAddress(to)) {
-            throw "To must be an address"
+          if (recipient && !isAddress(recipient)) {
+            throw "Recipient must be an address"
           }
           if (!amount) {
             throw "Must include a value for bridging"
@@ -94,7 +94,7 @@ const GetBridgeQuotePage: NextPage = () => {
             toChainId,
             amount,
             currency,
-            to: to ? to as Address : undefined,
+            recipient: recipient ? recipient as Address : undefined,
           })
           setResponse(quote as Execute)
         }}>

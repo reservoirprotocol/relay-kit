@@ -7,7 +7,7 @@ import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
 
 const BridgeActionPage: NextPage = () => {
-  const [to, setTo] = useState<string | undefined>()
+  const [recipient, setRecipient] = useState<string | undefined>()
   const [amount, setAmount] = useState<string>("")
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [toChainId, setToChainId] = useState<number>(zora.id)
@@ -68,8 +68,8 @@ const BridgeActionPage: NextPage = () => {
       </div>
 
       <div>
-        <label>To: </label>
-        <input placeholder='Who is the receiver?' value={to} onChange={(e) => setTo(e.target.value)} />
+        <label>Recipient: </label>
+        <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
       </div>
       <div>
         <label>Deposit Gas Limit: </label>
@@ -91,8 +91,8 @@ const BridgeActionPage: NextPage = () => {
           if (!wallet) {
             throw "Please connect to execute transactions"
           }
-          if (to && !isAddress(to)) {
-            throw "To must be an address"
+          if (recipient && !isAddress(recipient)) {
+            throw "Recipient must be an address"
           }
           if (!amount) {
             throw "Must include an amount for bridging"
@@ -104,7 +104,7 @@ const BridgeActionPage: NextPage = () => {
             toChainId,
             amount,
             currency,
-            to: to ? to as Address : undefined,
+            recipient: recipient ? recipient as Address : undefined,
             depositGasLimit,
             onProgress: (steps, fees, currentStep, currentStepItem) => {
               console.log(steps, fees, currentStep, currentStepItem)

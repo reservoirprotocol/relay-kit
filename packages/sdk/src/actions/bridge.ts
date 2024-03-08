@@ -17,7 +17,12 @@ export type BridgeBody = NonNullable<
 >
 export type BridgeBodyOptions = Omit<
   BridgeBody,
-  'user' | 'destinationChainId' | 'originChainId' | 'amount' | 'currency'
+  | 'user'
+  | 'destinationChainId'
+  | 'originChainId'
+  | 'amount'
+  | 'currency'
+  | 'recipient'
 >
 
 export type BridgeActionParameters = {
@@ -25,7 +30,7 @@ export type BridgeActionParameters = {
   toChainId: number
   amount: string
   currency: BridgeBody['currency']
-  to?: Address
+  recipient?: Address
   options?: BridgeBodyOptions
   depositGasLimit?: string
   onProgress?: (
@@ -45,7 +50,7 @@ export type BridgeActionParameters = {
  * @param data.toChainId The chain to pay the solver on
  * @param data.amount The amount to bridge
  * @param data.currency The currency to bridge
- * @param data.to The address that will receive the bridge
+ * @param data.recipient The address that will receive the bridge
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
  * @param data.options - {@link BridgeBodyOptions}
@@ -59,7 +64,7 @@ export async function bridge(data: BridgeActionParameters) {
     wallet,
     amount,
     currency = 'eth',
-    to,
+    recipient,
     onProgress = () => {},
     precheck,
     depositGasLimit,
@@ -89,7 +94,8 @@ export async function bridge(data: BridgeActionParameters) {
 
   try {
     const data: BridgeBody = {
-      user: to || caller || zeroAddress,
+      user: caller || zeroAddress,
+      recipient: recipient,
       originChainId: chainId,
       destinationChainId: toChainId,
       currency,
