@@ -19,7 +19,7 @@ type AppWrapperProps = {
 }
 
 const relayClient = createClient({
-  baseApiUrl: TESTNET_RELAY_API,
+  baseApiUrl: MAINNET_RELAY_API,
   source: "relay-demo",
   logLevel: LogLevel.Verbose,
 })
