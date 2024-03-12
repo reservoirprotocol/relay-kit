@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- f9dff0c: Sync api types and add erc20Currencies to RelayChain
+
 ## 0.3.0
 
 ### Minor Changes
