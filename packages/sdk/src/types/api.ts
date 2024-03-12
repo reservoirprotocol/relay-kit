@@ -7,6 +7,11 @@
 export interface paths {
   "/chains": {
     get: {
+      parameters: {
+        query?: {
+          includeChains?: string | null;
+        };
+      };
       responses: {
         /** @description Default Response */
         200: {
@@ -31,6 +36,7 @@ export interface paths {
                       id?: string;
                       symbol?: string;
                       name?: string;
+                      address?: string;
                       decimals?: number;
                     }[];
                 }[];
@@ -74,6 +80,7 @@ export interface paths {
                   optimismPortal?: string | null;
                   l1CrossDomainMessenger?: string | null;
                   l2OutputOracle?: string | null;
+                  private?: boolean | null;
                 })[];
             };
           };
@@ -120,6 +127,7 @@ export interface paths {
             l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
+            private?: boolean;
           };
         };
       };
@@ -190,6 +198,7 @@ export interface paths {
             l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
+            private?: boolean;
           };
         };
       };
@@ -307,6 +316,7 @@ export interface paths {
             /** @enum {string} */
             currency: "eth" | "usdc";
             amount: string;
+            usePermit?: boolean;
             source?: string;
             allowSplitRouting?: boolean;
           };
@@ -455,6 +465,40 @@ export interface paths {
       };
     };
   };
+  "/execute/permits": {
+    post: {
+      parameters: {
+        query: {
+          signature: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            requestId: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/lives": {
     get: {
       responses: {
@@ -528,37 +572,6 @@ export interface paths {
       };
     };
   };
-  "/intents/trigger": {
-    post: {
-      requestBody?: {
-        content: {
-          "application/json": {
-            request?: Record<string, never>;
-            signature?: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-              requestId?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-      };
-    };
-  };
   "/requests": {
     get: {
       parameters: {
@@ -569,6 +582,8 @@ export interface paths {
           hash?: string;
           originChainId?: string;
           destinationChainId?: string;
+          privateChainsToInclude?: string;
+          id?: string;
         };
       };
       responses: {
