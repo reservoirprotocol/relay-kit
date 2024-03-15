@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.2
+
+### Patch Changes
+
+- a76f067: Add isValidatingSignature to step item
+
 ## 0.3.1
 
 ### Patch Changes
