@@ -46,6 +46,7 @@ export type Execute = {
         orderId: string
         orderIndex: string
       }[]
+      isValidatingSignature?: boolean
     }[]
   }[]
 }

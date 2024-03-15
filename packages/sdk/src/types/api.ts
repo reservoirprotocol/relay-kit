@@ -38,6 +38,7 @@ export interface paths {
                       name?: string;
                       address?: string;
                       decimals?: number;
+                      supportsPermit?: boolean;
                     }[];
                 }[];
             };
@@ -292,6 +293,7 @@ export interface paths {
               enabled?: boolean;
               user?: {
                 balance?: string;
+                maxBridgeAmount?: string;
               };
               solver?: {
                 address?: string;
@@ -595,6 +597,7 @@ export interface paths {
                   id?: string;
                   status?: string;
                   user?: string;
+                  recipient?: string;
                   data?: {
                     fees?: {
                       gas?: string;

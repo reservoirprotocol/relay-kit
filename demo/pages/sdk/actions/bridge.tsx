@@ -10,6 +10,7 @@ const BridgeActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
   const [amount, setAmount] = useState<string>("")
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
+  const [usePermit, setUsePermit] = useState(false)
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState("")
@@ -68,6 +69,30 @@ const BridgeActionPage: NextPage = () => {
       </div>
 
       <div>
+        <label>Use Permit: </label>
+        <div>
+          <input 
+            type="radio" 
+            value="usePermit-true" 
+            name="usePermit" 
+            checked={usePermit === true} 
+            onChange={(e) => setUsePermit(true)} 
+          />
+          <label>True</label>
+        </div>
+        <div>
+          <input 
+            type="radio" 
+            value="usePermit-false" 
+            name="usePermit" 
+            checked={usePermit === false} 
+            onChange={(e) => setUsePermit(false)} 
+          />
+          <label>False</label>
+        </div>
+      </div>
+
+      <div>
         <label>Recipient: </label>
         <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
       </div>
@@ -106,6 +131,9 @@ const BridgeActionPage: NextPage = () => {
             currency,
             recipient: recipient ? recipient as Address : undefined,
             depositGasLimit,
+            options: {
+              usePermit: usePermit
+            },
             onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
               console.log(steps, fees, currentStep, currentStepItem, txHashes)
             }
