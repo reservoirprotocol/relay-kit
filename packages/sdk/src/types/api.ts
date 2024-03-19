@@ -529,6 +529,7 @@ export interface paths {
             "application/json": {
               status?: string;
               details?: string;
+              inTxHashes?: string[];
               txHashes?: string[];
               time?: number;
               originChainId?: number;

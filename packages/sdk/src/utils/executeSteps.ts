@@ -330,7 +330,23 @@ export async function executeSteps(
                                 }
                               }
                             )
+
+                            if (res?.data?.inTxHashes) {
+                              const chainInTxHashes: NonNullable<
+                                Execute['steps'][0]['items']
+                              >[0]['txHashes'] = res.data?.inTxHashes?.map(
+                                (hash: Address) => {
+                                  return {
+                                    txHash: hash,
+                                    chainId:
+                                      res.data.destinationChainId ?? chain?.id,
+                                  }
+                                }
+                              )
+                              stepItem.internalTxHashes = chainInTxHashes
+                            }
                             stepItem.txHashes = chainTxHashes
+
                             return true
                           } else if (res?.data?.status === 'failure') {
                             throw Error(
