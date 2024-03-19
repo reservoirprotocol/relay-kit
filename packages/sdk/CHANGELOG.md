@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.3
+
+### Patch Changes
+
+- 0f291dc: Handle inTxHashes for signature step items
+
 ## 0.3.2
 
 ### Patch Changes
