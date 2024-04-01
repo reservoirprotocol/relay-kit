@@ -1,5 +1,12 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies [8bd3d17]
+  - @reservoir0x/relay-sdk@0.3.4
+
 ## 4.0.3
 
 ### Patch Changes

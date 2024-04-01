@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.4
+
+### Patch Changes
+
+- 8bd3d17: Sync api types
+
 ## 0.3.3
 
 ### Patch Changes
