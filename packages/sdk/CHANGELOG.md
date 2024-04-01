@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.5
+
+### Patch Changes
+
+- 952b5a6: Add currency id to RelayChain type
+
 ## 0.3.4
 
 ### Patch Changes
