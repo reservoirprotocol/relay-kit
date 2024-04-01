@@ -17,6 +17,7 @@ export type RelayChain = {
     light?: string
   }
   currency?: {
+    id?: string
     symbol?: string
     name?: string
     decimals?: number
