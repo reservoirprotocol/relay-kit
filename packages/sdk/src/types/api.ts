@@ -78,9 +78,6 @@ export interface paths {
                   enabled?: boolean;
                   rebalancePercentage?: string | null;
                   bufferPercentage?: string | null;
-                  optimismPortal?: string | null;
-                  l1CrossDomainMessenger?: string | null;
-                  l2OutputOracle?: string | null;
                   private?: boolean | null;
                 })[];
             };
@@ -123,9 +120,6 @@ export interface paths {
             displayName: string;
             depositAddress?: string;
             baseChainId: number;
-            optimismPortal?: string;
-            l1CrossDomainMessenger?: string;
-            l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
             private?: boolean;
@@ -194,9 +188,6 @@ export interface paths {
             displayName?: string;
             depositAddress?: string;
             baseChainId?: number;
-            optimismPortal?: string;
-            l1CrossDomainMessenger?: string;
-            l2OutputOracle?: string;
             rebalancePercentage?: string;
             bufferPercentage?: string;
             private?: boolean;
@@ -316,7 +307,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "eth" | "usdc";
+            currency: "degen" | "eth" | "usdc";
             amount: string;
             usePermit?: boolean;
             source?: string;
