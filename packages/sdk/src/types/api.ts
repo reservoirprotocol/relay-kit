@@ -311,7 +311,7 @@ export interface paths {
             amount: string;
             usePermit?: boolean;
             source?: string;
-            allowSplitRouting?: boolean;
+            useExternalLiquidity?: boolean;
           };
         };
       };
@@ -601,9 +601,6 @@ export interface paths {
                       fixed?: string;
                       price?: string;
                     };
-                    externalActions?: {
-                        price?: string;
-                      }[];
                     inTxs?: {
                         fee?: string;
                         data?: {
@@ -619,6 +616,7 @@ export interface paths {
                       }[];
                     currency?: string;
                     price?: string;
+                    usesExternalLiquidity?: boolean;
                     outTxs?: {
                         fee?: string;
                         data?: {
@@ -774,6 +772,22 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/prices/rates": {
+    get: {
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              ETH?: number;
+              DEGEN?: number;
+              USDC?: number;
             };
           };
         };
