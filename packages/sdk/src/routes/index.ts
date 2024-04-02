@@ -13,5 +13,6 @@ export const routes = [
   "/requests",
   "/transactions/index",
   "/transactions/status",
-  "/users/balance"
+  "/users/balance",
+  "/prices/rates"
 ];
