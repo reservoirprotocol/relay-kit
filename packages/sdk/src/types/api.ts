@@ -291,6 +291,7 @@ export interface paths {
                 balance?: string;
                 capacityPerRequest?: string;
               };
+              supportsExternalLiquidity?: boolean;
             };
           };
         };
