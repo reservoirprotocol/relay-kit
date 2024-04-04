@@ -115,8 +115,7 @@ export async function sendTransactionSafely(
     !transactionCancelled
   ) {
     let res
-
-    if (item?.check?.endpoint) {
+    if (item?.check?.endpoint && !request.data.useExternalLiquidity) {
       res = await axios.request({
         url: `${request.baseURL}${item?.check?.endpoint}`,
         method: item?.check?.method,

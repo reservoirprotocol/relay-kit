@@ -11,6 +11,7 @@ const BridgeActionPage: NextPage = () => {
   const [amount, setAmount] = useState<string>("")
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [usePermit, setUsePermit] = useState(false)
+  const [canonical, setCanonical] = useState(false)
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState("")
@@ -70,26 +71,24 @@ const BridgeActionPage: NextPage = () => {
 
       <div>
         <label>Use Permit: </label>
-        <div>
-          <input 
-            type="radio" 
-            value="usePermit-true" 
-            name="usePermit" 
-            checked={usePermit === true} 
-            onChange={(e) => setUsePermit(true)} 
-          />
-          <label>True</label>
-        </div>
-        <div>
-          <input 
-            type="radio" 
-            value="usePermit-false" 
-            name="usePermit" 
-            checked={usePermit === false} 
-            onChange={(e) => setUsePermit(false)} 
-          />
-          <label>False</label>
-        </div>
+        <input
+          type="checkbox"
+          checked={usePermit}
+          onChange={(e) => {
+            setUsePermit(e.target.checked)
+          }}
+        />
+      </div>
+
+      <div>
+        <label>Canonical: </label>
+        <input
+          type="checkbox"
+          checked={canonical}
+          onChange={(e) => {
+            setCanonical(e.target.checked)
+          }}
+        />
       </div>
 
       <div>
@@ -132,7 +131,8 @@ const BridgeActionPage: NextPage = () => {
             recipient: recipient ? recipient as Address : undefined,
             depositGasLimit,
             options: {
-              usePermit: usePermit
+              usePermit: usePermit,
+              useExternalLiquidity: canonical
             },
             onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
               console.log(steps, fees, currentStep, currentStepItem, txHashes)
