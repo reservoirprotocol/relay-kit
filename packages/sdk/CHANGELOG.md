@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.8
+
+### Patch Changes
+
+- 19019b4: Skip check object if bridge is canonical
+
 ## 0.3.7
 
 ### Patch Changes
