@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.9
+
+### Patch Changes
+
+- 4239703: Remove requestId from Execute type
+
 ## 0.3.8
 
 ### Patch Changes
