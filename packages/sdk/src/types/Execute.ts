@@ -12,7 +12,6 @@ export type CheckApi = NonNullable<
 >[0]['check']
 
 export type Execute = {
-  requestId?: string
   errors?: { message?: string; orderId?: string }[]
   fees?: CallFees
   breakdown?: CallBreakdown
