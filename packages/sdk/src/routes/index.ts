@@ -14,5 +14,6 @@ export const routes = [
   "/transactions/index",
   "/transactions/status",
   "/users/balance",
+  "/conduit/install",
   "/prices/rates"
 ];

@@ -17,6 +17,7 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              /** @description An array of supported chains */
               chains?: {
                   id?: number;
                   name?: string;
@@ -25,6 +26,7 @@ export interface paths {
                   wsRpcUrl?: string;
                   explorerUrl?: string;
                   explorerName?: string;
+                  /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
                   currency?: {
                     id?: string;
@@ -32,12 +34,14 @@ export interface paths {
                     name?: string;
                     decimals?: number;
                   };
+                  /** @description An array of erc20 currencies that the chain supports */
                   erc20Currencies?: {
                       id?: string;
                       symbol?: string;
                       name?: string;
                       address?: string;
                       decimals?: number;
+                      /** @description If the erc20 currency supports permit via signature (EIP-2612) */
                       supportsPermit?: boolean;
                     }[];
                 }[];
@@ -123,6 +127,7 @@ export interface paths {
             rebalancePercentage?: string;
             bufferPercentage?: string;
             private?: boolean;
+            active?: boolean;
           };
         };
       };
@@ -269,10 +274,12 @@ export interface paths {
   "/config": {
     get: {
       parameters: {
-        query?: {
-          originChainId?: string;
-          destinationChainId?: string;
+        query: {
+          originChainId: string;
+          destinationChainId: string;
+          /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
+          /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency address. Defaults to native currency */
           currency?: string;
         };
       };
@@ -283,14 +290,19 @@ export interface paths {
             "application/json": {
               enabled?: boolean;
               user?: {
+                /** @description Balance on the origin chain in the native or supplied currency */
                 balance?: string;
+                /** @description Maximum amount that the user can bridge after fees in the native or supplied currency */
                 maxBridgeAmount?: string;
               };
               solver?: {
                 address?: string;
+                /** @description Balance of the solver on the destination chain. Denoted in wei */
                 balance?: string;
+                /** @description How much of the given currency is available to be bridged per bridge request. Denoted in wei */
                 capacityPerRequest?: string;
               };
+              /** @description This denotes if the chain combination supports canonical plus bridging */
               supportsExternalLiquidity?: boolean;
             };
           };
@@ -303,16 +315,27 @@ export interface paths {
       requestBody: {
         content: {
           "application/json": {
+            /** @description Address that is depositing funds on the origin chain and submitting transactions or signatures */
             user: string;
+            /** @description Address that is receiving the funds on the destination chain, if not specified then this will default to the user address */
             recipient?: string;
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc";
+            currency: "degen" | "eth" | "usdc" | "xai";
+            /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
-            usePermit?: boolean;
             source?: string;
+            /** @description Address to send the refund to in the case of failure, if not specified then the receipient address or user address is used */
+            refundTo?: string;
+            /** @description Enable this to use the exact input rather than exact output */
+            useExactInput?: boolean;
+            /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
+            /** @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces. */
+            useForwarder?: boolean;
+            /** @description Enable this to use permit (eip3009), only works on supported currency such as usdc */
+            usePermit?: boolean;
           };
         };
       };
@@ -321,32 +344,105 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              /**
+               * @description An array of steps detailing what needs to be done to bridge, steps includes multiple items of the same kind (signature, transaction, etc)
+               * @example [
+               *   {
+               *     "id": "deposit",
+               *     "action": "Confirm transaction in your wallet",
+               *     "description": "Deposit funds for executing the calls",
+               *     "kind": "transaction",
+               *     "items": [
+               *       {
+               *         "status": "incomplete",
+               *         "data": {
+               *           "from": "0x03508bB71268BBA25ECaCC8F620e01866650532c",
+               *           "to": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "data": "0x58109c",
+               *           "value": "995010715204139091",
+               *           "maxFeePerGas": "18044119466",
+               *           "maxPriorityFeePerGas": "2060264926",
+               *           "chainId": 1,
+               *           "gas": 21064
+               *         },
+               *         "check": {
+               *           "endpoint": "/intents/status?requestId=0x341b28c6467bfbffb72ad78ec5ddf1f77b8f9c79be134223e3248a7d4fcd43b6",
+               *           "method": "GET"
+               *         }
+               *       }
+               *     ]
+               *   }
+               * ]
+               */
               steps?: {
+                  /** @description Unique identifier tied to the step */
                   id?: string;
+                  /** @description A call to action for the step */
                   action?: string;
+                  /** @description A short description of the step and what it entails */
                   description?: string;
+                  /** @description The kind of step, can either be a transaction or a signature. Transaction steps require submitting a transaction while signature steps require submitting a signature */
                   kind?: string;
+                  /** @description While uncommon it is possible for steps to contain multiple items of the same kind (transaction/signature) grouped together that can be executed simultaneously. */
                   items?: {
+                      /** @description Can either be complete or incomplete, this can be locally controlled once the step item is completed (depending on the kind) and the check object (if returned) has been verified. Once all step items are complete, the bridge is complete */
                       status?: string;
                       data?: unknown;
+                      /** @description Details an endpoint and a method you should poll to get confirmation, the endpoint should return a boolean success flag which can be used to determine if the step item is complete */
                       check?: {
+                        /** @description The endpoint to confirm that the step item was successfully completed */
                         endpoint?: string;
+                        /** @description The REST method to access the endpoint */
                         method?: string;
                       };
                     }[];
                 }[];
+              /**
+               * @example {
+               *   "gas": "384398515652800",
+               *   "gasCurrency": "eth",
+               *   "relayer": "-4989478842712964",
+               *   "relayerGas": "521157287036",
+               *   "relayerService": "-4990000000000000",
+               *   "relayerCurrency": "eth"
+               * }
+               */
               fees?: {
+                /** @description Origin chain gas fee in wei */
                 gas?: string;
+                /**
+                 * @description Origin chain gas currency
+                 * @enum {string}
+                 */
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai";
+                /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
+                /** @description Destination chain gas fee in wei */
                 relayerGas?: string;
+                /** @description Fee paid to the relay solver in wei, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution) */
                 relayerService?: string;
+                /**
+                 * @description The currency for all relayer fees (gas and service)
+                 * @enum {string}
+                 */
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
               };
               breakdown?: {
+                  /** @description Amount that will be bridged in the estimated time */
                   value?: string;
+                  /** @description Estimated bridge time in seconds */
                   timeEstimate?: number;
                 }[];
+              /**
+               * @example {
+               *   "userBalance": "54764083517303347",
+               *   "requiredToSolve": "995010521157287036"
+               * }
+               */
               balances?: {
+                /** @description The user's balance in the given currency on the origin chain */
                 userBalance?: string;
+                /** @description The minimum balance the user needs to have to bridge */
                 requiredToSolve?: string;
               };
             };
@@ -384,6 +480,7 @@ export interface paths {
       requestBody: {
         content: {
           "application/json": {
+            /** @description Address that is depositing funds on the origin chain and submitting transactions or signatures */
             user: string;
             originChainId: number;
             destinationChainId: number;
@@ -392,7 +489,11 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
+            /** @description Address to send the refund to in the case of failure, if not specified then the receipient address or user address is used */
+            refundTo?: string;
             source?: string;
+            /** @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces. */
+            useForwarder?: boolean;
           };
         };
       };
@@ -401,32 +502,111 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              /**
+               * @description An array of steps detailing what needs to be done to bridge, steps includes multiple items of the same kind (signature, transaction, etc)
+               * @example [
+               *   {
+               *     "id": "deposit",
+               *     "action": "Confirm transaction in your wallet",
+               *     "description": "Deposit funds for executing the calls",
+               *     "kind": "transaction",
+               *     "items": [
+               *       {
+               *         "status": "incomplete",
+               *         "data": {
+               *           "from": "0x03508bB71268BBA25ECaCC8F620e01866650532c",
+               *           "to": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "data": "0x58109c",
+               *           "value": "995010715204139091",
+               *           "maxFeePerGas": "18044119466",
+               *           "maxPriorityFeePerGas": "2060264926",
+               *           "chainId": 1,
+               *           "gas": 21064
+               *         },
+               *         "check": {
+               *           "endpoint": "/intents/status?requestId=0x341b28c6467bfbffb72ad78ec5ddf1f77b8f9c79be134223e3248a7d4fcd43b6",
+               *           "method": "GET"
+               *         }
+               *       }
+               *     ]
+               *   }
+               * ]
+               */
               steps?: {
+                  /** @description Unique identifier tied to the step */
                   id?: string;
+                  /** @description A call to action for the step */
                   action?: string;
+                  /** @description A short description of the step and what it entails */
                   description?: string;
+                  /** @description The kind of step, can either be a transaction or a signature. Transaction steps require submitting a transaction while signature steps require submitting a signature */
                   kind?: string;
+                  /** @description While uncommon it is possible for steps to contain multiple items of the same kind (transaction/signature) grouped together that can be executed simultaneously. */
                   items?: {
+                      /** @description Can either be complete or incomplete, this can be locally controlled once the step item is completed (depending on the kind) and the check object (if returned) has been verified. Once all step items are complete, the bridge is complete */
                       status?: string;
                       data?: unknown;
+                      /** @description Details an endpoint and a method you should poll to get confirmation, the endpoint should return a boolean success flag which can be used to determine if the step item is complete */
                       check?: {
+                        /** @description The endpoint to confirm that the step item was successfully completed */
                         endpoint?: string;
+                        /** @description The REST method to access the endpoint */
                         method?: string;
                       };
                     }[];
                 }[];
+              /**
+               * @example {
+               *   "gas": "384398515652800",
+               *   "gasCurrency": "eth",
+               *   "relayer": "-4989478842712964",
+               *   "relayerGas": "521157287036",
+               *   "relayerService": "-4990000000000000",
+               *   "relayerCurrency": "eth"
+               * }
+               */
               fees?: {
+                /** @description Origin chain gas fee in wei */
                 gas?: string;
+                /**
+                 * @description Origin chain gas currency
+                 * @enum {string}
+                 */
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai";
+                /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
+                /** @description Destination chain gas fee in wei */
                 relayerGas?: string;
+                /** @description Fee paid to the relay solver in wei, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution) */
                 relayerService?: string;
+                /**
+                 * @description The currency for all relayer fees (gas and service)
+                 * @enum {string}
+                 */
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
               };
+              /**
+               * @example {
+               *   "value": "1000000000000000000",
+               *   "timeEstimate": 10
+               * }
+               */
               breakdown?: {
+                  /** @description Amount that will be executed in the estimated time */
                   value?: string;
+                  /** @description Estimated execution time in seconds */
                   timeEstimate?: number;
                 }[];
+              /**
+               * @example {
+               *   "userBalance": "54764083517303347",
+               *   "requiredToSolve": "995010521157287036"
+               * }
+               */
               balances?: {
+                /** @description The user's balance in the given currency on the origin chain */
                 userBalance?: string;
+                /** @description The minimum balance the user needs to have to bridge */
                 requiredToSolve?: string;
               };
             };
@@ -511,6 +691,7 @@ export interface paths {
     get: {
       parameters: {
         query?: {
+          /** @description A unique id representing the execution in the Relay system. You can obtain this id from the requests api or the check object within the step items. */
           requestId?: string;
         };
       };
@@ -519,10 +700,17 @@ export interface paths {
         200: {
           content: {
             "application/json": {
-              status?: string;
+              /**
+               * @description Note that fallback is returned in the case of a refund
+               * @enum {string}
+               */
+              status?: "failure" | "fallback" | "pending" | "received" | "success";
               details?: string;
+              /** @description Incoming transaction hashes */
               inTxHashes?: string[];
+              /** @description Outgoing transaction hashes */
               txHashes?: string[];
+              /** @description The last timestamp the data was updated */
               time?: number;
               originChainId?: number;
               destinationChainId?: number;
@@ -586,15 +774,77 @@ export interface paths {
         200: {
           content: {
             "application/json": {
-              requests?: {
+              /**
+               * @example {
+               *   "id": "0xddd6c1a0340e940b7be4f5a4be076df8b7ec7de7b18f9ec6efe4bfffd2f21cf6",
+               *   "status": "success",
+               *   "user": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *   "recipient": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *   "data": {
+               *     "fees": {
+               *       "gas": "2622672522398",
+               *       "fixed": "10000000000000",
+               *       "price": "39000000000000"
+               *     },
+               *     "feesUsd": {
+               *       "gas": "9057",
+               *       "fixed": "34534",
+               *       "price": "134684"
+               *     },
+               *     "inTxs": [
+               *       {
+               *         "fee": "423218878900",
+               *         "data": {
+               *           "to": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "data": "0x5869d8",
+               *           "from": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *           "value": "2651622672522398"
+               *         },
+               *         "hash": "0xe53021eaa63d100b08338197d26953e2219bcbad828267dd936c549ff643aad7",
+               *         "type": "onchain",
+               *         "chainId": 7777777,
+               *         "timestamp": 1713290377
+               *       }
+               *     ],
+               *     "currency": "eth",
+               *     "price": "2600000000000000",
+               *     "usesExternalLiquidity": false,
+               *     "outTxs": [
+               *       {
+               *         "fee": "1837343366480",
+               *         "data": {
+               *           "to": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *           "data": "0x5869d8",
+               *           "from": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "value": "2600000000000000"
+               *         },
+               *         "hash": "0x9da7bc54dfe6229d6980fd62250d472f23dfe0f41a1cdc870c81a08b3445f254",
+               *         "type": "onchain",
+               *         "chainId": 8453,
+               *         "timestamp": 1713290383
+               *       }
+               *     ]
+               *   },
+               *   "createdAt": "2024-04-16T17:59:39.702Z",
+               *   "updatedAt": "2024-04-16T17:59:46.145Z"
+               * }
+               */
+              requests?: ({
                   id?: string;
-                  status?: string;
+                  /**
+                   * @description Note that fallback is returned in the case of a refund
+                   * @enum {string}
+                   */
+                  status?: "failure" | "fallback" | "pending" | "received" | "success";
                   user?: string;
                   recipient?: string;
                   data?: {
                     fees?: {
+                      /** @description Estimated gas cost required for execution, in wei */
                       gas?: string;
+                      /** @description The fixed fee which is always added to execution, in wei */
                       fixed?: string;
+                      /** @description The dynamic fee which is a result of the chain and the amount, in wei */
                       price?: string;
                     };
                     feesUsd?: {
@@ -603,6 +853,7 @@ export interface paths {
                       price?: string;
                     };
                     inTxs?: {
+                        /** @description Total fees in wei */
                         fee?: string;
                         data?: {
                           to?: string;
@@ -611,6 +862,7 @@ export interface paths {
                           value?: string;
                         };
                         hash?: string;
+                        /** @description The type of transaction, always set to onchain */
                         type?: string;
                         chainId?: number;
                         timestamp?: number;
@@ -618,7 +870,9 @@ export interface paths {
                     currency?: string;
                     price?: string;
                     usesExternalLiquidity?: boolean;
+                    timeEstimate?: number;
                     outTxs?: {
+                        /** @description Total fees in wei */
                         fee?: string;
                         data?: {
                           to?: string;
@@ -627,6 +881,7 @@ export interface paths {
                           value?: string;
                         };
                         hash?: string;
+                        /** @description The type of transaction, always set to onchain */
                         type?: string;
                         chainId?: number;
                         timestamp?: number;
@@ -634,7 +889,7 @@ export interface paths {
                   };
                   createdAt?: string;
                   updatedAt?: string;
-                }[];
+                })[];
               continuation?: string;
             };
           };
@@ -779,6 +1034,71 @@ export interface paths {
       };
     };
   };
+  "/conduit/install": {
+    post: {
+      parameters: {
+        header: {
+          "CONDUIT-API-KEY": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            id: string;
+            /** @enum {number} */
+            type: 0 | 1;
+            chain_id: number;
+            parent_chain_id: number;
+            name: string;
+            rpc: string;
+            ws: string;
+            explorer?: string;
+            native_currency: {
+              name?: string;
+              symbol?: string;
+              decimals?: number;
+              contract?: string;
+            };
+            contracts?: Record<string, never>;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/prices/rates": {
     get: {
       responses: {
@@ -789,6 +1109,7 @@ export interface paths {
               ETH?: number;
               DEGEN?: number;
               USDC?: number;
+              XAI?: number;
             };
           };
         };
