@@ -12,6 +12,7 @@ const BridgeActionPage: NextPage = () => {
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [usePermit, setUsePermit] = useState(false)
   const [canonical, setCanonical] = useState(false)
+  const [useExactInput, setUseExactInput] = useState(false)
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState("")
@@ -92,6 +93,17 @@ const BridgeActionPage: NextPage = () => {
       </div>
 
       <div>
+        <label>Use Exact Input: </label>
+        <input
+          type="checkbox"
+          checked={useExactInput}
+          onChange={(e) => {
+            setUseExactInput(e.target.checked)
+          }}
+        />
+      </div>
+
+      <div>
         <label>Recipient: </label>
         <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
       </div>
@@ -132,7 +144,8 @@ const BridgeActionPage: NextPage = () => {
             depositGasLimit,
             options: {
               usePermit: usePermit,
-              useExternalLiquidity: canonical
+              useExternalLiquidity: canonical,
+              useExactInput: useExactInput
             },
             onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
               console.log(steps, fees, currentStep, currentStepItem, txHashes)

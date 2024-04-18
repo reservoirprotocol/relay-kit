@@ -12,6 +12,7 @@ const GetBridgeQuotePage: NextPage = () => {
   const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
+  const [useExactInput, setUseExactInput] = useState(false)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<Execute |null>(null)
 
@@ -68,6 +69,18 @@ const GetBridgeQuotePage: NextPage = () => {
         <label>To: </label>
         <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
       </div>
+
+      <div>
+        <label>Use Exact Input: </label>
+        <input
+          type="checkbox"
+          checked={useExactInput}
+          onChange={(e) => {
+            setUseExactInput(e.target.checked)
+          }}
+        />
+      </div>
+
       <button 
         style={{
           marginTop: 50,
@@ -95,6 +108,9 @@ const GetBridgeQuotePage: NextPage = () => {
             amount,
             currency,
             recipient: recipient ? recipient as Address : undefined,
+            options:{
+              useExactInput: useExactInput
+            }
           })
           setResponse(quote as Execute)
         }}>
