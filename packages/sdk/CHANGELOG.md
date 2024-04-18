@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.3.10
+
+### Patch Changes
+
+- 0dbeb4a: Sync api types + add useExactInput parameter to demo
+
 ## 0.3.9
 
 ### Patch Changes
