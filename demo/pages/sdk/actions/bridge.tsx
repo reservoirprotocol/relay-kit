@@ -147,8 +147,8 @@ const BridgeActionPage: NextPage = () => {
               useExternalLiquidity: canonical,
               useExactInput: useExactInput
             },
-            onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
-              console.log(steps, fees, currentStep, currentStepItem, txHashes)
+            onProgress: (data) => {
+              console.log(data)
             }
           })
         }}>

@@ -96,8 +96,8 @@ const CallActionPage: NextPage = () => {
             txs: txs as any,
             toChainId,
             depositGasLimit,
-            onProgress: (steps, fees, currentStep, currentStepItem, txHashes) => {
-              console.log(steps, fees, currentStep, currentStepItem, txHashes)
+            onProgress: (data) => {
+              console.log(data)
             },
           })
         }}>
