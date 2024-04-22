@@ -1,9 +1,8 @@
 import type {
   Execute,
   AdaptedWallet,
-  ExecuteStep,
-  ExecuteStepItem,
   paths,
+  ProgressData,
 } from '../types/index.js'
 import {
   APIError,
@@ -38,14 +37,7 @@ export type BridgeActionParameters = {
   recipient?: Address
   options?: BridgeBodyOptions
   depositGasLimit?: string
-  onProgress?: (
-    steps: Execute['steps'],
-    fees?: Execute['fees'],
-    breakdown?: Execute['breakdown'],
-    currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem,
-    txHashes?: { txHash: Address; chainId: number }[]
-  ) => any
+  onProgress?: (data: ProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -94,7 +86,7 @@ export async function bridge(data: BridgeActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
@@ -121,7 +113,11 @@ export async function bridge(data: BridgeActionParameters) {
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
       const data = res.data as Execute
-      onProgress(data['steps'], data['fees'], data['breakdown'])
+      onProgress({
+        steps: data['steps'],
+        fees: data['fees'],
+        breakdown: data['breakdown'],
+      })
       return data
     } else {
       if (!adaptedWallet) {
@@ -132,22 +128,18 @@ export async function bridge(data: BridgeActionParameters) {
         chainId,
         request,
         adaptedWallet,
-        (
-          steps: Execute['steps'],
-          fees: Execute['fees'],
-          breakdown: Execute['breakdown']
-        ) => {
+        ({ steps, fees, breakdown }) => {
           const { currentStep, currentStepItem, txHashes } =
             getCurrentStepData(steps)
 
-          onProgress(
+          onProgress({
             steps,
             fees,
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes
-          )
+            txHashes,
+          })
         },
         undefined,
         depositGasLimit
@@ -156,7 +148,7 @@ export async function bridge(data: BridgeActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined
+          : undefined,
       )
       return true
     }

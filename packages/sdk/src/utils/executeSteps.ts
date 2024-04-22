@@ -13,6 +13,12 @@ import { getClient } from '../client.js'
 import { LogLevel } from '../utils/logger.js'
 import { sendTransactionSafely } from './transaction.js'
 
+export type SetStateData = {
+  steps: Execute['steps']
+  fees?: Execute['fees']
+  breakdown?: Execute['breakdown']
+}
+
 // /**
 //  * When attempting to perform actions, such as, bridging or performing a cross chain action
 //  * the user's account needs to meet certain requirements. For
@@ -32,11 +38,7 @@ export async function executeSteps(
   chainId: number,
   request: AxiosRequestConfig,
   wallet: AdaptedWallet,
-  setState: (
-    steps: Execute['steps'],
-    fees?: Execute['fees'],
-    breakdown?: Execute['breakdown'],
-  ) => any,
+  setState: (data: SetStateData) => any,
   newJson?: Execute,
   stepOptions?: {
     [stepId: string]: {
@@ -84,7 +86,11 @@ export async function executeSteps(
     if (json.error || !json.steps) throw json
 
     // Update state on first call or recursion
-    setState([...json?.steps], { ...json?.fees }, json?.breakdown)
+    setState({
+      steps: [...json?.steps],
+      fees: { ...json?.fees },
+      breakdown: json?.breakdown,
+    })
 
     let incompleteStepIndex = -1
     let incompleteStepItemIndex = -1
@@ -165,7 +171,11 @@ export async function executeSteps(
       }
       stepItems = items
       stepItem = items[incompleteStepItemIndex]
-      setState([...json?.steps], { ...json?.fees }, json?.breakdown)
+      setState({
+        steps: [...json?.steps],
+        fees: { ...json?.fees },
+        breakdown: json?.breakdown,
+      })
     }
     client.log(
       [`Execute Steps: Begin processing step items for: ${step.action}`],
@@ -216,21 +226,21 @@ export async function executeSteps(
                       )
                       stepItem.txHashes = txHashes
                       if (json) {
-                        setState(
-                          [...json.steps],
-                          { ...json?.fees },
-                          json?.breakdown,
-                        )
+                        setState({
+                          steps: [...json.steps],
+                          fees: { ...json?.fees },
+                          breakdown: json?.breakdown,
+                        })
                       }
                     },
                     (internalTxHashes) => {
                       stepItem.internalTxHashes = internalTxHashes
                       if (json) {
-                        setState(
-                          [...json.steps],
-                          { ...json?.fees },
-                          json?.breakdown,
-                        )
+                        setState({
+                          steps: [...json.steps],
+                          fees: { ...json?.fees },
+                          breakdown: json?.breakdown,
+                        })
                       }
                     },
                     request,
@@ -295,11 +305,11 @@ export async function executeSteps(
                     // If check, poll check until validated
                     if (stepItem?.check) {
                       stepItem.isValidatingSignature = true
-                      setState(
-                        [...json?.steps],
-                        { ...json?.fees },
-                        json?.breakdown,
-                      )
+                      setState({
+                        steps: [...json?.steps],
+                        fees: { ...json?.fees },
+                        breakdown: json?.breakdown,
+                      })
 
                       await pollUntilOk(
                         {
@@ -374,11 +384,11 @@ export async function executeSteps(
                         },
                       ]
                     }
-                    setState(
-                      [...json?.steps],
-                      { ...json?.fees },
-                      json?.breakdown,
-                    )
+                    setState({
+                      steps: [...json?.steps],
+                      fees: { ...json?.fees },
+                      breakdown: json?.breakdown,
+                    })
                   } catch (err) {
                     throw err
                   }
@@ -393,7 +403,11 @@ export async function executeSteps(
 
             stepItem.status = 'complete'
             stepItem.isValidatingSignature = false
-            setState([...json?.steps], { ...json?.fees }, json?.breakdown)
+            setState({
+              steps: [...json?.steps],
+              fees: { ...json?.fees },
+              breakdown: json?.breakdown,
+            })
             resolve(stepItem)
           } catch (e) {
             const error = e as Error
@@ -406,7 +420,11 @@ export async function executeSteps(
               stepItem.error = errorMessage
               stepItem.errorData = (e as any)?.response?.data || e
               stepItem.isValidatingSignature = false
-              setState([...json?.steps], { ...json?.fees }, json?.breakdown)
+              setState({
+                steps: [...json?.steps],
+                fees: { ...json?.fees },
+                breakdown: json?.breakdown,
+              })
             }
             reject(error)
           }
@@ -434,7 +452,11 @@ export async function executeSteps(
 
     if (json) {
       json.error = err && err?.response?.data ? err.response.data : err
-      setState([...json?.steps], { ...json?.fees }, json?.breakdown)
+      setState({
+        steps: [...json?.steps],
+        fees: { ...json?.fees },
+        breakdown: json?.breakdown,
+      })
     } else {
       json = {
         error: err && err?.response?.data ? err.response.data : err,

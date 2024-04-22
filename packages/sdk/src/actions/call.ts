@@ -2,8 +2,7 @@ import type {
   Execute,
   paths,
   AdaptedWallet,
-  ExecuteStep,
-  ExecuteStepItem,
+  ProgressData,
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -19,7 +18,6 @@ import {
   zeroAddress,
   type WalletClient,
   type WriteContractParameters,
-  type Address,
 } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
@@ -39,14 +37,7 @@ export type CallActionParameters = {
   toChainId: number
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (
-    steps: Execute['steps'],
-    fees?: Execute['fees'],
-    breakdown?: Execute['breakdown'],
-    currentStep?: ExecuteStep | null,
-    currentStepItem?: ExecuteStepItem,
-    txHashes?: { txHash: Address; chainId: number }[]
-  ) => any
+  onProgress?: (data: ProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -95,7 +86,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
@@ -103,7 +94,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0']
+          tx as Parameters<typeof prepareCallTransaction>['0'],
         )
       }
       return tx
@@ -129,7 +120,11 @@ export async function call(data: CallActionParameters) {
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
       const data = res.data as Execute
-      onProgress(data['steps'], data['fees'], data['breakdown'])
+      onProgress({
+        steps: data['steps'],
+        fees: data['fees'],
+        breakdown: data['breakdown'],
+      })
       return data
     } else {
       if (!adaptedWallet) {
@@ -140,22 +135,18 @@ export async function call(data: CallActionParameters) {
         chainId,
         request,
         adaptedWallet,
-        (
-          steps: Execute['steps'],
-          fees: Execute['fees'],
-          breakdown: Execute['breakdown']
-        ) => {
+        ({ steps, fees, breakdown }) => {
           const { currentStep, currentStepItem, txHashes } =
             getCurrentStepData(steps)
 
-          onProgress(
+          onProgress({
             steps,
             fees,
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes
-          )
+            txHashes,
+          })
         },
         undefined,
         depositGasLimit
@@ -164,7 +155,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined
+          : undefined,
       )
       return true
     }
