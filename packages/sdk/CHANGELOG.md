@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- fc2f8ce: Improve onProgress action callback to be easier to use
+
+### Patch Changes
+
+- 84a2ea8: Update sdk readme
+
 ## 0.3.10
 
 ### Patch Changes
