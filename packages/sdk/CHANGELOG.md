@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240429212419
+
+### Patch Changes
+
+- 799c252: Swap action bump
+
 ## 0.5.0
 
 ### Minor Changes
