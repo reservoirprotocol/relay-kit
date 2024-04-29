@@ -13,7 +13,7 @@
   "scripts": {
     "demo": "pnpm --filter relay-sdk-demo dev",
     "package:change": "pnpm changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
-    "package:canary": "yarn changeset version --snapshot canary && pnpm --filter=!demo -r publish --access public && changeset canary && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
+    "package:canary": "pnpm changeset version --snapshot canary && git add -A; git commit --m \"canary: changeset\" && git push && changeset publish --tag canaryg && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
     "package:release": "pnpm run deploy && changeset version && pnpm --filter=!demo -r publish --access public && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
     "build:sdk": "pnpm run -C packages/sdk build",
     "build:adapter": "pnpm run -C packages/relay-ethers-wallet-adapter build",
