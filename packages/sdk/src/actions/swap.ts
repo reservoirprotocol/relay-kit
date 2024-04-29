@@ -13,7 +13,7 @@ import {
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
-import { zeroAddress, type WalletClient } from 'viem'
+import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
 export type SwapBody = NonNullable<
@@ -26,6 +26,7 @@ export type SwapBodyOptions = Omit<
   | 'originCurrency'
   | 'destinationCurrency'
   | 'amount'
+  | 'recipient'
 >
 
 export type SwapActionParameters = {
@@ -34,6 +35,7 @@ export type SwapActionParameters = {
   toChainId: number
   toCurrency: string
   amount: string
+  recipient?: Address
   options?: Omit<SwapBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
   onProgress?: (data: ProgressData) => any
@@ -59,6 +61,7 @@ export async function swap(data: SwapActionParameters) {
     chainId,
     currency,
     amount,
+    recipient,
     options,
     onProgress = () => {},
     precheck,
@@ -94,6 +97,7 @@ export async function swap(data: SwapActionParameters) {
       destinationChainId: toChainId,
       originCurrency: toCurrency,
       amount,
+      recipient,
       tradeType: options?.tradeType ?? 'EXACT_INPUT',
       source: client.source || undefined,
       ...options,
