@@ -43,5 +43,5 @@ jobs:
         uses: changesets/action@v1
         with:
           title: Canary Release
-          publish: pnpm package:release
+          publish: pnpm package:canary
 
