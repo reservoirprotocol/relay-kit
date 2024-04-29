@@ -4,16 +4,17 @@ export const routes = [
   "/chains/update",
   "/chains/status",
   "/config",
+  "/config/v2",
   "/execute/bridge",
   "/execute/call",
   "/execute/permits",
+  "/execute/swap",
   "/lives",
   "/intents/status",
   "/intents/quote",
   "/requests",
   "/transactions/index",
   "/transactions/status",
-  "/users/balance",
   "/conduit/install",
   "/prices/rates"
 ];

@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 import path from 'path'
 import { pathToFileURL } from 'node:url'
 
-const OPENAPI_URL = "https://api.relay.link/documentation/json"
+const OPENAPI_URL = "https://api.testnets.relay.link/documentation/json"
 
 const generateTypes = async () => {
   // Fetch the OpenAPI schema
