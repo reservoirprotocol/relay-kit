@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.1
+
+### Patch Changes
+
+- bbe88ac: SDK bump
+
 ## 0.0.0
 
 ### Patch Changes
