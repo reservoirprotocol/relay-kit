@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240501214125
+
+### Patch Changes
+
+- 6a5c64c: Fix execute types
+
 ## 0.0.0-canary-20240501202525
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@reservoir0x/relay-sdk",
-  "version": "0.0.0-canary-20240501202525",
+  "version": "0.0.0-canary-20240501214125",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",
