@@ -765,7 +765,7 @@ export interface paths {
         content: {
           "application/json": {
             user: string;
-            recipient?: string;
+            recipient: string;
             originChainId: number;
             destinationChainId: number;
             originCurrency: string;
@@ -809,6 +809,36 @@ export interface paths {
               balances?: {
                 userBalance?: string;
                 requiredToSolve?: string;
+              };
+              metadata?: {
+                origin?: {
+                  sender?: string;
+                  recipient?: string;
+                  amountIn?: string;
+                  amountOut?: string;
+                  currencyIn?: string;
+                  currencyOut?: string;
+                  slippageTolerance?: string;
+                  fee?: number;
+                  chainId?: number;
+                  type?: string;
+                  rate?: string;
+                  usdValue?: string;
+                };
+                destination?: {
+                  sender?: string;
+                  recipient?: string;
+                  amountIn?: string;
+                  amountOut?: string;
+                  currencyIn?: string;
+                  currencyOut?: string;
+                  slippageTolerance?: string;
+                  fee?: number;
+                  chainId?: number;
+                  type?: string;
+                  rate?: string;
+                  usdValue?: string;
+                };
               };
             };
           };
@@ -1039,6 +1069,50 @@ export interface paths {
                         recipient?: string;
                         amount?: string;
                       }[];
+                    originMetadata?: {
+                      sender?: string;
+                      recipient?: string;
+                      amountIn?: string;
+                      amountOut?: string;
+                      currencyIn?: string;
+                      currencyOut?: string;
+                      slippageTolerance?: string;
+                      fee?: number;
+                      chainId?: number;
+                      type?: string;
+                      rate?: string;
+                      usdValue?: string;
+                      currencyInMetadata?: {
+                        logoURI?: string;
+                        symbol?: string;
+                      };
+                      currencyOutMetadata?: {
+                        logoURI?: string;
+                        symbol?: string;
+                      };
+                    };
+                    destinationMetadata?: {
+                      sender?: string;
+                      recipient?: string;
+                      amountIn?: string;
+                      amountOut?: string;
+                      currencyIn?: string;
+                      currencyOut?: string;
+                      slippageTolerance?: string;
+                      fee?: number;
+                      chainId?: number;
+                      type?: string;
+                      rate?: string;
+                      usdValue?: string;
+                      currencyInMetadata?: {
+                        logoURI?: string;
+                        symbol?: string;
+                      };
+                      currencyOutMetadata?: {
+                        logoURI?: string;
+                        symbol?: string;
+                      };
+                    };
                     price?: string;
                     usesExternalLiquidity?: boolean;
                     timeEstimate?: number;
@@ -1262,6 +1336,38 @@ export interface paths {
               USDC?: number;
               XAI?: number;
             };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/v1": {
+    post: {
+      requestBody?: {
+        content: {
+          "application/json": {
+            /** @description Return default currencies */
+            defaultList?: boolean;
+            /** @description Chain IDs to search for currencies */
+            chainIds?: unknown[];
+            /** @description Search term for currencies */
+            term?: string;
+            /** @description Address of the currency contract */
+            address?: string;
+            /** @description ID to search for a currency group */
+            currencyId?: string;
+            /** @description Filter verified currencies */
+            verified?: boolean;
+            /** @description Limit the number of results */
+            limit?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description List of currencies */
+        200: {
+          content: {
+            "application/json": unknown[][];
           };
         };
       };
