@@ -1,5 +1,12 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 0.0.0
+
+### Patch Changes
+
+- Updated dependencies [e0f2219]
+  - @reservoir0x/relay-sdk@0.0.0
+
 ## 0.0.0-canary-20240429212419
 
 ### Patch Changes
