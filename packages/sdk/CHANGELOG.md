@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0
+
+### Patch Changes
+
+- e5bace4: Canary build
+
 ## 0.0.0-canary-20240501181834
 
 ### Patch Changes
