@@ -97,7 +97,7 @@ export async function swap(data: SwapActionParameters) {
       destinationChainId: toChainId,
       originCurrency: toCurrency,
       amount,
-      recipient,
+      recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
       tradeType: options?.tradeType ?? 'EXACT_INPUT',
       source: client.source || undefined,
       ...options,
