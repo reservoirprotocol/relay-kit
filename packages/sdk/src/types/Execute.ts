@@ -10,12 +10,17 @@ export type CheckApi = NonNullable<
     paths['/execute/call']['post']['responses']['200']['content']['application/json']['steps']
   >['0']['items']
 >[0]['check']
+export type SwapApiMetadata = NonNullable<
+  paths['/execute/swap']['post']['responses']['200']['content']['application/json']['metadata']
+>
 
 export type Execute = {
   errors?: { message?: string; orderId?: string }[]
   fees?: CallFees
   breakdown?: CallBreakdown
+  metadata?: SwapApiMetadata
   error?: any // Manually added client error
+
   steps: {
     error?: string
     errorData?: any
