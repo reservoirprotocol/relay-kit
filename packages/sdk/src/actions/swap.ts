@@ -92,10 +92,10 @@ export async function swap(data: SwapActionParameters) {
   try {
     const data: SwapBody = {
       user: caller || zeroAddress,
-      originChainId: chainId,
-      destinationCurrency: currency,
+      destinationCurrency: toCurrency,
       destinationChainId: toChainId,
-      originCurrency: toCurrency,
+      originCurrency: currency,
+      originChainId: chainId,
       amount,
       recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
       tradeType: options?.tradeType ?? 'EXACT_INPUT',
