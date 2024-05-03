@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240503175152
+
+### Patch Changes
+
+- b70bbd0: Fix swap function
+
 ## 0.0.0-canary-20240501214125
 
 ### Patch Changes
