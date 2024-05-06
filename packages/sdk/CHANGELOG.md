@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240506211039
+
+### Patch Changes
+
+- cb154df: Sync api types and rename metadata to details
+
 ## 0.0.0-canary-20240506160753
 
 ### Patch Changes
