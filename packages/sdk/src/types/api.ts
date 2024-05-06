@@ -1642,7 +1642,19 @@ export interface paths {
         /** @description List of currencies */
         200: {
           content: {
-            "application/json": unknown[][];
+            "application/json": {
+                groupID?: string;
+                chainId?: number;
+                address?: string;
+                symbol?: string;
+                name?: string;
+                decimals?: number;
+                metadata?: {
+                  logoURI?: string;
+                  verified?: boolean;
+                  isNative?: boolean;
+                };
+              }[];
           };
         };
       };

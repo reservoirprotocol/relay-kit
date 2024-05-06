@@ -3,6 +3,7 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
+  SwapFees,
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -29,6 +30,10 @@ export type SwapBodyOptions = Omit<
   | 'recipient'
 >
 
+type SwapProgressData = Omit<ProgressData, 'fees'> & {
+  fees: SwapFees
+}
+
 export type SwapActionParameters = {
   chainId: number
   currency: string
@@ -38,7 +43,7 @@ export type SwapActionParameters = {
   recipient?: Address
   options?: Omit<SwapBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (data: ProgressData) => any
+  onProgress?: (data: SwapProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -116,7 +121,7 @@ export async function swap(data: SwapActionParameters) {
       const data = res.data as Execute
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
+        fees: data['fees'] as SwapFees,
         breakdown: data['breakdown'],
         details: data['details'],
       })
@@ -136,7 +141,7 @@ export async function swap(data: SwapActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as SwapFees,
             breakdown,
             details,
             currentStep,
