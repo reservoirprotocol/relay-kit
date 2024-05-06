@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240506160753
+
+### Patch Changes
+
+- a3d40b2: Add metadata to onProgress callback
+
 ## 0.0.0-canary-20240503175152
 
 ### Patch Changes

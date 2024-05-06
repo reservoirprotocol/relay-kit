@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 0.0.0-canary-20240506160753
+
+### Patch Changes
+
+- a3d40b2: Add metadata to onProgress callback
+- Updated dependencies [a3d40b2]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20240506160753
+
 ## 0.0.0-canary-20240503175152
 
 ### Patch Changes
