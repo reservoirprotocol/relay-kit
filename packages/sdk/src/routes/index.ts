@@ -13,6 +13,7 @@ export const routes = [
   "/intents/status",
   "/intents/quote",
   "/requests",
+  "/requests/v2",
   "/transactions/index",
   "/transactions/status",
   "/conduit/install",

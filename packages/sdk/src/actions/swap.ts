@@ -85,7 +85,7 @@ export async function swap(data: SwapActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.'
+      'Wallet is required when precheck is false or not provided.',
     )
   }
 
@@ -118,7 +118,7 @@ export async function swap(data: SwapActionParameters) {
         steps: data['steps'],
         fees: data['fees'],
         breakdown: data['breakdown'],
-        metadata: data['metadata'],
+        details: data['details'],
       })
       return data
     } else {
@@ -130,7 +130,7 @@ export async function swap(data: SwapActionParameters) {
         chainId,
         request,
         adaptedWallet,
-        ({ steps, fees, breakdown, metadata }) => {
+        ({ steps, fees, breakdown, details }) => {
           const { currentStep, currentStepItem, txHashes } =
             getCurrentStepData(steps)
 
@@ -138,7 +138,7 @@ export async function swap(data: SwapActionParameters) {
             steps,
             fees,
             breakdown,
-            metadata,
+            details,
             currentStep,
             currentStepItem,
             txHashes,
@@ -151,7 +151,7 @@ export async function swap(data: SwapActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined
+          : undefined,
       )
       return true
     }

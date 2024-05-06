@@ -765,7 +765,7 @@ export interface paths {
         content: {
           "application/json": {
             user: string;
-            recipient: string;
+            recipient?: string;
             originChainId: number;
             destinationChainId: number;
             originCurrency: string;
@@ -797,10 +797,91 @@ export interface paths {
                     }[];
                 }[];
               fees?: {
-                gas?: string;
-                relayer?: string;
-                relayerGas?: string;
-                relayerService?: string;
+                gas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
+                };
+                relayer?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
+                };
+                relayerGas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
+                };
+                relayerService?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
+                };
+                app?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
+                };
               };
               breakdown?: {
                   value?: string;
@@ -810,35 +891,44 @@ export interface paths {
                 userBalance?: string;
                 requiredToSolve?: string;
               };
-              metadata?: {
-                origin?: {
-                  sender?: string;
-                  recipient?: string;
-                  amountIn?: string;
-                  amountOut?: string;
-                  currencyIn?: string;
-                  currencyOut?: string;
-                  slippageTolerance?: string;
-                  fee?: number;
-                  chainId?: number;
-                  type?: string;
-                  rate?: string;
-                  usdValue?: string;
+              details?: {
+                sender?: string;
+                recipient?: string;
+                currencyIn?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
                 };
-                destination?: {
-                  sender?: string;
-                  recipient?: string;
-                  amountIn?: string;
-                  amountOut?: string;
-                  currencyIn?: string;
-                  currencyOut?: string;
-                  slippageTolerance?: string;
-                  fee?: number;
-                  chainId?: number;
-                  type?: string;
-                  rate?: string;
-                  usdValue?: string;
+                currencyOut?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountDecimals?: string;
+                  amountUsd?: string;
                 };
+                rate?: string;
               };
             };
           };
@@ -932,6 +1022,11 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              txData?: {
+                to?: string;
+                data?: string;
+                value?: string;
+              };
               requestId?: string;
               shortRequestId?: string;
               currency?: string;
@@ -1069,49 +1164,229 @@ export interface paths {
                         recipient?: string;
                         amount?: string;
                       }[];
-                    originMetadata?: {
+                    metadata?: {
                       sender?: string;
                       recipient?: string;
-                      amountIn?: string;
-                      amountOut?: string;
-                      currencyIn?: string;
-                      currencyOut?: string;
-                      slippageTolerance?: string;
-                      fee?: number;
-                      chainId?: number;
-                      type?: string;
+                      currencyIn?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountDecimals?: string;
+                        amountUsd?: string;
+                      };
+                      currencyOut?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountDecimals?: string;
+                        amountUsd?: string;
+                      };
                       rate?: string;
-                      usdValue?: string;
-                      currencyInMetadata?: {
-                        logoURI?: string;
-                        symbol?: string;
-                      };
-                      currencyOutMetadata?: {
-                        logoURI?: string;
-                        symbol?: string;
-                      };
                     };
-                    destinationMetadata?: {
+                    price?: string;
+                    usesExternalLiquidity?: boolean;
+                    timeEstimate?: number;
+                    outTxs?: {
+                        /** @description Total fees in wei */
+                        fee?: string;
+                        data?: {
+                          to?: string;
+                          data?: string;
+                          from?: string;
+                          value?: string;
+                        };
+                        hash?: string;
+                        /** @description The type of transaction, always set to onchain */
+                        type?: string;
+                        chainId?: number;
+                        timestamp?: number;
+                      }[];
+                  };
+                  createdAt?: string;
+                  updatedAt?: string;
+                })[];
+              continuation?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/requests/v2": {
+    get: {
+      parameters: {
+        query?: {
+          limit?: string;
+          continuation?: string;
+          user?: string;
+          hash?: string;
+          originChainId?: string;
+          destinationChainId?: string;
+          privateChainsToInclude?: string;
+          id?: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /**
+               * @example {
+               *   "id": "0xddd6c1a0340e940b7be4f5a4be076df8b7ec7de7b18f9ec6efe4bfffd2f21cf6",
+               *   "status": "success",
+               *   "user": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *   "recipient": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *   "data": {
+               *     "fees": {
+               *       "gas": "2622672522398",
+               *       "fixed": "10000000000000",
+               *       "price": "39000000000000"
+               *     },
+               *     "feesUsd": {
+               *       "gas": "9057",
+               *       "fixed": "34534",
+               *       "price": "134684"
+               *     },
+               *     "inTxs": [
+               *       {
+               *         "fee": "423218878900",
+               *         "data": {
+               *           "to": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "data": "0x5869d8",
+               *           "from": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *           "value": "2651622672522398"
+               *         },
+               *         "hash": "0xe53021eaa63d100b08338197d26953e2219bcbad828267dd936c549ff643aad7",
+               *         "type": "onchain",
+               *         "chainId": 7777777,
+               *         "timestamp": 1713290377
+               *       }
+               *     ],
+               *     "currency": "eth",
+               *     "price": "2600000000000000",
+               *     "usesExternalLiquidity": false,
+               *     "outTxs": [
+               *       {
+               *         "fee": "1837343366480",
+               *         "data": {
+               *           "to": "0x456bccd1eaa77d5cc5ace1723b5dcca00d67cdea",
+               *           "data": "0x5869d8",
+               *           "from": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "value": "2600000000000000"
+               *         },
+               *         "hash": "0x9da7bc54dfe6229d6980fd62250d472f23dfe0f41a1cdc870c81a08b3445f254",
+               *         "type": "onchain",
+               *         "chainId": 8453,
+               *         "timestamp": 1713290383
+               *       }
+               *     ]
+               *   },
+               *   "createdAt": "2024-04-16T17:59:39.702Z",
+               *   "updatedAt": "2024-04-16T17:59:46.145Z"
+               * }
+               */
+              requests?: ({
+                  id?: string;
+                  /**
+                   * @description Note that fallback is returned in the case of a refund
+                   * @enum {string}
+                   */
+                  status?: "failure" | "fallback" | "pending" | "received" | "success";
+                  user?: string;
+                  recipient?: string;
+                  data?: {
+                    fees?: {
+                      /** @description Estimated gas cost required for execution, in wei */
+                      gas?: string;
+                      /** @description The fixed fee which is always added to execution, in wei */
+                      fixed?: string;
+                      /** @description The dynamic fee which is a result of the chain and the amount, in wei */
+                      price?: string;
+                    };
+                    feesUsd?: {
+                      gas?: string;
+                      fixed?: string;
+                      price?: string;
+                    };
+                    inTxs?: {
+                        /** @description Total fees in wei */
+                        fee?: string;
+                        data?: {
+                          to?: string;
+                          data?: string;
+                          from?: string;
+                          value?: string;
+                        };
+                        hash?: string;
+                        /** @description The type of transaction, always set to onchain */
+                        type?: string;
+                        chainId?: number;
+                        timestamp?: number;
+                      }[];
+                    currency?: string;
+                    appFees?: {
+                        recipient?: string;
+                        amount?: string;
+                      }[];
+                    details?: {
                       sender?: string;
                       recipient?: string;
-                      amountIn?: string;
-                      amountOut?: string;
-                      currencyIn?: string;
-                      currencyOut?: string;
-                      slippageTolerance?: string;
-                      fee?: number;
-                      chainId?: number;
-                      type?: string;
+                      currencyIn?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountDecimals?: string;
+                        amountUsd?: string;
+                      };
+                      currencyOut?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountDecimals?: string;
+                        amountUsd?: string;
+                      };
                       rate?: string;
-                      usdValue?: string;
-                      currencyInMetadata?: {
-                        logoURI?: string;
-                        symbol?: string;
-                      };
-                      currencyOutMetadata?: {
-                        logoURI?: string;
-                        symbol?: string;
-                      };
                     };
                     price?: string;
                     usesExternalLiquidity?: boolean;
