@@ -3,6 +3,8 @@ import type { paths } from './api.js'
 
 export type CallFees =
   paths['/execute/call']['post']['responses']['200']['content']['application/json']['fees']
+export type SwapFees =
+  paths['/execute/swap']['post']['responses']['200']['content']['application/json']['fees']
 export type CallBreakdown =
   paths['/execute/call']['post']['responses']['200']['content']['application/json']['breakdown']
 export type CheckApi = NonNullable<
@@ -16,7 +18,7 @@ export type ExecuteDetails = NonNullable<
 
 export type Execute = {
   errors?: { message?: string; orderId?: string }[]
-  fees?: CallFees
+  fees?: CallFees | SwapFees
   breakdown?: CallBreakdown
   details?: ExecuteDetails
   error?: any // Manually added client error
