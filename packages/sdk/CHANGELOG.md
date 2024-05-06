@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240506220831
+
+### Patch Changes
+
+- 360d61a: Canary build swaps
+
 ## 0.0.0-canary-20240506211039
 
 ### Patch Changes
