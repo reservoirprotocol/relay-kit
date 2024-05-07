@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20240507132251
+
+### Patch Changes
+
+- cac40d2: Sync sdk types
+
 ## 0.0.0-canary-20240506220831
 
 ### Patch Changes

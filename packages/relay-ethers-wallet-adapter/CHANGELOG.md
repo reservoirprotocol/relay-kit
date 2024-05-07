@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 0.0.0-canary-20240507132251
+
+### Patch Changes
+
+- cac40d2: Sync sdk types
+- Updated dependencies [cac40d2]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20240507132251
+
 ## 0.0.0-canary-20240506220831
 
 ### Patch Changes
