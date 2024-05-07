@@ -37,6 +37,9 @@ const Index: NextPage = () => {
         <Link href="/sdk/methods/getBridgeQuote">
           getBridgeQuote
         </Link>
+        <Link href="/sdk/methods/getSwapQuote">
+          getSwapQuote
+        </Link>
       </nav>
     </div>
   )
