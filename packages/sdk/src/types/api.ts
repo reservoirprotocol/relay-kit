@@ -1643,18 +1643,18 @@ export interface paths {
         200: {
           content: {
             "application/json": {
-                groupID?: string;
-                chainId?: number;
-                address?: string;
-                symbol?: string;
-                name?: string;
-                decimals?: number;
-                metadata?: {
-                  logoURI?: string;
-                  verified?: boolean;
-                  isNative?: boolean;
-                };
-              }[];
+                  groupID?: string;
+                  chainId?: number;
+                  address?: string;
+                  symbol?: string;
+                  name?: string;
+                  decimals?: number;
+                  metadata?: {
+                    logoURI?: string;
+                    verified?: boolean;
+                    isNative?: boolean;
+                  };
+                }[][];
           };
         };
       };
