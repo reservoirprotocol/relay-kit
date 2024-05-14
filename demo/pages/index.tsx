@@ -22,6 +22,9 @@ const Index: NextPage = () => {
         <Link href="/sdk/actions/bridge">
           Bridge
         </Link>
+        <Link href="/sdk/actions/swap">
+          Swap
+        </Link>
       </nav>
       <h2>SDK Methods</h2>
       <nav style={{ display: 'flex', gap: 15 }}>
@@ -33,6 +36,9 @@ const Index: NextPage = () => {
         </Link>
         <Link href="/sdk/methods/getBridgeQuote">
           getBridgeQuote
+        </Link>
+        <Link href="/sdk/methods/getSwapQuote">
+          getSwapQuote
         </Link>
       </nav>
     </div>

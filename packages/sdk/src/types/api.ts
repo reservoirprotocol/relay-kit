@@ -128,6 +128,9 @@ export interface paths {
             bufferPercentage?: string;
             private?: boolean;
             active?: boolean;
+            metadata?: Record<string, never>;
+            /** @enum {string} */
+            nativeCurrency: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
           };
         };
       };
@@ -196,6 +199,8 @@ export interface paths {
             rebalancePercentage?: string;
             bufferPercentage?: string;
             private?: boolean;
+            active?: boolean;
+            metadata?: Record<string, never>;
           };
         };
       };
@@ -310,6 +315,45 @@ export interface paths {
       };
     };
   };
+  "/config/v2": {
+    get: {
+      parameters: {
+        query: {
+          originChainId: string;
+          destinationChainId: string;
+          /** @description User address, when supplied returns user balance and max bridge amount */
+          user?: string;
+          /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
+          currency?: "degen" | "eth" | "usdc" | "xai";
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              enabled?: boolean;
+              user?: {
+                /** @description Balance on the origin chain in the native or supplied currency */
+                balance?: string;
+                /** @description Maximum amount that the user can bridge after fees in the native or supplied currency */
+                maxBridgeAmount?: string;
+              };
+              solver?: {
+                address?: string;
+                /** @description Balance of the solver on the destination chain. Denoted in wei */
+                balance?: string;
+                /** @description How much of the given currency is available to be bridged per bridge request. Denoted in wei */
+                capacityPerRequest?: string;
+              };
+              /** @description This denotes if the chain combination supports canonical plus bridging */
+              supportsExternalLiquidity?: boolean;
+            };
+          };
+        };
+      };
+    };
+  };
   "/execute/bridge": {
     post: {
       requestBody: {
@@ -325,9 +369,13 @@ export interface paths {
             currency: "degen" | "eth" | "usdc" | "xai";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
+            /** @description App fees to be charged for execution */
+            appFees?: string[];
             source?: string;
             /** @description Address to send the refund to in the case of failure, if not specified then the receipient address or user address is used */
             refundTo?: string;
+            /** @description Always refund on the origin chain in case of any issues */
+            refundOnOrigin?: boolean;
             /** @description Enable this to use the exact input rather than exact output */
             useExactInput?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
@@ -414,7 +462,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -426,6 +474,9 @@ export interface paths {
                  * @enum {string}
                  */
                 relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
+                app?: string;
+                /** @enum {string} */
+                appCurrency?: "degen" | "eth" | "usdc" | "xai";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -489,8 +540,12 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
+            /** @description App fees to be charged for execution */
+            appFees?: string[];
             /** @description Address to send the refund to in the case of failure, if not specified then the receipient address or user address is used */
             refundTo?: string;
+            /** @description Always refund on the origin chain in case of any issues */
+            refundOnOrigin?: boolean;
             source?: string;
             /** @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces. */
             useForwarder?: boolean;
@@ -572,7 +627,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -584,6 +639,9 @@ export interface paths {
                  * @enum {string}
                  */
                 relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
+                app?: string;
+                /** @enum {string} */
+                appCurrency?: "degen" | "eth" | "usdc" | "xai";
               };
               /**
                * @example {
@@ -617,6 +675,11 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              tx?: {
+                to?: string;
+                value?: string;
+                data?: string;
+              };
             };
           };
         };
@@ -633,6 +696,11 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              tx?: {
+                to?: string;
+                value?: string;
+                data?: string;
+              };
             };
           };
         };
@@ -649,7 +717,10 @@ export interface paths {
       requestBody: {
         content: {
           "application/json": {
+            kind: string;
             requestId: string;
+            /** @enum {string} */
+            api?: "bridge" | "swap" | "user-swap";
           };
         };
       };
@@ -659,11 +730,232 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              steps?: {
+                  id?: string;
+                  action?: string;
+                  description?: string;
+                  kind?: string;
+                  items?: {
+                      status?: string;
+                      data?: {
+                        to?: string;
+                        data?: string;
+                        value?: string;
+                        chainId?: number;
+                      };
+                      check?: {
+                        endpoint?: string;
+                        method?: string;
+                      };
+                    }[];
+                }[];
             };
           };
         };
         /** @description Default Response */
         400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/execute/swap": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            user: string;
+            recipient?: string;
+            originChainId: number;
+            destinationChainId: number;
+            originCurrency: string;
+            destinationCurrency: string;
+            amount: string;
+            /** @enum {string} */
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            source?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              steps?: {
+                  id?: string;
+                  action?: string;
+                  description?: string;
+                  kind?: string;
+                  requestId?: string;
+                  items?: {
+                      status?: string;
+                      data?: unknown;
+                      check?: {
+                        endpoint?: string;
+                        method?: string;
+                      };
+                    }[];
+                }[];
+              fees?: {
+                gas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                relayer?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                relayerGas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                relayerService?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                app?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+              };
+              breakdown?: {
+                  value?: string;
+                  timeEstimate?: number;
+                }[];
+              balances?: {
+                userBalance?: string;
+                requiredToSolve?: string;
+              };
+              details?: {
+                sender?: string;
+                recipient?: string;
+                currencyIn?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                currencyOut?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                rate?: string;
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
           content: {
             "application/json": {
               message?: string;
@@ -735,6 +1027,11 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              txData?: {
+                to?: string;
+                data?: string;
+                value?: string;
+              };
               requestId?: string;
               shortRequestId?: string;
               currency?: string;
@@ -868,6 +1165,49 @@ export interface paths {
                         timestamp?: number;
                       }[];
                     currency?: string;
+                    appFees?: {
+                        recipient?: string;
+                        amount?: string;
+                      }[];
+                    metadata?: {
+                      sender?: string;
+                      recipient?: string;
+                      currencyIn?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountFormatted?: string;
+                        amountUsd?: string;
+                      };
+                      currencyOut?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountFormatted?: string;
+                        amountUsd?: string;
+                      };
+                      rate?: string;
+                    };
                     price?: string;
                     usesExternalLiquidity?: boolean;
                     timeEstimate?: number;
@@ -946,26 +1286,6 @@ export interface paths {
           content: {
             "application/json": {
               status?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/users/balance": {
-    get: {
-      parameters: {
-        query?: {
-          user?: string;
-          currency?: string;
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              balance?: string;
             };
           };
         };
@@ -1111,6 +1431,50 @@ export interface paths {
               USDC?: number;
               XAI?: number;
             };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/v1": {
+    post: {
+      requestBody?: {
+        content: {
+          "application/json": {
+            /** @description Return default currencies */
+            defaultList?: boolean;
+            /** @description Chain IDs to search for currencies */
+            chainIds?: unknown[];
+            /** @description Search term for currencies */
+            term?: string;
+            /** @description Address of the currency contract */
+            address?: string;
+            /** @description ID to search for a currency group */
+            currencyId?: string;
+            /** @description Filter verified currencies */
+            verified?: boolean;
+            /** @description Limit the number of results */
+            limit?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description List of currencies */
+        200: {
+          content: {
+            "application/json": {
+                  groupID?: string;
+                  chainId?: number;
+                  address?: string;
+                  symbol?: string;
+                  name?: string;
+                  decimals?: number;
+                  metadata?: {
+                    logoURI?: string;
+                    verified?: boolean;
+                    isNative?: boolean;
+                  };
+                }[][];
           };
         };
       };
