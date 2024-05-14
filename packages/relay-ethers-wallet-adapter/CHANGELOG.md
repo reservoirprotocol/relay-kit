@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 6.0.1
+
+### Patch Changes
+
+- 597371e: Swaps action and getSwapQuote method
+- Updated dependencies [597371e]
+  - @reservoir0x/relay-sdk@0.5.1
+
 ## 6.0.0
 
 ### Patch Changes

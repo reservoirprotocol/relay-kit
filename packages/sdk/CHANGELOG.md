@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.5.1
+
+### Patch Changes
+
+- 597371e: Swaps action and getSwapQuote method
+
 ## 0.5.0
 
 ### Minor Changes
