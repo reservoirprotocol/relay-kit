@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 0.5.0
+
+### Minor Changes
+
+- 74e12e1: Swap SDK action
+
+### Patch Changes
+
+- e0f2219: Sync types
+
 ## 0.4.0
 
 ### Minor Changes
