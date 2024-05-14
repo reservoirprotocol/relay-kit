@@ -26,14 +26,14 @@ export async function sendTransactionSafely(
   step: Execute['steps'][0],
   wallet: AdaptedWallet,
   setTxHashes: (
-    tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes'],
+    tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes']
   ) => void,
   setInternalTxHashes: (
-    tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes'],
+    tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
-  crossChainIntentChainId?: number,
+  crossChainIntentChainId?: number
 ) {
   const client = getClient()
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
@@ -54,7 +54,7 @@ export async function sendTransactionSafely(
   setTxHashes([{ txHash: txHash, chainId: chainId }])
 
   // Handle transaction replacements and cancellations
-  viemClient
+  const receipt = await viemClient
     .waitForTransactionReceipt({
       hash: txHash,
       onReplaced: (replacement) => {
@@ -70,21 +70,21 @@ export async function sendTransactionSafely(
         attemptCount = 0 // reset attempt count
         getClient()?.log(
           ['Transaction replaced', replacement],
-          LogLevel.Verbose,
+          LogLevel.Verbose
         )
       },
     })
     .catch((error) => {
       getClient()?.log(
         ['Error in waitForTransactionReceipt', error],
-        LogLevel.Error,
+        LogLevel.Error
       )
     })
 
   const validate = (res: AxiosResponse) => {
     getClient()?.log(
       ['Execute Steps: Polling for confirmation', res],
-      LogLevel.Verbose,
+      LogLevel.Verbose
     )
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
@@ -125,6 +125,13 @@ export async function sendTransactionSafely(
 
     if (!res || validate(res)) {
       waitingForConfirmation = false // transaction confirmed
+    } else if (
+      // rely on tx confirmation if there is no check endpoint
+      !item?.check?.endpoint &&
+      receipt &&
+      receipt.status === 'success'
+    ) {
+      waitingForConfirmation = false
     } else if (res) {
       if (res.data.status !== 'pending') {
         attemptCount++
