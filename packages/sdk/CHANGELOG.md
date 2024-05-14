@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.5.2
+
+### Patch Changes
+
+- e795842: Await tx receipt for transaction steps
+
 ## 0.5.1
 
 ### Patch Changes
