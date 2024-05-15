@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.5.3
+
+### Patch Changes
+
+- dd34345: Fix internal txhash chain id
+
 ## 0.5.2
 
 ### Patch Changes
