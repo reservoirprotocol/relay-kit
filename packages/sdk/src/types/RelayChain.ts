@@ -15,6 +15,8 @@ export type RelayChain = {
   icon?: {
     dark?: string
     light?: string
+    squaredDark?: string
+    squaredLight?: string
   }
   currency?: {
     id?: string

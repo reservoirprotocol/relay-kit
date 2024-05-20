@@ -1,6 +1,7 @@
 import type { Chain } from 'viem'
 import type { RelayChain, paths } from '../types/index.js'
 import * as viemChains from 'viem/chains'
+import { ASSETS_RELAY_API } from '../constants/servers.js'
 
 type RelayAPIChain = Required<
   NonNullable<
@@ -56,8 +57,10 @@ export const configureViemChain = (
     ...chain,
     viemChain,
     icon: {
-      dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
+      dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
+      light: `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
+      squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
+      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`,
     },
   }
 }
@@ -76,8 +79,10 @@ export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
         ? chain.rpcUrls.default.webSocket[0] ?? ''
         : '',
     icon: {
-      dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
+      dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
+      light: `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
+      squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
+      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`,
     },
     currency: chain.nativeCurrency,
     explorerUrl: chain.blockExplorers?.default.url ?? '',
