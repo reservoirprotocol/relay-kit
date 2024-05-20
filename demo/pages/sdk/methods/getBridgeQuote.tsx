@@ -112,7 +112,7 @@ const GetBridgeQuotePage: NextPage = () => {
               useExactInput: useExactInput
             }
           })
-          setResponse(quote as Execute)
+          setResponse(quote)
         }}>
         Get Bridge Quote
       </button>

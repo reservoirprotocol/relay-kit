@@ -102,7 +102,7 @@ const GetSwapQuote: NextPage = () => {
               console.log(data)
             }
           })
-          setResponse(quote as Execute)
+          setResponse(quote)
         }}>
         Get Swap Quote
       </button>

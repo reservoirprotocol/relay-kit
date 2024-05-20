@@ -91,7 +91,7 @@ const GetCallQuotePage: NextPage = () => {
             toChainId,
           })
 
-          setResponse(quote as Execute)
+          setResponse(quote)
         }}>
         Get Call Quote
       </button>
