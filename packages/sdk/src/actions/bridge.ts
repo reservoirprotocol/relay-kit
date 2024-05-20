@@ -86,7 +86,7 @@ export async function bridge(data: BridgeActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -99,6 +99,7 @@ export async function bridge(data: BridgeActionParameters) {
       currency,
       amount,
       source: client.source || undefined,
+      useForwarder: false,
       ...options,
     }
 
@@ -148,7 +149,7 @@ export async function bridge(data: BridgeActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }

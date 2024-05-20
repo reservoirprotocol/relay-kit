@@ -90,7 +90,7 @@ export async function swap(data: SwapActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -156,7 +156,7 @@ export async function swap(data: SwapActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }

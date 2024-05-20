@@ -86,7 +86,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -94,7 +94,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
@@ -106,6 +106,7 @@ export async function call(data: CallActionParameters) {
       originChainId: chainId,
       destinationChainId: toChainId,
       source: client.source || undefined,
+      useForwarder: false,
       ...options,
     }
 
@@ -155,7 +156,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }

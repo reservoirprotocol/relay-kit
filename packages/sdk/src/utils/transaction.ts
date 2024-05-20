@@ -4,6 +4,7 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
+  paths,
 } from '../types/index.js'
 import axios from 'axios'
 import type {
@@ -40,6 +41,15 @@ export async function sendTransactionSafely(
   if ((txHash as any) === 'null') {
     throw 'User rejected the request'
   }
+
+  postTransactionToSolver({
+    txHash,
+    chainId,
+    step,
+    request,
+    headers,
+  })
+
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
@@ -72,6 +82,13 @@ export async function sendTransactionSafely(
           ['Transaction replaced', replacement],
           LogLevel.Verbose
         )
+        postTransactionToSolver({
+          txHash,
+          chainId,
+          step,
+          request,
+          headers,
+        })
       },
     })
     .catch((error) => {
@@ -150,4 +167,52 @@ export async function sendTransactionSafely(
   }
 
   return true
+}
+
+const postTransactionToSolver = async ({
+  txHash,
+  chainId,
+  request,
+  headers,
+  step,
+}: {
+  txHash: Address | undefined
+  chainId: number
+  step: Execute['steps'][0]
+  request: AxiosRequestConfig
+  headers?: AxiosRequestHeaders
+}) => {
+  if (step.id === 'deposit' && txHash) {
+    getClient()?.log(
+      ['Posting transaction to notify the solver'],
+      LogLevel.Verbose
+    )
+    try {
+      const triggerData: NonNullable<
+        paths['/transactions/index']['post']['requestBody']
+      >['content']['application/json'] = {
+        txHash,
+        chainId: chainId.toString(),
+      }
+
+      axios
+        .request({
+          url: `${request.baseURL}/transactions/index`,
+          method: 'POST',
+          headers: headers,
+          data: triggerData,
+        })
+        .then(() => {
+          getClient()?.log(
+            ['Transaction notified to the solver'],
+            LogLevel.Verbose
+          )
+        })
+    } catch (e) {
+      getClient()?.log(
+        ['Failed to post transaction to solver', e],
+        LogLevel.Warn
+      )
+    }
+  }
 }
