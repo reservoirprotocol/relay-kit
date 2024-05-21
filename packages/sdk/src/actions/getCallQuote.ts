@@ -1,5 +1,5 @@
 import type { Execute } from '../types/Execute.js'
-import { call, type CallActionParameters } from '../actions/index.js'
+import { call, type CallActionParameters } from './index.js'
 
 export type GetCallQuoteParameters = Omit<CallActionParameters, 'precheck'>
 

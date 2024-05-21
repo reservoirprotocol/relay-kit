@@ -125,7 +125,7 @@ const GetBridgeQuotePage: NextPage = () => {
             throw 'Must include a value for bridging'
           }
 
-          const quote = await getClient()?.methods.getBridgeQuote({
+          const quote = await getClient()?.actions.getBridgeQuote({
             chainId: fromChainId,
             wallet, // optional
             toChainId,

@@ -79,7 +79,7 @@ const GetSolverCapcityPage: NextPage = () => {
             throw 'Please connect your wallet'
           }
 
-          const solverCapacity = await getClient()?.methods.getSolverCapacity({
+          const solverCapacity = await getClient()?.actions.getSolverCapacity({
             destinationChainId,
             originChainId,
             user: zeroAddress,

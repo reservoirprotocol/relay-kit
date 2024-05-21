@@ -1,5 +1,5 @@
 import type { Execute } from '../types/Execute.js'
-import { bridge, type BridgeActionParameters } from '../actions/index.js'
+import { bridge, type BridgeActionParameters } from './index.js'
 
 export type GetBridgeQuoteParameters = Omit<BridgeActionParameters, 'precheck'>
 
