@@ -3,6 +3,7 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
+  CallFees
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -10,14 +11,14 @@ import {
   APIError,
   prepareCallTransaction,
   adaptViemWallet,
-  getCurrentStepData,
+  getCurrentStepData
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import {
   zeroAddress,
   type WalletClient,
-  type WriteContractParameters,
+  type WriteContractParameters
 } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
@@ -29,6 +30,10 @@ export type CallBodyOptions = Omit<
   'txs' | 'destinationChainId' | 'originChainId'
 >
 
+export type CallProgressData = Omit<ProgressData, 'fees'> & {
+  fees: CallFees
+}
+
 export type SimulateContractRequest = WriteContractParameters<any>
 
 export type CallActionParameters = {
@@ -37,7 +42,7 @@ export type CallActionParameters = {
   toChainId: number
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (data: ProgressData) => any
+  onProgress?: (data: CallProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -66,7 +71,7 @@ export async function call(data: CallActionParameters) {
     options,
     onProgress = () => {},
     precheck,
-    depositGasLimit,
+    depositGasLimit
   } = data
   const client = getClient()
 
@@ -86,7 +91,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -94,7 +99,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
@@ -106,24 +111,25 @@ export async function call(data: CallActionParameters) {
       originChainId: chainId,
       destinationChainId: toChainId,
       source: client.source || undefined,
-      ...options,
+      useForwarder: false,
+      ...options
     }
 
     const request: AxiosRequestConfig = {
       url: `${client.baseApiUrl}/execute/call`,
       method: 'post',
-      data,
+      data
     }
 
     if (precheck) {
       const res = await axios.request(request)
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
-      const data = res.data as Execute
+      const data = res.data as Omit<Execute, 'fees'> & { fees: CallFees }
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
-        breakdown: data['breakdown'],
+        fees: data['fees'] as CallFees,
+        breakdown: data['breakdown']
       })
       return data
     } else {
@@ -131,7 +137,7 @@ export async function call(data: CallActionParameters) {
         throw new Error('AdaptedWallet is required to execute steps')
       }
 
-      await executeSteps(
+      return (await executeSteps(
         chainId,
         request,
         adaptedWallet,
@@ -141,23 +147,22 @@ export async function call(data: CallActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as CallFees,
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes,
+            txHashes
           })
         },
         undefined,
         depositGasLimit
           ? {
               deposit: {
-                gasLimit: depositGasLimit,
-              },
+                gasLimit: depositGasLimit
+              }
             }
-          : undefined,
-      )
-      return true
+          : undefined
+      )) as Omit<Execute, 'fees'> & { fees: CallFees }
     }
   } catch (err: any) {
     console.error(err)

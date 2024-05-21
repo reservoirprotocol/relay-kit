@@ -9,7 +9,8 @@
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "none"
   },
   "dependencies": {
     "@radix-ui/colors": "^0.1.8",

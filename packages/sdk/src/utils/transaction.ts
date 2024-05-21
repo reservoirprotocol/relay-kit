@@ -4,12 +4,13 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
+  paths
 } from '../types/index.js'
 import axios from 'axios'
 import type {
   AxiosRequestConfig,
   AxiosRequestHeaders,
-  AxiosResponse,
+  AxiosResponse
 } from 'axios'
 import { getClient } from '../client.js'
 import { SolverStatusTimeoutError } from '../errors/index.js'
@@ -40,6 +41,15 @@ export async function sendTransactionSafely(
   if ((txHash as any) === 'null') {
     throw 'User rejected the request'
   }
+
+  postTransactionToSolver({
+    txHash,
+    chainId,
+    step,
+    request,
+    headers
+  })
+
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
@@ -64,7 +74,7 @@ export async function sendTransactionSafely(
         }
 
         setTxHashes([
-          { txHash: replacement.transaction.hash, chainId: chainId },
+          { txHash: replacement.transaction.hash, chainId: chainId }
         ])
         txHash = replacement.transaction.hash
         attemptCount = 0 // reset attempt count
@@ -72,7 +82,14 @@ export async function sendTransactionSafely(
           ['Transaction replaced', replacement],
           LogLevel.Verbose
         )
-      },
+        postTransactionToSolver({
+          txHash,
+          chainId,
+          step,
+          request,
+          headers
+        })
+      }
     })
     .catch((error) => {
       getClient()?.log(
@@ -99,7 +116,7 @@ export async function sendTransactionSafely(
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
         return {
           txHash: hash,
-          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId,
+          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId
         }
       })
       setTxHashes(chainTxHashes)
@@ -119,7 +136,7 @@ export async function sendTransactionSafely(
       res = await axios.request({
         url: `${request.baseURL}${item?.check?.endpoint}`,
         method: item?.check?.method,
-        headers: headers,
+        headers: headers
       })
     }
 
@@ -150,4 +167,52 @@ export async function sendTransactionSafely(
   }
 
   return true
+}
+
+const postTransactionToSolver = async ({
+  txHash,
+  chainId,
+  request,
+  headers,
+  step
+}: {
+  txHash: Address | undefined
+  chainId: number
+  step: Execute['steps'][0]
+  request: AxiosRequestConfig
+  headers?: AxiosRequestHeaders
+}) => {
+  if (step.id === 'deposit' && txHash) {
+    getClient()?.log(
+      ['Posting transaction to notify the solver'],
+      LogLevel.Verbose
+    )
+    try {
+      const triggerData: NonNullable<
+        paths['/transactions/index']['post']['requestBody']
+      >['content']['application/json'] = {
+        txHash,
+        chainId: chainId.toString()
+      }
+
+      axios
+        .request({
+          url: `${request.baseURL}/transactions/index`,
+          method: 'POST',
+          headers: headers,
+          data: triggerData
+        })
+        .then(() => {
+          getClient()?.log(
+            ['Transaction notified to the solver'],
+            LogLevel.Verbose
+          )
+        })
+    } catch (e) {
+      getClient()?.log(
+        ['Failed to post transaction to solver', e],
+        LogLevel.Warn
+      )
+    }
+  }
 }

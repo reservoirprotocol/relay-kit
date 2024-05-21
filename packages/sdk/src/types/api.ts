@@ -380,7 +380,10 @@ export interface paths {
             useExactInput?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
-            /** @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces. */
+            /**
+             * @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @default true
+             */
             useForwarder?: boolean;
             /** @description Enable this to use permit (eip3009), only works on supported currency such as usdc */
             usePermit?: boolean;
@@ -547,7 +550,10 @@ export interface paths {
             /** @description Always refund on the origin chain in case of any issues */
             refundOnOrigin?: boolean;
             source?: string;
-            /** @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces. */
+            /**
+             * @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @default true
+             */
             useForwarder?: boolean;
           };
         };
@@ -1239,16 +1245,11 @@ export interface paths {
   };
   "/transactions/index": {
     post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
       requestBody: {
         content: {
           "application/json": {
             chainId: string;
-            block: string;
+            txHash: string;
           };
         };
       };
@@ -1451,6 +1452,8 @@ export interface paths {
             address?: string;
             /** @description ID to search for a currency group */
             currencyId?: string;
+            /** @description List of token addresses, like: chainId:address */
+            tokens?: unknown[];
             /** @description Filter verified currencies */
             verified?: boolean;
             /** @description Limit the number of results */

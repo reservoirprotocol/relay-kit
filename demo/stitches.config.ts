@@ -9,7 +9,7 @@ import {
   indigoDarkA,
   whiteA,
   blackA,
-  green,
+  green
 } from '@radix-ui/colors'
 import { createStitches } from '@stitches/react'
 import type * as Stitches from '@stitches/react'
@@ -82,7 +82,7 @@ export const { createTheme, keyframes, styled, globalCss, getCssText } =
         red9: '$crimson9',
         red10: '$crimson10',
         red11: '$crimson11',
-        red12: '$crimson12',
+        red12: '$crimson12'
       },
       space: {
         1: '4px',
@@ -90,94 +90,94 @@ export const { createTheme, keyframes, styled, globalCss, getCssText } =
         3: '12px',
         4: '16px',
         5: '32px',
-        6: '64px',
+        6: '64px'
       },
       fontSizes: {},
       fontWeights: {},
       fonts: {
         body: 'Inter',
-        button: '$body',
+        button: '$body'
       },
       lineHeights: {},
       letterSpacings: {},
       sizes: {},
       radii: {},
       shadows: {},
-      transitions: {},
+      transitions: {}
     },
     utils: {
       // MARGIN
       m: (value: Stitches.PropertyValue<'margin'>) => ({
-        margin: value,
+        margin: value
       }),
       mx: (value: Stitches.PropertyValue<'margin'>) => ({
         marginLeft: value,
-        marginRight: value,
+        marginRight: value
       }),
       my: (value: Stitches.PropertyValue<'margin'>) => ({
         marginTop: value,
-        marginBottom: value,
+        marginBottom: value
       }),
       mt: (value: Stitches.PropertyValue<'margin'>) => ({
-        marginTop: value,
+        marginTop: value
       }),
       mb: (value: Stitches.PropertyValue<'margin'>) => ({
-        marginBottom: value,
+        marginBottom: value
       }),
       ml: (value: Stitches.PropertyValue<'margin'>) => ({
-        marginLeft: value,
+        marginLeft: value
       }),
       mr: (value: Stitches.PropertyValue<'margin'>) => ({
-        marginRight: value,
+        marginRight: value
       }),
 
       // PADDING
       p: (value: Stitches.PropertyValue<'padding'>) => ({
-        padding: value,
+        padding: value
       }),
       px: (value: Stitches.PropertyValue<'padding'>) => ({
         paddingLeft: value,
-        paddingRight: value,
+        paddingRight: value
       }),
       py: (value: Stitches.PropertyValue<'padding'>) => ({
         paddingTop: value,
-        paddingBottom: value,
+        paddingBottom: value
       }),
       pt: (value: Stitches.PropertyValue<'padding'>) => ({
-        paddingTop: value,
+        paddingTop: value
       }),
       pb: (value: Stitches.PropertyValue<'padding'>) => ({
-        paddingBottom: value,
+        paddingBottom: value
       }),
       pl: (value: Stitches.PropertyValue<'padding'>) => ({
-        paddingLeft: value,
+        paddingLeft: value
       }),
       pr: (value: Stitches.PropertyValue<'padding'>) => ({
-        paddingRight: value,
+        paddingRight: value
       }),
       // DIMENSIONS
       w: (value: Stitches.PropertyValue<'width'>) => ({
-        width: value,
+        width: value
       }),
       h: (value: Stitches.PropertyValue<'height'>) => ({
-        height: value,
+        height: value
       }),
       size: (value: Stitches.PropertyValue<'width'>) => ({
         width: value,
-        height: value,
+        height: value
       }),
 
       // GRID
       colSpan: (value: number | 'full') => {
         if (value === 'full') {
           return {
-            gridColumn: '1 / -1',
+            gridColumn: '1 / -1'
           }
         }
         return {
-          gridColumn: `span ${value} / span ${value}`,
+          gridColumn: `span ${value} / span ${value}`
         }
-      },
+      }
     },
     media: {
       bp1: '(min-width: 600px)',
@@ -187,8 +187,8 @@ export const { createTheme, keyframes, styled, globalCss, getCssText } =
       motion: '(prefers-reduced-motion)',
       hover: '(any-hover: hover)',
       dark: '(prefers-color-scheme: dark)',
-      light: '(prefers-color-scheme: light)',
-    },
+      light: '(prefers-color-scheme: light)'
+    }
   })
 
 export const darkTheme = createTheme({
@@ -256,6 +256,6 @@ export const darkTheme = createTheme({
     red9: '$crimson9',
     red10: '$crimson10',
     red11: '$crimson11',
-    red12: '$crimson12',
-  },
+    red12: '$crimson12'
+  }
 })
