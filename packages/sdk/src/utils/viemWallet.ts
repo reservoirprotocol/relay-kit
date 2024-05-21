@@ -7,7 +7,10 @@ import { custom, hexToBigInt } from 'viem'
 export function isViemWalletClient(
   wallet: WalletClient | AdaptedWallet
 ): wallet is WalletClient {
-  return (wallet as WalletClient).extend !== undefined && (wallet as WalletClient).getPermissions !== undefined
+  return (
+    (wallet as WalletClient).extend !== undefined &&
+    (wallet as WalletClient).getPermissions !== undefined
+  )
 }
 
 export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
@@ -35,13 +38,13 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
             signature = await wallet.signMessage({
               account: wallet.account as Account,
               message: {
-                raw: signData.message as Hex,
-              },
+                raw: signData.message as Hex
+              }
             })
           } else {
             signature = await wallet.signMessage({
               account: wallet.account as Account,
-              message: signData.message,
+              message: signData.message
             })
           }
         } else if (signData.signatureKind === 'eip712') {
@@ -51,7 +54,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
             domain: signData.domain as any,
             types: signData.types as any,
             primaryType: signData.primaryType,
-            message: signData.value,
+            message: signData.value
           })
         }
       }
@@ -73,17 +76,17 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         to: stepData.to,
         value: hexToBigInt((stepData.value as any) || 0),
         ...(stepData.maxFeePerGas && {
-          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any),
+          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
         }),
         ...(stepData.maxPriorityFeePerGas && {
           maxPriorityFeePerGas: hexToBigInt(
             stepData.maxPriorityFeePerGas as any
-          ),
+          )
         }),
         ...(stepData.gas && {
-          gas: hexToBigInt(stepData.gas as any),
-        }),
+          gas: hexToBigInt(stepData.gas as any)
+        })
       })
-    },
+    }
   }
 }

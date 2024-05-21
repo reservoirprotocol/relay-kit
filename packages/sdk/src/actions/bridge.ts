@@ -3,7 +3,7 @@ import {
   APIError,
   adaptViemWallet,
   executeSteps,
-  getCurrentStepData,
+  getCurrentStepData
 } from '../utils/index.js'
 import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
@@ -62,7 +62,7 @@ export async function bridge(data: BridgeActionParameters) {
     onProgress = () => {},
     precheck,
     depositGasLimit,
-    options,
+    options
   } = data
   const client = getClient()
 
@@ -95,13 +95,13 @@ export async function bridge(data: BridgeActionParameters) {
       currency,
       amount,
       source: client.source || undefined,
-      ...options,
+      ...options
     }
 
     const request: AxiosRequestConfig = {
       url: `${client.baseApiUrl}/execute/bridge`,
       method: 'post',
-      data,
+      data
     }
 
     if (precheck) {
@@ -112,7 +112,7 @@ export async function bridge(data: BridgeActionParameters) {
       onProgress({
         steps: data['steps'],
         fees: data['fees'] as CallFees,
-        breakdown: data['breakdown'],
+        breakdown: data['breakdown']
       })
       return data
     } else {
@@ -134,15 +134,15 @@ export async function bridge(data: BridgeActionParameters) {
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes,
+            txHashes
           })
         },
         undefined,
         depositGasLimit
           ? {
               deposit: {
-                gasLimit: depositGasLimit,
-              },
+                gasLimit: depositGasLimit
+              }
             }
           : undefined
       )

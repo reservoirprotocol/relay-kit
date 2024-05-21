@@ -3,7 +3,7 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
-  CallFees,
+  CallFees
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -11,14 +11,14 @@ import {
   APIError,
   prepareCallTransaction,
   adaptViemWallet,
-  getCurrentStepData,
+  getCurrentStepData
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import {
   zeroAddress,
   type WalletClient,
-  type WriteContractParameters,
+  type WriteContractParameters
 } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
@@ -71,7 +71,7 @@ export async function call(data: CallActionParameters) {
     options,
     onProgress = () => {},
     precheck,
-    depositGasLimit,
+    depositGasLimit
   } = data
   const client = getClient()
 
@@ -111,13 +111,13 @@ export async function call(data: CallActionParameters) {
       originChainId: chainId,
       destinationChainId: toChainId,
       source: client.source || undefined,
-      ...options,
+      ...options
     }
 
     const request: AxiosRequestConfig = {
       url: `${client.baseApiUrl}/execute/call`,
       method: 'post',
-      data,
+      data
     }
 
     if (precheck) {
@@ -128,7 +128,7 @@ export async function call(data: CallActionParameters) {
       onProgress({
         steps: data['steps'],
         fees: data['fees'] as CallFees,
-        breakdown: data['breakdown'],
+        breakdown: data['breakdown']
       })
       return data
     } else {
@@ -150,15 +150,15 @@ export async function call(data: CallActionParameters) {
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes,
+            txHashes
           })
         },
         undefined,
         depositGasLimit
           ? {
               deposit: {
-                gasLimit: depositGasLimit,
-              },
+                gasLimit: depositGasLimit
+              }
             }
           : undefined
       )

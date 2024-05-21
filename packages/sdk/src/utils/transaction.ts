@@ -3,13 +3,13 @@ import { LogLevel } from './logger.js'
 import type {
   Execute,
   AdaptedWallet,
-  TransactionStepItem,
+  TransactionStepItem
 } from '../types/index.js'
 import axios from 'axios'
 import type {
   AxiosRequestConfig,
   AxiosRequestHeaders,
-  AxiosResponse,
+  AxiosResponse
 } from 'axios'
 import { getClient } from '../client.js'
 import { SolverStatusTimeoutError } from '../errors/index.js'
@@ -64,7 +64,7 @@ export async function sendTransactionSafely(
         }
 
         setTxHashes([
-          { txHash: replacement.transaction.hash, chainId: chainId },
+          { txHash: replacement.transaction.hash, chainId: chainId }
         ])
         txHash = replacement.transaction.hash
         attemptCount = 0 // reset attempt count
@@ -72,7 +72,7 @@ export async function sendTransactionSafely(
           ['Transaction replaced', replacement],
           LogLevel.Verbose
         )
-      },
+      }
     })
     .catch((error) => {
       getClient()?.log(
@@ -99,7 +99,7 @@ export async function sendTransactionSafely(
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
         return {
           txHash: hash,
-          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId,
+          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId
         }
       })
       setTxHashes(chainTxHashes)
@@ -119,7 +119,7 @@ export async function sendTransactionSafely(
       res = await axios.request({
         url: `${request.baseURL}${item?.check?.endpoint}`,
         method: item?.check?.method,
-        headers: headers,
+        headers: headers
       })
     }
 

@@ -7,10 +7,10 @@ import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 
 const CallActionPage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
-  const [tx, setTx] = useState<string>("")
+  const [tx, setTx] = useState<string>('')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
-  const [depositGasLimit, setDepositGasLimit] = useState("")
+  const [depositGasLimit, setDepositGasLimit] = useState('')
   const { data: wallet } = useWalletClient()
 
   return (
@@ -23,32 +23,51 @@ const CallActionPage: NextPage = () => {
         padding: 24,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 150,
+        paddingTop: 150
       }}
     >
       <ConnectButton />
       <div>
         <label>To Chain Id: </label>
-        <input type="number" placeholder='Which chain to interact with?' value={toChainId} onChange={(e) => setToChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to interact with?"
+          value={toChainId}
+          onChange={(e) => setToChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>From Chain Id: </label>
-        <input type="number" placeholder='Which chain to deposit on?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to deposit on?"
+          value={fromChainId}
+          onChange={(e) => setFromChainId(Number(e.target.value))}
+        />
       </div>
-      <textarea style={{minHeight: 100, minWidth: 300}} placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}' value={tx} onChange={(e) => setTx(e.target.value)}/>
+      <textarea
+        style={{ minHeight: 100, minWidth: 300 }}
+        placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}'
+        value={tx}
+        onChange={(e) => setTx(e.target.value)}
+      />
       <div>
         <label>Deposit Gas Limit: </label>
-        <input type="number" value={depositGasLimit} onChange={(e) => setDepositGasLimit(e.target.value)} />
+        <input
+          type="number"
+          value={depositGasLimit}
+          onChange={(e) => setDepositGasLimit(e.target.value)}
+        />
       </div>
       <button
-      style={{
-        background: 'blue',
-        color: 'white',
-        border: '1px solid #ffffff',
-        borderRadius: 8,
-        cursor: 'pointer',
-        padding: "4px 8px",
-      }}
+        style={{
+          background: 'blue',
+          color: 'white',
+          border: '1px solid #ffffff',
+          borderRadius: 8,
+          cursor: 'pointer',
+          padding: '4px 8px'
+        }}
         disabled={!tx}
         onClick={() => {
           setTxs([...txs, JSON.parse(`${tx}`)])
@@ -64,17 +83,15 @@ const CallActionPage: NextPage = () => {
           padding: 10,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
+          gap: 4
         }}
       >
         <b>Txs Added:</b>
         {txs.map((tx, i) => (
-          <div key={i}>
-            {JSON.stringify(tx)}
-          </div>
+          <div key={i}>{JSON.stringify(tx)}</div>
         ))}
       </div>
-      <button 
+      <button
         style={{
           marginTop: 50,
           padding: 24,
@@ -84,11 +101,11 @@ const CallActionPage: NextPage = () => {
           border: '1px solid #ffffff',
           borderRadius: 8,
           fontWeight: 800,
-          cursor: 'pointer',
-        }} 
+          cursor: 'pointer'
+        }}
         onClick={() => {
           if (!wallet) {
-            throw "Please connect to execute transactions"
+            throw 'Please connect to execute transactions'
           }
           getClient()?.actions.call({
             chainId: fromChainId,
@@ -98,9 +115,10 @@ const CallActionPage: NextPage = () => {
             depositGasLimit,
             onProgress: (data) => {
               console.log(data)
-            },
+            }
           })
-        }}>
+        }}
+      >
         Execute Transactions
       </button>
     </div>
