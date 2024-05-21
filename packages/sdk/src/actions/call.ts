@@ -111,6 +111,7 @@ export async function call(data: CallActionParameters) {
       originChainId: chainId,
       destinationChainId: toChainId,
       source: client.source || undefined,
+      useForwarder: false,
       ...options
     }
 

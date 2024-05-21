@@ -95,6 +95,7 @@ export async function bridge(data: BridgeActionParameters) {
       currency,
       amount,
       source: client.source || undefined,
+      useForwarder: false,
       ...options
     }
 
