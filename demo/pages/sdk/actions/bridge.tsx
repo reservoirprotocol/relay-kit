@@ -123,7 +123,7 @@ const BridgeActionPage: NextPage = () => {
           fontWeight: 800,
           cursor: 'pointer',
         }} 
-        onClick={() => {
+        onClick={async () => {
           if (!wallet) {
             throw "Please connect to execute transactions"
           }
@@ -134,7 +134,7 @@ const BridgeActionPage: NextPage = () => {
             throw "Must include an amount for bridging"
           }
 
-          getClient()?.actions.bridge({
+          var x = await getClient()?.actions.bridge({
             chainId: fromChainId,
             wallet,
             toChainId,
@@ -151,6 +151,7 @@ const BridgeActionPage: NextPage = () => {
               console.log(data)
             }
           })
+          x.fees?.app?.includes("")
         }}>
         Execute Bridge
       </button>

@@ -3,6 +3,7 @@ import type {
   AdaptedWallet,
   paths,
   ProgressData,
+  CallFees,
 } from '../types/index.js'
 import {
   APIError,
@@ -115,7 +116,7 @@ export async function bridge(data: BridgeActionParameters) {
       const data = res.data as Execute
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
+        fees: data['fees'] as CallFees,
         breakdown: data['breakdown'],
       })
       return data
@@ -124,7 +125,7 @@ export async function bridge(data: BridgeActionParameters) {
         throw new Error('AdaptedWallet is required to execute steps')
       }
 
-      await executeSteps(
+      return await executeSteps(
         chainId,
         request,
         adaptedWallet,
@@ -134,7 +135,7 @@ export async function bridge(data: BridgeActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as CallFees,
             breakdown,
             currentStep,
             currentStepItem,
@@ -150,7 +151,6 @@ export async function bridge(data: BridgeActionParameters) {
             }
           : undefined,
       )
-      return true
     }
   } catch (err: any) {
     console.error(err)
