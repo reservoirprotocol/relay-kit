@@ -1,20 +1,25 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { BridgeActionParameters, Execute, getClient } from '@reservoir0x/relay-sdk'
+import {
+  BridgeActionParameters,
+  Execute,
+  getClient
+} from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
 
 const GetBridgeQuotePage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
-  const [amount, setAmount] = useState<string>("")
-  const [currency, setCurrency] =useState<BridgeActionParameters['currency']>('eth')
+  const [amount, setAmount] = useState<string>('')
+  const [currency, setCurrency] =
+    useState<BridgeActionParameters['currency']>('eth')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [useExactInput, setUseExactInput] = useState(false)
   const { data: wallet } = useWalletClient()
-  const [response, setResponse] = useState<Execute |null>(null)
+  const [response, setResponse] = useState<Execute | null>(null)
 
   return (
     <div
@@ -26,48 +31,67 @@ const GetBridgeQuotePage: NextPage = () => {
         padding: 24,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 150,
+        paddingTop: 150
       }}
     >
       <ConnectButton />
       <div>
         <label>To Chain Id: </label>
-        <input type="number" placeholder='Which chain to bridge to?' value={toChainId} onChange={(e) => setToChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to bridge to?"
+          value={toChainId}
+          onChange={(e) => setToChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>From Chain Id: </label>
-        <input type="number" placeholder='Which chain to deposit on?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to deposit on?"
+          value={fromChainId}
+          onChange={(e) => setFromChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>Amount: </label>
-        <input type="number" placeholder='How much to bridge?' value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <input
+          type="number"
+          placeholder="How much to bridge?"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
       </div>
       <div>
         <label>Currency: </label>
         <div>
-          <input 
-            type="radio" 
-            value="eth" 
-            name="currency" 
-            checked={currency === "eth"} 
-            onChange={(e) => setCurrency(e.target.value as 'eth')} 
+          <input
+            type="radio"
+            value="eth"
+            name="currency"
+            checked={currency === 'eth'}
+            onChange={(e) => setCurrency(e.target.value as 'eth')}
           />
           <label>ETH</label>
         </div>
         <div>
-          <input 
-            type="radio" 
-            value="usdc" 
-            name="currency" 
-            checked={currency === "usdc"} 
-            onChange={(e) => setCurrency(e.target.value as 'usdc')} 
+          <input
+            type="radio"
+            value="usdc"
+            name="currency"
+            checked={currency === 'usdc'}
+            onChange={(e) => setCurrency(e.target.value as 'usdc')}
           />
           <label>USDC</label>
         </div>
       </div>
       <div>
         <label>To: </label>
-        <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+        <input
+          placeholder="Who is the receiver?"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+        />
       </div>
 
       <div>
@@ -81,7 +105,7 @@ const GetBridgeQuotePage: NextPage = () => {
         />
       </div>
 
-      <button 
+      <button
         style={{
           marginTop: 50,
           padding: 24,
@@ -91,14 +115,14 @@ const GetBridgeQuotePage: NextPage = () => {
           border: '1px solid #ffffff',
           borderRadius: 8,
           fontWeight: 800,
-          cursor: 'pointer',
-        }} 
+          cursor: 'pointer'
+        }}
         onClick={async () => {
           if (recipient && !isAddress(recipient)) {
-            throw "Recipient must be an address"
+            throw 'Recipient must be an address'
           }
           if (!amount) {
-            throw "Must include a value for bridging"
+            throw 'Must include a value for bridging'
           }
 
           const quote = await getClient()?.methods.getBridgeQuote({
@@ -107,13 +131,14 @@ const GetBridgeQuotePage: NextPage = () => {
             toChainId,
             amount,
             currency,
-            recipient: recipient ? recipient as Address : undefined,
-            options:{
+            recipient: recipient ? (recipient as Address) : undefined,
+            options: {
               useExactInput: useExactInput
             }
           })
           setResponse(quote)
-        }}>
+        }}
+      >
         Get Bridge Quote
       </button>
       {response && (
@@ -124,7 +149,7 @@ const GetBridgeQuotePage: NextPage = () => {
             background: '#f0f0f0',
             borderRadius: '8px',
             width: '100%',
-            maxWidth: 1000,
+            maxWidth: 1000
           }}
         >
           <pre>{JSON.stringify(response, null, 2)}</pre>

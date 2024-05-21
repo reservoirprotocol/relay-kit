@@ -12,7 +12,7 @@ export async function getBridgeQuote(
 ): Promise<Execute> {
   const result = await bridge({
     ...data,
-    precheck: true,
+    precheck: true
   })
 
   return result as Execute

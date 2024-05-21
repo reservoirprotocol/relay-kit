@@ -12,7 +12,7 @@ export async function getCallQuote(
 ): Promise<Execute> {
   const result = await call({
     ...data,
-    precheck: true,
+    precheck: true
   })
 
   return result as Execute

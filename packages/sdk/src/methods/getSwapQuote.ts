@@ -12,7 +12,7 @@ export async function getSwapQuote(
 ): Promise<Execute> {
   const result = await swap({
     ...data,
-    precheck: true,
+    precheck: true
   })
 
   return result as Execute

@@ -3,7 +3,7 @@ export enum LogLevel {
   Info = 3,
   Warn = 2,
   Error = 1,
-  None = 0,
+  None = 0
 }
 
 export const log = (params: any[], level: LogLevel, currentLevel: LogLevel) => {

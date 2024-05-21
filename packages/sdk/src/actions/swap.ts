@@ -3,14 +3,14 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
-  SwapFees,
+  SwapFees
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
   executeSteps,
   APIError,
   adaptViemWallet,
-  getCurrentStepData,
+  getCurrentStepData
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
@@ -70,7 +70,7 @@ export async function swap(data: SwapActionParameters) {
     options,
     onProgress = () => {},
     precheck,
-    depositGasLimit,
+    depositGasLimit
   } = data
   const client = getClient()
 
@@ -90,7 +90,7 @@ export async function swap(data: SwapActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -105,13 +105,13 @@ export async function swap(data: SwapActionParameters) {
       recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
       tradeType: options?.tradeType ?? 'EXACT_INPUT',
       source: client.source || undefined,
-      ...options,
+      ...options
     }
 
     const request: AxiosRequestConfig = {
       url: `${client.baseApiUrl}/execute/swap`,
       method: 'post',
-      data,
+      data
     }
 
     if (precheck) {
@@ -123,7 +123,7 @@ export async function swap(data: SwapActionParameters) {
         steps: data['steps'],
         fees: data['fees'] as SwapFees,
         breakdown: data['breakdown'],
-        details: data['details'],
+        details: data['details']
       })
       return data
     } else {
@@ -146,17 +146,17 @@ export async function swap(data: SwapActionParameters) {
             details,
             currentStep,
             currentStepItem,
-            txHashes,
+            txHashes
           })
         },
         undefined,
         depositGasLimit
           ? {
               deposit: {
-                gasLimit: depositGasLimit,
-              },
+                gasLimit: depositGasLimit
+              }
             }
-          : undefined,
+          : undefined
       )
       return true
     }
