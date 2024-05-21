@@ -1,9 +1,4 @@
-import type {
-  Execute,
-  AdaptedWallet,
-  paths,
-  ProgressData,
-} from '../types/index.js'
+import type { Execute, AdaptedWallet, paths, CallFees } from '../types/index.js'
 import {
   APIError,
   adaptViemWallet,
@@ -15,6 +10,7 @@ import { isViemWalletClient } from '../utils/viemWallet.js'
 import { getClient } from '../client.js'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import type { CallProgressData } from './call.js'
 
 export type BridgeBody = NonNullable<
   paths['/execute/bridge']['post']['requestBody']['content']['application/json']
@@ -37,7 +33,7 @@ export type BridgeActionParameters = {
   recipient?: Address
   options?: BridgeBodyOptions
   depositGasLimit?: string
-  onProgress?: (data: ProgressData) => any
+  onProgress?: (data: CallProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -86,7 +82,7 @@ export async function bridge(data: BridgeActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -115,7 +111,7 @@ export async function bridge(data: BridgeActionParameters) {
       const data = res.data as Execute
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
+        fees: data['fees'] as CallFees,
         breakdown: data['breakdown'],
       })
       return data
@@ -134,7 +130,7 @@ export async function bridge(data: BridgeActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as CallFees,
             breakdown,
             currentStep,
             currentStepItem,
@@ -148,7 +144,7 @@ export async function bridge(data: BridgeActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }

@@ -3,6 +3,7 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
+  CallFees,
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -29,6 +30,10 @@ export type CallBodyOptions = Omit<
   'txs' | 'destinationChainId' | 'originChainId'
 >
 
+export type CallProgressData = Omit<ProgressData, 'fees'> & {
+  fees: CallFees
+}
+
 export type SimulateContractRequest = WriteContractParameters<any>
 
 export type CallActionParameters = {
@@ -37,7 +42,7 @@ export type CallActionParameters = {
   toChainId: number
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (data: ProgressData) => any
+  onProgress?: (data: CallProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -86,7 +91,7 @@ export async function call(data: CallActionParameters) {
   // Ensure wallet is provided when precheck is false or undefined
   if (!precheck && !adaptedWallet) {
     throw new Error(
-      'Wallet is required when precheck is false or not provided.',
+      'Wallet is required when precheck is false or not provided.'
     )
   }
 
@@ -94,7 +99,7 @@ export async function call(data: CallActionParameters) {
     const preparedTransactions: CallBody['txs'] = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
         return prepareCallTransaction(
-          tx as Parameters<typeof prepareCallTransaction>['0'],
+          tx as Parameters<typeof prepareCallTransaction>['0']
         )
       }
       return tx
@@ -122,7 +127,7 @@ export async function call(data: CallActionParameters) {
       const data = res.data as Execute
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
+        fees: data['fees'] as CallFees,
         breakdown: data['breakdown'],
       })
       return data
@@ -141,7 +146,7 @@ export async function call(data: CallActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as CallFees,
             breakdown,
             currentStep,
             currentStepItem,
@@ -155,7 +160,7 @@ export async function call(data: CallActionParameters) {
                 gasLimit: depositGasLimit,
               },
             }
-          : undefined,
+          : undefined
       )
       return true
     }
