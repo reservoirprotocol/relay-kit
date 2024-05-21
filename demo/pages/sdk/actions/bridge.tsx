@@ -175,8 +175,7 @@ const BridgeActionPage: NextPage = () => {
               console.log(data)
             }
           })
-        }}
-      >
+        }}>
         Execute Bridge
       </button>
     </div>

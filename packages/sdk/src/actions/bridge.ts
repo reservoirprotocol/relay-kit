@@ -109,7 +109,7 @@ export async function bridge(data: BridgeActionParameters) {
       const res = await axios.request(request)
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
-      const data = res.data as Execute
+      const data = res.data as Omit<Execute, 'fees'> & { fees: CallFees }
       onProgress({
         steps: data['steps'],
         fees: data['fees'] as CallFees,
@@ -121,7 +121,7 @@ export async function bridge(data: BridgeActionParameters) {
         throw new Error('AdaptedWallet is required to execute steps')
       }
 
-      await executeSteps(
+      return (await executeSteps(
         chainId,
         request,
         adaptedWallet,
@@ -146,8 +146,7 @@ export async function bridge(data: BridgeActionParameters) {
               }
             }
           : undefined
-      )
-      return true
+      )) as Omit<Execute, 'fees'> & { fees: CallFees }
     }
   } catch (err: any) {
     console.error(err)

@@ -113,7 +113,7 @@ export async function executeSteps(
     // There are no more incomplete steps
     if (incompleteStepIndex === -1) {
       client.log(['Execute Steps: all steps complete'], LogLevel.Verbose)
-      return
+      return json
     }
 
     const step = json.steps[incompleteStepIndex]
@@ -134,7 +134,7 @@ export async function executeSteps(
         ['Execute Steps: skipping step, no items in step'],
         LogLevel.Verbose
       )
-      return
+      return json
     }
 
     let { kind } = step
@@ -465,7 +465,14 @@ export async function executeSteps(
     await Promise.all(promises)
 
     // Recursively call executeSteps()
-    await executeSteps(chainId, request, wallet, setState, json, stepOptions)
+    return await executeSteps(
+      chainId,
+      request,
+      wallet,
+      setState,
+      json,
+      stepOptions,
+    )
   } catch (err: any) {
     let blockNumber = 0n
     try {
