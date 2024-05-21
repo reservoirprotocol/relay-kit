@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 0.5.4
+
+### Patch Changes
+
+- 8ef9ba6: Post deposit transactions to solver
+- 9799870: Fix return types for get quote methods
+
 ## 0.5.3
 
 ### Patch Changes
