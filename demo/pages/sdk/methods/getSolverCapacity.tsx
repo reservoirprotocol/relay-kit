@@ -6,9 +6,10 @@ import { base, zora } from 'viem/chains'
 import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
 
-
 const GetSolverCapcityPage: NextPage = () => {
-  const [destinationChainId, setDestinationChainId] = useState<string>(zora.id.toString())
+  const [destinationChainId, setDestinationChainId] = useState<string>(
+    zora.id.toString()
+  )
   const [originChainId, setOriginChainId] = useState<string>(base.id.toString())
   const [currency, setCurrency] = useState<string>(zeroAddress)
   const [user, setUser] = useState<string>(zeroAddress)
@@ -25,27 +26,43 @@ const GetSolverCapcityPage: NextPage = () => {
         padding: 24,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 150,
+        paddingTop: 150
       }}
     >
       <ConnectButton />
       <div>
         <label>Origin Chain Id: </label>
-        <input type="text" value={originChainId} onChange={(e) => setOriginChainId(e.target.value)} />
+        <input
+          type="text"
+          value={originChainId}
+          onChange={(e) => setOriginChainId(e.target.value)}
+        />
       </div>
       <div>
         <label>Destination Chain Id: </label>
-        <input type="text" value={destinationChainId} onChange={(e) => setDestinationChainId(e.target.value)} />
+        <input
+          type="text"
+          value={destinationChainId}
+          onChange={(e) => setDestinationChainId(e.target.value)}
+        />
       </div>
       <div>
         <label>Currency: </label>
-        <input type="text" value={currency} onChange={(e) => setCurrency(e.target.value)} />
+        <input
+          type="text"
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+        />
       </div>
       <div>
         <label>User: </label>
-        <input type="text" value={user} onChange={(e) => setUser(e.target.value)} />
+        <input
+          type="text"
+          value={user}
+          onChange={(e) => setUser(e.target.value)}
+        />
       </div>
-      <button 
+      <button
         style={{
           marginTop: 50,
           padding: 24,
@@ -55,11 +72,11 @@ const GetSolverCapcityPage: NextPage = () => {
           border: '1px solid #ffffff',
           borderRadius: 8,
           fontWeight: 800,
-          cursor: 'pointer',
-        }} 
+          cursor: 'pointer'
+        }}
         onClick={async () => {
           if (!wallet) {
-            throw "Please connect your wallet"
+            throw 'Please connect your wallet'
           }
 
           const solverCapacity = await getClient()?.methods.getSolverCapacity({
@@ -69,7 +86,8 @@ const GetSolverCapcityPage: NextPage = () => {
             currency: zeroAddress
           })
           setResponse(solverCapacity)
-        }}>
+        }}
+      >
         Get Solver Capacity
       </button>
       {response && (
@@ -80,7 +98,7 @@ const GetSolverCapcityPage: NextPage = () => {
             background: '#f0f0f0',
             borderRadius: '8px',
             width: '100%',
-            maxWidth: 600,
+            maxWidth: 600
           }}
         >
           <pre>{JSON.stringify(response, null, 2)}</pre>

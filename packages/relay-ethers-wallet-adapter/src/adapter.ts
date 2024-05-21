@@ -6,7 +6,7 @@ import { hexToBigInt, type CustomTransport, type HttpTransport } from 'viem'
 
 export const adaptEthersSigner = (
   signer: Signer,
-  transport?: CustomTransport | HttpTransport,
+  transport?: CustomTransport | HttpTransport
 ): AdaptedWallet => {
   return {
     transport,
@@ -47,19 +47,19 @@ export const adaptEthersSigner = (
         from: stepData.from,
         value: hexToBigInt((stepData.value as any) || 0),
         ...(stepData.maxFeePerGas && {
-          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any),
+          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
         }),
         ...(stepData.maxPriorityFeePerGas && {
           maxPriorityFeePerGas: hexToBigInt(
-            stepData.maxPriorityFeePerGas as any,
-          ),
+            stepData.maxPriorityFeePerGas as any
+          )
         }),
         ...(stepData.gas && {
-          gasLimit: hexToBigInt(stepData.gas as any),
-        }),
+          gasLimit: hexToBigInt(stepData.gas as any)
+        })
       })
 
       return transaction.hash as `0x${string}`
-    },
+    }
   }
 }

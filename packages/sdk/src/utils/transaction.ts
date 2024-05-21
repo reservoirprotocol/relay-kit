@@ -4,13 +4,13 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  paths,
+  paths
 } from '../types/index.js'
 import axios from 'axios'
 import type {
   AxiosRequestConfig,
   AxiosRequestHeaders,
-  AxiosResponse,
+  AxiosResponse
 } from 'axios'
 import { getClient } from '../client.js'
 import { SolverStatusTimeoutError } from '../errors/index.js'
@@ -47,7 +47,7 @@ export async function sendTransactionSafely(
     chainId,
     step,
     request,
-    headers,
+    headers
   })
 
   const pollingInterval = client.pollingInterval ?? 5000
@@ -74,7 +74,7 @@ export async function sendTransactionSafely(
         }
 
         setTxHashes([
-          { txHash: replacement.transaction.hash, chainId: chainId },
+          { txHash: replacement.transaction.hash, chainId: chainId }
         ])
         txHash = replacement.transaction.hash
         attemptCount = 0 // reset attempt count
@@ -87,9 +87,9 @@ export async function sendTransactionSafely(
           chainId,
           step,
           request,
-          headers,
+          headers
         })
-      },
+      }
     })
     .catch((error) => {
       getClient()?.log(
@@ -116,7 +116,7 @@ export async function sendTransactionSafely(
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
         return {
           txHash: hash,
-          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId,
+          chainId: res?.data?.destinationChainId ?? crossChainIntentChainId
         }
       })
       setTxHashes(chainTxHashes)
@@ -136,7 +136,7 @@ export async function sendTransactionSafely(
       res = await axios.request({
         url: `${request.baseURL}${item?.check?.endpoint}`,
         method: item?.check?.method,
-        headers: headers,
+        headers: headers
       })
     }
 
@@ -174,7 +174,7 @@ const postTransactionToSolver = async ({
   chainId,
   request,
   headers,
-  step,
+  step
 }: {
   txHash: Address | undefined
   chainId: number
@@ -192,7 +192,7 @@ const postTransactionToSolver = async ({
         paths['/transactions/index']['post']['requestBody']
       >['content']['application/json'] = {
         txHash,
-        chainId: chainId.toString(),
+        chainId: chainId.toString()
       }
 
       axios
@@ -200,7 +200,7 @@ const postTransactionToSolver = async ({
           url: `${request.baseURL}/transactions/index`,
           method: 'POST',
           headers: headers,
-          data: triggerData,
+          data: triggerData
         })
         .then(() => {
           getClient()?.log(

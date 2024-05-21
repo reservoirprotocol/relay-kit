@@ -3,6 +3,7 @@ import type {
   paths,
   AdaptedWallet,
   ProgressData,
+  CallFees
 } from '../types/index.js'
 import { getClient } from '../client.js'
 import {
@@ -10,14 +11,14 @@ import {
   APIError,
   prepareCallTransaction,
   adaptViemWallet,
-  getCurrentStepData,
+  getCurrentStepData
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import {
   zeroAddress,
   type WalletClient,
-  type WriteContractParameters,
+  type WriteContractParameters
 } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
@@ -29,6 +30,10 @@ export type CallBodyOptions = Omit<
   'txs' | 'destinationChainId' | 'originChainId'
 >
 
+export type CallProgressData = Omit<ProgressData, 'fees'> & {
+  fees: CallFees
+}
+
 export type SimulateContractRequest = WriteContractParameters<any>
 
 export type CallActionParameters = {
@@ -37,7 +42,7 @@ export type CallActionParameters = {
   toChainId: number
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (data: ProgressData) => any
+  onProgress?: (data: CallProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -66,7 +71,7 @@ export async function call(data: CallActionParameters) {
     options,
     onProgress = () => {},
     precheck,
-    depositGasLimit,
+    depositGasLimit
   } = data
   const client = getClient()
 
@@ -107,13 +112,13 @@ export async function call(data: CallActionParameters) {
       destinationChainId: toChainId,
       source: client.source || undefined,
       useForwarder: false,
-      ...options,
+      ...options
     }
 
     const request: AxiosRequestConfig = {
       url: `${client.baseApiUrl}/execute/call`,
       method: 'post',
-      data,
+      data
     }
 
     if (precheck) {
@@ -123,8 +128,8 @@ export async function call(data: CallActionParameters) {
       const data = res.data as Execute
       onProgress({
         steps: data['steps'],
-        fees: data['fees'],
-        breakdown: data['breakdown'],
+        fees: data['fees'] as CallFees,
+        breakdown: data['breakdown']
       })
       return data
     } else {
@@ -142,19 +147,19 @@ export async function call(data: CallActionParameters) {
 
           onProgress({
             steps,
-            fees,
+            fees: fees as CallFees,
             breakdown,
             currentStep,
             currentStepItem,
-            txHashes,
+            txHashes
           })
         },
         undefined,
         depositGasLimit
           ? {
               deposit: {
-                gasLimit: depositGasLimit,
-              },
+                gasLimit: depositGasLimit
+              }
             }
           : undefined
       )

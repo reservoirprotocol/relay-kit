@@ -6,7 +6,7 @@ import {
   mainnet,
   optimism,
   sepolia,
-  zora,
+  zora
 } from 'viem/chains'
 import type { RelayChain } from './types/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
@@ -36,7 +36,7 @@ const _backupChains: RelayChain[] = [
   zora,
   optimism,
   arbitrum,
-  arbitrumNova,
+  arbitrumNova
 ].map((chain) => utils.convertViemChainToRelayChain(chain))
 const _backupTestnetChains: RelayChain[] = [sepolia, baseGoerli].map((chain) =>
   utils.convertViemChainToRelayChain(chain)

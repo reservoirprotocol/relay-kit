@@ -27,28 +27,28 @@ export const configureViemChain = (
       nativeCurrency: {
         name: chain.currency.name ?? 'Ethereum',
         decimals: chain.currency.decimals ?? 18,
-        symbol: chain.currency.symbol ?? 'ETH',
+        symbol: chain.currency.symbol ?? 'ETH'
       },
       rpcUrls: {
         default: {
           http: [chain.httpRpcUrl],
-          webSocket: [chain.wsRpcUrl],
+          webSocket: [chain.wsRpcUrl]
         },
         public: {
           http: [chain.httpRpcUrl],
-          webSocket: [chain.wsRpcUrl],
-        },
+          webSocket: [chain.wsRpcUrl]
+        }
       },
       blockExplorers: {
         etherscan: {
           name: chain.explorerName,
-          url: chain.explorerUrl,
+          url: chain.explorerUrl
         },
         default: {
           name: chain.explorerName,
-          url: chain.explorerUrl,
-        },
-      },
+          url: chain.explorerUrl
+        }
+      }
     } as const satisfies Chain
   }
 
@@ -57,8 +57,8 @@ export const configureViemChain = (
     viemChain,
     icon: {
       dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
-    },
+      light: `https://assets.relay.link/icons/${chain.id}/light.png`
+    }
   }
 }
 
@@ -77,11 +77,11 @@ export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
         : '',
     icon: {
       dark: `https://assets.relay.link/icons/${chain.id}/dark.png`,
-      light: `https://assets.relay.link/icons/${chain.id}/light.png`,
+      light: `https://assets.relay.link/icons/${chain.id}/light.png`
     },
     currency: chain.nativeCurrency,
     explorerUrl: chain.blockExplorers?.default.url ?? '',
     depositEnabled: true,
-    viemChain: chain,
+    viemChain: chain
   }
 }

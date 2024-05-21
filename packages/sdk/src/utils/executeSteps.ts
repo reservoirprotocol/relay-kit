@@ -2,7 +2,7 @@ import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  SignatureStepItem,
+  SignatureStepItem
 } from '../types/index.js'
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
 import type { Address } from 'viem'
@@ -70,7 +70,7 @@ export async function executeSteps(
 
   const viemClient = createPublicClient({
     chain: chain?.viemChain,
-    transport: wallet.transport ? fallback([wallet.transport, http()]) : http(),
+    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
   })
 
   let json = newJson
@@ -91,7 +91,7 @@ export async function executeSteps(
       steps: [...json?.steps],
       fees: { ...json?.fees },
       breakdown: json?.breakdown,
-      details: json?.details,
+      details: json?.details
     })
 
     let incompleteStepIndex = -1
@@ -177,7 +177,7 @@ export async function executeSteps(
         steps: [...json?.steps],
         fees: { ...json?.fees },
         breakdown: json?.breakdown,
-        details: json?.details,
+        details: json?.details
       })
     }
     client.log(
@@ -202,7 +202,7 @@ export async function executeSteps(
                 try {
                   client.log(
                     [
-                      'Execute Steps: Begin transaction step for, sending transaction',
+                      'Execute Steps: Begin transaction step for, sending transaction'
                     ],
                     LogLevel.Verbose
                   )
@@ -223,7 +223,7 @@ export async function executeSteps(
                       client.log(
                         [
                           'Execute Steps: Transaction step, got transactions',
-                          txHashes,
+                          txHashes
                         ],
                         LogLevel.Verbose
                       )
@@ -233,7 +233,7 @@ export async function executeSteps(
                           steps: [...json.steps],
                           fees: { ...json?.fees },
                           breakdown: json?.breakdown,
-                          details: json?.details,
+                          details: json?.details
                         })
                       }
                     },
@@ -244,7 +244,7 @@ export async function executeSteps(
                           steps: [...json.steps],
                           fees: { ...json?.fees },
                           breakdown: json?.breakdown,
-                          details: json?.details,
+                          details: json?.details
                         })
                       }
                     },
@@ -276,7 +276,7 @@ export async function executeSteps(
                   if (signature) {
                     request.params = {
                       ...request.params,
-                      signature,
+                      signature
                     }
                   }
                 }
@@ -287,7 +287,7 @@ export async function executeSteps(
                     `${request.baseURL}${postData.endpoint}`
                   )
                   const headers = {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                   }
 
                   try {
@@ -299,7 +299,7 @@ export async function executeSteps(
                           : undefined,
                         method: postData.method,
                         params: request.params,
-                        headers,
+                        headers
                       })
 
                       return response
@@ -318,12 +318,12 @@ export async function executeSteps(
                         steps: [...json.steps, ...res.data.steps],
                         fees: { ...json.fees },
                         breakdown: json.breakdown,
-                        details: json.details,
+                        details: json.details
                       })
                       client.log(
                         [
                           `Execute Steps: New steps appended from ${postData.endpoint}`,
-                          res.data.steps,
+                          res.data.steps
                         ],
                         LogLevel.Verbose
                       )
@@ -337,20 +337,20 @@ export async function executeSteps(
                         steps: [...json?.steps],
                         fees: { ...json?.fees },
                         breakdown: json?.breakdown,
-                        details: json?.details,
+                        details: json?.details
                       })
 
                       await pollUntilOk(
                         {
                           url: `${request.baseURL}${stepItem?.check.endpoint}`,
                           method: stepItem?.check.method,
-                          headers,
+                          headers
                         },
                         (res) => {
                           client.log(
                             [
                               `Execute Steps: Polling execute status to check if indexed`,
-                              res,
+                              res
                             ],
                             LogLevel.Verbose
                           )
@@ -365,7 +365,7 @@ export async function executeSteps(
                                 return {
                                   txHash: hash,
                                   chainId:
-                                    res.data.destinationChainId ?? chain?.id,
+                                    res.data.destinationChainId ?? chain?.id
                                 }
                               }
                             )
@@ -377,8 +377,7 @@ export async function executeSteps(
                                 (hash: Address) => {
                                   return {
                                     txHash: hash,
-                                    chainId:
-                                      chain?.id ?? res.data.originChainId,
+                                    chainId: chain?.id ?? res.data.originChainId
                                   }
                                 }
                               )
@@ -409,15 +408,15 @@ export async function executeSteps(
                         {
                           orderId: res.data.orderId,
                           crossPostingOrderId: res.data.crossPostingOrderId,
-                          orderIndex: res.data.orderIndex || 0,
-                        },
+                          orderIndex: res.data.orderIndex || 0
+                        }
                       ]
                     }
                     setState({
                       steps: [...json?.steps],
                       fees: { ...json?.fees },
                       breakdown: json?.breakdown,
-                      details: json?.details,
+                      details: json?.details
                     })
                   } catch (err) {
                     throw err
@@ -437,7 +436,7 @@ export async function executeSteps(
               steps: [...json?.steps],
               fees: { ...json?.fees },
               breakdown: json?.breakdown,
-              details: json?.details,
+              details: json?.details
             })
             resolve(stepItem)
           } catch (e) {
@@ -455,7 +454,7 @@ export async function executeSteps(
                 steps: [...json?.steps],
                 fees: { ...json?.fees },
                 breakdown: json?.breakdown,
-                details: json?.details,
+                details: json?.details
               })
             }
             reject(error)
@@ -488,12 +487,12 @@ export async function executeSteps(
         steps: [...json?.steps],
         fees: { ...json?.fees },
         breakdown: json?.breakdown,
-        details: json?.details,
+        details: json?.details
       })
     } else {
       json = {
         error: err && err?.response?.data ? err.response.data : err,
-        steps: [],
+        steps: []
       }
     }
 

@@ -18,6 +18,6 @@ export default function prepareCallTransaction(
   return {
     to: request.address,
     value: request?.value?.toString() ?? '0',
-    data: data,
+    data: data
   }
 }
