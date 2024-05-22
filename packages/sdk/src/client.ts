@@ -6,12 +6,11 @@ import {
   mainnet,
   optimism,
   sepolia,
-  zora,
+  zora
 } from 'viem/chains'
 import type { RelayChain } from './types/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
 import * as actions from './actions/index.js'
-import * as methods from './methods/index.js'
 import * as utils from './utils/index.js'
 
 /**
@@ -36,7 +35,7 @@ const _backupChains: RelayChain[] = [
   zora,
   optimism,
   arbitrum,
-  arbitrumNova,
+  arbitrumNova
 ].map((chain) => utils.convertViemChainToRelayChain(chain))
 const _backupTestnetChains: RelayChain[] = [sepolia, baseGoerli].map((chain) =>
   utils.convertViemChainToRelayChain(chain)
@@ -58,7 +57,6 @@ export class RelayClient {
 
   readonly utils = { ...utils }
   readonly actions = actions
-  readonly methods = methods
 
   constructor(options: RelayClientOptions) {
     this.baseApiUrl = options.baseApiUrl

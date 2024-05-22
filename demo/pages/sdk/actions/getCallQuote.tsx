@@ -5,14 +5,13 @@ import { Execute, getClient, paths } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 
-
 const GetCallQuotePage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
-  const [tx, setTx] = useState<string>("")
+  const [tx, setTx] = useState<string>('')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const { data: wallet } = useWalletClient()
-  const [response, setResponse] = useState<Execute |null>(null)
+  const [response, setResponse] = useState<Execute | null>(null)
 
   return (
     <div
@@ -24,28 +23,43 @@ const GetCallQuotePage: NextPage = () => {
         padding: 24,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 150,
+        paddingTop: 150
       }}
     >
       <ConnectButton />
       <div>
         <label>To Chain Id: </label>
-        <input type="number" placeholder='Which chain to interact with?' value={toChainId} onChange={(e) => setToChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to interact with?"
+          value={toChainId}
+          onChange={(e) => setToChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>From Chain Id: </label>
-        <input type="number" placeholder='Which chain to deposit on?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to deposit on?"
+          value={fromChainId}
+          onChange={(e) => setFromChainId(Number(e.target.value))}
+        />
       </div>
-      <textarea style={{minHeight: 100, minWidth: 300}} placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}' value={tx} onChange={(e) => setTx(e.target.value)}/>
+      <textarea
+        style={{ minHeight: 100, minWidth: 300 }}
+        placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}'
+        value={tx}
+        onChange={(e) => setTx(e.target.value)}
+      />
       <button
-      style={{
-        background: 'blue',
-        color: 'white',
-        border: '1px solid #ffffff',
-        borderRadius: 8,
-        cursor: 'pointer',
-        padding: "4px 8px",
-      }}
+        style={{
+          background: 'blue',
+          color: 'white',
+          border: '1px solid #ffffff',
+          borderRadius: 8,
+          cursor: 'pointer',
+          padding: '4px 8px'
+        }}
         disabled={!tx}
         onClick={() => {
           setTxs([...txs, JSON.parse(`${tx}`)])
@@ -61,17 +75,15 @@ const GetCallQuotePage: NextPage = () => {
           padding: 10,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
+          gap: 4
         }}
       >
         <b>Txs Added:</b>
         {txs.map((tx, i) => (
-          <div key={i}>
-            {JSON.stringify(tx)}
-          </div>
+          <div key={i}>{JSON.stringify(tx)}</div>
         ))}
       </div>
-      <button 
+      <button
         style={{
           marginTop: 50,
           padding: 24,
@@ -81,18 +93,19 @@ const GetCallQuotePage: NextPage = () => {
           border: '1px solid #ffffff',
           borderRadius: 8,
           fontWeight: 800,
-          cursor: 'pointer',
-        }} 
+          cursor: 'pointer'
+        }}
         onClick={async () => {
-          const quote = await getClient()?.methods.getCallQuote({
+          const quote = await getClient()?.actions.getCallQuote({
             chainId: fromChainId,
-            wallet,  // optional
+            wallet, // optional
             txs: txs as any,
-            toChainId,
+            toChainId
           })
 
-          setResponse(quote as Execute)
-        }}>
+          setResponse(quote)
+        }}
+      >
         Get Call Quote
       </button>
       {response && (
@@ -103,7 +116,7 @@ const GetCallQuotePage: NextPage = () => {
             background: '#f0f0f0',
             borderRadius: '8px',
             width: '100%',
-            maxWidth: 1000,
+            maxWidth: 1000
           }}
         >
           <pre>{JSON.stringify(response, null, 2)}</pre>

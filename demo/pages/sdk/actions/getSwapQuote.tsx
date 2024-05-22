@@ -8,14 +8,14 @@ import { Address, isAddress } from 'viem'
 
 const GetSwapQuote: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
-  const [amount, setAmount] = useState<string>("")
+  const [amount, setAmount] = useState<string>('')
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
-  const [toCurrency, setToCurrency] = useState("")
-  const [fromCurrency, setFromCurrency] = useState("")
+  const [toCurrency, setToCurrency] = useState('')
+  const [fromCurrency, setFromCurrency] = useState('')
   const [useExactOuput, setUseExactOutput] = useState(false)
   const { data: wallet } = useWalletClient()
-  const [response, setResponse] = useState<Execute |null>(null)
+  const [response, setResponse] = useState<Execute | null>(null)
 
   return (
     <div
@@ -27,33 +27,62 @@ const GetSwapQuote: NextPage = () => {
         padding: 24,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 150,
+        paddingTop: 150
       }}
     >
       <ConnectButton />
       <div>
         <label>To Chain Id: </label>
-        <input type="number" placeholder='Which chain to swap from?' value={toChainId} onChange={(e) => setToChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to swap from?"
+          value={toChainId}
+          onChange={(e) => setToChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>To Currency: </label>
-        <input type="string" placeholder='Which token address to swap from?' value={toCurrency} onChange={(e) => setToCurrency(e.target.value)} />
+        <input
+          type="string"
+          placeholder="Which token address to swap from?"
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+        />
       </div>
       <div>
         <label>From Chain Id: </label>
-        <input type="number" placeholder='Which chain to swap to?' value={fromChainId} onChange={(e) => setFromChainId(Number(e.target.value))} />
+        <input
+          type="number"
+          placeholder="Which chain to swap to?"
+          value={fromChainId}
+          onChange={(e) => setFromChainId(Number(e.target.value))}
+        />
       </div>
       <div>
         <label>From Currency: </label>
-        <input type="string" placeholder='Which token address to swap to?' value={fromCurrency} onChange={(e) => setFromCurrency(e.target.value)} />
+        <input
+          type="string"
+          placeholder="Which token address to swap to?"
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+        />
       </div>
       <div>
         <label>Amount: </label>
-        <input type="number" placeholder='How much to swap?' value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <input
+          type="number"
+          placeholder="How much to swap?"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
       </div>
       <div>
         <label>To: </label>
-        <input placeholder='Who is the receiver?' value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+        <input
+          placeholder="Who is the receiver?"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+        />
       </div>
 
       <div>
@@ -67,7 +96,7 @@ const GetSwapQuote: NextPage = () => {
         />
       </div>
 
-      <button 
+      <button
         style={{
           marginTop: 50,
           padding: 24,
@@ -77,24 +106,24 @@ const GetSwapQuote: NextPage = () => {
           border: '1px solid #ffffff',
           borderRadius: 8,
           fontWeight: 800,
-          cursor: 'pointer',
-        }} 
+          cursor: 'pointer'
+        }}
         onClick={async () => {
           if (recipient && !isAddress(recipient)) {
-            throw "Recipient must be an address"
+            throw 'Recipient must be an address'
           }
           if (!amount) {
-            throw "Must include a value for swapping"
+            throw 'Must include a value for swapping'
           }
 
-          const quote = await getClient()?.methods.getSwapQuote({
+          const quote = await getClient()?.actions.getSwapQuote({
             chainId: fromChainId,
             wallet,
             toChainId,
             toCurrency,
             amount,
             currency: fromCurrency,
-            recipient: recipient ? recipient as Address : undefined,
+            recipient: recipient ? (recipient as Address) : undefined,
             options: {
               tradeType: useExactOuput ? 'EXACT_OUTPUT' : 'EXACT_INPUT'
             },
@@ -102,8 +131,9 @@ const GetSwapQuote: NextPage = () => {
               console.log(data)
             }
           })
-          setResponse(quote as Execute)
-        }}>
+          setResponse(quote)
+        }}
+      >
         Get Swap Quote
       </button>
       {response && (
@@ -114,7 +144,7 @@ const GetSwapQuote: NextPage = () => {
             background: '#f0f0f0',
             borderRadius: '8px',
             width: '100%',
-            maxWidth: 1000,
+            maxWidth: 1000
           }}
         >
           <pre>{JSON.stringify(response, null, 2)}</pre>

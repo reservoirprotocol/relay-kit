@@ -28,28 +28,28 @@ export const configureViemChain = (
       nativeCurrency: {
         name: chain.currency.name ?? 'Ethereum',
         decimals: chain.currency.decimals ?? 18,
-        symbol: chain.currency.symbol ?? 'ETH',
+        symbol: chain.currency.symbol ?? 'ETH'
       },
       rpcUrls: {
         default: {
           http: [chain.httpRpcUrl],
-          webSocket: [chain.wsRpcUrl],
+          webSocket: [chain.wsRpcUrl]
         },
         public: {
           http: [chain.httpRpcUrl],
-          webSocket: [chain.wsRpcUrl],
-        },
+          webSocket: [chain.wsRpcUrl]
+        }
       },
       blockExplorers: {
         etherscan: {
           name: chain.explorerName,
-          url: chain.explorerUrl,
+          url: chain.explorerUrl
         },
         default: {
           name: chain.explorerName,
-          url: chain.explorerUrl,
-        },
-      },
+          url: chain.explorerUrl
+        }
+      }
     } as const satisfies Chain
   }
 
@@ -60,8 +60,8 @@ export const configureViemChain = (
       dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
       light: `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
       squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
-      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`,
-    },
+      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
+    }
   }
 }
 
@@ -82,11 +82,11 @@ export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
       dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
       light: `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
       squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
-      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`,
+      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
     },
     currency: chain.nativeCurrency,
     explorerUrl: chain.blockExplorers?.default.url ?? '',
     depositEnabled: true,
-    viemChain: chain,
+    viemChain: chain
   }
 }
