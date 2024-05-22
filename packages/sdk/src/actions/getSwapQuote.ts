@@ -1,5 +1,5 @@
 import type { Execute } from '../types/Execute.js'
-import { swap, type SwapActionParameters } from '../actions/index.js'
+import { swap, type SwapActionParameters } from './index.js'
 
 export type GetSwapQuoteParameters = Omit<SwapActionParameters, 'precheck'>
 

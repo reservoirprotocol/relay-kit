@@ -116,7 +116,7 @@ const GetSwapQuote: NextPage = () => {
             throw 'Must include a value for swapping'
           }
 
-          const quote = await getClient()?.methods.getSwapQuote({
+          const quote = await getClient()?.actions.getSwapQuote({
             chainId: fromChainId,
             wallet,
             toChainId,

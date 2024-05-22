@@ -96,7 +96,7 @@ const GetCallQuotePage: NextPage = () => {
           cursor: 'pointer'
         }}
         onClick={async () => {
-          const quote = await getClient()?.methods.getCallQuote({
+          const quote = await getClient()?.actions.getCallQuote({
             chainId: fromChainId,
             wallet, // optional
             txs: txs as any,

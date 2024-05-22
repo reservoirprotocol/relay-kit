@@ -1,5 +1,4 @@
 export * from './actions/index.js'
-export * from './methods/index.js'
 export * from './utils/index.js'
 export * from './client.js'
 export * from './errors/index.js'
