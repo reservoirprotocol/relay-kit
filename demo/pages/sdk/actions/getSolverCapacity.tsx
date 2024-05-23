@@ -11,7 +11,7 @@ const GetSolverCapcityPage: NextPage = () => {
     zora.id.toString()
   )
   const [originChainId, setOriginChainId] = useState<string>(base.id.toString())
-  const [currency, setCurrency] = useState<string>(zeroAddress)
+  const [currency, setCurrency] = useState<string>('eth')
   const [user, setUser] = useState<string>(zeroAddress)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<GetConfigResponse | null>(null)
@@ -82,8 +82,8 @@ const GetSolverCapcityPage: NextPage = () => {
           const solverCapacity = await getClient()?.actions.getSolverCapacity({
             destinationChainId,
             originChainId,
-            user: zeroAddress,
-            currency: zeroAddress
+            user: user,
+            currency: currency as any
           })
           setResponse(solverCapacity)
         }}

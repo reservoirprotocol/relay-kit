@@ -11,12 +11,12 @@ export type GetConfigQueryParams = Required<
   >
 > &
   Omit<
-    NonNullable<paths['/config']['get']['parameters']['query']>,
+    NonNullable<paths['/config/v2']['get']['parameters']['query']>,
     'originChainId' | 'destinationChainId'
   >
 
 export type GetConfigResponse =
-  paths['/config']['get']['responses']['200']['content']['application/json']
+  paths['/config/v2']['get']['responses']['200']['content']['application/json']
 
 export async function getSolverCapacity(
   data: GetConfigQueryParams,
@@ -28,12 +28,12 @@ export async function getSolverCapacity(
     throw new Error('Client not initialized')
   }
 
-  // Fallback to zero address if user or currency are not provided
+  // Fallback to zero address if user is not provided
   data.user = data.user || zeroAddress
-  data.currency = data.currency || zeroAddress
+  data.currency = data.currency
 
   const response = await axiosInstance.get<GetConfigResponse>(
-    `${client.baseApiUrl}/config`,
+    `${client.baseApiUrl}/config/v2`,
     { params: data }
   )
 
