@@ -212,7 +212,13 @@ export async function executeSteps(
                   const transactionChainId = stepItem?.data?.chainId ?? chainId
 
                   const crossChainIntentChainId = chainId
-
+                  stepItem.progressState = 'confirming'
+                  setState({
+                    steps: [...json.steps],
+                    fees: { ...json?.fees },
+                    breakdown: json?.breakdown,
+                    details: json?.details
+                  })
                   await sendTransactionSafely(
                     transactionChainId,
                     viemClient,
@@ -250,7 +256,18 @@ export async function executeSteps(
                     },
                     request,
                     undefined,
-                    crossChainIntentChainId
+                    crossChainIntentChainId,
+                    () => {
+                      stepItem.progressState = 'validating'
+                      if (json) {
+                        setState({
+                          steps: [...json.steps],
+                          fees: { ...json?.fees },
+                          breakdown: json?.breakdown,
+                          details: json?.details
+                        })
+                      }
+                    }
                   )
                 } catch (e) {
                   throw e
@@ -268,6 +285,13 @@ export async function executeSteps(
                   LogLevel.Verbose
                 )
                 if (signData) {
+                  stepItem.progressState = 'signing'
+                  setState({
+                    steps: [...json.steps],
+                    fees: { ...json?.fees },
+                    breakdown: json?.breakdown,
+                    details: json?.details
+                  })
                   signature = await wallet.handleSignMessageStep(
                     stepItem as SignatureStepItem,
                     step
@@ -283,6 +307,13 @@ export async function executeSteps(
 
                 if (postData) {
                   client.log(['Execute Steps: Posting order'], LogLevel.Verbose)
+                  stepItem.progressState = 'posting'
+                  setState({
+                    steps: [...json.steps],
+                    fees: { ...json?.fees },
+                    breakdown: json?.breakdown,
+                    details: json?.details
+                  })
                   const postOrderUrl = new URL(
                     `${request.baseURL}${postData.endpoint}`
                   )
@@ -332,6 +363,13 @@ export async function executeSteps(
 
                     // If check, poll check until validated
                     if (stepItem?.check) {
+                      stepItem.progressState = 'validating'
+                      setState({
+                        steps: [...json.steps],
+                        fees: { ...json?.fees },
+                        breakdown: json?.breakdown,
+                        details: json?.details
+                      })
                       stepItem.isValidatingSignature = true
                       setState({
                         steps: [...json?.steps],
@@ -431,6 +469,7 @@ export async function executeSteps(
             }
 
             stepItem.status = 'complete'
+            stepItem.progressState = 'complete'
             stepItem.isValidatingSignature = false
             setState({
               steps: [...json?.steps],
@@ -471,7 +510,7 @@ export async function executeSteps(
       wallet,
       setState,
       json,
-      stepOptions,
+      stepOptions
     )
   } catch (err: any) {
     let blockNumber = 0n
