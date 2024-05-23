@@ -1,5 +1,18 @@
 # @reservoir0x/relay-sdk
 
+## 0.6.0
+
+### Minor Changes
+
+- 309af6e: Upgrade getSolverCapacity method to use config v2 api
+
+### Patch Changes
+
+- 96db714: Add square icons to Relay Chain
+- 47a8aed: Move sdk methods to actions
+- 31fecc5: Add progress state
+- bce691b: Improve typescript fee execute types
+
 ## 0.5.4
 
 ### Patch Changes
