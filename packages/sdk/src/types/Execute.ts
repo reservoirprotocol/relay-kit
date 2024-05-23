@@ -16,6 +16,13 @@ export type ExecuteDetails = NonNullable<
   paths['/execute/swap']['post']['responses']['200']['content']['application/json']['details']
 >
 
+export type TransactionStepState = 'confirming' | 'validating' | 'complete'
+export type SignatureStepState =
+  | 'signing'
+  | 'posting'
+  | 'validating'
+  | 'complete'
+
 export type Execute = {
   errors?: { message?: string; orderId?: string }[]
   fees?: CallFees | SwapFees
@@ -32,6 +39,7 @@ export type Execute = {
     id: string
     items?: {
       status: 'complete' | 'incomplete'
+      progressState?: TransactionStepState | SignatureStepState
       data?: any
       check?: CheckApi
       orderIndexes?: number[]

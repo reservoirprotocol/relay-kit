@@ -34,7 +34,8 @@ export async function sendTransactionSafely(
   ) => void,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
-  crossChainIntentChainId?: number
+  crossChainIntentChainId?: number,
+  isValidating?: () => void
 ) {
   const client = getClient()
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
@@ -124,6 +125,8 @@ export async function sendTransactionSafely(
     }
     return false
   }
+
+  isValidating?.()
 
   // Poll the confirmation url to confirm the transaction went through
   while (
