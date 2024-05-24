@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.6.2
+
+### Patch Changes
+
+- 820021e: Make txs a first class parameter in swap action
+
 ## 0.6.1
 
 ### Patch Changes
