@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.6.1
+
+### Patch Changes
+
+- 6ae4f8d: Support swap + extra call txs
+
 ## 0.6.0
 
 ### Minor Changes
