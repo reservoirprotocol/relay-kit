@@ -48,7 +48,9 @@ export type CallActionParameters = {
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
 )
 
-function isSimulateContractRequest(tx: any): tx is SimulateContractRequest {
+export function isSimulateContractRequest(
+  tx: any
+): tx is SimulateContractRequest {
   return (tx as SimulateContractRequest).abi !== undefined
 }
 

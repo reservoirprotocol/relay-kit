@@ -194,17 +194,15 @@ const SwapActionPage: NextPage = () => {
             currency: fromCurrency,
             recipient: recipient ? (recipient as Address) : undefined,
             depositGasLimit,
+            txs: [
+              ...txs as any
+            ],
             options: {
-              tradeType,
-              txs: [
-                ...txs as any
-              ]
+              tradeType
             },
-            
             onProgress: (data) => {
               console.log(data)
             }
-            
           })
         }}
       >
