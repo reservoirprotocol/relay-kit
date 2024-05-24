@@ -10,12 +10,18 @@ import {
   executeSteps,
   APIError,
   adaptViemWallet,
-  getCurrentStepData
+  getCurrentStepData,
+  prepareCallTransaction
 } from '../utils/index.js'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 import { zeroAddress, type Address, type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
+import {
+  isSimulateContractRequest,
+  type CallBody,
+  type SimulateContractRequest
+} from './call.js'
 
 export type SwapBody = NonNullable<
   paths['/execute/swap']['post']['requestBody']['content']['application/json']
@@ -41,8 +47,9 @@ export type SwapActionParameters = {
   toCurrency: string
   amount: string
   recipient?: Address
-  options?: Omit<SwapBodyOptions, 'user' | 'source'>
+  options?: Omit<SwapBodyOptions, 'user' | 'source' | 'txs'>
   depositGasLimit?: string
+  txs?: (NonNullable<CallBody['txs']>[0] | SimulateContractRequest)[]
   onProgress?: (data: SwapProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
@@ -70,7 +77,8 @@ export async function swap(data: SwapActionParameters) {
     options,
     onProgress = () => {},
     precheck,
-    depositGasLimit
+    depositGasLimit,
+    txs
   } = data
   const client = getClient()
 
@@ -95,6 +103,18 @@ export async function swap(data: SwapActionParameters) {
   }
 
   try {
+    let preparedTransactions: CallBody['txs']
+    if (txs && txs.length > 0) {
+      preparedTransactions = txs.map((tx) => {
+        if (isSimulateContractRequest(tx)) {
+          return prepareCallTransaction(
+            tx as Parameters<typeof prepareCallTransaction>['0']
+          )
+        }
+        return tx
+      })
+    }
+
     const data: SwapBody = {
       user: caller || zeroAddress,
       destinationCurrency: toCurrency,
@@ -105,6 +125,7 @@ export async function swap(data: SwapActionParameters) {
       recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
       tradeType: options?.tradeType ?? 'EXACT_INPUT',
       source: client.source || undefined,
+      txs: preparedTransactions,
       ...options
     }
 
