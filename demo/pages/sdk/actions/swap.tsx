@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { BridgeActionParameters, getClient } from '@reservoir0x/relay-sdk'
+import { getClient } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
@@ -17,6 +17,8 @@ const SwapActionPage: NextPage = () => {
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     'EXACT_INPUT'
   )
+  const [txs, setTxs] = useState<string[]>([])
+  const [tx, setTx] = useState<string>('')
   const { data: wallet } = useWalletClient()
 
   return (
@@ -115,6 +117,51 @@ const SwapActionPage: NextPage = () => {
           <label>EXACT_OUTPUT</label>
         </div>
       </div>
+
+
+
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 600}}>
+        <label>Txs (optional):</label>
+      <textarea
+        style={{ minHeight: 100, minWidth: 300 }}
+        placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}'
+        value={tx}
+        onChange={(e) => setTx(e.target.value)}
+      />
+      <button
+        style={{
+          background: 'blue',
+          color: 'white',
+          border: '1px solid #ffffff',
+          borderRadius: 8,
+          cursor: 'pointer',
+          padding: '4px 8px'
+        }}
+        disabled={!tx}
+        onClick={() => {
+          setTxs([...txs, JSON.parse(`${tx}`)])
+        }}
+      >
+        Add Transaction
+      </button>
+      <div
+        style={{
+          marginTop: 10,
+          border: '1px solid gray',
+          borderRadius: 4,
+          padding: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+          overflow: 'scroll'
+        }}
+      >
+        <b>Txs Added:</b>
+        {txs.map((tx, i) => (
+          <div key={i}>{JSON.stringify(tx)}</div>
+        ))}
+      </div>
+      </div>
       <button
         style={{
           marginTop: 50,
@@ -135,7 +182,7 @@ const SwapActionPage: NextPage = () => {
             throw 'Recipient must be an address'
           }
           if (!amount) {
-            throw 'Must include an amount for bridging'
+            throw 'Must include an amount for swapping'
           }
 
           getClient()?.actions.swap({
@@ -148,15 +195,20 @@ const SwapActionPage: NextPage = () => {
             recipient: recipient ? (recipient as Address) : undefined,
             depositGasLimit,
             options: {
-              tradeType
+              tradeType,
+              txs: [
+                ...txs as any
+              ]
             },
+            
             onProgress: (data) => {
               console.log(data)
             }
+            
           })
         }}
       >
-        Execute Bridge
+        Execute Swap
       </button>
     </div>
   )
