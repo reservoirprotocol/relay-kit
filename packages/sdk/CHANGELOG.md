@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.7.0
+
+### Minor Changes
+
+- a77e30f: Migrate to v2 of call and bridge api
+
 ## 0.6.2
 
 ### Patch Changes
