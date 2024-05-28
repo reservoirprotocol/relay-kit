@@ -2329,8 +2329,10 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              AVAX?: number;
               ETH?: number;
               DEGEN?: number;
+              MATIC?: number;
               USDC?: number;
               XAI?: number;
             };

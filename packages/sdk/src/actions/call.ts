@@ -23,16 +23,12 @@ import {
 import { isViemWalletClient } from '../utils/viemWallet.js'
 
 export type CallBody = NonNullable<
-  paths['/execute/call']['post']['requestBody']['content']['application/json']
+  paths['/execute/call/v2']['post']['requestBody']['content']['application/json']
 >
 export type CallBodyOptions = Omit<
   CallBody,
   'txs' | 'destinationChainId' | 'originChainId'
 >
-
-export type CallProgressData = Omit<ProgressData, 'fees'> & {
-  fees: CallFees
-}
 
 export type SimulateContractRequest = WriteContractParameters<any>
 
@@ -42,7 +38,7 @@ export type CallActionParameters = {
   toChainId: number
   options?: Omit<CallBodyOptions, 'user' | 'source'>
   depositGasLimit?: string
-  onProgress?: (data: CallProgressData) => any
+  onProgress?: (data: ProgressData) => any
 } & (
   | { precheck: true; wallet?: AdaptedWallet | WalletClient } // When precheck is true, wallet is optional
   | { precheck?: false; wallet: AdaptedWallet | WalletClient }
@@ -118,7 +114,7 @@ export async function call(data: CallActionParameters) {
     }
 
     const request: AxiosRequestConfig = {
-      url: `${client.baseApiUrl}/execute/call`,
+      url: `${client.baseApiUrl}/execute/call/v2`,
       method: 'post',
       data
     }
@@ -127,7 +123,7 @@ export async function call(data: CallActionParameters) {
       const res = await axios.request(request)
       if (res.status !== 200)
         throw new APIError(res?.data?.message, res.status, res.data)
-      const data = res.data as Omit<Execute, 'fees'> & { fees: CallFees }
+      const data = res.data as Execute
       onProgress({
         steps: data['steps'],
         fees: data['fees'] as CallFees,
@@ -139,7 +135,7 @@ export async function call(data: CallActionParameters) {
         throw new Error('AdaptedWallet is required to execute steps')
       }
 
-      return (await executeSteps(
+      return await executeSteps(
         chainId,
         request,
         adaptedWallet,
@@ -149,7 +145,7 @@ export async function call(data: CallActionParameters) {
 
           onProgress({
             steps,
-            fees: fees as CallFees,
+            fees,
             breakdown,
             currentStep,
             currentStepItem,
@@ -164,7 +160,7 @@ export async function call(data: CallActionParameters) {
               }
             }
           : undefined
-      )) as Omit<Execute, 'fees'> & { fees: CallFees }
+      )
     }
   } catch (err: any) {
     console.error(err)
