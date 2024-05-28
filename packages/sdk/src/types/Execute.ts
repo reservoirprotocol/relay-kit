@@ -2,14 +2,12 @@ import type { Address } from 'viem'
 import type { paths } from './api.js'
 
 export type CallFees =
-  paths['/execute/call']['post']['responses']['200']['content']['application/json']['fees']
-export type SwapFees =
-  paths['/execute/swap']['post']['responses']['200']['content']['application/json']['fees']
+  paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['fees']
 export type CallBreakdown =
-  paths['/execute/call']['post']['responses']['200']['content']['application/json']['breakdown']
+  paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['breakdown']
 export type CheckApi = NonNullable<
   NonNullable<
-    paths['/execute/call']['post']['responses']['200']['content']['application/json']['steps']
+    paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['steps']
   >['0']['items']
 >[0]['check']
 export type ExecuteDetails = NonNullable<
@@ -25,7 +23,7 @@ export type SignatureStepState =
 
 export type Execute = {
   errors?: { message?: string; orderId?: string }[]
-  fees?: CallFees | SwapFees
+  fees?: CallFees
   breakdown?: CallBreakdown
   details?: ExecuteDetails
   error?: any // Manually added client error
