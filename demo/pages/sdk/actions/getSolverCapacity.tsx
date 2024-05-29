@@ -1,10 +1,11 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { getClient, GetConfigResponse } from '@reservoir0x/relay-sdk'
+import { GetConfigResponse } from '@reservoir0x/relay-sdk'
 import { useState } from 'react'
 import { base, zora } from 'viem/chains'
 import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const GetSolverCapcityPage: NextPage = () => {
   const [destinationChainId, setDestinationChainId] = useState<string>(
@@ -15,6 +16,7 @@ const GetSolverCapcityPage: NextPage = () => {
   const [user, setUser] = useState<string>(zeroAddress)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<GetConfigResponse | null>(null)
+  const client = useRelayClient()
 
   return (
     <div
@@ -79,7 +81,11 @@ const GetSolverCapcityPage: NextPage = () => {
             throw 'Please connect your wallet'
           }
 
-          const solverCapacity = await getClient()?.actions.getSolverCapacity({
+          if (!client) {
+            throw "Missing Client!"
+          }
+
+          const solverCapacity = await client?.actions.getSolverCapacity({
             destinationChainId,
             originChainId,
             user: user,

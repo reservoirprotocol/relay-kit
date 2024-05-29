@@ -1,10 +1,10 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { getClient } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -20,6 +20,7 @@ const SwapActionPage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
   const [tx, setTx] = useState<string>('')
   const { data: wallet } = useWalletClient()
+  const client = useRelayClient()
 
   return (
     <div
@@ -185,7 +186,7 @@ const SwapActionPage: NextPage = () => {
             throw 'Must include an amount for swapping'
           }
 
-          getClient()?.actions.swap({
+          client?.actions.swap({
             chainId: fromChainId,
             wallet,
             toChainId,

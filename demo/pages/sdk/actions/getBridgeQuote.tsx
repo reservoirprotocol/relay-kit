@@ -4,11 +4,11 @@ import { useState } from 'react'
 import {
   BridgeActionParameters,
   Execute,
-  getClient
 } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const GetBridgeQuotePage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -20,6 +20,7 @@ const GetBridgeQuotePage: NextPage = () => {
   const [useExactInput, setUseExactInput] = useState(false)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<Execute | null>(null)
+  const client = useRelayClient()
 
   return (
     <div
@@ -125,7 +126,11 @@ const GetBridgeQuotePage: NextPage = () => {
             throw 'Must include a value for bridging'
           }
 
-          const quote = await getClient()?.actions.getBridgeQuote({
+          if (!client) {
+            throw "Missing Client!"
+          }
+
+          const quote = await client?.actions.getBridgeQuote({
             chainId: fromChainId,
             wallet, // optional
             toChainId,

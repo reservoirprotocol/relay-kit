@@ -1,9 +1,9 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { getClient } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const CallActionPage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
@@ -12,6 +12,7 @@ const CallActionPage: NextPage = () => {
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState('')
   const { data: wallet } = useWalletClient()
+  const client = useRelayClient()
 
   return (
     <div
@@ -107,7 +108,7 @@ const CallActionPage: NextPage = () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
-          getClient()?.actions.call({
+          client?.actions.call({
             chainId: fromChainId,
             wallet,
             txs: txs as any,

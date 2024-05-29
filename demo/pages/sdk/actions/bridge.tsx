@@ -1,10 +1,11 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { BridgeActionParameters, getClient } from '@reservoir0x/relay-sdk'
+import { BridgeActionParameters } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const BridgeActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -18,6 +19,7 @@ const BridgeActionPage: NextPage = () => {
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState('')
   const { data: wallet } = useWalletClient()
+  const client = useRelayClient()
 
   return (
     <div
@@ -158,7 +160,7 @@ const BridgeActionPage: NextPage = () => {
             throw 'Must include an amount for bridging'
           }
 
-          getClient()?.actions.bridge({
+          client?.actions.bridge({
             chainId: fromChainId,
             wallet,
             toChainId,

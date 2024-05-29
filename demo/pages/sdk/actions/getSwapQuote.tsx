@@ -1,10 +1,11 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { Execute, getClient } from '@reservoir0x/relay-sdk'
+import { Execute } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const GetSwapQuote: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -16,6 +17,7 @@ const GetSwapQuote: NextPage = () => {
   const [useExactOuput, setUseExactOutput] = useState(false)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<Execute | null>(null)
+  const client = useRelayClient()
 
   return (
     <div
@@ -116,7 +118,11 @@ const GetSwapQuote: NextPage = () => {
             throw 'Must include a value for swapping'
           }
 
-          const quote = await getClient()?.actions.getSwapQuote({
+          if (!client) {
+            throw "Missing Client!"
+          }
+
+          const quote = await client?.actions.getSwapQuote({
             chainId: fromChainId,
             wallet,
             toChainId,
