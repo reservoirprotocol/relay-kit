@@ -18,7 +18,7 @@
     "require": "./_cjs/src/index.js"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types",
+    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types && panda cssgen --outfile dist/styles.css",
     "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./_cjs/package.json",
     "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./_esm/package.json",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --outDir ./_types --declarationDir ./_types --emitDeclarationOnly --declaration --declarationMap",
@@ -26,9 +26,11 @@
     "dev:esm": "tsc --watch --project ./tsconfig.build.json --module es2015 --outDir ./_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./_esm/package.json",
     "dev:types": "tsc --watch --project ./tsconfig.build.json --module esnext --outDir ./_types --declarationDir ./_types --emitDeclarationOnly --declaration --declarationMap",
     "clean": "rimraf ./_esm ./_cjs ./_types",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "panda codegen"
   },
   "devDependencies": {
+    "@pandacss/dev": "^0.40.0",
     "node-fetch": "^3.3.2",
     "rimraf": "^5.0.5"
   },
