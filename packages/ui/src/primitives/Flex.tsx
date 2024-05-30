@@ -1,6 +1,6 @@
-import { styled } from '../../styled-system/jsx'
+import { cva } from '../../styled-system/css'
 
-const Flex = styled('div', {
+const Flex = cva({
   base: {
     display: 'flex'
   },

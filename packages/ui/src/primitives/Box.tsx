@@ -1,5 +1,5 @@
-import { styled } from '../../styled-system/jsx'
+import { css } from '../../styled-system/css'
 
-const Box = styled('div', {})
+const Box = css({})
 
 export default Box
