@@ -10,7 +10,7 @@ import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowK
 import { Chain, mainnet } from 'wagmi/chains'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { configureDynamicChains, convertViemChainToRelayChain, LogLevel, MAINNET_RELAY_API, RelayChain } from '@reservoir0x/relay-sdk'
-import "@reservoir0x/relay-kit-ui/dist/styles.css"
+import "@reservoir0x/relay-kit-ui/styles.css"
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 const WALLET_CONNECT_PROJECT_ID =

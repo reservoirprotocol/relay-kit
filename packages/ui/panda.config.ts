@@ -1,6 +1,7 @@
 import { defineConfig } from '@pandacss/dev'
 
 export default defineConfig({
+  jsxFramework: 'react',
   // Whether to use css reset
   preflight: true,
 

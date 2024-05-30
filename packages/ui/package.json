@@ -14,9 +14,12 @@
     "./dist/styles.css"
   ],
   "exports": {
-    "types": "./_types/src/index.d.ts",
-    "import": "./_esm/src/index.js",
-    "require": "./_cjs/src/index.js"
+    ".": {
+      "types": "./_types/src/index.d.ts",
+      "import": "./_esm/src/index.js",
+      "require": "./_cjs/src/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types && pnpm run build:panda",

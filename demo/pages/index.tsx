@@ -1,5 +1,6 @@
 import { NextPage } from 'next'
 import Link from 'next/link'
+import { SwapWidget } from '@reservoir0x/relay-kit-ui'
 
 const Index: NextPage = () => {
   return (
@@ -14,6 +15,7 @@ const Index: NextPage = () => {
         alignItems: 'flex-start'
       }}
     >
+      <SwapWidget/>
       <h2>SDK Write Actions</h2>
       <nav style={{ display: 'flex', gap: 15 }}>
         <Link href="/sdk/actions/call">Call</Link>
