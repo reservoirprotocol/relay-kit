@@ -1,3 +1,7 @@
+//theming
+export type { RelayKitTheme } from './themes/RelayKitTheme'
+export { darkTheme, lightTheme } from './themes'
+
 //Providers
 export { RelayKitProvider } from './providers/RelayKitProvider.js'
 export { RelayClientProvider } from './providers/RelayClientProvider.js'
@@ -6,4 +10,4 @@ export { RelayClientProvider } from './providers/RelayClientProvider.js'
 export { default as useRelayClient } from './hooks/useRelayClient.js'
 
 //components
-export { SwapWidget } from './widget'
+export { SwapWidget } from './components/widget'

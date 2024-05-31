@@ -1,7 +1,7 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["./src/*"],
+  "include": ["./src/*", "src/components/primitives", "src/components/widget"],
   "exclude": ["./*.json", "./*.md"],
   "compilerOptions": {
     "baseUrl": ".",

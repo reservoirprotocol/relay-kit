@@ -8,7 +8,7 @@ import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
 import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowKitProvider/RainbowKitChainContext'
 import { Chain, mainnet } from 'wagmi/chains'
-import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
+import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { configureDynamicChains, convertViemChainToRelayChain, LogLevel, MAINNET_RELAY_API, RelayChain } from '@reservoir0x/relay-sdk'
 import "@reservoir0x/relay-kit-ui/styles.css"
 
@@ -21,6 +21,10 @@ type AppWrapperProps = {
 }
 
 const queryClient = new QueryClient()
+
+const relayKitTheme = darkTheme({
+  primaryColor: 'pink'
+})
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
@@ -60,7 +64,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
         chains: relayChains
-      }}>
+      }} theme={relayKitTheme}>
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>{children}</RainbowKitProvider>

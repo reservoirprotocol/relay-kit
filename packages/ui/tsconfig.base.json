@@ -22,7 +22,7 @@
     // JavaScript support
     "allowJs": false,
     "checkJs": false,
-    "jsx": "react",
+    "jsx": "react-jsx",
     // Interop constraints
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
