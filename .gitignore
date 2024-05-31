@@ -182,3 +182,5 @@ _types
 styled-system
 styled-system-studio
 dist
+design-system
+!design-system/package.json
