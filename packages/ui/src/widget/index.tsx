@@ -1,7 +1,7 @@
 import React from 'react'
 import type { ReactElement } from 'react'
 import { Flex } from '../primitives'
-import { css } from '../../styled-system/css'
+import { css } from '@reservoir0x/relay-design-system/css'
 
 type Props = {}
 

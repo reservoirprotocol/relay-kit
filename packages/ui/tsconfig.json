@@ -9,7 +9,8 @@
       "~sdk/*": ["./src/*"],
       "@reservoir0x/relay-sdk": ["./packages/sdk/src"],
       "@reservoir0x/relay-kit-ui": ["./packages/ui/src"],
-      "@reservoir0x/relay-kit-hooks": ["./packages/hooks/src"]
+      "@reservoir0x/relay-kit-hooks": ["./packages/hooks/src"],
+      "@reservoir0x/relay-design-system": ["./packages/design-system"],
     }
   },
   "watchOptions": {

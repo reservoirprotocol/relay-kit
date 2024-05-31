@@ -1,4 +1,4 @@
-import { cva } from '../../styled-system/css'
+import { cva } from '@reservoir0x/relay-design-system/css'
 
 const Flex = cva({
   base: {

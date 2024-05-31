@@ -1,6 +1,7 @@
 import { defineConfig } from '@pandacss/dev'
 
 export default defineConfig({
+  jsxFramework: 'react',
   // Whether to use css reset
   preflight: true,
 
@@ -33,5 +34,11 @@ export default defineConfig({
   },
 
   // The output directory for your css system
-  outdir: 'styled-system'
+  outdir: '../design-system',
+  importMap: {
+    css: '@reservoir0x/relay-design-system/css',
+    recipes: '@reservoir0x/relay-design-system/recipes',
+    patterns: '@reservoir0x/relay-design-system/patterns',
+    jsx: '@reservoir0x/relay-design-system/jsx'
+  }
 })
