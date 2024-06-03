@@ -1,6 +1,11 @@
-import { cva } from '@reservoir0x/relay-design-system/css'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
+import type { FC, PropsWithChildren } from 'react'
 
-const Flex = cva({
+export const FlexCss = cva({
   base: {
     display: 'flex'
   },
@@ -66,5 +71,15 @@ const Flex = cva({
     }
   }
 })
+
+type FlexCssProps = Parameters<typeof FlexCss>['0']
+
+const Flex: FC<{ css?: Styles } & FlexCssProps & PropsWithChildren> = ({
+  css,
+  children,
+  ...props
+}) => {
+  return <div className={designCss(FlexCss.raw(props), css)}>{children}</div>
+}
 
 export default Flex

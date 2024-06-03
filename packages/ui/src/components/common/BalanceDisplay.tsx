@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import { Flex, Skeleton, Text } from '../primitives'
-import { formatBN } from '../../lib/utils/numbers'
+import { formatBN } from '../../utils/numbers'
 import { useAccount } from 'wagmi'
 
 type BalanceDisplayProps = {

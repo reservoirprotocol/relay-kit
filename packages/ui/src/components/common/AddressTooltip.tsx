@@ -1,5 +1,5 @@
-import { FC } from 'react'
-import { Address } from 'viem'
+import type { FC } from 'react'
+import type { Address } from 'viem'
 import Tooltip from '../primitives/Tooltip'
 import { Text } from '../primitives'
 import { truncateAddress } from '../../utils/truncate'

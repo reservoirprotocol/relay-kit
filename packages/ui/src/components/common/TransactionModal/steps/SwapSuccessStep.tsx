@@ -1,15 +1,21 @@
-import { FC } from 'react'
-import { Anchor, Box, Button, Flex, Pill, Text } from '../../../primitives'
+import { type FC } from 'react'
+import {
+  Anchor,
+  Box,
+  Button,
+  Flex,
+  Pill,
+  Text,
+  ChainTokenIcon
+} from '../../../primitives'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt, faCheck } from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
-import { truncateAddress } from '../../../../lib/utils/truncate'
-import getChainBlockExplorerUrl from '../../../../lib/utils/getChainBlockExplorerUrl'
+import { truncateAddress } from '../../../../utils/truncate'
+import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
 import { TxHashes } from '../TransactionModalRenderer'
 import { useUserTransactions } from '../../../../hooks'
-import { Token } from '../../../../types'
-import { ChainTokenIcon } from '../../../primitives/ChainTokenIcon'
+import { type Token } from '../../../../types'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -58,8 +64,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           }}
         >
           <Flex
-            alignItems="center"
-            justifyContent="center"
+            align="center"
+            justify="center"
             css={{
               height: 80,
               width: 80,
@@ -107,7 +113,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           {fromToken ? (
             <Pill
               color="gray"
-              css={{ alignItems: 'center', py: '2', px: '3', gap: '2' }}
+              css={{ align: 'center', py: '2', px: '3', gap: '2' }}
             >
               <ChainTokenIcon
                 chainId={fromToken.chainId}
@@ -158,7 +164,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         {transaction?.data?.inTxs?.[0]?.hash ? (
-          <Link
+          <a
             href={`/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
             style={{ width: '100%' }}
           >
@@ -171,7 +177,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             >
               View Details
             </Button>
-          </Link>
+          </a>
         ) : null}
         <Button
           onClick={() => {

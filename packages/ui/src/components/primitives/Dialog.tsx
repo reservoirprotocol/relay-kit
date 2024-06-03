@@ -1,9 +1,19 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { motion } from 'framer-motion'
-import type { ComponentPropsWithoutRef, ElementRef, FC, ReactNode } from 'react'
+import type {
+  ComponentPropsWithoutRef,
+  ElementRef,
+  FC,
+  PropsWithChildren,
+  ReactNode
+} from 'react'
 import { forwardRef, useState } from 'react'
 import { useMediaQuery } from 'usehooks-ts'
-import { cva } from '@reservoir0x/relay-design-system/css'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
 
 const OverlayStyle = cva({
   base: {
@@ -12,22 +22,18 @@ const OverlayStyle = cva({
   }
 })
 
-const Overlay: FC = () => {
+const Overlay: FC<PropsWithChildren & { css?: Styles }> = ({
+  children,
+  ...css
+}) => {
   return (
-    <DialogPrimitive.Overlay
-      className={OverlayStyle()}
-    ></DialogPrimitive.Overlay>
+    <DialogPrimitive.Overlay className={designCss(OverlayStyle.raw(), css)}>
+      {children}
+    </DialogPrimitive.Overlay>
   )
 }
 
-// styled(DialogPrimitive.Overlay, {
-//   base: {
-//     position: 'fixed',
-//     inset: 0
-//   }
-// })
-
-const Content = cva({
+const ContentCss = cva({
   base: {
     backgroundColor: 'neutralBg',
     borderRadius: 16,
@@ -51,9 +57,26 @@ const Content = cva({
   }
 })
 
+const Content = forwardRef<
+  ElementRef<typeof DialogPrimitive.DialogContent>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.DialogContent> &
+    PropsWithChildren
+>(({ children, ...props }, forwardedRef) => {
+  return (
+    <DialogPrimitive.DialogContent
+      ref={forwardedRef}
+      {...props}
+      className={ContentCss()}
+    >
+      {children}
+    </DialogPrimitive.DialogContent>
+  )
+})
+
 const AnimatedContent = forwardRef<
-  ElementRef<typeof Content>,
-  ComponentPropsWithoutRef<typeof Content>
+  ElementRef<typeof DialogPrimitive.DialogContent>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.DialogContent> &
+    PropsWithChildren & { css?: Styles }
 >(({ children, ...props }, forwardedRef) => {
   const isMobile = useMediaQuery('(max-width: 520px)')
 
@@ -98,7 +121,12 @@ const AnimatedContent = forwardRef<
       }
 
   return (
-    <Content forceMount asChild {...props}>
+    <DialogPrimitive.DialogContent
+      className={ContentCss()}
+      forceMount
+      asChild
+      {...props}
+    >
       <motion.div
         key={isMobile + 'modal'}
         ref={forwardedRef}
@@ -107,7 +135,7 @@ const AnimatedContent = forwardRef<
       >
         {children}
       </motion.div>
-    </Content>
+    </DialogPrimitive.DialogContent>
   )
 })
 

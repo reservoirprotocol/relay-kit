@@ -1,9 +1,8 @@
-import { FC } from 'react'
-import { Button, Flex, Text } from '../../../primitives'
+import { type FC } from 'react'
+import { Button, Flex, Text, ChainTokenIcon } from '../../../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LoadingSpinner } from '../../LoadingSpinner'
-import { Token } from '../../../../types'
-import { ChainTokenIcon } from '../../../primitives/ChainTokenIcon'
+import { type Token } from '../../../../types'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 type SwapConfirmationStepProps = {

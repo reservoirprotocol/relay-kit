@@ -40,8 +40,10 @@
   },
   "dependencies": {
     "@reservoir0x/relay-sdk": "workspace:*",
+    "@tanstack/react-query": "^5.20.2",
     "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0"
+    "@types/react-dom": "^18.0.0",
+    "axios": "^1.7.2"
   },
   "keywords": [
     "eth",

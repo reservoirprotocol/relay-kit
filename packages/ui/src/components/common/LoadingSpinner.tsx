@@ -1,5 +1,9 @@
-import type { FC, ReactElement, SVGProps } from 'react'
-import { cva } from '@reservoir0x/relay-design-system/css'
+import type { FC, SVGProps } from 'react'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
 
 const SpinnerSVG: FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
@@ -23,6 +27,10 @@ const LoadingSpinnerCss = cva({
   }
 })
 
-export const LoadingSpinner: FC = (): ReactElement => {
-  return <SpinnerSVG className={LoadingSpinnerCss()}></SpinnerSVG>
+export const LoadingSpinner: FC<{ css?: Styles }> = ({ css }) => {
+  return (
+    <SpinnerSVG
+      className={designCss(LoadingSpinnerCss.raw(), css)}
+    ></SpinnerSVG>
+  )
 }

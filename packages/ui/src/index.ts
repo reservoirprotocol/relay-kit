@@ -10,4 +10,4 @@ export { RelayClientProvider } from './providers/RelayClientProvider.js'
 export { default as useRelayClient } from './hooks/useRelayClient.js'
 
 //components
-export { SwapWidget } from './components/widget'
+export { default as SwapWidget } from './components/widget'

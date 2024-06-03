@@ -2,12 +2,11 @@ import { Flex, Button, Text, Box } from '../primitives'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { easeInOut, motion } from 'framer-motion'
-import { CustomAddressModal } from '../bridge/CustomAddressModal'
+import { CustomAddressModal } from '../common/CustomAddressModal'
 import {
   useCurrencyBalance,
   useENSResolver,
   useMounted,
-  useSwapQuote,
   useRelayClient,
   useDebounceState
 } from '../../hooks'
@@ -16,13 +15,13 @@ import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useConfig } from 'wagmi'
 import TokenSelector from './TokenSelector'
 import type { Token } from '../../types'
-import { AnchorButton } from '../components/primitives/Anchor'
+import { AnchorButton } from '../primitives/Anchor'
 import {
   formatNumber,
   formatFixedLength,
   formatDollar
-} from '../../lib/utils/numbers'
-import { mainnet, sepolia } from 'viem/chains'
+} from '../../utils/numbers'
+import { mainnet } from 'viem/chains'
 import { useQueryClient } from '@tanstack/react-query'
 import AmountInput from '../common/AmountInput'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -35,25 +34,25 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { deadAddress } from '../../constants/address'
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { TESTNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { StyledCollapsibleContent } from '../common/StyledCollapisbleContent'
 import { FeeBreakdown } from '../common/FeeBreakdown'
 import {
   calculateRelayerFeeProportionUsd,
   calculateTimeEstimate,
-  extractQuoteId,
+  // extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
-} from '../../lib/utils/quote'
+} from '../../utils/quote'
 // import { RELAY_BASE_API } from '../../pages/_app'
 import { LoadingSpinner } from '../common/LoadingSpinner'
-import { WidgetErrorWell } from '../bridge/WidgetErrorWell'
+import { WidgetErrorWell } from '../common/WidgetErrorWell'
 import { SwapModal } from '../common/TransactionModal/SwapModal'
 import { getWalletClient, switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
 import { useMediaQuery } from 'usehooks-ts'
-import { useSWRConfig } from 'swr'
+import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
+// import { useSWRConfig } from 'swr'
 
 type SwapWidgetProps = {}
 
@@ -67,14 +66,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
   const { displayName: toDisplayName } = useENSResolver(
     customToAddress ?? address
   )
-  // const router = useRouter()
   const isMounted = useMounted()
   // const { openConnectModal } = useConnectModal()
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
-  const { mutate: globalMutate } = useSWRConfig()
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [details, setDetails] = useState<null | Execute['details']>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
@@ -129,22 +126,25 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
     enabled: toToken !== undefined
   })
 
+  //TODO fix
+  const isLightTheme = true
+
   const invalidateBalanceQueries = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
-    globalMutate(
-      `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`,
-      undefined,
-      {
-        revalidate: true
-      }
-    )
+    // globalMutate(
+    //   `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`,
+    //   undefined,
+    //   {
+    //     revalidate: true
+    //   }
+    // )
   }, [
     queryClient,
     fromBalanceQueryKey,
     toBalanceQueryKey,
-    address,
-    globalMutate
+    address
+    // globalMutate
   ])
 
   const {
@@ -152,6 +152,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
     isLoading: isFetchingQuote,
     error
   } = useSwapQuote(
+    relayClient ? relayClient : undefined,
     fromToken && toToken
       ? {
           user: customToAddress ?? address ?? deadAddress,
@@ -174,20 +175,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
         }
       : undefined,
     () => {},
-    (data) => {},
-    Boolean(
-      relayClient &&
-        ((tradeType === 'EXACT_INPUT' &&
-          debouncedInputAmountValue &&
-          debouncedInputAmountValue.length > 0 &&
-          Number(debouncedInputAmountValue) !== 0) ||
-          (tradeType === 'EXACT_OUTPUT' &&
-            debouncedOutputAmountValue &&
-            debouncedOutputAmountValue.length > 0 &&
-            Number(debouncedOutputAmountValue) !== 0))
-    ),
+    () => {},
     {
-      refreshInterval:
+      enabled: Boolean(
+        relayClient &&
+          ((tradeType === 'EXACT_INPUT' &&
+            debouncedInputAmountValue &&
+            debouncedInputAmountValue.length > 0 &&
+            Number(debouncedInputAmountValue) !== 0) ||
+            (tradeType === 'EXACT_OUTPUT' &&
+              debouncedOutputAmountValue &&
+              debouncedOutputAmountValue.length > 0 &&
+              Number(debouncedOutputAmountValue) !== 0))
+      ),
+      refetchInterval:
         steps === null &&
         debouncedInputAmountValue === amountInputValue &&
         debouncedOutputAmountValue === amountOutputValue
@@ -365,7 +366,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             setDetails(details)
           }
         })
-        .catch((error) => {
+        .catch((error: any) => {
           if (
             error &&
             ((typeof error.message === 'string' &&
@@ -476,35 +477,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             <TokenSelector
               token={fromToken}
               setToken={(token) => {
-                posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
-                  direction: 'input',
-                  token_symbol: token.symbol
-                })
-                let params: { name: string; value: string }[] = []
+                // posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
+                //   direction: 'input',
+                //   token_symbol: token.symbol
+                // })
                 if (
                   token.address === toToken?.address &&
-                  token.chainId === toToken.chainId
+                  token.chainId === toToken?.chainId
                 ) {
                   setFromToken(toToken)
                   setToToken(fromToken)
-                  params = params.concat([
-                    { name: 'toChainId', value: `${toToken.chainId}` },
-                    { name: 'toCurrency', value: `${toToken.address}` }
-                  ])
-                  if (fromToken) {
-                    params = params.concat([
-                      { name: 'fromChainId', value: `${fromToken.chainId}` },
-                      { name: 'fromCurrency', value: `${fromToken.address}` }
-                    ])
-                  }
                 } else {
                   setFromToken(token)
-                  params = params.concat([
-                    { name: 'fromChainId', value: `${token.chainId}` },
-                    { name: 'fromCurrency', value: `${token.address}` }
-                  ])
                 }
-                addOrUpdateParams(router, params)
               }}
               context="from"
             />
@@ -525,7 +510,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
                 }
               }}
               onFocus={() => {
-                posthog.capture(EventNames.SWAP_INPUT_FOCUSED)
+                // posthog.capture(EventNames.SWAP_INPUT_FOCUSED)
               }}
               css={{
                 textAlign: 'right',
@@ -618,20 +603,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
                 setToToken(fromToken)
                 debouncedAmountInputControls.flush()
                 debouncedAmountOutputControls.flush()
-                let params: { name: string; value: string }[] = []
-                if (fromToken) {
-                  params = params.concat([
-                    { name: 'fromChainId', value: `${fromToken.chainId}` },
-                    { name: 'fromCurrency', value: `${fromToken.address}` }
-                  ])
-                }
-                if (toToken) {
-                  params = params.concat([
-                    { name: 'toChainId', value: `${toToken.chainId}` },
-                    { name: 'toCurrency', value: `${toToken.address}` }
-                  ])
-                }
-                addOrUpdateParams(router, params)
               }
             }}
           >
@@ -660,7 +631,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
                 css={{ display: 'flex', alignItems: 'center', gap: '2' }}
                 onClick={() => {
                   setAddressModalOpen(true)
-                  posthog.capture(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
+                  // posthog.capture(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
                 }}
               >
                 <Text style="subtitle3" css={{ color: 'inherit' }}>
@@ -674,37 +645,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             <TokenSelector
               token={toToken}
               setToken={(token) => {
-                posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
-                  direction: 'output',
-                  token_symbol: token.symbol
-                })
-                let params: { name: string; value: string }[] = []
+                // posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
+                //   direction: 'output',
+                //   token_symbol: token.symbol
+                // })
                 if (
                   token.address === fromToken?.address &&
-                  token.chainId === fromToken.chainId
+                  token.chainId === fromToken?.chainId
                 ) {
                   setToToken(fromToken)
                   setFromToken(toToken)
-                  if (fromToken) {
-                    params = params.concat([
-                      { name: 'fromChainId', value: `${fromToken.chainId}` },
-                      { name: 'fromCurrency', value: `${fromToken.address}` }
-                    ])
-                  }
-                  if (toToken) {
-                    params = params.concat([
-                      { name: 'toChainId', value: `${toToken.chainId}` },
-                      { name: 'toCurrency', value: `${toToken.address}` }
-                    ])
-                  }
                 } else {
                   setToToken(token)
-                  params = params.concat([
-                    { name: 'toChainId', value: `${token.chainId}` },
-                    { name: 'toCurrency', value: `${token.address}` }
-                  ])
                 }
-                addOrUpdateParams(router, params)
               }}
               context="to"
             />
@@ -726,7 +679,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
               }}
               disabled={!toToken}
               onFocus={() => {
-                posthog.capture(EventNames.SWAP_OUTPUT_FOCUSED)
+                // posthog.capture(EventNames.SWAP_OUTPUT_FOCUSED)
               }}
               css={{
                 color:
@@ -972,10 +925,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             css={{ justifyContent: 'center' }}
             aria-label="Connect wallet"
             onClick={() => {
-              openConnectModal?.()
-              posthog.capture(EventNames.CONNECT_WALLET_CLICKED, {
-                context: 'bridge'
-              })
+              //TODO
+              // openConnectModal?.()
+              // posthog.capture(EventNames.CONNECT_WALLET_CLICKED, {
+              //   context: 'bridge'
+              // })
             }}
           >
             Connect
@@ -1013,13 +967,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
           }}
           onConfirmed={(address) => {
             setCustomToAddress(address)
-            if (address !== router.query.toAddress) {
-              removeParam(router, 'toAddress')
-            }
           }}
           onClear={() => {
             setCustomToAddress(undefined)
-            removeParam(router, 'toAddress')
           }}
         />
       </Flex>

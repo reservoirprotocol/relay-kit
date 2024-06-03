@@ -1,9 +1,9 @@
-import { FC } from 'react'
+import type { FC } from 'react'
 import { Anchor, Button, Flex, Text } from '../../../primitives'
 import { LoadingSpinner } from '../../LoadingSpinner'
-import { truncateAddress } from '../../../../lib/utils/truncate'
-import getChainBlockExplorerUrl from '../../../../lib/utils/getChainBlockExplorerUrl'
-import { ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
+import { truncateAddress } from '../../../../utils/truncate'
+import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
+import type { ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
 
 type ValidatingStepProps = {
   currentStep?: ExecuteStep | null

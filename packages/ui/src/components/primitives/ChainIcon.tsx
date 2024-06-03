@@ -1,0 +1,53 @@
+import { type FC } from 'react'
+import { Flex } from './'
+import useRelayClient from '../../hooks/useRelayClient'
+import type { Styles } from '@reservoir0x/relay-design-system/css'
+
+type Props = {
+  chainId?: number
+  height?: number
+  width?: number
+  css?: Styles
+  square?: boolean
+}
+
+const ChainIcon: FC<Props> = ({
+  chainId,
+  css = {},
+  height = 14,
+  width = 14,
+  square = true
+}) => {
+  const client = useRelayClient()
+  const icon = chainId
+    ? client?.chains?.find((chain) => chain.id === chainId)?.icon?.light
+    : null
+
+  const iconUrl = square ? icon?.replace('/icons/', '/icons/square/') : icon
+
+  return iconUrl ? (
+    <Flex
+      css={{
+        display: 'flex',
+        flexShrink: 0,
+        height: height,
+        width: width,
+        ...css
+      }}
+    >
+      {iconUrl ? (
+        <img
+          src={iconUrl}
+          alt={`Chain #${chainId}`}
+          style={{
+            borderRadius: square ? 4 : 0,
+            width: css && css.width ? Number(css.width) : 150,
+            height: css && css.height ? Number(css.height) : 150
+          }}
+        />
+      ) : null}
+    </Flex>
+  ) : null
+}
+
+export default ChainIcon

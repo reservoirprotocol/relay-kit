@@ -1,23 +1,27 @@
 import {
-  FC,
+  type FC,
   useMemo,
   useState,
   useEffect,
-  ReactNode,
-  SetStateAction,
-  Dispatch
+  type ReactNode,
+  type SetStateAction,
+  type Dispatch
 } from 'react'
-import { Address } from 'viem'
-import { Execute, ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
+import type { Address } from 'viem'
+import type {
+  Execute,
+  ExecuteStep,
+  ExecuteStepItem
+} from '@reservoir0x/relay-sdk'
 import {
   calculateExecutionTime,
   calculateFillTime,
   extractDepositRequestId
-} from '../../../lib/utils/relayTransaction'
-import { useUserTransactions } from '../../../hooks'
-import { EventNames } from '../../../analytics/events'
-import posthog from 'posthog-js'
-import { extractQuoteId } from '../../../lib/utils/quote'
+} from '../../../utils/relayTransaction'
+// import { EventNames } from '../../../analytics/events'
+import { extractQuoteId } from '../../../utils/quote'
+import { useRequests } from '@reservoir0x/relay-kit-hooks'
+import { useRelayClient } from '../../../hooks'
 
 export enum TransactionProgressStep {
   WalletConfirmation,
@@ -39,7 +43,7 @@ export type ChildrenProps = {
   >
   allTxHashes: TxHashes
   setAllTxHashes: Dispatch<SetStateAction<TxHashes>>
-  transaction: ReturnType<typeof useUserTransactions>['data']['0']
+  transaction: ReturnType<typeof useRequests>['data']['0']
   seconds: number
   fillTime: string
   executionTime?: string
@@ -53,7 +57,6 @@ type Props = {
   children: (props: ChildrenProps) => ReactNode
   address?: Address
   steps?: Execute['steps'] | null
-  fees?: Execute['fees']
   error?: Error | null
   onSuccess?: () => void
 }
@@ -62,7 +65,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   children,
   address,
   steps,
-  fees,
   error,
   onSuccess
 }) => {
@@ -122,9 +124,9 @@ export const TransactionModalRenderer: FC<Props> = ({
       (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
       progressStep === TransactionProgressStep.WalletConfirmation
     ) {
-      posthog.capture(EventNames.TRANSACTION_VALIDATING, {
-        quote_id: extractQuoteId(steps)
-      })
+      // posthog.capture(EventNames.TRANSACTION_VALIDATING, {
+      //   quote_id: extractQuoteId(steps)
+      // })
       setProgressStep(TransactionProgressStep.Validating)
       setStartTimestamp(new Date().getTime())
     }
@@ -149,15 +151,23 @@ export const TransactionModalRenderer: FC<Props> = ({
     }
   }, [steps, error])
 
+  const client = useRelayClient()
+
   // Fetch Success Tx
-  const { data: transactions } = useUserTransactions(
+  const { data: transactions } = useRequests(
     progressStep === TransactionProgressStep.Success && allTxHashes[0]
       ? {
           user: address,
           hash: allTxHashes[0]?.txHash
         }
       : undefined,
-    {}
+    client?.baseApiUrl,
+    {
+      enabled:
+        progressStep === TransactionProgressStep.Success && allTxHashes[0]
+          ? true
+          : false
+    }
   )
   const transaction = transactions[0]
   const { fillTime, seconds } = calculateFillTime(transaction)

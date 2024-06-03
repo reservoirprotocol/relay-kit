@@ -1,7 +1,17 @@
 import * as Collapsible from '@radix-ui/react-collapsible'
-import { styled } from '../../styled-system/jsx'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+  type PropsWithChildren
+} from 'react'
 
-export const StyledCollapsibleContent = styled(Collapsible.CollapsibleContent, {
+const StyledCollapsibleContentCss = cva({
   base: {
     overflow: 'hidden',
     _data_state_open: {
@@ -11,4 +21,20 @@ export const StyledCollapsibleContent = styled(Collapsible.CollapsibleContent, {
       animation: `collapsibleSlideUp 300ms cubic-bezier(0.87, 0, 0.13, 1)`
     }
   }
+})
+
+export const StyledCollapsibleContent = forwardRef<
+  ElementRef<typeof Collapsible.CollapsibleContent>,
+  ComponentPropsWithoutRef<typeof Collapsible.CollapsibleContent> &
+    PropsWithChildren & { css?: Styles }
+>(({ children, css, ...props }, forwardedRef) => {
+  return (
+    <Collapsible.CollapsibleContent
+      ref={forwardedRef}
+      {...props}
+      className={designCss(StyledCollapsibleContentCss.raw(), css)}
+    >
+      {children}
+    </Collapsible.CollapsibleContent>
+  )
 })

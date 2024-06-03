@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
 import type { RelayClientOptions } from '@reservoir0x/relay-sdk'

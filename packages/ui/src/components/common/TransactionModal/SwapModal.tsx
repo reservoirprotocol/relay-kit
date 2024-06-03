@@ -1,8 +1,8 @@
-import { CallFees, Execute } from '@reservoir0x/relay-sdk'
-import { Address } from 'viem'
-import { FC, useEffect } from 'react'
+import type { CallFees, Execute } from '@reservoir0x/relay-sdk'
+import { type Address } from 'viem'
+import { type FC, useEffect } from 'react'
 import {
-  ChildrenProps,
+  type ChildrenProps,
   TransactionModalRenderer,
   TransactionProgressStep
 } from './TransactionModalRenderer'
@@ -10,13 +10,12 @@ import { Modal } from '../Modal'
 import { Flex, Text } from '../../primitives'
 import { ErrorStep } from './steps/ErrorStep'
 import { ValidatingStep } from './steps/ValidatingStep'
-import posthog from 'posthog-js'
-import { EventNames } from '../../../analytics/events'
+// import { EventNames } from '../../../analytics/events'
 import { SwapConfirmationStep } from './steps/SwapConfirmationStep'
-import { Token } from '../../../types'
+import { type Token } from '../../../types'
 import { SwapSuccessStep } from './steps/SwapSuccessStep'
 import { formatBN } from '../../../lib/utils/numbers'
-import { extractQuoteId } from '../../../lib/utils/quote'
+import { extractQuoteId } from '../../../utils/quote'
 
 type SwapModalProps = {
   open: boolean
@@ -40,32 +39,30 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       error={error}
       address={address}
       onSuccess={() => {
-        const extraData: {
-          gas_fee?: number
-          relayer_fee?: number
-          amount_in: number
-          amount_out: number
-        } = {
-          amount_in: parseFloat(`${details?.currencyIn?.amountFormatted}`),
-          amount_out: parseFloat(`${details?.currencyOut?.amountFormatted}`)
-        }
-        if (fees?.gas?.amountFormatted) {
-          extraData.gas_fee = parseFloat(fees.gas.amountFormatted)
-        }
-        if (fees?.relayer?.amountFormatted) {
-          extraData.relayer_fee = parseFloat(fees.relayer.amountFormatted)
-        }
-
-        const quoteId = steps ? extractQuoteId(steps) : undefined
-
-        posthog.capture(EventNames.SWAP_SUCCESS, {
-          ...extraData,
-          chain_id_in: fromToken?.chainId,
-          currency_in: fromToken?.symbol,
-          chain_id_out: toToken?.chainId,
-          currency_out: toToken?.symbol,
-          quote_id: quoteId
-        })
+        // const extraData: {
+        //   gas_fee?: number
+        //   relayer_fee?: number
+        //   amount_in: number
+        //   amount_out: number
+        // } = {
+        //   amount_in: parseFloat(`${details?.currencyIn?.amountFormatted}`),
+        //   amount_out: parseFloat(`${details?.currencyOut?.amountFormatted}`)
+        // }
+        // if (fees?.gas?.amountFormatted) {
+        //   extraData.gas_fee = parseFloat(fees.gas.amountFormatted)
+        // }
+        // if (fees?.relayer?.amountFormatted) {
+        //   extraData.relayer_fee = parseFloat(fees.relayer.amountFormatted)
+        // }
+        // const quoteId = steps ? extractQuoteId(steps) : undefined
+        // posthog.capture(EventNames.SWAP_SUCCESS, {
+        //   ...extraData,
+        //   chain_id_in: fromToken?.chainId,
+        //   currency_in: fromToken?.symbol,
+        //   chain_id_out: toToken?.chainId,
+        //   currency_out: toToken?.symbol,
+        //   quote_id: quoteId
+        // })
       }}
     >
       {(rendererProps) => {
@@ -111,7 +108,7 @@ const InnerSwapModal: FC<InnerBridgeProps> = ({
   useEffect(() => {
     if (!open) {
       if (currentStep) {
-        posthog.capture(EventNames.SWAP_MODAL_CLOSED)
+        // posthog.capture(EventNames.SWAP_MODAL_CLOSED)
       }
       setProgressStep(TransactionProgressStep.WalletConfirmation)
       setCurrentStep(null)
@@ -119,7 +116,7 @@ const InnerSwapModal: FC<InnerBridgeProps> = ({
       setAllTxHashes([])
       setStartTimestamp(0)
     } else {
-      posthog.capture(EventNames.SWAP_MODAL_OPEN)
+      // posthog.capture(EventNames.SWAP_MODAL_OPEN)
     }
   }, [open])
 

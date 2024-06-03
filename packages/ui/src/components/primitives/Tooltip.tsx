@@ -3,7 +3,6 @@ import * as Popover from '@radix-ui/react-popover'
 import { useMediaQuery } from 'usehooks-ts'
 import Box from './Box'
 import { cva } from '@reservoir0x/relay-design-system/css'
-import type { FC } from 'react'
 
 const TooltipArrowStyle = cva({
   base: {
@@ -42,7 +41,6 @@ const Tooltip = ({
           style={{ zIndex: 100, outline: 'none', maxWidth: '100vw' }}
           {...props}
         >
-          <PopoverArrow />
           <Popover.Arrow className={PopoverArrow()} />
           <Box
             css={{
@@ -80,7 +78,7 @@ const Tooltip = ({
         style={{ zIndex: 100 }}
         {...props}
       >
-        <TooltipPrimitive className={TooltipArrowStyle()} />
+        <div className={TooltipArrowStyle()}></div>
         <Box
           css={{
             zIndex: 9999,

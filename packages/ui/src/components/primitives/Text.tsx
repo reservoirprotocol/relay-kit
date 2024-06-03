@@ -1,6 +1,11 @@
-import { cva } from '@reservoir0x/relay-design-system/css'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
+import type { FC, PropsWithChildren } from 'react'
 
-const Text = cva({
+const TextCss = cva({
   base: {
     color: 'gray12',
     fontFamily: 'body'
@@ -88,5 +93,15 @@ const Text = cva({
     }
   }
 })
+
+type TextCssProps = Parameters<typeof TextCss>['0']
+
+const Text: FC<{ css?: Styles } & TextCssProps & PropsWithChildren> = ({
+  css,
+  children,
+  ...props
+}) => {
+  return <div className={designCss(TextCss.raw(props), css)}>{children}</div>
+}
 
 export default Text

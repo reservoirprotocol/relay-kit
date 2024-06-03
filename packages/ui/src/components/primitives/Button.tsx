@@ -1,6 +1,11 @@
-import { cva } from '@reservoir0x/relay-design-system/css'
+import {
+  cva,
+  css as designCss,
+  type Styles
+} from '@reservoir0x/relay-design-system/css'
+import type { ButtonHTMLAttributes, FC } from 'react'
 
-const Button = cva({
+const ButtonCss = cva({
   base: {
     cursor: 'pointer',
     outline: 'none',
@@ -109,5 +114,21 @@ const Button = cva({
     size: 'medium'
   }
 })
+
+type ButtonCssProps = Parameters<typeof ButtonCss>['0']
+
+const Button: FC<
+  { css?: Styles } & ButtonCssProps & ButtonHTMLAttributes<HTMLButtonElement>
+> = ({ css, children, ...props }) => {
+  const { color, size, corners, ...buttonProps } = { ...props }
+  return (
+    <button
+      {...buttonProps}
+      className={designCss(ButtonCss.raw({ color, size, corners }), css)}
+    >
+      {children}
+    </button>
+  )
+}
 
 export default Button
