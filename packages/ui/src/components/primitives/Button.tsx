@@ -124,7 +124,10 @@ const Button: FC<
   return (
     <button
       {...buttonProps}
-      className={designCss(ButtonCss.raw({ color, size, corners }), css)}
+      className={designCss(
+        ButtonCss.raw({ color, size, corners }),
+        designCss.raw(css)
+      )}
     >
       {children}
     </button>

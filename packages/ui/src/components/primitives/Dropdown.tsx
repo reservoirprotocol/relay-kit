@@ -34,7 +34,7 @@ const DropdownMenuContent = forwardRef<
     <DropdownMenuPrimitive.DropdownMenuContent
       {...props}
       ref={forwardedRef}
-      className={designCss(DropdownMenuContentCss.raw(), css)}
+      className={designCss(DropdownMenuContentCss.raw(), designCss.raw(css))}
     >
       {children}
     </DropdownMenuPrimitive.DropdownMenuContent>
@@ -70,7 +70,7 @@ const DropdownMenuItem = forwardRef<
     <DropdownMenuPrimitive.DropdownMenuItem
       {...props}
       ref={forwardedRef}
-      className={designCss(DropdownMenuItemCss.raw(), css)}
+      className={designCss(DropdownMenuItemCss.raw(), designCss.raw(css))}
     >
       {children}
     </DropdownMenuPrimitive.DropdownMenuItem>

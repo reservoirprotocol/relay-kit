@@ -30,7 +30,7 @@ const LoadingSpinnerCss = cva({
 export const LoadingSpinner: FC<{ css?: Styles }> = ({ css }) => {
   return (
     <SpinnerSVG
-      className={designCss(LoadingSpinnerCss.raw(), css)}
+      className={designCss(LoadingSpinnerCss.raw(), designCss.raw(css))}
     ></SpinnerSVG>
   )
 }

@@ -32,7 +32,10 @@ export const StyledCollapsibleContent = forwardRef<
     <Collapsible.CollapsibleContent
       ref={forwardedRef}
       {...props}
-      className={designCss(StyledCollapsibleContentCss.raw(), css)}
+      className={designCss(
+        StyledCollapsibleContentCss.raw(),
+        designCss.raw(css)
+      )}
     >
       {children}
     </Collapsible.CollapsibleContent>

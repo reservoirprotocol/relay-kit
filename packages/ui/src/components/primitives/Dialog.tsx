@@ -24,10 +24,12 @@ const OverlayStyle = cva({
 
 const Overlay: FC<PropsWithChildren & { css?: Styles }> = ({
   children,
-  ...css
+  css
 }) => {
   return (
-    <DialogPrimitive.Overlay className={designCss(OverlayStyle.raw(), css)}>
+    <DialogPrimitive.Overlay
+      className={designCss(OverlayStyle.raw(), designCss.raw(css))}
+    >
       {children}
     </DialogPrimitive.Overlay>
   )
@@ -77,7 +79,7 @@ const AnimatedContent = forwardRef<
   ElementRef<typeof DialogPrimitive.DialogContent>,
   ComponentPropsWithoutRef<typeof DialogPrimitive.DialogContent> &
     PropsWithChildren & { css?: Styles }
->(({ children, ...props }, forwardedRef) => {
+>(({ children, css, ...props }, forwardedRef) => {
   const isMobile = useMediaQuery('(max-width: 520px)')
 
   const animation = isMobile
@@ -122,7 +124,7 @@ const AnimatedContent = forwardRef<
 
   return (
     <DialogPrimitive.DialogContent
-      className={ContentCss()}
+      className={designCss(ContentCss.raw(), designCss.raw(css))}
       forceMount
       asChild
       {...props}

@@ -101,7 +101,11 @@ const Text: FC<{ css?: Styles } & TextCssProps & PropsWithChildren> = ({
   children,
   ...props
 }) => {
-  return <div className={designCss(TextCss.raw(props), css)}>{children}</div>
+  return (
+    <div className={designCss(TextCss.raw(props), designCss.raw(css))}>
+      {children}
+    </div>
+  )
 }
 
 export default Text

@@ -15,7 +15,11 @@ const Box: FC<{ css?: Styles } & BoxCssProps & PropsWithChildren> = ({
   children,
   ...props
 }) => {
-  return <div className={designCss(BoxCss.raw(props), css)}>{children}</div>
+  return (
+    <div className={designCss(BoxCss.raw(props), designCss.raw(css))}>
+      {children}
+    </div>
+  )
 }
 
 export default Box

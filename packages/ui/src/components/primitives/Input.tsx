@@ -94,11 +94,15 @@ const Input: FC<
         </Flex>
       )}
       <input
-        className={designCss(css, StyledInputCss.raw({ size, ellipsify }), {
-          paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
-          paddingRight: icon && iconPosition === 'right' ? 42 : 16
-        })}
         {...inputProps}
+        className={designCss(
+          StyledInputCss.raw({ size, ellipsify }),
+          designCss.raw({
+            ...css,
+            paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
+            paddingRight: icon && iconPosition === 'right' ? 42 : 16
+          })
+        )}
       />
     </Flex>
   )

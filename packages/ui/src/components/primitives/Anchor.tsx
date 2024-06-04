@@ -45,14 +45,22 @@ const AnchorStyle = cva({
 const Anchor: FC<
   AnchorHTMLAttributes<HTMLAnchorElement> & { css?: Styles }
 > = ({ css, ...props }) => {
-  return <a {...props} className={designCss(AnchorStyle.raw(), css)}></a>
+  return (
+    <a
+      {...props}
+      className={designCss(AnchorStyle.raw(), designCss.raw(css))}
+    ></a>
+  )
 }
 
 export const AnchorButton: FC<
   ButtonHTMLAttributes<HTMLButtonElement> & { css?: Styles }
 > = ({ css, ...props }) => {
   return (
-    <button {...props} className={designCss(AnchorStyle.raw(), css)}></button>
+    <button
+      {...props}
+      className={designCss(AnchorStyle.raw(), designCss.raw(css))}
+    ></button>
   )
 }
 

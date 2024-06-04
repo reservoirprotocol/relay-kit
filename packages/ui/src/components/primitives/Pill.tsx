@@ -51,7 +51,12 @@ export const Pill: FC<
     css?: Parameters<(typeof FlexCss)['raw']>[0] & Styles
   }
 > = ({ css, ...props }) => {
-  return <div {...props} className={designCss(PillStyle.raw(), css)}></div>
+  return (
+    <div
+      {...props}
+      className={designCss(PillStyle.raw(), designCss.raw(css))}
+    ></div>
+  )
 }
 
 export default Pill

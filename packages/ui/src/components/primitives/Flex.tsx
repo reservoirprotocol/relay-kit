@@ -79,7 +79,11 @@ const Flex: FC<{ css?: Styles } & FlexCssProps & PropsWithChildren> = ({
   children,
   ...props
 }) => {
-  return <div className={designCss(FlexCss.raw(props), css)}>{children}</div>
+  return (
+    <div className={designCss(FlexCss.raw(props), designCss.raw(css))}>
+      {children}
+    </div>
+  )
 }
 
 export default Flex

@@ -63,7 +63,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         baseApiUrl: MAINNET_RELAY_API,
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
-        chains: relayChains
+        chains: relayChains,
+        duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN
       }} theme={relayKitTheme}>
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
