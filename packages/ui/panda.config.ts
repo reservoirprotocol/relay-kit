@@ -29,7 +29,7 @@ export const Colors = {
   gray11: { value: '{colors.slate.11}' },
   gray12: { value: '{colors.slate.12}' },
   // BlackA
-  blackA10: { value: '{colors.blackA.10}' },
+  blackA10: { value: '{colors.black.a.10}' },
   // Blue
   blue12: { value: '{colors.blue.12}' },
   // Red
@@ -75,7 +75,18 @@ export default defineConfig({
     radixColorsPreset({
       darkMode: {
         condition: '.dark &'
-      }
+      },
+      colorScales: [
+        'amber',
+        'green',
+        'slate',
+        'gray',
+        'violet',
+        'red',
+        'black',
+        'yellow',
+        'blue'
+      ]
     }),
     // Re-add the panda preset if you want to keep
     // the default keyframes, breakpoints, tokens
@@ -127,7 +138,7 @@ export default defineConfig({
           value: { base: '{colors.gray.1}', _dark: '{colors.gray.3}' }
         },
         muted: { value: { base: '{colors.gray.3}' } },
-        success: { value: { base: '{colors.green.green11 }' } }
+        success: { value: { base: '{colors.green.11 }' } }
       }
     },
     extend: {
