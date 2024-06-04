@@ -55,12 +55,14 @@ const Anchor: FC<
 
 export const AnchorButton: FC<
   ButtonHTMLAttributes<HTMLButtonElement> & { css?: Styles }
-> = ({ css, ...props }) => {
+> = ({ css, children, ...props }) => {
   return (
     <button
       {...props}
       className={designCss(AnchorStyle.raw(), designCss.raw(css))}
-    ></button>
+    >
+      {children}
+    </button>
   )
 }
 

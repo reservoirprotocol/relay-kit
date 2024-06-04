@@ -133,15 +133,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       tokenList && (tokenList as any).length
         ? (tokenList as CurrencyList[])
         : undefined
-    let list = (
+    let list =
       context === 'from' &&
       useDefaultTokenList &&
       suggestedTokens &&
-      (suggestedTokens as any).length &&
-      (suggestedTokens as any).length > 0
+      suggestedTokens.length > 0
         ? suggestedTokens
         : tokenList
-    ) as CurrencyList[]
     const ethTokens = _tokenList?.find(
       (list) => list[0] && list[0].groupID === 'ETH'
     )
@@ -332,12 +330,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Text style="h6">Select Token</Text>
             <Flex align="center" css={{ width: '100%', gap: '2' }}>
               <Input
-                ref={(element) => {
+                inputRef={(element) => {
                   setInputElement(element)
                 }}
                 placeholder="Search for a token"
                 icon={
-                  <Box css={{ color: 'gray9', pt: '1' }}>
+                  <Box css={{ color: 'gray9' }}>
                     <FontAwesomeIcon
                       icon={faMagnifyingGlass}
                       width={16}
@@ -452,7 +450,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               Select Chain for {selectedCurrencyList?.[0].symbol}
             </Text>
             <Input
-              ref={(element) => {
+              inputRef={(element) => {
                 setInputElement(element)
               }}
               placeholder="Search for a chain"

@@ -42,7 +42,7 @@ export default function (
       ...response,
       data: response.error ? undefined : response.data
     } as Omit<ReturnType<QueryType>, 'data'> & {
-      data: Error | null | GetCurrenciesResponse
+      data?: GetCurrenciesResponse
     }
   }, [response])
 }

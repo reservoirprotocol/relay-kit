@@ -3,7 +3,12 @@ import {
   css as designCss,
   type Styles
 } from '@reservoir0x/relay-design-system/css'
-import type { ButtonHTMLAttributes, FC } from 'react'
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type FC,
+  type HTMLAttributes
+} from 'react'
 
 const ButtonCss = cva({
   base: {
@@ -117,13 +122,16 @@ const ButtonCss = cva({
 
 type ButtonCssProps = Parameters<typeof ButtonCss>['0']
 
-const Button: FC<
-  { css?: Styles } & ButtonCssProps & ButtonHTMLAttributes<HTMLButtonElement>
-> = ({ css, children, ...props }) => {
+const Button = forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'ref'> &
+    ButtonCssProps & { css?: Styles }
+>(({ css, children, ...props }, forwardedRef) => {
   const { color, size, corners, ...buttonProps } = { ...props }
   return (
     <button
       {...buttonProps}
+      ref={forwardedRef}
       className={designCss(
         ButtonCss.raw({ color, size, corners }),
         designCss.raw(css)
@@ -132,6 +140,6 @@ const Button: FC<
       {children}
     </button>
   )
-}
+})
 
 export default Button

@@ -41,8 +41,8 @@ const ChainIcon: FC<Props> = ({
           alt={`Chain #${chainId}`}
           style={{
             borderRadius: square ? 4 : 0,
-            width: css && css.width ? Number(css.width) : 150,
-            height: css && css.height ? Number(css.height) : 150
+            width: css && css.width ? Number(css.width) : '100%',
+            height: css && css.height ? Number(css.height) : '100%'
           }}
         />
       ) : null}

@@ -176,17 +176,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
     () => {},
     () => {},
     {
-      enabled: Boolean(
-        relayClient &&
-          ((tradeType === 'EXACT_INPUT' &&
-            debouncedInputAmountValue &&
-            debouncedInputAmountValue.length > 0 &&
-            Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXACT_OUTPUT' &&
-              debouncedOutputAmountValue &&
-              debouncedOutputAmountValue.length > 0 &&
-              Number(debouncedOutputAmountValue) !== 0))
-      ),
+      enabled:
+        Boolean(
+          relayClient &&
+            ((tradeType === 'EXACT_INPUT' &&
+              debouncedInputAmountValue &&
+              debouncedInputAmountValue.length > 0 &&
+              Number(debouncedInputAmountValue) !== 0) ||
+              (tradeType === 'EXACT_OUTPUT' &&
+                debouncedOutputAmountValue &&
+                debouncedOutputAmountValue.length > 0 &&
+                Number(debouncedOutputAmountValue) !== 0))
+        ) &&
+        fromToken !== undefined &&
+        toToken !== undefined,
       refetchInterval:
         steps === null &&
         debouncedInputAmountValue === amountInputValue &&
@@ -241,8 +244,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
   )
 
   const fetchQuoteErrorMessage = error
-    ? error?.response?.data?.message
-      ? (error?.response?.data.message as string)
+    ? error?.message
+      ? (error?.message as string)
       : 'Unknown Error'
     : null
   const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
@@ -573,7 +576,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             ) : null}
           </Flex>
         </Flex>
-        <Box css={{ position: 'relative', mb: -26, mx: 'auto', height: 40 }}>
+        <Box
+          css={{
+            position: 'relative',
+            my: -10,
+            mx: 'auto',
+            height: 40
+          }}
+        >
           <Button
             size="small"
             color="white"
