@@ -55,11 +55,17 @@ export type SwapActionParameters = {
 
 /**
  * Swap crosschain using Relay
- * @param data.chainId destination chain id
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
- * @param data.originChainId The chain to pay the solver on
+ * @param data.chainId The chain id to deposit funds on
+ * @param data.currency Currency address to swap from
+ * @param data.toChainId The chain id to execute the swap on
+ * @param data.toCurrency Currency address to swap to
+ * @param data.amount Amount in wei to swap
+ * @param data.recipient A valid address to send the funds to
+ * @param data.txs An array of txs to be executed after the swap is completed
+ * @param data.depositGasLimit The gas limit used for the deposit transaction
  * @param data.precheck Set to true to skip executing steps and just to get the initial steps required
- * @param data.options - {@link SwapBodyOptions}
+ * @param data.options - {@link SwapBodyOptions} Additional api options defined in the swap api
  * @param data.onProgress Callback to update UI state as execution progresses
  */
 export async function swap(data: SwapActionParameters) {
