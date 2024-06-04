@@ -6,7 +6,6 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import type { RelayClient } from '@reservoir0x/relay-sdk'
 
 export type GetCurrenciesBody = NonNullable<
   paths['/currencies/v1']['post']['requestBody']
@@ -24,17 +23,17 @@ type QueryType = typeof useQuery<
 type QueryOptions = Parameters<QueryType>['0']
 
 export default function (
-  client?: RelayClient,
+  baseApiUrl?: string,
   options?: GetCurrenciesBody,
   queryOptions?: Partial<QueryOptions>
 ) {
-  const url = new URL(`${client?.baseApiUrl}/currencies/v1`)
+  const url = new URL(`${baseApiUrl}/currencies/v1`)
   const response = (useQuery as QueryType)({
     queryKey: ['useTokenList', options],
     queryFn: () => {
       return axiosPostFetcher(url.href, options)
     },
-    enabled: client && options ? true : false,
+    enabled: baseApiUrl && options ? true : false,
     ...queryOptions
   })
 
@@ -42,6 +41,8 @@ export default function (
     return {
       ...response,
       data: response.error ? undefined : response.data
+    } as Omit<ReturnType<QueryType>, 'data'> & {
+      data: Error | null | GetCurrenciesResponse
     }
   }, [response])
 }

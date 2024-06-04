@@ -14,8 +14,8 @@ import { ValidatingStep } from './steps/ValidatingStep'
 import { SwapConfirmationStep } from './steps/SwapConfirmationStep'
 import { type Token } from '../../../types'
 import { SwapSuccessStep } from './steps/SwapSuccessStep'
-import { formatBN } from '../../../lib/utils/numbers'
-import { extractQuoteId } from '../../../utils/quote'
+import { formatBN } from '../../../utils/numbers'
+// import { extractQuoteId } from '../../../utils/quote'
 
 type SwapModalProps = {
   open: boolean
@@ -35,7 +35,6 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   return (
     <TransactionModalRenderer
       steps={steps}
-      fees={fees}
       error={error}
       address={address}
       onSuccess={() => {

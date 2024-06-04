@@ -1,25 +1,42 @@
 import { mainnet } from 'wagmi/chains'
-import useSWR from 'swr'
-import { truncateAddress, truncateEns } from '../lib/utils/truncate'
+import { truncateAddress, truncateEns } from '../utils/truncate'
+import {
+  useQuery,
+  type DefaultError,
+  type QueryKey
+} from '@tanstack/react-query'
 
-export default (address?: string, chainId: number = 1) => {
+type ENSResolverResponse = {
+  address?: string
+  name?: string
+  shortName?: string
+  displayName?: string
+  shortAddress?: string
+  avatar?: string
+}
+
+type QueryType = typeof useQuery<
+  ENSResolverResponse,
+  DefaultError,
+  ENSResolverResponse,
+  QueryKey
+>
+type QueryOptions = Parameters<QueryType>['0']
+
+export default (
+  address?: string,
+  chainId: number = 1,
+  queryOptions?: Partial<QueryOptions>
+) => {
   const addressLowercase = address?.toLowerCase()
   const isENSAvailable = chainId === mainnet.id
-
-  const response = useSWR(
-    `https://api.ensideas.com/ens/resolve/${addressLowercase}`,
-    (url: string) => {
-      if (!isENSAvailable || !address) {
-        return null
-      }
-      return fetch(url).then((response) => response.json())
-    },
-    {
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-      revalidateOnReconnect: false
-    }
-  )
+  const url = `https://api.ensideas.com/ens/resolve/${addressLowercase}`
+  const response = (useQuery as QueryType)({
+    queryKey: ['useENSResolver', address, chainId],
+    queryFn: () => fetch(url).then((response) => response.json()),
+    enabled: address && chainId && isENSAvailable ? true : false,
+    ...queryOptions
+  })
 
   const shortAddress = address ? truncateAddress(address) : ''
   const shortName = response.data?.name ? truncateEns(response.data.name) : null
@@ -39,5 +56,5 @@ export default (address?: string, chainId: number = 1) => {
     displayName,
     shortAddress,
     avatar: response.data?.avatar
-  }
+  } as ReturnType<QueryType> & ENSResolverResponse
 }

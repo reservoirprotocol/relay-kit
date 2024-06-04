@@ -114,7 +114,7 @@ export const CustomAddressModal: FC<Props> = ({
               placeholder="Address or ENS"
               value={input}
               onChange={(e) => {
-                setInput(e.target.value)
+                setInput((e.target as HTMLInputElement).value)
               }}
             />
             {isLoading && (

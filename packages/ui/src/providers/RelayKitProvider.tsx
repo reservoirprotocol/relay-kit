@@ -13,7 +13,9 @@ export type CoinGecko = {
   coinIds?: CoinId
 }
 
-type RelayKitProviderOptions = {}
+type RelayKitProviderOptions = {
+  duneApiKey?: string
+}
 export interface RelayKitProviderProps {
   children: ReactNode
   options: RelayClientOptions & RelayKitProviderOptions
@@ -31,7 +33,9 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
     useState<RelayKitProviderOptions>({})
 
   useEffect(() => {
-    setProviderOptions(options)
+    setProviderOptions({
+      duneApiKey: options.duneApiKey
+    })
   }, [options])
 
   return (

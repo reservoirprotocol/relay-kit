@@ -1,5 +1,11 @@
-import useSWR, { SWRConfiguration } from 'swr'
 import { formatUnits, zeroAddress } from 'viem'
+import { ProviderOptionsContext } from '../providers/RelayKitProvider'
+import { useContext } from 'react'
+import {
+  useQuery,
+  type DefaultError,
+  type QueryKey
+} from '@tanstack/react-query'
 
 export type DuneBalanceResponse = {
   request_time: string
@@ -17,17 +23,26 @@ export type DuneBalanceResponse = {
   }>
 }
 
-export default (address?: string, options?: SWRConfiguration) => {
-  const response = useSWR<DuneBalanceResponse | null>(
-    `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`,
-    (url: string) => {
-      if (!address) {
-        return null
-      }
+type QueryType = typeof useQuery<
+  DuneBalanceResponse,
+  DefaultError,
+  DuneBalanceResponse,
+  QueryKey
+>
+type QueryOptions = Parameters<QueryType>['0']
+
+export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
+  const providerOptions = useContext(ProviderOptionsContext)
+
+  const response = (useQuery as QueryType)({
+    queryKey: ['useDuneBalances', address],
+    queryFn: () => {
+      const url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`
+
       return fetch(url, {
         headers: {
-          'X-DUNE-API-KEY': 'OkvN2bWlBPwXkvtmnTeYMQR1hYZBGDJt'
-        }
+          'X-DUNE-API-KEY': providerOptions.duneApiKey
+        } as HeadersInit
       })
         .then((response) => response.json())
         .then((response) => {
@@ -67,8 +82,9 @@ export default (address?: string, options?: SWRConfiguration) => {
           return response
         })
     },
-    options
-  )
+    enabled: address !== undefined,
+    ...queryOptions
+  })
 
   const balanceMap = response.data?.balances?.reduce(
     (balanceMap, balance) => {
@@ -81,5 +97,7 @@ export default (address?: string, options?: SWRConfiguration) => {
     {} as Record<string, DuneBalanceResponse['balances'][0]>
   )
 
-  return { ...response, balanceMap }
+  return { ...response, balanceMap } as ReturnType<QueryType> & {
+    balanceMap: typeof balanceMap
+  }
 }

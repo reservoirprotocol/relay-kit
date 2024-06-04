@@ -1,6 +1,12 @@
-import { type Address, zeroAddress } from 'viem'
+import {
+  type Address,
+  type GetBalanceErrorType,
+  type ReadContractErrorType,
+  zeroAddress
+} from 'viem'
 import { useBalance, useReadContract } from 'wagmi'
 import { erc20Abi } from 'viem'
+import type { QueryKey } from '@tanstack/react-query'
 
 type UseBalanceProps = {
   chainId: number
@@ -10,6 +16,14 @@ type UseBalanceProps = {
   refreshInterval?: number
 }
 
+type UseCurrencyBalanceData = {
+  value?: bigint
+  queryKey: QueryKey
+  isLoading: boolean
+  isError: boolean | GetBalanceErrorType | null
+  error: boolean | ReadContractErrorType | null
+}
+
 // Handle fetching the balance of both native eth and erc20s
 const useCurrencyBalance = ({
   chainId,
@@ -17,7 +31,7 @@ const useCurrencyBalance = ({
   currency,
   enabled = true,
   refreshInterval = 60000
-}: UseBalanceProps) => {
+}: UseBalanceProps): UseCurrencyBalanceData => {
   const isErc20Currency = currency && currency !== zeroAddress
 
   const {

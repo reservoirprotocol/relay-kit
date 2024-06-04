@@ -13,9 +13,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../../utils/truncate'
 import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
-import { TxHashes } from '../TransactionModalRenderer'
-import { useUserTransactions } from '../../../../hooks'
+import { type TxHashes } from '../TransactionModalRenderer'
 import { type Token } from '../../../../types'
+import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -23,7 +23,7 @@ type SwapSuccessStepProps = {
   fromAmountFormatted: string
   toAmountFormatted: string
   allTxHashes: TxHashes
-  transaction: ReturnType<typeof useUserTransactions>['data']['0']
+  transaction: ReturnType<typeof useRequests>['data']['0']
   seconds: number
   fillTime: string
   onOpenChange: (open: boolean) => void

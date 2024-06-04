@@ -13,7 +13,7 @@ import {
 import type { Address } from 'viem'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useConfig } from 'wagmi'
-import TokenSelector from './TokenSelector'
+import TokenSelector from '../common/TokenSelector'
 import type { Token } from '../../types'
 import { AnchorButton } from '../primitives/Anchor'
 import {
@@ -52,7 +52,6 @@ import { getWalletClient, switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
 import { useMediaQuery } from 'usehooks-ts'
 import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
-// import { useSWRConfig } from 'swr'
 
 type SwapWidgetProps = {}
 

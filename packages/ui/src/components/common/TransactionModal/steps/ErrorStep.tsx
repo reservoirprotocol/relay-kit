@@ -1,13 +1,12 @@
-import { FC } from 'react'
+import { type FC } from 'react'
 import { Anchor, Box, Button, Flex, Text } from '../../../primitives'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
 import ErrorWell from '../../ErrorWell'
-import { truncateAddress } from '../../../../lib/utils/truncate'
-import { Address } from 'viem'
-import { TxHashes } from '../TransactionModalRenderer'
+import { truncateAddress } from '../../../../utils/truncate'
+import { type Address } from 'viem'
+import { type TxHashes } from '../TransactionModalRenderer'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -54,7 +53,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             will receive a refund shortly.
           </Text>
 
-          <Link
+          <a
             href={`/transactions?address=${address}`}
             style={{ width: '100%' }}
             target="_blank"
@@ -71,16 +70,16 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             >
               Track Refund
             </Button>
-          </Link>
+          </a>
         </>
       ) : (
         <>
           <ErrorWell error={error} />
-          {allTxHashes.map(({ txHash, chainId }) => {
+          {allTxHashes.map(({ txHash }) => {
             return (
               <Anchor
                 key={txHash}
-                href={`/transactions/?txHash=${txHash}`}
+                href={`https://relay.link/transactions/?txHash=${txHash}`}
                 target="_blank"
               >
                 View Tx: {truncateAddress(txHash)}

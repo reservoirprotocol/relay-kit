@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import {
-  DebouncedState,
+  type DebouncedState,
   useDebounceValue,
   useDebounceCallback
 } from 'usehooks-ts'
