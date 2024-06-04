@@ -1,11 +1,11 @@
 import { RelayClient, type paths } from '@reservoir0x/relay-sdk'
-import { useMemo } from 'react'
 import { axiosPostFetcher } from '../fetcher'
 import {
   useQuery,
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
 type ExecuteSwapBody =
   paths['/execute/swap']['post']['requestBody']['content']['application/json']
@@ -41,15 +41,18 @@ export default function (
       return promise
     },
     enabled: client !== undefined && options !== undefined,
+    retry: false,
     ...queryOptions
   })
 
-  return useMemo(() => {
-    return {
-      ...response,
-      data: response.error ? undefined : response.data
-    } as Omit<ReturnType<QueryType>, 'data'> & {
-      data?: ExecuteSwapResponse
-    }
-  }, [response])
+  return useMemo(
+    () =>
+      ({
+        ...response,
+        data: response.error ? undefined : response.data
+      }) as Omit<ReturnType<QueryType>, 'data'> & {
+        data?: ExecuteSwapResponse
+      },
+    [response.data, response.error]
+  )
 }

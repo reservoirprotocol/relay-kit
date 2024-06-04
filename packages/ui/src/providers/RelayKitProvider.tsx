@@ -1,6 +1,9 @@
 import { createContext, useEffect, useState } from 'react'
 import type { FC, ReactNode } from 'react'
-import { RelayClientProvider } from './RelayClientProvider.js'
+import {
+  RelayClientProvider,
+  type RelayClientProviderProps
+} from './RelayClientProvider.js'
 import type { RelayClientOptions } from '@reservoir0x/relay-sdk'
 import type { RelayKitTheme } from '../themes'
 
@@ -20,6 +23,7 @@ export interface RelayKitProviderProps {
   children: ReactNode
   options: RelayClientOptions & RelayKitProviderOptions
   theme?: RelayKitTheme
+  onChainsConfigured?: RelayClientProviderProps['onChainsConfigured']
 }
 
 export const ProviderOptionsContext = createContext<RelayKitProviderOptions>({})
@@ -27,7 +31,8 @@ export const ProviderOptionsContext = createContext<RelayKitProviderOptions>({})
 export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
   children,
   options,
-  theme
+  theme,
+  onChainsConfigured
 }: RelayKitProviderProps) {
   const [providerOptions, setProviderOptions] =
     useState<RelayKitProviderOptions>({})
@@ -40,7 +45,10 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
 
   return (
     <ProviderOptionsContext.Provider value={providerOptions}>
-      <RelayClientProvider options={options}>
+      <RelayClientProvider
+        options={options}
+        onChainsConfigured={onChainsConfigured}
+      >
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {

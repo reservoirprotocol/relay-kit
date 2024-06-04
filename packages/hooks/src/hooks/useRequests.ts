@@ -49,6 +49,7 @@ export default function (
       return data.continuation
     },
     initialPageParam: null,
+    retry: false,
     ...queryOptions
   })
 
