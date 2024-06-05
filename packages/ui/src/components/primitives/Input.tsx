@@ -1,5 +1,11 @@
 import Flex from './Flex'
-import type { FC, HTMLProps, PropsWithChildren, ReactNode } from 'react'
+import type {
+  FC,
+  HTMLProps,
+  PropsWithChildren,
+  ReactNode,
+  RefObject
+} from 'react'
 import {
   cva,
   css as designCss,
@@ -60,6 +66,7 @@ const Input: FC<
       iconPosition?: 'left' | 'right'
       iconCss?: Styles
       containerCss?: Styles
+      inputRef?: (element: HTMLInputElement) => void
     } & { css?: Styles } & StyledInputCssVariants
 > = ({
   children,
@@ -68,6 +75,7 @@ const Input: FC<
   iconCss,
   containerCss,
   css,
+  inputRef,
   ...props
 }) => {
   const { size, ellipsify, ...inputProps } = props
@@ -95,12 +103,15 @@ const Input: FC<
       )}
       <input
         {...inputProps}
+        ref={inputRef}
+        style={{
+          paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
+          paddingRight: icon && iconPosition === 'right' ? 42 : 16
+        }}
         className={designCss(
           StyledInputCss.raw({ size, ellipsify }),
           designCss.raw({
-            ...css,
-            paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
-            paddingRight: icon && iconPosition === 'right' ? 42 : 16
+            ...css
           })
         )}
       />

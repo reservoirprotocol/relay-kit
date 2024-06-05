@@ -31,7 +31,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
             height: 40,
             minW: 70,
             maxWidth: 70,
-            px: '4',
+            px: '4 !important',
             cursor: 'pointer',
             display: 'flex',
             alignContent: 'center',
@@ -67,7 +67,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
       contentProps={{
         sideOffset: 12,
         align: 'end',
-        style: { maxWidth: 248, padding: 0 }
+        css: { maxWidth: 248, p: 0 }
       }}
     >
       <Flex

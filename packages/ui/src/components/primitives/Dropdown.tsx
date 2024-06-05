@@ -6,7 +6,6 @@ import {
   useState
 } from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
-import { AnimatePresence } from 'framer-motion'
 import {
   cva,
   css as designCss,
@@ -97,13 +96,11 @@ const Dropdown = forwardRef<
       <DropdownMenuPrimitive.Trigger asChild>
         {trigger}
       </DropdownMenuPrimitive.Trigger>
-      <AnimatePresence>
-        {(props.open || open) && (
-          <DropdownMenuContent ref={forwardedRef} {...contentProps}>
-            {children}
-          </DropdownMenuContent>
-        )}
-      </AnimatePresence>
+      {(props.open || open) && (
+        <DropdownMenuContent ref={forwardedRef} {...contentProps}>
+          {children}
+        </DropdownMenuContent>
+      )}
     </DropdownMenuPrimitive.Root>
   )
 })

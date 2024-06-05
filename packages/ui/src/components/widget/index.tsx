@@ -25,13 +25,11 @@ import { mainnet } from 'viem/chains'
 import { useQueryClient } from '@tanstack/react-query'
 import AmountInput from '../common/AmountInput'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faArrowDown,
-  faChevronDown,
-  faChevronRight,
-  faClock,
-  faGasPump
-} from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
+import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { deadAddress } from '../../constants/address'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import * as Collapsible from '@radix-ui/react-collapsible'
@@ -44,7 +42,6 @@ import {
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote'
-// import { RELAY_BASE_API } from '../../pages/_app'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { WidgetErrorWell } from '../common/WidgetErrorWell'
 import { SwapModal } from '../common/TransactionModal/SwapModal'
@@ -53,9 +50,17 @@ import { BalanceDisplay } from '../common/BalanceDisplay'
 import { useMediaQuery } from 'usehooks-ts'
 import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
 
-type SwapWidgetProps = {}
+type SwapWidgetProps = {
+  defaultFromToken?: Token
+  defaultToToken?: Token
+  onConnectWallet?: () => void
+}
 
-const SwapWidget: FC<SwapWidgetProps> = ({}) => {
+const SwapWidget: FC<SwapWidgetProps> = ({
+  defaultFromToken,
+  defaultToToken,
+  onConnectWallet
+}) => {
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 730px)')
@@ -66,7 +71,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
     customToAddress ?? address
   )
   const isMounted = useMounted()
-  // const { openConnectModal } = useConnectModal()
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     'EXACT_INPUT'
   )
@@ -90,17 +94,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
   const [feesOpen, setFeesOpen] = useState(false)
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   const [swapError, setSwapError] = useState<Error | null>(null)
-  const defaultChainId = mainnet.id //TODO pull from relay sdk
+  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
 
-  const [fromToken, setFromToken] = useState<Token | undefined>({
-    chainId: defaultChainId,
-    address: zeroAddress,
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    logoURI: 'https://assets.relay.link/icons/1/light.png'
-  })
-  const [toToken, setToToken] = useState<Token>()
+  const [fromToken, setFromToken] = useState<Token | undefined>(
+    defaultFromToken ?? {
+      chainId: defaultChainId,
+      address: zeroAddress,
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/1/light.png'
+    }
+  )
+  const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
 
   const {
     value: fromBalance,
@@ -131,20 +137,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
   const invalidateBalanceQueries = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
-    // globalMutate(
-    //   `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`,
-    //   undefined,
-    //   {
-    //     revalidate: true
-    //   }
-    // )
-  }, [
-    queryClient,
-    fromBalanceQueryKey,
-    toBalanceQueryKey,
-    address
-    // globalMutate
-  ])
+    queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
+  }, [queryClient, fromBalanceQueryKey, toBalanceQueryKey, address])
 
   const {
     data: quote,
@@ -176,17 +170,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
     () => {},
     () => {},
     {
-      enabled: Boolean(
-        relayClient &&
-          ((tradeType === 'EXACT_INPUT' &&
-            debouncedInputAmountValue &&
-            debouncedInputAmountValue.length > 0 &&
-            Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXACT_OUTPUT' &&
-              debouncedOutputAmountValue &&
-              debouncedOutputAmountValue.length > 0 &&
-              Number(debouncedOutputAmountValue) !== 0))
-      ),
+      enabled:
+        Boolean(
+          relayClient &&
+            ((tradeType === 'EXACT_INPUT' &&
+              debouncedInputAmountValue &&
+              debouncedInputAmountValue.length > 0 &&
+              Number(debouncedInputAmountValue) !== 0) ||
+              (tradeType === 'EXACT_OUTPUT' &&
+                debouncedOutputAmountValue &&
+                debouncedOutputAmountValue.length > 0 &&
+                Number(debouncedOutputAmountValue) !== 0))
+        ) &&
+        fromToken !== undefined &&
+        toToken !== undefined,
       refetchInterval:
         steps === null &&
         debouncedInputAmountValue === amountInputValue &&
@@ -195,6 +192,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
           : undefined
     }
   )
+  console.log(quote, error)
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
@@ -241,8 +239,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
   )
 
   const fetchQuoteErrorMessage = error
-    ? error?.response?.data?.message
-      ? (error?.response?.data.message as string)
+    ? error?.message
+      ? (error?.message as string)
       : 'Unknown Error'
     : null
   const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
@@ -574,7 +572,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             ) : null}
           </Flex>
         </Flex>
-        <Box css={{ position: 'relative', mb: -26, mx: 'auto', height: 40 }}>
+        <Box
+          css={{
+            position: 'relative',
+            my: -10,
+            mx: 'auto',
+            height: 40
+          }}
+        >
           <Button
             size="small"
             color="white"
@@ -925,8 +930,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
             css={{ justifyContent: 'center' }}
             aria-label="Connect wallet"
             onClick={() => {
-              //TODO
-              // openConnectModal?.()
+              if (!onConnectWallet) {
+                throw 'Missing onWalletConnect function'
+              }
+              onConnectWallet()
               // posthog.capture(EventNames.CONNECT_WALLET_CLICKED, {
               //   context: 'bridge'
               // })

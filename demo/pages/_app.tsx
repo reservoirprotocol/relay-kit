@@ -1,21 +1,14 @@
 import type { AppProps } from 'next/app'
-import React, { ReactNode, FC, useState, useEffect } from 'react'
+import React, { ReactNode, FC, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import '../fonts.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
-import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowKitProvider/RainbowKitChainContext'
 import { Chain, mainnet } from 'wagmi/chains'
 import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import {
-  configureDynamicChains,
-  convertViemChainToRelayChain,
-  LogLevel,
-  MAINNET_RELAY_API,
-  RelayChain
-} from '@reservoir0x/relay-sdk'
+import { LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import '@reservoir0x/relay-kit-ui/styles.css'
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
@@ -34,31 +27,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
     ReturnType<typeof createWagmiConfig>['wagmiConfig'] | undefined
   >()
-  const [chains, setChains] = useState<RainbowKitChain[]>([])
-  const [relayChains, setRelayChains] = useState<RelayChain[]>([])
-
-  useEffect(() => {
-    configureDynamicChains()
-      .then((newChains) => {
-        setRelayChains(newChains)
-        const { wagmiConfig, chains } = createWagmiConfig(
-          newChains.map(({ viemChain }) => viemChain as Chain)
-        )
-        setWagmiConfig(wagmiConfig)
-        setChains(chains)
-      })
-      .catch((e) => {
-        console.error(e)
-        const { wagmiConfig, chains } = createWagmiConfig([mainnet])
-        setRelayChains([convertViemChainToRelayChain(mainnet)])
-        setWagmiConfig(wagmiConfig)
-        setChains(chains)
-      })
-  }, [])
-
-  if (!wagmiConfig) {
-    return null
-  }
 
   return (
     <RelayKitProvider
@@ -66,16 +34,23 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         baseApiUrl: MAINNET_RELAY_API,
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
-        chains: relayChains,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN
       }}
       theme={relayKitTheme}
+      onChainsConfigured={(relayChains) => {
+        const { wagmiConfig } = createWagmiConfig(
+          relayChains.map(({ viemChain }) => viemChain as Chain)
+        )
+        setWagmiConfig(wagmiConfig)
+      }}
     >
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>{children}</RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      {wagmiConfig ? (
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider>{children}</RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      ) : null}
     </RelayKitProvider>
   )
 }

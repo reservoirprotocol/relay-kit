@@ -22,18 +22,21 @@ const OverlayStyle = cva({
   }
 })
 
-const Overlay: FC<PropsWithChildren & { css?: Styles }> = ({
-  children,
-  css
-}) => {
+const Overlay = forwardRef<
+  ElementRef<typeof DialogPrimitive.Overlay>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> &
+    PropsWithChildren & { css?: Styles }
+>(({ children, css, ...props }, forwardedRef) => {
   return (
     <DialogPrimitive.Overlay
+      ref={forwardedRef}
+      {...props}
       className={designCss(OverlayStyle.raw(), designCss.raw(css))}
     >
       {children}
     </DialogPrimitive.Overlay>
   )
-}
+})
 
 const ContentCss = cva({
   base: {
