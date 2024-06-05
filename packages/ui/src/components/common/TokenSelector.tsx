@@ -27,6 +27,7 @@ import {
   type Currency,
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
+import { EventNames } from '../../constants/events'
 
 const fuseSearchOptions = {
   includeScore: true,
@@ -37,8 +38,9 @@ const fuseSearchOptions = {
 
 type TokenSelectorProps = {
   token?: Token
-  setToken: (token: Token) => void
   context: 'from' | 'to'
+  setToken: (token: Token) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 type EnhancedCurrencyList = (CurrencyList[number] & {
@@ -53,8 +55,9 @@ enum TokenSelectorStep {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
+  context,
   setToken,
-  context
+  onAnalyticEvent
 }) => {
   const [open, setOpen] = useState(false)
   const { address } = useAccount()
@@ -255,11 +258,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     <Modal
       open={open}
       onOpenChange={(openChange) => {
-        // posthog.capture(
-        //   openChange
-        //     ? EventNames.SWAP_START_TOKEN_SELECT
-        //     : EventNames.SWAP_EXIT_TOKEN_SELECT
-        // )
+        onAnalyticEvent?.(
+          openChange
+            ? EventNames.SWAP_START_TOKEN_SELECT
+            : EventNames.SWAP_EXIT_TOKEN_SELECT
+        )
         setOpen(openChange)
         if (!openChange) {
           resetState()

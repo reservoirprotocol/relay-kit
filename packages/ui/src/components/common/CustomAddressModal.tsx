@@ -2,18 +2,17 @@ import { type FC, useState, useEffect } from 'react'
 import { Text, Flex, Button, Input, Anchor } from '../primitives'
 import { Modal } from '../common/Modal'
 import { type Address } from 'viem'
-// import { EventNames } from '../../analytics/events'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { useENSResolver } from '../../hooks'
 import { isENSName } from '../../utils/ens'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { useAccount } from 'wagmi'
-import { type RelayChain } from '@reservoir0x/relay-sdk'
+import { EventNames } from '../../constants/events'
 
 type Props = {
   open: boolean
-  toChain: RelayChain
+  onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onConfirmed: (address: Address) => void
   onClear: () => void
@@ -21,7 +20,7 @@ type Props = {
 
 export const CustomAddressModal: FC<Props> = ({
   open,
-  toChain,
+  onAnalyticEvent,
   onOpenChange,
   onConfirmed,
   onClear
@@ -40,7 +39,7 @@ export const CustomAddressModal: FC<Props> = ({
       setAddress('')
       setInput('')
     } else {
-      // posthog.capture(EventNames.BRIDGE_ADDRESS_MODAL_OPEN)
+      onAnalyticEvent?.(EventNames.ADDRESS_MODAL_OPEN)
     }
   }, [open])
 
@@ -90,7 +89,7 @@ export const CustomAddressModal: FC<Props> = ({
                 fontSize: 'small'
               }}
               target="_blank"
-              href={`${toChain.explorerUrl}/address/${address}`}
+              href={`https://etherscan.io/address/${address}`}
             >
               (View On Explorer)
             </Anchor>
@@ -159,9 +158,6 @@ export const CustomAddressModal: FC<Props> = ({
           onClick={() => {
             if (isValidAddress(address)) {
               onConfirmed(address as Address)
-              // posthog.capture(EventNames.BRIDGE_ADDRESS_SET, {
-              //   to_address: address
-              // })
             }
             onOpenChange(false)
           }}

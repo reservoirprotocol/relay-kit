@@ -33,6 +33,9 @@ importers:
       '@rainbow-me/rainbowkit':
         specifier: 2.0.0
         version: 2.0.0(@types/react@18.2.55)(react-dom@18.2.0)(react@18.2.0)(viem@2.7.8)(wagmi@2.5.7)
+      '@reservoir0x/relay-kit-hooks':
+        specifier: workspace:*
+        version: link:../packages/hooks
       '@reservoir0x/relay-kit-ui':
         specifier: workspace:*
         version: link:../packages/ui

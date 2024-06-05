@@ -9,10 +9,13 @@ type RelayAPIChain = Required<
   >['0']
 >
 
-const viemChainMap = Object.values(viemChains).reduce((chains, chain) => {
-  chains[chain.id] = chain
-  return chains
-}, {} as Record<number, Chain>)
+const viemChainMap = Object.values(viemChains).reduce(
+  (chains, chain) => {
+    chains[chain.id] = chain
+    return chains
+  },
+  {} as Record<number, Chain>
+)
 
 export const configureViemChain = (
   chain: RelayAPIChain
@@ -65,7 +68,9 @@ export const configureViemChain = (
   }
 }
 
-export const convertViemChainToRelayChain = (chain: Chain): RelayChain => {
+export const convertViemChainToRelayChain = (
+  chain: Chain
+): RelayChain & Required<Pick<RelayChain, 'viemChain'>> => {
   return {
     id: chain.id,
     name: chain.name.replace(' ', '-'),

@@ -1,5 +1,5 @@
 import type { AppProps } from 'next/app'
-import React, { ReactNode, FC, useState } from 'react'
+import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
@@ -8,7 +8,8 @@ import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
 import { Chain, mainnet } from 'wagmi/chains'
 import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import { LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { LogLevel, MAINNET_RELAY_API, RelayChain } from '@reservoir0x/relay-sdk'
 import '@reservoir0x/relay-kit-ui/styles.css'
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
@@ -25,8 +26,27 @@ const relayKitTheme = darkTheme({})
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
-    ReturnType<typeof createWagmiConfig>['wagmiConfig'] | undefined
+    ReturnType<typeof getDefaultConfig> | undefined
   >()
+  const { chains, viemChains } = useRelayChains(MAINNET_RELAY_API)
+
+  useEffect(() => {
+    if (!wagmiConfig && chains && viemChains) {
+      setWagmiConfig(
+        getDefaultConfig({
+          appName: 'Relay SDK Demo',
+          projectId: WALLET_CONNECT_PROJECT_ID,
+          chains: (viemChains && viemChains.length === 0
+            ? [mainnet]
+            : viemChains) as [Chain, ...Chain[]]
+        })
+      )
+    }
+  }, [chains])
+
+  if (!wagmiConfig || !chains) {
+    return null
+  }
 
   return (
     <RelayKitProvider
@@ -34,21 +54,14 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         baseApiUrl: MAINNET_RELAY_API,
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
-        duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN
+        duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
+        chains
       }}
       theme={relayKitTheme}
-      onChainsConfigured={(relayChains) => {
-        const { wagmiConfig } = createWagmiConfig(
-          relayChains.map(({ viemChain }) => viemChain as Chain)
-        )
-        setWagmiConfig(wagmiConfig)
-      }}
     >
       {wagmiConfig ? (
         <WagmiProvider config={wagmiConfig}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider>{children}</RainbowKitProvider>
-          </QueryClientProvider>
+          <RainbowKitProvider>{children}</RainbowKitProvider>
         </WagmiProvider>
       ) : null}
     </RelayKitProvider>
@@ -57,28 +70,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <AppWrapper>
-      <Component {...pageProps} />
-    </AppWrapper>
+    <QueryClientProvider client={queryClient}>
+      <AppWrapper>
+        <Component {...pageProps} />
+      </AppWrapper>
+    </QueryClientProvider>
   )
-}
-
-function createWagmiConfig(dynamicChains: Chain[]) {
-  const chains = (dynamicChains.length === 0 ? [mainnet] : dynamicChains) as [
-    Chain,
-    ...Chain[]
-  ]
-
-  const wagmiConfig = getDefaultConfig({
-    appName: 'Relay SDK Demo',
-    projectId: WALLET_CONNECT_PROJECT_ID,
-    chains: chains
-  })
-
-  return {
-    wagmiConfig,
-    chains
-  }
 }
 
 export default MyApp

@@ -71,17 +71,6 @@ export default defineConfig({
   // Files to exclude
   exclude: [],
 
-  //CSS to always generate
-  staticCss: {
-    css: [
-      {
-        properties: {
-          px: ['1', '2', '3', '4', '5'],
-          py: ['1', '2', '3', '4', '5']
-        }
-      }
-    ]
-  },
   presets: [
     radixColorsPreset({
       darkMode: {

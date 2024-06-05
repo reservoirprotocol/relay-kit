@@ -38,7 +38,7 @@ import { FeeBreakdown } from '../common/FeeBreakdown'
 import {
   calculateRelayerFeeProportionUsd,
   calculateTimeEstimate,
-  // extractQuoteId,
+  extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote'
@@ -49,17 +49,20 @@ import { getWalletClient, switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
 import { useMediaQuery } from 'usehooks-ts'
 import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
+import { EventNames } from '../../constants/events'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
   defaultToToken?: Token
   onConnectWallet?: () => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 const SwapWidget: FC<SwapWidgetProps> = ({
   defaultFromToken,
   defaultToToken,
-  onConnectWallet
+  onConnectWallet,
+  onAnalyticEvent
 }) => {
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
@@ -192,7 +195,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           : undefined
     }
   )
-  console.log(quote, error)
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
@@ -293,7 +295,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
   const swap = useCallback(async () => {
     try {
-      // posthog.capture(EventNames.SWAP_CTA_CLICKED)
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
       setWaitingForSteps(true)
       const wallet = await getWalletClient(wagmiConfig)
       if (!relayClient || !wallet || !address) {
@@ -305,7 +307,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       }
 
       if (fromToken.chainId !== activeWalletChainId) {
-        // posthog.capture(EventNames.SWAP_SWITCH_NETWORK)
+        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
         await switchChain(wagmiConfig, {
           chainId: fromToken.chainId
         })
@@ -347,16 +349,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 !txHashes) ||
               (txHashes && txHashes.length === 0)
             ) {
-              // posthog.capture(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
-              //   wallet_connector: connector?.name,
-              //   quote_id: steps ? extractQuoteId(steps) : undefined,
-              //   amount_in: parseFloat(`${debouncedInputAmountValue}`),
-              //   currency_in: fromToken.symbol,
-              //   chain_id_in: fromToken.chainId,
-              //   amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-              //   currency_out: toToken.symbol,
-              //   chain_id_out: toToken.chainId
-              // })
+              onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+                wallet_connector: connector?.name,
+                quote_id: steps ? extractQuoteId(steps) : undefined,
+                amount_in: parseFloat(`${debouncedInputAmountValue}`),
+                currency_in: fromToken.symbol,
+                chain_id_in: fromToken.chainId,
+                amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+                currency_out: toToken.symbol,
+                chain_id_out: toToken.chainId
+              })
             }
 
             setSteps(steps)
@@ -370,7 +372,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               error.message.includes('rejected')) ||
               (typeof error === 'string' && error.includes('rejected')))
           ) {
-            // posthog.capture(EventNames.USER_REJECTED_WALLET)
+            onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
             setSteps(null)
             setDetails(null)
             return
@@ -380,17 +382,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             ? new Error(error?.response?.data?.message)
             : error
 
-          // posthog.capture(EventNames.SWAP_ERROR, {
-          //   error_message: errorMessage,
-          //   wallet_connector: connector?.name,
-          //   quote_id: steps ? extractQuoteId(steps) : undefined,
-          //   amount_in: parseFloat(`${debouncedInputAmountValue}`),
-          //   currency_in: fromToken?.symbol,
-          //   chain_id_in: fromToken?.chainId,
-          //   amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-          //   currency_out: toToken?.symbol,
-          //   chain_id_out: toToken?.chainId
-          // })
+          onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+            error_message: errorMessage,
+            wallet_connector: connector?.name,
+            quote_id: steps ? extractQuoteId(steps) : undefined,
+            amount_in: parseFloat(`${debouncedInputAmountValue}`),
+            currency_in: fromToken?.symbol,
+            chain_id_in: fromToken?.chainId,
+            amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+            currency_out: toToken?.symbol,
+            chain_id_out: toToken?.chainId
+          })
           setSwapError(errorMessage)
         })
         .finally(() => {
@@ -399,17 +401,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         })
     } catch (e) {
       setWaitingForSteps(false)
-      // posthog.capture(EventNames.SWAP_ERROR, {
-      //   error_message: e,
-      //   wallet_connector: connector?.name,
-      //   quote_id: steps ? extractQuoteId(steps) : undefined,
-      //   amount_in: parseFloat(`${debouncedInputAmountValue}`),
-      //   currency_in: fromToken?.symbol,
-      //   chain_id_in: fromToken?.chainId,
-      //   amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-      //   currency_out: toToken?.symbol,
-      //   chain_id_out: toToken?.chainId
-      // })
+      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+        error_message: e,
+        wallet_connector: connector?.name,
+        quote_id: steps ? extractQuoteId(steps) : undefined,
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -475,10 +477,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             <TokenSelector
               token={fromToken}
               setToken={(token) => {
-                // posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
-                //   direction: 'input',
-                //   token_symbol: token.symbol
-                // })
+                onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+                  direction: 'input',
+                  token_symbol: token.symbol
+                })
                 if (
                   token.address === toToken?.address &&
                   token.chainId === toToken?.chainId
@@ -508,7 +510,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 }
               }}
               onFocus={() => {
-                // posthog.capture(EventNames.SWAP_INPUT_FOCUSED)
+                onAnalyticEvent?.(EventNames.SWAP_INPUT_FOCUSED)
               }}
               css={{
                 textAlign: 'right',
@@ -636,7 +638,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 css={{ display: 'flex', alignItems: 'center', gap: '2' }}
                 onClick={() => {
                   setAddressModalOpen(true)
-                  // posthog.capture(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
+                  onAnalyticEvent?.(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
                 }}
               >
                 <Text style="subtitle3" css={{ color: 'inherit' }}>
@@ -650,10 +652,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             <TokenSelector
               token={toToken}
               setToken={(token) => {
-                // posthog.capture(EventNames.SWAP_TOKEN_SELECT, {
-                //   direction: 'output',
-                //   token_symbol: token.symbol
-                // })
+                onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+                  direction: 'output',
+                  token_symbol: token.symbol
+                })
                 if (
                   token.address === fromToken?.address &&
                   token.chainId === fromToken?.chainId
@@ -684,7 +686,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               }}
               disabled={!toToken}
               onFocus={() => {
-                // posthog.capture(EventNames.SWAP_OUTPUT_FOCUSED)
+                onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
               }}
               css={{
                 color:
@@ -934,9 +936,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 throw 'Missing onWalletConnect function'
               }
               onConnectWallet()
-              // posthog.capture(EventNames.CONNECT_WALLET_CLICKED, {
-              //   context: 'bridge'
-              // })
+              onAnalyticEvent?.(EventNames.CONNECT_WALLET_CLICKED, {
+                context: 'bridge'
+              })
             }}
           >
             Connect
@@ -963,12 +965,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ) : null}
         <CustomAddressModal
           open={addressModalOpen}
-          toChain={{
-            id: 1,
-            name: 'Ethereum',
-            displayName: 'Ethereum',
-            explorerUrl: 'https://etherscan.io'
-          }}
+          onAnalyticEvent={onAnalyticEvent}
           onOpenChange={(open) => {
             setAddressModalOpen(open)
           }}
