@@ -8,7 +8,7 @@ import {
 } from '@radix-ui/react-dialog'
 import { Button } from '../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark'
 import type { SystemStyleObject } from '@reservoir0x/relay-design-system/types'
 
 type ModalProps = {

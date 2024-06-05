@@ -1,11 +1,9 @@
 import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Box, Button, ChainIcon, Flex, Input, Text } from '../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faChevronDown,
-  faChevronLeft,
-  faMagnifyingGlass
-} from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
 import { Modal } from '../common/Modal'
 import type { Token } from '../../types'
 import { ChainTokenIcon } from '../primitives/ChainTokenIcon'

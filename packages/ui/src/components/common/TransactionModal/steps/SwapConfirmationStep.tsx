@@ -3,7 +3,7 @@ import { Button, Flex, Text, ChainTokenIcon } from '../../../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LoadingSpinner } from '../../LoadingSpinner'
 import { type Token } from '../../../../types'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
 
 type SwapConfirmationStepProps = {
   fromToken?: Token

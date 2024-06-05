@@ -1,7 +1,8 @@
 import type { FC } from 'react'
 import { Flex, Text } from '../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGasPump, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import Tooltip from '../primitives/Tooltip'
 import type { BridgeFee } from '../../types'
 

@@ -4,7 +4,7 @@ import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown'
 import { Button, Flex, Text } from '../primitives'
 import ChainIcon from '../primitives/ChainIcon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 
 export type ChainFilterValue = Chain | { id: undefined; name: string }
 

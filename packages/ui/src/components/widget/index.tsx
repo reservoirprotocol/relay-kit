@@ -475,6 +475,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <Flex align="center" justify="between" css={{ gap: '4' }}>
             <TokenSelector
               token={fromToken}
+              onAnalyticEvent={onAnalyticEvent}
               setToken={(token) => {
                 onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                   direction: 'input',
@@ -666,6 +667,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 }
               }}
               context="to"
+              onAnalyticEvent={onAnalyticEvent}
             />
             <AmountInput
               value={
@@ -960,6 +962,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             details={details}
             fees={quote?.fees}
             address={address}
+            onAnalyticEvent={onAnalyticEvent}
           />
         ) : null}
         <CustomAddressModal
