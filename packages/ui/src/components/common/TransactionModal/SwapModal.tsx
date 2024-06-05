@@ -10,16 +10,15 @@ import { Modal } from '../Modal'
 import { Flex, Text } from '../../primitives'
 import { ErrorStep } from './steps/ErrorStep'
 import { ValidatingStep } from './steps/ValidatingStep'
-// import { EventNames } from '../../../analytics/events'
+import { EventNames } from '../../../constants/events'
 import { SwapConfirmationStep } from './steps/SwapConfirmationStep'
 import { type Token } from '../../../types'
 import { SwapSuccessStep } from './steps/SwapSuccessStep'
 import { formatBN } from '../../../utils/numbers'
-// import { extractQuoteId } from '../../../utils/quote'
+import { extractQuoteId } from '../../../utils/quote'
 
 type SwapModalProps = {
   open: boolean
-  onOpenChange: (open: boolean) => void
   fromToken?: Token
   toToken?: Token
   fees?: CallFees
@@ -27,41 +26,51 @@ type SwapModalProps = {
   steps?: Execute['steps'] | null
   details?: Execute['details'] | null
   error?: Error | null
+  onAnalyticEvent?: (eventName: string, data?: any) => void
+  onOpenChange: (open: boolean) => void
 }
 
 export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
-  const { steps, fees, error, address, details, fromToken, toToken } =
-    swapModalProps
+  const {
+    steps,
+    fees,
+    error,
+    address,
+    details,
+    fromToken,
+    toToken,
+    onAnalyticEvent
+  } = swapModalProps
   return (
     <TransactionModalRenderer
       steps={steps}
       error={error}
       address={address}
       onSuccess={() => {
-        // const extraData: {
-        //   gas_fee?: number
-        //   relayer_fee?: number
-        //   amount_in: number
-        //   amount_out: number
-        // } = {
-        //   amount_in: parseFloat(`${details?.currencyIn?.amountFormatted}`),
-        //   amount_out: parseFloat(`${details?.currencyOut?.amountFormatted}`)
-        // }
-        // if (fees?.gas?.amountFormatted) {
-        //   extraData.gas_fee = parseFloat(fees.gas.amountFormatted)
-        // }
-        // if (fees?.relayer?.amountFormatted) {
-        //   extraData.relayer_fee = parseFloat(fees.relayer.amountFormatted)
-        // }
-        // const quoteId = steps ? extractQuoteId(steps) : undefined
-        // posthog.capture(EventNames.SWAP_SUCCESS, {
-        //   ...extraData,
-        //   chain_id_in: fromToken?.chainId,
-        //   currency_in: fromToken?.symbol,
-        //   chain_id_out: toToken?.chainId,
-        //   currency_out: toToken?.symbol,
-        //   quote_id: quoteId
-        // })
+        const extraData: {
+          gas_fee?: number
+          relayer_fee?: number
+          amount_in: number
+          amount_out: number
+        } = {
+          amount_in: parseFloat(`${details?.currencyIn?.amountFormatted}`),
+          amount_out: parseFloat(`${details?.currencyOut?.amountFormatted}`)
+        }
+        if (fees?.gas?.amountFormatted) {
+          extraData.gas_fee = parseFloat(fees.gas.amountFormatted)
+        }
+        if (fees?.relayer?.amountFormatted) {
+          extraData.relayer_fee = parseFloat(fees.relayer.amountFormatted)
+        }
+        const quoteId = steps ? extractQuoteId(steps) : undefined
+        onAnalyticEvent?.(EventNames.SWAP_SUCCESS, {
+          ...extraData,
+          chain_id_in: fromToken?.chainId,
+          currency_in: fromToken?.symbol,
+          chain_id_out: toToken?.chainId,
+          currency_out: toToken?.symbol,
+          quote_id: quoteId
+        })
       }}
     >
       {(rendererProps) => {
@@ -72,6 +81,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
             error={error}
             address={address}
             details={details}
+            onAnalyticEvent={onAnalyticEvent}
             {...swapModalProps}
             {...rendererProps}
           />
@@ -81,9 +91,9 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   )
 }
 
-type InnerBridgeProps = ChildrenProps & SwapModalProps
+type InnerSwapModalProps = ChildrenProps & SwapModalProps
 
-const InnerSwapModal: FC<InnerBridgeProps> = ({
+const InnerSwapModal: FC<InnerSwapModalProps> = ({
   open,
   onOpenChange,
   fromToken,
@@ -102,12 +112,13 @@ const InnerSwapModal: FC<InnerBridgeProps> = ({
   transaction,
   executionTime,
   executionTimeSeconds,
-  setStartTimestamp
+  setStartTimestamp,
+  onAnalyticEvent
 }) => {
   useEffect(() => {
     if (!open) {
       if (currentStep) {
-        // posthog.capture(EventNames.SWAP_MODAL_CLOSED)
+        onAnalyticEvent?.(EventNames.SWAP_MODAL_CLOSED)
       }
       setProgressStep(TransactionProgressStep.WalletConfirmation)
       setCurrentStep(null)
@@ -115,7 +126,7 @@ const InnerSwapModal: FC<InnerBridgeProps> = ({
       setAllTxHashes([])
       setStartTimestamp(0)
     } else {
-      // posthog.capture(EventNames.SWAP_MODAL_OPEN)
+      onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
   }, [open])
 
