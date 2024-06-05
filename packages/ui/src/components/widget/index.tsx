@@ -444,7 +444,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
         direction="column"
         css={{
           width: '100%',
-          borderRadius: 16,
+          borderRadius: 'widgetBorderRadius',
           overflow: 'hidden',
           backgroundColor: 'neutralBg',
           boxShadow: isLightTheme
@@ -455,6 +455,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
           p: '4',
           minWidth: 300,
           maxWidth: 440
+          
         }}
       >
         <Flex
@@ -497,8 +498,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                    ? formatFixedLength(amountInputValue, 8)
-                    : amountInputValue
+                  ? formatFixedLength(amountInputValue, 8)
+                  : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -665,8 +666,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({}) => {
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                    ? formatFixedLength(amountOutputValue, 8)
-                    : amountOutputValue
+                  ? formatFixedLength(amountOutputValue, 8)
+                  : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)

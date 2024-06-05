@@ -138,7 +138,23 @@ export default defineConfig({
           value: { base: '{colors.gray.1}', _dark: '{colors.gray.3}' }
         },
         muted: { value: { base: '{colors.gray.3}' } },
-        success: { value: { base: '{colors.green.11 }' } }
+        success: { value: { base: '{colors.green.11 }' } },
+
+        // Text
+        text_default: { value: { base: '{colors.gray.12}' } },
+        text_subtle: { value: { base: '{colors.gray.11}' } },
+        text_error: { value: { base: '{colors.red.12}' } },
+        text_success: { value: { base: '{colors.green.11}' } },
+
+        // Primary Button
+        primary_button_background: { value: { base: '{colors.primary9}' } },
+        primary_button_color: { value: { base: 'white' } }
+
+        // Secondary Button
+      },
+      radii: {
+        borderRadius: { value: { base: '8px' } },
+        widgetBorderRadius: { value: { base: '16px' } }
       }
     },
     extend: {

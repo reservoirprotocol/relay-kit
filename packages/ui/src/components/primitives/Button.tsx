@@ -34,8 +34,8 @@ const ButtonCss = cva({
   variants: {
     color: {
       primary: {
-        backgroundColor: 'primary9',
-        color: 'white',
+        backgroundColor: 'primary_button_background',
+        color: 'primary_button_color',
         '&:hover': {
           backgroundColor: 'primary10'
         }

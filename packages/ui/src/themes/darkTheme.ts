@@ -1,13 +1,8 @@
-import type { RelayKitThemeOverrides, RelayKitTheme } from './RelayKitTheme'
-import { sharedThemeConfig } from './RelayKitTheme'
+import { defaultTheme, type RelayKitTheme } from './RelayKitTheme'
 
-export default function (overrides?: RelayKitThemeOverrides): RelayKitTheme {
-  let sharedTheme = sharedThemeConfig(overrides)
-
+export default function (overrides?: RelayKitTheme): RelayKitTheme {
   return {
-    colors: {
-      primaryColor: overrides?.primaryColor ?? '#000'
-    },
-    ...sharedTheme
+    ...defaultTheme,
+    ...overrides
   }
 }

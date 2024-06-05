@@ -38,7 +38,7 @@ const Overlay: FC<PropsWithChildren & { css?: Styles }> = ({
 const ContentCss = cva({
   base: {
     backgroundColor: 'neutralBg',
-    borderRadius: 16,
+    borderRadius: 'widgetBorderRadius',
     position: 'fixed',
     left: '50%',
     top: '100%',

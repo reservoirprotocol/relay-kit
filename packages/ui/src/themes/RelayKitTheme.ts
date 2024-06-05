@@ -1,113 +1,64 @@
-export interface RelayKitTheme {
-  radii: {
-    borderRadius: string
-  }
-  fonts: {
-    body: string
-    button: string
-    headline: string
-  }
-  colors: RelayKitThemeColors
-}
+type BorderRadius = number | string
 
-export interface RelayKitThemeColors {
-  primaryColor: string
-
-  // accent colors
-  // accentBase: string
-  // accentBgSubtle: string
-  // accentBg: string
-  // accentBgHover: string
-  // accentBgActive: string
-  // accentLine: string
-  // accentBorder: string
-  // accentBorderHover: string
-  // accentSolid: string
-  // accentSolidHover: string
-  // accentText: string
-  // accentTextContrast: string
-
-  // neutral colors
-  // neutralBase: string
-  // neutralBgSubtle: string
-  // neutralBg: string
-  // neutralBgHover: string
-  // neutralBgActive: string
-  // neutralLine: string
-  // neutralBorder: string
-  // neutralBorderHover: string
-  // neutralSolid: string
-  // neutralSolidHover: string
-  // neutralText: string
-  // neutralTextContrast: string
-
-  // secondary colors
-  // secondaryBase: string
-  // secondaryBgSubtle: string
-  // secondaryBg: string
-  // secondaryBgHover: string
-  // secondaryBgActive: string
-  // secondaryLine: string
-  // secondaryBorder: string
-  // secondaryBorderHover: string
-  // secondarySolid: string
-  // secondarySolidHover: string
-  // secondaryText: string
-  // secondaryTextContrast: string
-
-  // general colors
-  // borderColor: string
-  // textColor: string
-  // focusColor: string
-  // errorText: string
-  // errorAccent: string
-  // successAccent: string
-
-  // component colors
-  // reservoirLogoColor: string
-  // inputBackground: string
-  // buttonTextColor: string
-  // buttonTextHoverColor: string
-  // overlayBackground: string
-  // headerBackground: string
-  // footerBackground: string
-  // contentBackground: string
-  // wellBackground: string
-  // popoverBackground: string
-}
-
-export type RelayKitThemeOverrides = {
-  borderRadius?: string
+interface Button {
+  color?: string
+  background?: string
+  borderRadius?: BorderRadius
   font?: string
-  buttonFont?: string
-  buttonTextColor?: string
-  buttonTextHoverColor?: string
-  headlineFont?: string
-  primaryColor?: string
-  primaryHoverColor?: string
-  wellBackground?: string
-  textColor?: string
-  headerBackground?: string
-  contentBackground?: string
-  footerBackground?: string
-  overlayBackground?: string
-  popoverBackground?: string
-  borderColor?: string
+  hover?: this
+  disabled?: this
 }
 
-type RelayKitSharedTheme = Pick<RelayKitTheme, 'fonts' | 'radii'>
-
-export const sharedThemeConfig = (
-  overrides?: RelayKitThemeOverrides
-): RelayKitSharedTheme => {
-  return {
-    radii: {
-      borderRadius: overrides?.borderRadius || '4px'
-    },
-    fonts: {
-      body: overrides?.font || 'sans-serif',
-      button: overrides?.buttonFont || overrides?.font || 'sans-serif',
-      headline: overrides?.headlineFont || overrides?.font || 'sans-serif'
+export interface RelayKitTheme {
+  font?: string
+  primaryColor?: string
+  text?: {
+    default?: string
+    subtle?: string
+    error?: string
+    success?: string
+  }
+  buttons?: {
+    primary?: Button
+    secondary?: Button
+  }
+  input?: {
+    background?: string
+    borderRadius?: BorderRadius
+    border?: string
+  }
+  anchor?: {
+    color?: string
+    font?: string
+    hover?: {
+      color?: string
     }
   }
+  widget?: {
+    borderRadius?: BorderRadius
+    border?: string
+    boxShadow?: string
+    card?: {
+      background?: string
+      border?: string
+      borderRadius?: BorderRadius
+    }
+  }
+  modal?: {
+    background?: string
+    border?: string
+    borderRadius?: BorderRadius
+  }
+}
+
+export const defaultTheme: RelayKitTheme = {
+  font: '-apple-system, Helvetica, sans-serif', // verify that inter works
+  primaryColor: 'primary9',
+  text: {
+    default: 'gray12',
+    subtle: 'gray11',
+    error: 'red12',
+    success: 'green11'
+  },
+  widget: {}
 }

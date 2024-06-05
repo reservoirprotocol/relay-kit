@@ -3,6 +3,7 @@ import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
 import type { RelayClientOptions } from '@reservoir0x/relay-sdk'
 import type { RelayKitTheme } from '../themes'
+import { token } from '@reservoir0x/relay-design-system/tokens'
 
 export type CoinId = {
   [key: string]: string
@@ -44,7 +45,18 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {
-                --colors-primary1: ${theme?.colors.primaryColor};
+                --radii-widget-border-radius: ${theme?.widget?.borderRadius}; 
+
+                --text-default: var(${
+                  theme?.text?.default
+                }, var(--colors-text_default));
+
+
+                --colors-primary_button_background: ${
+                  theme?.buttons?.primary?.background ??
+                  token('colors.primary_button_background')
+                };
+                --primary-button-color: ${theme?.buttons?.primary?.background};
               }`
           }}
         />

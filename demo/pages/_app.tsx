@@ -9,8 +9,14 @@ import '../fonts.css'
 import { RainbowKitChain } from '@rainbow-me/rainbowkit/dist/components/RainbowKitProvider/RainbowKitChainContext'
 import { Chain, mainnet } from 'wagmi/chains'
 import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import { configureDynamicChains, convertViemChainToRelayChain, LogLevel, MAINNET_RELAY_API, RelayChain } from '@reservoir0x/relay-sdk'
-import "@reservoir0x/relay-kit-ui/styles.css"
+import {
+  configureDynamicChains,
+  convertViemChainToRelayChain,
+  LogLevel,
+  MAINNET_RELAY_API,
+  RelayChain
+} from '@reservoir0x/relay-sdk'
+import '@reservoir0x/relay-kit-ui/styles.css'
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 const WALLET_CONNECT_PROJECT_ID =
@@ -22,9 +28,7 @@ type AppWrapperProps = {
 
 const queryClient = new QueryClient()
 
-const relayKitTheme = darkTheme({
-  primaryColor: 'pink'
-})
+const relayKitTheme = darkTheme({})
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
@@ -45,9 +49,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       })
       .catch((e) => {
         console.error(e)
-        const { wagmiConfig, chains } = createWagmiConfig(
-          [mainnet]
-        )
+        const { wagmiConfig, chains } = createWagmiConfig([mainnet])
         setRelayChains([convertViemChainToRelayChain(mainnet)])
         setWagmiConfig(wagmiConfig)
         setChains(chains)
@@ -59,18 +61,21 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   }
 
   return (
-    <RelayKitProvider options={{
+    <RelayKitProvider
+      options={{
         baseApiUrl: MAINNET_RELAY_API,
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
         chains: relayChains,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN
-      }} theme={relayKitTheme}>
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      }}
+      theme={relayKitTheme}
+    >
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>{children}</RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </RelayKitProvider>
   )
 }
@@ -78,7 +83,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <AppWrapper>
-      {/* @ts-ignore */}
       <Component {...pageProps} />
     </AppWrapper>
   )
