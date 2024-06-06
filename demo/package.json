@@ -13,10 +13,11 @@
     "trailingComma": "none"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^14.2.3",
     "@radix-ui/colors": "^0.1.8",
     "@rainbow-me/rainbowkit": "2.0.0",
-    "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
+    "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",
     "@stitches/react": "1.3.1-1",
     "@tanstack/react-query": "^5.20.2",

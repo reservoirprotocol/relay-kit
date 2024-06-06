@@ -1,10 +1,6 @@
 //hooks
 export { default as useRequests, queryRequests } from './hooks/useRequests.js'
 export {
-  default as useCurrencyConversion,
-  queryCurrency
-} from './hooks/useCurrencyConversion.js'
-export {
   default as useSwapQuote,
   querySwapQuote
 } from './hooks/useSwapQuote.js'
