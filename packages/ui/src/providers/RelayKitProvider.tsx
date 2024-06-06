@@ -40,28 +40,67 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
     })
   }, [options])
 
+  const generateThemeVariables = (
+    theme: RelayKitTheme,
+    prefix = ''
+  ): string => {
+    let cssString = ''
+    for (const key in theme) {
+      if (Object.prototype.hasOwnProperty.call(theme, key)) {
+        const value = theme[key as keyof RelayKitTheme]
+        if (typeof value !== 'object' || value === null) {
+          if (typeof value === 'string') {
+            const variableName = `${prefix}${key.replace(/\./g, '_')}`
+            cssString += `--relay-${variableName}: ${value};\n`
+          }
+        } else {
+          cssString += generateThemeVariables(
+            value as RelayKitTheme,
+            `${prefix}${key}_`
+          )
+        }
+      }
+    }
+    return cssString
+  }
+
+  // Generate the CSS variable declarations
+  const cssString = theme ? generateThemeVariables(theme) : null
+
+  console.log('cssString: ', cssString)
+
   return (
     <ProviderOptionsContext.Provider value={providerOptions}>
       <RelayClientProvider options={options}>
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {
-                --radii-widget-border-radius: ${theme?.widget?.borderRadius}; 
+              ${cssString}
+            }`
+            // __html: `:root {
+            //     --radii-widget-border-radius: ${theme?.widget?.borderRadius};
 
-                --text-default: var(${
-                  theme?.text?.default
-                }, var(--colors-text_default));
+            //     --text-default: var(${
+            //       theme?.text?.default
+            //     }, var(--colors-text_default));
 
+            //     --relay-colors-primary_button_background: ${
+            //       theme?.buttons?.primary?.background ??
+            //       token('colors.primary_button_background')
+            //     };
 
-                --colors-primary_button_background: ${
-                  theme?.buttons?.primary?.background ??
-                  token('colors.primary_button_background')
-                };
-                --primary-button-color: ${
-                  theme?.buttons?.primary?.background ??
-                  defaultTheme?.buttons?.primary?.background
-                };
-              }`
+            //     --relay-colors-primary_button_background: ${
+            //       theme?.buttons?.primary?.background ??
+            //       defaultTheme?.buttons?.primary?.background
+            //     };
+
+            //     ${
+            //       theme?.buttons?.primary?.background
+            //         ? `--relay-colors-primary_button_background: ${theme?.buttons?.primary?.background};`
+            //         : null
+            //     }
+
+            //   }`
           }}
         />
         {children}

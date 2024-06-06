@@ -15,7 +15,7 @@
     "package:change": "pnpm changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
     "package:canary": "pnpm changeset version --snapshot canary && git add -A; git commit --m \"canary: changeset\" && git push && changeset publish --tag canary && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
     "package:release": "pnpm run deploy && changeset version && pnpm --filter=!demo -r publish --access public && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
-    "build": "pnpm run build:sdk && pnpm run build:ui && pnpm run build:adapter && pnpm run build:hooks",
+    "build": "pnpm run build:sdk && pnpm run build:hooks && pnpm run build:ui && pnpm run build:adapter",
     "build:ui": "pnpm run -C packages/ui build",
     "build:hooks": "pnpm run -C packages/hooks build",
     "build:sdk": "pnpm run -C packages/sdk build",

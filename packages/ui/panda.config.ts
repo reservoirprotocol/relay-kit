@@ -111,6 +111,7 @@ export default defineConfig({
       data_state_checked: '&[data-state="checked"]'
     }
   },
+  prefix: 'relay',
 
   // Useful for theme customization
   theme: {
@@ -131,6 +132,7 @@ export default defineConfig({
         success: { value: 'linear-gradient(to right, #30A46C, #0ADF79)' }
       }
     },
+
     semanticTokens: {
       colors: {
         neutralBg: { value: { base: 'white', _dark: '{colors.gray.1}' } },

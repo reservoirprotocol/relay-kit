@@ -22,7 +22,13 @@ type AppWrapperProps = {
 
 const queryClient = new QueryClient()
 
-const relayKitTheme = darkTheme({})
+const relayKitTheme = darkTheme({
+  buttons: {
+    primary: {
+      background: 'blue'
+    }
+  }
+})
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
