@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "demo": "pnpm --filter relay-sdk-demo dev",
+    "demo:analyze": "ANALYZE=true pnpm run -C demo/ build",
     "package:change": "pnpm changeset && git stage ./.changeset/* && git commit --m \"feat: changeset\" && git push",
     "package:canary": "pnpm changeset version --snapshot canary && git add -A; git commit --m \"canary: changeset\" && git push && changeset publish --tag canary && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
     "package:release": "pnpm run deploy && changeset version && pnpm --filter=!demo -r publish --access public && changeset tag && git tag --delete relay-sdk-demo@undefined && git push --follow-tags",
