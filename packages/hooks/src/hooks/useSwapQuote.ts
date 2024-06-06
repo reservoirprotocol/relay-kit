@@ -1,4 +1,8 @@
-import { RelayClient, type paths } from '@reservoir0x/relay-sdk'
+import {
+  MAINNET_RELAY_API,
+  RelayClient,
+  type paths
+} from '@reservoir0x/relay-sdk'
 import { axiosPostFetcher } from '../fetcher'
 import {
   useQuery,
@@ -21,6 +25,14 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
+export const querySwapQuote = function (
+  baseApiUrl: string = MAINNET_RELAY_API,
+  options?: ExecuteSwapBody
+): Promise<ExecuteSwapResponse> {
+  const url = new URL(`${baseApiUrl}/execute/swap`)
+  return axiosPostFetcher(url.href, options)
+}
+
 export default function (
   client?: RelayClient,
   options?: ExecuteSwapBody,
@@ -28,13 +40,11 @@ export default function (
   onResponse?: (data: ExecuteSwapResponse) => void,
   queryOptions?: Partial<QueryOptions>
 ) {
-  const url = new URL(`${client?.baseApiUrl}/execute/swap`)
-
   const response = (useQuery as QueryType)({
     queryKey: ['useSwapQuote', options],
     queryFn: () => {
       onRequest?.()
-      const promise = axiosPostFetcher(url.href, options)
+      const promise = querySwapQuote(client?.baseApiUrl, options)
       promise.then((response: any) => {
         onResponse?.(response)
       })

@@ -54,6 +54,9 @@ import { EventNames } from '../../constants/events'
 type SwapWidgetProps = {
   defaultFromToken?: Token
   defaultToToken?: Token
+  defaultToAddress?: Address
+  defaultAmount?: string
+  defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -61,6 +64,9 @@ type SwapWidgetProps = {
 const SwapWidget: FC<SwapWidgetProps> = ({
   defaultFromToken,
   defaultToToken,
+  defaultToAddress,
+  defaultAmount,
+  defaultTradeType,
   onConnectWallet,
   onAnalyticEvent
 }) => {
@@ -69,13 +75,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const isSmallDevice = useMediaQuery('(max-width: 730px)')
   const { address, chainId: activeWalletChainId, connector } = useAccount()
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const [customToAddress, setCustomToAddress] = useState<Address | undefined>()
+  const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
+    defaultToAddress
+  )
   const { displayName: toDisplayName } = useENSResolver(
     customToAddress ?? address
   )
   const isMounted = useMounted()
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
-    'EXACT_INPUT'
+    defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
@@ -86,13 +94,21 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     debouncedValue: debouncedInputAmountValue,
     setValue: setAmountInputValue,
     debouncedControls: debouncedAmountInputControls
-  } = useDebounceState<string>('', 500)
+  } = useDebounceState<string>(
+    !defaultTradeType || defaultTradeType === 'EXACT_INPUT'
+      ? defaultAmount ?? ''
+      : '',
+    500
+  )
   const {
     value: amountOutputValue,
     debouncedValue: debouncedOutputAmountValue,
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
-  } = useDebounceState<string>('', 500)
+  } = useDebounceState<string>(
+    defaultTradeType === 'EXACT_OUTPUT' ? defaultAmount ?? '' : '',
+    500
+  )
 
   const [feesOpen, setFeesOpen] = useState(false)
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
@@ -476,6 +492,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <Flex align="center" justify="between" css={{ gap: '4' }}>
             <TokenSelector
               token={fromToken}
+              onAnalyticEvent={onAnalyticEvent}
               setToken={(token) => {
                 onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                   direction: 'input',
@@ -667,6 +684,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 }
               }}
               context="to"
+              onAnalyticEvent={onAnalyticEvent}
             />
             <AmountInput
               value={
@@ -961,6 +979,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             details={details}
             fees={quote?.fees}
             address={address}
+            onAnalyticEvent={onAnalyticEvent}
           />
         ) : null}
         <CustomAddressModal

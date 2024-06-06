@@ -1,6 +1,6 @@
 import { axiosPostFetcher } from '../fetcher'
 import { useMemo } from 'react'
-import { type paths } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API, type paths } from '@reservoir0x/relay-sdk'
 import {
   useQuery,
   type DefaultError,
@@ -22,18 +22,23 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
+export const queryTokenList = function (
+  baseApiUrl: string = MAINNET_RELAY_API,
+  options?: GetCurrenciesBody
+): Promise<GetCurrenciesResponse> {
+  const url = new URL(`${baseApiUrl}/currencies/v1`)
+  return axiosPostFetcher(url.href, options)
+}
+
 export default function (
   baseApiUrl?: string,
   options?: GetCurrenciesBody,
   queryOptions?: Partial<QueryOptions>
 ) {
-  const url = new URL(`${baseApiUrl}/currencies/v1`)
   const response = (useQuery as QueryType)({
     queryKey: ['useTokenList', options],
-    queryFn: () => {
-      return axiosPostFetcher(url.href, options)
-    },
-    enabled: baseApiUrl && options ? true : false,
+    queryFn: () => queryTokenList(baseApiUrl, options),
+    enabled: options ? true : false,
     retry: false,
     ...queryOptions
   })

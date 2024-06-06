@@ -4,6 +4,7 @@ import { LoadingSpinner } from '../../LoadingSpinner'
 import { truncateAddress } from '../../../../utils/truncate'
 import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
 import type { ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
+import { useRelayClient } from '../../../../hooks'
 
 type ValidatingStepProps = {
   currentStep?: ExecuteStep | null
@@ -14,6 +15,7 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
   currentStep,
   currentStepItem
 }) => {
+  const relayClient = useRelayClient()
   return (
     <>
       <Flex direction="column" align="center" justify="between">
@@ -23,7 +25,10 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
         </Text>
         {currentStepItem && currentStepItem.txHashes
           ? currentStepItem.txHashes.map(({ txHash, chainId }) => {
-              const blockExplorerBaseUrl = getChainBlockExplorerUrl(chainId)
+              const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+                chainId,
+                relayClient?.chains
+              )
               return (
                 <Anchor
                   key={txHash}

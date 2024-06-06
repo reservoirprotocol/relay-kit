@@ -4,6 +4,7 @@ import {
   type QueryKey
 } from '@tanstack/react-query'
 import fetcher from '../fetcher'
+import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 
 type CurrencyConversionData = Record<string, number>
 type QueryType = typeof useQuery<
@@ -15,16 +16,18 @@ type QueryType = typeof useQuery<
 
 type QueryOptions = Parameters<QueryType>['0']
 
-export default function (baseApiUrl?: string, options?: Partial<QueryOptions>) {
+export const queryCurrency = function (
+  baseApiUrl: string = MAINNET_RELAY_API
+): Promise<CurrencyConversionData> {
   const path = new URL(`${baseApiUrl}/prices/rates`)
+  return fetcher(path.href)
+}
 
+export default function (baseApiUrl?: string, options?: Partial<QueryOptions>) {
   return (useQuery as QueryType)({
     queryKey: ['useCurrencyConversion'],
-    queryFn: () => {
-      return fetcher(path.href)
-    },
+    queryFn: () => queryCurrency(baseApiUrl),
     refetchInterval: 60000,
-    enabled: baseApiUrl !== undefined,
     ...options
   })
 }

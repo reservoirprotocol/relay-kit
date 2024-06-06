@@ -1,4 +1,8 @@
-import { type paths, setParams } from '@reservoir0x/relay-sdk'
+import {
+  MAINNET_RELAY_API,
+  type paths,
+  setParams
+} from '@reservoir0x/relay-sdk'
 import { useMemo } from 'react'
 import {
   useInfiniteQuery,
@@ -23,6 +27,24 @@ type InfiniteQueryType = typeof useInfiniteQuery<
 >
 type QueryOptions = Parameters<InfiniteQueryType>['0']
 
+export const queryRequests = function (
+  baseApiUrl: string = MAINNET_RELAY_API,
+  options?: UserTransactionQuery | false,
+  pageParam?: string | null
+): Promise<UserTransactionsResponse> {
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const url = new URL(`${baseApiUrl}/requests`, baseUrl)
+
+  let query: UserTransactionQuery = { ...options }
+
+  if (pageParam) {
+    query.continuation = pageParam
+  }
+
+  setParams(url, query)
+  return fetcher(url.href)
+}
+
 export default function (
   options?: UserTransactionQuery | false,
   baseApiUrl?: string,
@@ -31,20 +53,7 @@ export default function (
   const response = (useInfiniteQuery as InfiniteQueryType)({
     queryKey: ['useUserTransactions', options],
     enabled: options !== undefined,
-    queryFn: (data) => {
-      const baseUrl =
-        typeof window !== 'undefined' ? window.location.origin : ''
-      const url = new URL(`${baseApiUrl}/requests`, baseUrl)
-
-      let query: UserTransactionQuery = { ...options }
-
-      if (data.pageParam) {
-        query.continuation = data.pageParam
-      }
-
-      setParams(url, query)
-      return fetcher(url.href)
-    },
+    queryFn: (data) => queryRequests(baseApiUrl, options, data.pageParam),
     getNextPageParam: (data) => {
       return data.continuation
     },

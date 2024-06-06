@@ -1,6 +1,7 @@
 import {
   configureViemChain,
   convertViemChainToRelayChain,
+  MAINNET_RELAY_API,
   setParams,
   type paths
 } from '@reservoir0x/relay-sdk'
@@ -26,6 +27,15 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
+export const queryRelayChains = function (
+  baseApiUrl: string = MAINNET_RELAY_API,
+  options: ChainsQuery
+): Promise<ChainsResponse> {
+  const url = new URL(`${baseApiUrl}/chains`)
+  setParams(url, options ?? {})
+  return fetcher(`${baseApiUrl}/chains`)
+}
+
 export default function (
   baseApiUrl?: string,
   options?: ChainsQuery,
@@ -33,12 +43,7 @@ export default function (
 ) {
   const response = (useQuery as QueryType)({
     queryKey: ['useRelayChains', options],
-    queryFn: () => {
-      const url = new URL(`${baseApiUrl}/chains`)
-      setParams(url, options ?? {})
-      return fetcher(`${baseApiUrl}/chains`)
-    },
-    enabled: baseApiUrl !== undefined,
+    queryFn: () => queryRelayChains(baseApiUrl, options),
     retry: false,
     ...queryOptions
   })

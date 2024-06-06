@@ -10,12 +10,14 @@ import {
 } from '../../../primitives'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBolt, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
 import { truncateAddress } from '../../../../utils/truncate'
 import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
 import { type TxHashes } from '../TransactionModalRenderer'
 import { type Token } from '../../../../types'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
+import { useRelayClient } from '../../../../hooks'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -40,6 +42,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   seconds,
   onOpenChange
 }) => {
+  const relayClient = useRelayClient()
   const isWrap =
     fromToken?.symbol === 'ETH' &&
     toToken?.symbol === 'WETH' &&
@@ -149,7 +152,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           )}
         </Flex>
         {allTxHashes.map(({ txHash, chainId }) => {
-          const blockExplorerBaseUrl = getChainBlockExplorerUrl(chainId)
+          const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+            chainId,
+            relayClient?.chains
+          )
           return (
             <Anchor
               key={txHash}
@@ -165,8 +171,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         {transaction?.data?.inTxs?.[0]?.hash ? (
           <a
-            href={`/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
+            href={`https://relay.link/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
             style={{ width: '100%' }}
+            target="_blank"
           >
             <Button
               color="secondary"

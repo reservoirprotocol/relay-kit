@@ -152,7 +152,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
           width: '100%',
           height: '100%',
           gap: '4',
-          sm: {
+          bp600Down: {
             width: 370
           }
         }}
