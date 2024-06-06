@@ -150,9 +150,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     enabled: toToken !== undefined
   })
 
-  //TODO fix
-  const isLightTheme = true
-
   const invalidateBalanceQueries = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
@@ -460,18 +457,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         direction="column"
         css={{
           width: '100%',
-          borderRadius: 'widgetBorderRadius',
+          borderRadius: 'widget-border-radius',
           overflow: 'hidden',
-          backgroundColor: 'neutralBg',
-          boxShadow: isLightTheme
-            ? '0px 4px 30px rgba(0, 0, 0, 0.10)'
-            : undefined,
-          '--borderColor': 'colors.gray.6',
-          border: isLightTheme ? undefined : '1px solid var(--borderColor)',
+          backgroundColor: 'widget-background',
+          boxShadow: 'widget-box-shadow',
+          border: 'widget-border',
           p: '4',
           minWidth: 300,
           maxWidth: 440
-          
         }}
       >
         <Flex
@@ -764,7 +757,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             css={{
               borderRadius: 16,
               overflow: 'hidden',
-              '--borderColor': 'colors.gray.6',
+              '--borderColor': 'colors.subtle-border-color',
               border: '1px solid var(--borderColor)',
               p: '3',
               mb: '3'
@@ -895,7 +888,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     height: 1,
                     width: '100%',
                     my: '2',
-                    background: 'gray5'
+                    background: 'subtle-border-color'
                   }}
                 />
                 <Flex align="start" justify="between">

@@ -17,15 +17,15 @@ const StyledInputCss = cva({
   base: {
     px: 16,
     py: 12,
-    borderRadius: 8,
+    borderRadius: 'input-border-radius',
     fontFamily: 'body',
     fontSize: 16,
     color: 'gray12',
-    backgroundColor: 'gray3',
+    backgroundColor: 'input-background',
     _placeholder: {
       color: 'gray10'
     },
-    '--focusColor': 'colors.primary11',
+    '--focusColor': 'colors.focus-color',
     _focus: {
       boxShadow: '0 0 0 2px var(--focusColor)',
       outline: 'none'

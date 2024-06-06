@@ -7,7 +7,7 @@ import type { FC, PropsWithChildren } from 'react'
 
 const TextCss = cva({
   base: {
-    color: 'text_default',
+    color: 'text-default',
     fontFamily: 'body'
   },
   variants: {
@@ -64,10 +64,10 @@ const TextCss = cva({
     },
     color: {
       subtle: {
-        color: 'text_subtle'
+        color: 'text-subtle'
       },
       error: {
-        color: 'text_error'
+        color: 'text-error'
       },
       red: {
         color: 'red11'
@@ -76,7 +76,7 @@ const TextCss = cva({
         color: 'blue12'
       },
       success: {
-        color: 'text_success'
+        color: 'text-success'
       }
     },
     italic: {

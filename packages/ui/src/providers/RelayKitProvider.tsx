@@ -3,8 +3,7 @@ import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
 import type { RelayClientOptions } from '@reservoir0x/relay-sdk'
 import type { RelayKitTheme } from '../themes'
-import { defaultTheme } from '../themes'
-import { token } from '@reservoir0x/relay-design-system/tokens'
+import { generateCssVars } from '../utils/theme.js'
 
 export type CoinId = {
   [key: string]: string
@@ -26,6 +25,60 @@ export interface RelayKitProviderProps {
 
 export const ProviderOptionsContext = createContext<RelayKitProviderOptions>({})
 
+export type ThemeOverridesMap = {
+  [key: string]: string | ThemeOverridesMap
+}
+
+export const themeOverrides: ThemeOverridesMap = {
+  font: '--relay-fonts-font',
+  primaryColor: '--relay-colors-primary-color',
+  focusColor: '--relay-colors-focus-color',
+  text: {
+    default: '--relay-colors-text-default',
+    subtle: '--relay-colors-text-subtle',
+    error: '--relay-colors-text-error',
+    success: '--relay-colors-text-success'
+  },
+  buttons: {
+    primary: {
+      color: '--relay-colors-primary-button-color',
+      background: '--relay-colors-primary-button-background',
+      hover: {
+        color: '--relay-colors-primary-button-hover-color',
+        background: '--relay-colors-primary-button-hover-background'
+      }
+    },
+    secondary: {
+      color: '--relay-colors-secondary-button-color',
+      background: '--relay-colors-secondary-button-background',
+      hover: {
+        color: '--relay-colors-secondary-button-hover-color',
+        background: '--relay-colors-secondary-button-hover-background'
+      }
+    },
+    disabled: {
+      color: '--relay-colors-button-disabled-color',
+      background: '--relay-colors-button-disabled-background'
+    }
+  },
+  input: {
+    background: '--relay-colors-input-background',
+    borderRadius: '--relay-radii-input-border-radius'
+  },
+  widget: {
+    background: '--relay-colors-widget-background',
+    borderRadius: '--relay-radii-widget-border-radius',
+    border: '--relay-borders-widget-border',
+    boxShadow: '--relay-shadows-widget-box-shadow',
+    card: {}
+  },
+  modal: {
+    background: '--relay-colors-modal-background',
+    borderRadius: '--relay-radii-modal-border-radius',
+    border: '--relay-borders-modal-border'
+  }
+}
+
 export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
   children,
   options,
@@ -40,34 +93,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
     })
   }, [options])
 
-  const generateThemeVariables = (
-    theme: RelayKitTheme,
-    prefix = ''
-  ): string => {
-    let cssString = ''
-    for (const key in theme) {
-      if (Object.prototype.hasOwnProperty.call(theme, key)) {
-        const value = theme[key as keyof RelayKitTheme]
-        if (typeof value !== 'object' || value === null) {
-          if (typeof value === 'string') {
-            const variableName = `${prefix}${key.replace(/\./g, '_')}`
-            cssString += `--relay-${variableName}: ${value};\n`
-          }
-        } else {
-          cssString += generateThemeVariables(
-            value as RelayKitTheme,
-            `${prefix}${key}_`
-          )
-        }
-      }
-    }
-    return cssString
-  }
-
   // Generate the CSS variable declarations
-  const cssString = theme ? generateThemeVariables(theme) : null
-
-  console.log('cssString: ', cssString)
+  const cssVariables = generateCssVars(theme, themeOverrides)
 
   return (
     <ProviderOptionsContext.Provider value={providerOptions}>
@@ -75,32 +102,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {
-              ${cssString}
+              ${cssVariables}
             }`
-            // __html: `:root {
-            //     --radii-widget-border-radius: ${theme?.widget?.borderRadius};
-
-            //     --text-default: var(${
-            //       theme?.text?.default
-            //     }, var(--colors-text_default));
-
-            //     --relay-colors-primary_button_background: ${
-            //       theme?.buttons?.primary?.background ??
-            //       token('colors.primary_button_background')
-            //     };
-
-            //     --relay-colors-primary_button_background: ${
-            //       theme?.buttons?.primary?.background ??
-            //       defaultTheme?.buttons?.primary?.background
-            //     };
-
-            //     ${
-            //       theme?.buttons?.primary?.background
-            //         ? `--relay-colors-primary_button_background: ${theme?.buttons?.primary?.background};`
-            //         : null
-            //     }
-
-            //   }`
           }}
         />
         {children}

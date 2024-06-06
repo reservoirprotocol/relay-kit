@@ -135,28 +135,76 @@ export default defineConfig({
 
     semanticTokens: {
       colors: {
-        neutralBg: { value: { base: 'white', _dark: '{colors.gray.1}' } },
-        neutralBgSubtle: {
-          value: { base: '{colors.gray.1}', _dark: '{colors.gray.3}' }
-        },
-        muted: { value: { base: '{colors.gray.3}' } },
-        success: { value: { base: '{colors.green.11 }' } },
+        'focus-color': { value: { base: '{colors.primary7}' } },
+        'subtle-border-color': { value: { base: '{colors.gray.5}' } },
 
         // Text
-        text_default: { value: { base: '{colors.gray.12}' } },
-        text_subtle: { value: { base: '{colors.gray.11}' } },
-        text_error: { value: { base: '{colors.red.12}' } },
-        text_success: { value: { base: '{colors.green.11}' } },
+        'text-default': { value: { base: '{colors.gray.12}' } },
+        'text-subtle': { value: { base: '{colors.gray.11}' } },
+        'text-error': { value: { base: '{colors.red.12}' } },
+        'text-success': { value: { base: '{colors.green.11}' } },
 
         // Primary Button
-        primary_button_background: { value: { base: '{colors.primary9}' } },
-        primary_button_color: { value: { base: 'white' } }
+        'primary-button-background': { value: { base: '{colors.primary9}' } },
+        'primary-button-color': { value: { base: 'white' } },
+        'primary-button-hover-background': {
+          value: { base: '{colors.primary10}' }
+        },
+        'primary-button-hover-color': {
+          value: { base: 'white' }
+        },
 
         // Secondary Button
+        'secondary-button-background': { value: { base: '{colors.primary3}' } },
+        'secondary-button-color': { value: { base: '{colors.primary11}' } },
+        'secondary-button-hover-background': {
+          value: { base: '{colors.primary4}' }
+        },
+        'secondary-button-hover-color': {
+          value: { base: '{colors.primary11}' }
+        },
+
+        // Disabled Button
+        'button-disabled-background': {
+          value: { base: '{colors.gray.8}' }
+        },
+        'button-disabled-color': {
+          value: { base: '{colors.gray.11}' }
+        },
+
+        // Input
+        'input-background': {
+          value: { base: '{colors.gray.3}' }
+        },
+
+        // Anchor
+
+        // Widget
+        'widget-background': {
+          value: { base: 'white', _dark: '{colors.gray.1}' }
+        },
+
+        // Modal
+        'modal-background': {
+          value: { base: 'white', _dark: '{colors.gray.1}' }
+        },
+
+        // Skeleton
+        'skeleton-background': { value: { base: '{colors.gray.3}' } }
       },
       radii: {
-        borderRadius: { value: { base: '8px' } },
-        widgetBorderRadius: { value: { base: '16px' } }
+        'widget-border-radius': { value: { base: '16px' } },
+        'modal-border-radius': { value: { base: '16px' } },
+        'input-border-radius': { value: { base: '8px' } }
+      },
+      borders: {
+        'widget-border': { value: { base: '0x solid white' } },
+        'modal-border': { value: { base: '0x solid white' } }
+      },
+      shadows: {
+        'widget-box-shadow': {
+          value: { base: '0px 4px 30px rgba(0, 0, 0, 0.10)' }
+        }
       }
     },
     extend: {

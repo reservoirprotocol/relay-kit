@@ -3,12 +3,7 @@ import {
   css as designCss,
   type Styles
 } from '@reservoir0x/relay-design-system/css'
-import {
-  forwardRef,
-  type ButtonHTMLAttributes,
-  type FC,
-  type HTMLAttributes
-} from 'react'
+import { forwardRef, type ButtonHTMLAttributes } from 'react'
 
 const ButtonCss = cva({
   base: {
@@ -22,34 +17,36 @@ const ButtonCss = cva({
     display: 'inline-flex',
     alignItems: 'center',
     lineHeight: '20px',
-    '--focusColor': 'colors.primary6',
+    '--focusColor': 'colors.focus-color',
     _focusVisible: {
       boxShadow: '0 0 0 2px var(--focusColor)'
     },
     _disabled: {
       cursor: 'not-allowed',
-      backgroundColor: 'gray8',
-      color: 'gray11',
+      backgroundColor: 'button-disabled-background',
+      color: 'button-disabled-color',
       _hover: {
-        backgroundColor: 'gray8',
-        color: 'gray11'
+        backgroundColor: 'button-disabled-background',
+        color: 'button-disabled-color'
       }
     }
   },
   variants: {
     color: {
       primary: {
-        backgroundColor: 'primary_button_background',
-        color: 'primary_button_color',
+        backgroundColor: 'primary-button-background',
+        color: 'primary-button-color',
         '&:hover': {
-          backgroundColor: 'primary10'
+          backgroundColor: 'primary-button-hover-background',
+          color: 'primary-button-hover-color'
         }
       },
       secondary: {
-        backgroundColor: 'primary3',
-        color: 'primary11',
+        backgroundColor: 'secondary-button-background',
+        color: 'secondary-button-color',
         '&:hover': {
-          backgroundColor: 'primary4'
+          backgroundColor: 'secondary-button-hover-background',
+          color: 'secondary-button-hover-color'
         }
       },
       light: {
@@ -64,8 +61,8 @@ const ButtonCss = cva({
         p: 0
       },
       white: {
-        '--borderColor': 'colors.gray5',
-        backgroundColor: 'neutralBg',
+        '--borderColor': 'colors.subtle-border-color',
+        backgroundColor: 'widget-background',
         '&:hover': {
           backgroundColor: 'gray2'
         },

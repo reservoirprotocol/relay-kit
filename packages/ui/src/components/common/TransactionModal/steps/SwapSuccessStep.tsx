@@ -95,7 +95,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
                 height: 50,
                 background: 'primary3',
                 color: 'primary9',
-                border: '3px solid neutralBg',
+                border: '3px solid modal-background',
                 borderRadius: '999999px',
                 right: -40,
                 bottom: -12

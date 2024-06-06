@@ -23,44 +23,44 @@ type AppWrapperProps = {
 const queryClient = new QueryClient()
 
 const relayKitTheme = darkTheme({
-  // focusColor: 'blue',
-  // buttons: {
-  //   primary: {
-  //     background: 'var(--relay-colors-primary11)',
-  //     color: 'rgb(255, 191, 0)',
-  //     hover: {
-  //       background: '#FBCEB1',
-  //       color: 'purple'
-  //     }
-  //   },
-  //   secondary: {
-  //     background: 'green',
-  //     color: 'red',
-  //     hover: {
-  //       background: '#FBCEB1',
-  //       color: 'purple'
-  //     }
-  //   },
-  //   disabled: {
-  //     background: 'red',
-  //     color: 'pink'
-  //   }
-  // },
-  // input: {
-  //   background: 'green',
-  //   borderRadius: '0px'
-  // },
-  // widget: {
-  //   borderRadius: '0',
-  //   border: '1px solid red',
-  //   boxShadow: '0px 4px 30px green',
-  //   card: {}
-  // },
-  // modal: {
-  //   borderRadius: '20px',
-  //   background: 'orange',
-  //   border: '2px solid yellow'
-  // }
+  focusColor: 'blue',
+  buttons: {
+    primary: {
+      background: 'var(--relay-colors-primary11)',
+      color: 'rgb(255, 191, 0)',
+      hover: {
+        background: '#FBCEB1',
+        color: 'purple'
+      }
+    },
+    secondary: {
+      background: 'green',
+      color: 'red',
+      hover: {
+        background: '#FBCEB1',
+        color: 'purple'
+      }
+    },
+    disabled: {
+      background: 'red',
+      color: 'pink'
+    }
+  },
+  input: {
+    background: 'green',
+    borderRadius: '0px'
+  },
+  widget: {
+    borderRadius: '0',
+    border: '1px solid red',
+    boxShadow: '0px 4px 30px green',
+    card: {}
+  },
+  modal: {
+    borderRadius: '20px',
+    background: 'orange',
+    border: '2px solid yellow'
+  }
 })
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
@@ -73,7 +73,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     if (!wagmiConfig && chains && viemChains) {
       setWagmiConfig(
         getDefaultConfig({
-          appName: 'Relay SDK Demo',
+          appName: 'Relay UI Kit Playground',
           projectId: WALLET_CONNECT_PROJECT_ID,
           chains: (viemChains && viemChains.length === 0
             ? [mainnet]
@@ -90,7 +90,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   return (
     <RelayKitProvider
       options={{
-        source: 'relay-demo',
+        source: 'relay-ui-kit-playground',
         logLevel: LogLevel.Verbose,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
         chains

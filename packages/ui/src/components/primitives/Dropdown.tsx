@@ -18,7 +18,7 @@ const DropdownMenuContentCss = cva({
     p: '3',
     borderRadius: 8,
     zIndex: 5,
-    background: 'neutralBg',
+    background: 'modal-background',
     boxShadow: '0px 0px 50px 0px #0000001F'
   }
 })

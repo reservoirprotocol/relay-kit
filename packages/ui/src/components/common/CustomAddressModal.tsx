@@ -121,8 +121,7 @@ export const CustomAddressModal: FC<Props> = ({
                 css={{
                   right: 2,
                   top: 3,
-                  position: 'absolute',
-                  backgroundColor: 'gray3'
+                  position: 'absolute'
                 }}
               />
             )}

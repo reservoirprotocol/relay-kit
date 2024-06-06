@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name": "relay-sdk-demo",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "type-check": "tsc"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none"
+  },
+  "dependencies": {
+    "@radix-ui/colors": "^0.1.8",
+    "@rainbow-me/rainbowkit": "2.0.0",
+    "@reservoir0x/relay-kit-ui": "workspace:*",
+    "@reservoir0x/relay-kit-hooks": "workspace:*",
+    "@reservoir0x/relay-sdk": "workspace:*",
+    "@tanstack/react-query": "^5.20.2",
+    "next": "latest",
+    "next-remote-watch": "^1.0.0",
+    "next-themes": "^0.2.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "viem": "~2.7.8",
+    "wagmi": "~2.5.7"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.21",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.4"
+  }
+}

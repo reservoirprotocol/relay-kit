@@ -1,17 +1,17 @@
-type BorderRadius = number | string
-
 interface Button {
   color?: string
   background?: string
-  borderRadius?: BorderRadius
-  font?: string
-  hover?: this
-  disabled?: this
+  hover?: {
+    color?: string
+    background?: string
+  }
 }
 
 export interface RelayKitTheme {
   font?: string
   primaryColor?: string
+  focusColor?: string
+  subtleBorderColor?: string
   text?: {
     default?: string
     subtle?: string
@@ -21,10 +21,14 @@ export interface RelayKitTheme {
   buttons?: {
     primary?: Button
     secondary?: Button
+    disabled?: {
+      color?: string
+      background?: string
+    }
   }
   input?: {
     background?: string
-    borderRadius?: BorderRadius
+    borderRadius?: string
     border?: string
   }
   anchor?: {
@@ -35,24 +39,24 @@ export interface RelayKitTheme {
     }
   }
   widget?: {
-    borderRadius?: BorderRadius
+    borderRadius?: string
     border?: string
     boxShadow?: string
     card?: {
       background?: string
       border?: string
-      borderRadius?: BorderRadius
+      borderRadius?: string
     }
   }
   modal?: {
     background?: string
     border?: string
-    borderRadius?: BorderRadius
+    borderRadius?: string
   }
 }
 
 export const defaultTheme: RelayKitTheme = {
-  font: '-apple-system, Helvetica, sans-serif', // verify that inter works
+  font: '-apple-system, Helvetica, sans-serif',
   primaryColor: 'primary9',
   text: {
     default: 'gray12',

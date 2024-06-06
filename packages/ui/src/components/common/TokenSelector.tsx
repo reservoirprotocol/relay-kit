@@ -371,7 +371,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Flex
               css={{
                 width: '100%',
-                '--borderColor': 'colors.gray.5',
+                '--borderColor': 'colors.subtle-border-color',
                 borderBottom: '1px solid var(--borderColor)',
                 pr: '4'
               }}
@@ -630,10 +630,10 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
             key={index}
             css={{
               ml: index > 0 ? '-4px' : 0,
-              '--borderColor': 'colors.neutralBg',
+              '--borderColor': 'colors.modal-background',
               border: '1px solid var(--borderColor)',
               borderRadius: 4,
-              background: 'neutralBg',
+              background: 'modal-background',
               overflow: 'hidden',
               width: 18,
               height: 18
