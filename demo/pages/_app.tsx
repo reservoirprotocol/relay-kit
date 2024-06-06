@@ -9,7 +9,7 @@ import '../fonts.css'
 import { Chain, mainnet } from 'wagmi/chains'
 import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
-import { LogLevel, MAINNET_RELAY_API, RelayChain } from '@reservoir0x/relay-sdk'
+import { LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import "@reservoir0x/relay-kit-ui/styles.css"
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
@@ -52,7 +52,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   return (
     <RelayKitProvider 
       options={{
-        baseApiUrl: MAINNET_RELAY_API,
         source: 'relay-demo',
         logLevel: LogLevel.Verbose,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,

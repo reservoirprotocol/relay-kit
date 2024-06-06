@@ -118,9 +118,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       duneTokens && duneTokens.balances
         ? {
             //@ts-ignore
-            tokens: duneTokens.balances
-              .filter((balance) => balance.chain_id !== polygon.id)
-              .map((balance) => `${balance.chain_id}:${balance.address}`),
+            tokens: duneTokens.balances.map(
+              (balance) => `${balance.chain_id}:${balance.address}`
+            ),
             limit: 20
           }
         : undefined,

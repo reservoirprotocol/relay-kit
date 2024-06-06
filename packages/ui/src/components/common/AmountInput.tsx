@@ -24,7 +24,7 @@ const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
         backgroundColor: 'transparent',
         fontWeight: '600',
         fontSize: 32,
-        paddingLeft: '0 !important',
+        px: '0 !important',
         py: '1',
         _focus: {
           boxShadow: 'none',
