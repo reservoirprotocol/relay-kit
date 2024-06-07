@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { zeroAddress } from 'viem'
 
 const CallActionPage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
@@ -104,15 +105,27 @@ const CallActionPage: NextPage = () => {
           fontWeight: 800,
           cursor: 'pointer'
         }}
-        onClick={() => {
+        onClick={async () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
-          client?.actions.call({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
-            wallet,
+            wallet, // optional
             txs: txs as any,
             toChainId,
+            currency: zeroAddress,
+            toCurrency: zeroAddress,
+            tradeType: 'EXACT_OUTPUT'
+          })
+
+          if (!quote) {
+            throw 'Missing quote!'
+          }
+
+          client?.actions.execute({
+            wallet,
+            quote,
             depositGasLimit,
             onProgress: (data) => {
               console.log(data)

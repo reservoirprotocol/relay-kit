@@ -29,10 +29,11 @@ export type GetQuoteParameters = {
   currency: string
   toChainId: number
   toCurrency: string
+  tradeType: ExecuteBodyOptions['tradeType']
   wallet?: AdaptedWallet | WalletClient
   amount?: string
   recipient?: Address
-  options?: Omit<ExecuteBodyOptions, 'user' | 'source' | 'txs'>
+  options?: Omit<ExecuteBodyOptions, 'user' | 'source' | 'txs' | 'tradeType'>
   txs?: (NonNullable<ExecuteBody['txs']>[0] | SimulateContractRequest)[]
 }
 
@@ -49,6 +50,7 @@ export async function getQuote(
     wallet,
     chainId,
     currency,
+    tradeType,
     amount = '0',
     recipient,
     options,
@@ -90,7 +92,7 @@ export async function getQuote(
     originChainId: chainId,
     amount,
     recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
-    tradeType: options?.tradeType ?? 'EXACT_INPUT',
+    tradeType,
     source: client.source || undefined,
     txs: preparedTransactions,
     ...options

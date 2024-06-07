@@ -152,15 +152,15 @@ const BridgeActionPage: NextPage = () => {
             currency,
             toCurrency: currency,
             recipient: recipient ? (recipient as Address) : undefined,
+            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
             options: {
               usePermit: usePermit,
-              useExternalLiquidity: canonical,
-              tradeType: useExactInput ? 'EXACT_INPUT' : 'EXACT_OUTPUT'
-            },
+              useExternalLiquidity: canonical
+            }
           })
 
           if (!quote) {
-            throw "Missing a quote"
+            throw 'Missing a quote'
           }
 
           client?.actions.execute({
@@ -171,7 +171,8 @@ const BridgeActionPage: NextPage = () => {
               console.log(data)
             }
           })
-        }}>
+        }}
+      >
         Execute Bridge
       </button>
     </div>

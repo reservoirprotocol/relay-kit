@@ -1,20 +1,16 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import {
-  BridgeActionParameters,
-  Execute,
-} from '@reservoir0x/relay-sdk'
+import { Execute } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
-import { Address, isAddress } from 'viem'
+import { Address, isAddress, zeroAddress } from 'viem'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const GetBridgeQuotePage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
   const [amount, setAmount] = useState<string>('')
-  const [currency, setCurrency] =
-    useState<BridgeActionParameters['currency']>('eth')
+  const [currency, setCurrency] = useState<string>(zeroAddress)
   const [toChainId, setToChainId] = useState<number>(zora.id)
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [useExactInput, setUseExactInput] = useState(false)
@@ -127,19 +123,18 @@ const GetBridgeQuotePage: NextPage = () => {
           }
 
           if (!client) {
-            throw "Missing Client!"
+            throw 'Missing Client!'
           }
 
-          const quote = await client?.actions.getBridgeQuote({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet, // optional
             toChainId,
             amount,
             currency,
+            toCurrency: zeroAddress,
             recipient: recipient ? (recipient as Address) : undefined,
-            options: {
-              useExactInput: useExactInput
-            }
+            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXACT_OUTPUT'
           })
           setResponse(quote)
         }}

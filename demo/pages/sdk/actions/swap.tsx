@@ -119,49 +119,54 @@ const SwapActionPage: NextPage = () => {
         </div>
       </div>
 
-
-
-      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 600}}>
-        <label>Txs (optional):</label>
-      <textarea
-        style={{ minHeight: 100, minWidth: 300 }}
-        placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}'
-        value={tx}
-        onChange={(e) => setTx(e.target.value)}
-      />
-      <button
-        style={{
-          background: 'blue',
-          color: 'white',
-          border: '1px solid #ffffff',
-          borderRadius: 8,
-          cursor: 'pointer',
-          padding: '4px 8px'
-        }}
-        disabled={!tx}
-        onClick={() => {
-          setTxs([...txs, JSON.parse(`${tx}`)])
-        }}
-      >
-        Add Transaction
-      </button>
       <div
         style={{
-          marginTop: 10,
-          border: '1px solid gray',
-          borderRadius: 4,
-          padding: 10,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
-          overflow: 'scroll'
+          width: '100%',
+          maxWidth: 600
         }}
       >
-        <b>Txs Added:</b>
-        {txs.map((tx, i) => (
-          <div key={i}>{JSON.stringify(tx)}</div>
-        ))}
-      </div>
+        <label>Txs (optional):</label>
+        <textarea
+          style={{ minHeight: 100, minWidth: 300 }}
+          placeholder='Add a transaction object, must be valid json: {to: "", data: "", value: ""}'
+          value={tx}
+          onChange={(e) => setTx(e.target.value)}
+        />
+        <button
+          style={{
+            background: 'blue',
+            color: 'white',
+            border: '1px solid #ffffff',
+            borderRadius: 8,
+            cursor: 'pointer',
+            padding: '4px 8px'
+          }}
+          disabled={!tx}
+          onClick={() => {
+            setTxs([...txs, JSON.parse(`${tx}`)])
+          }}
+        >
+          Add Transaction
+        </button>
+        <div
+          style={{
+            marginTop: 10,
+            border: '1px solid gray',
+            borderRadius: 4,
+            padding: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            overflow: 'scroll'
+          }}
+        >
+          <b>Txs Added:</b>
+          {txs.map((tx, i) => (
+            <div key={i}>{JSON.stringify(tx)}</div>
+          ))}
+        </div>
       </div>
       <button
         style={{
@@ -194,15 +199,11 @@ const SwapActionPage: NextPage = () => {
             amount,
             currency: fromCurrency,
             recipient: recipient ? (recipient as Address) : undefined,
-            txs: [
-              ...txs as any
-            ],
-            options: {
-              tradeType
-            },
+            txs: [...(txs as any)],
+            tradeType
           })
           if (!quote) {
-            throw "Missing the quote"
+            throw 'Missing the quote'
           }
           client?.actions.execute({
             quote,

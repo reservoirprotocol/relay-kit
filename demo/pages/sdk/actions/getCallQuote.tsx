@@ -100,7 +100,7 @@ const GetCallQuotePage: NextPage = () => {
         }}
         onClick={async () => {
           if (!client) {
-            throw "Missing Client!"
+            throw 'Missing Client!'
           }
           const quote = await client?.actions.getQuote({
             chainId: fromChainId,
@@ -108,7 +108,8 @@ const GetCallQuotePage: NextPage = () => {
             txs: txs as any,
             toChainId,
             currency: zeroAddress,
-            toCurrency: zeroAddress
+            toCurrency: zeroAddress,
+            tradeType: 'EXACT_OUTPUT'
           })
 
           setResponse(quote)

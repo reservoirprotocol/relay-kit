@@ -119,10 +119,10 @@ const GetSwapQuote: NextPage = () => {
           }
 
           if (!client) {
-            throw "Missing Client!"
+            throw 'Missing Client!'
           }
 
-          const quote = await client?.actions.getSwapQuote({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet,
             toChainId,
@@ -130,12 +130,7 @@ const GetSwapQuote: NextPage = () => {
             amount,
             currency: fromCurrency,
             recipient: recipient ? (recipient as Address) : undefined,
-            options: {
-              tradeType: useExactOuput ? 'EXACT_OUTPUT' : 'EXACT_INPUT'
-            },
-            onProgress: (data) => {
-              console.log(data)
-            }
+            tradeType: useExactOuput ? 'EXACT_OUTPUT' : 'EXACT_INPUT'
           })
           setResponse(quote)
         }}
