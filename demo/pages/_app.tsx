@@ -54,48 +54,50 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
         chains
       }}
-      theme={
-        {
-          // focusColor: 'green',
-          // subtleBorderColor: 'green',
-          // text: {
-          //   default: 'red',
-          //   subtle: 'purple'
-          // },
-          // input: {
-          //   background: 'red'
-          // },
-          // buttons: {
-          //   tertiary: {
-          //     background: 'orange',
-          //     color: 'red',
-          //     hover: {
-          //       color: 'blue',
-          //       background: 'purple'
-          //     }
-          //   },
-          //   disabled: {
-          //     background: 'green',
-          //     color: 'red'
-          //   }
-          // },
-          // widget: {
-          //   background: 'pink',
-          //   borderRadius: '0px',
-          //   border: '2px solid orange',
-          //   card: {
-          //     background: 'pink'
-          //   }
-          // },
-          // modal: {
-          //   background: 'orange'
-          // },
-          // dropdown: {
-          //   background: 'red',
-          //   borderRadius: '0px'
-          // }
+      theme={{
+        primaryColor: 'red',
+        anchor: {
+          color: 'red'
         }
-      }
+        // focusColor: 'green',
+        // subtleBorderColor: 'green',
+        // text: {
+        //   default: 'red',
+        //   subtle: 'purple'
+        // },
+        // input: {
+        //   background: 'red'
+        // },
+        // buttons: {
+        //   tertiary: {
+        //     background: 'orange',
+        //     color: 'red',
+        //     hover: {
+        //       color: 'blue',
+        //       background: 'purple'
+        //     }
+        //   },
+        //   disabled: {
+        //     background: 'green',
+        //     color: 'red'
+        //   }
+        // },
+        // widget: {
+        //   background: 'pink',
+        //   borderRadius: '0px',
+        //   border: '2px solid orange',
+        //   card: {
+        //     background: 'pink'
+        //   }
+        // },
+        // modal: {
+        //   background: 'orange'
+        // },
+        // dropdown: {
+        //   background: 'red',
+        //   borderRadius: '0px'
+        // }
+      }}
     >
       {wagmiConfig ? (
         <WagmiProvider config={wagmiConfig}>

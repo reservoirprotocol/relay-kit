@@ -135,6 +135,7 @@ export default defineConfig({
 
     semanticTokens: {
       colors: {
+        'primary-color': { value: { base: '{colors.primary9}' } },
         'focus-color': { value: { base: '{colors.primary7}' } },
         'subtle-border-color': { value: { base: '{colors.gray.5}' } },
 

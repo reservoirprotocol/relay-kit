@@ -30,7 +30,7 @@ export type ThemeOverridesMap = {
 }
 
 export const themeOverrides: ThemeOverridesMap = {
-  font: '--relay-fonts-font',
+  font: '--relay-fonts-body',
   primaryColor: '--relay-colors-primary-color',
   focusColor: '--relay-colors-focus-color',
   text: {

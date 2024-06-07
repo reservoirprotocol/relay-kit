@@ -13,7 +13,7 @@ export function getValueFromKey(obj: any, key: string): any {
   return value
 }
 
-// Function to generate CSS variables based on theme and overrides
+// Generate CSS variables based on theme and overrides
 export const generateCssVars = (
   theme?: RelayKitTheme,
   themeOverrides?: ThemeOverridesMap
@@ -23,7 +23,7 @@ export const generateCssVars = (
     return cssString
   }
 
-  // Recursive function to generate CSS variables
+  // Recursive function to process full theme object
   const processTheme = (obj: any, prefix: string = '') => {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {

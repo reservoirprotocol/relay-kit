@@ -19,7 +19,10 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
   return (
     <>
       <Flex direction="column" align="center" justify="between">
-        <LoadingSpinner css={{ height: 40, width: 40, fill: 'primary9' }} />
+        {/* @TODO: update theme colors */}
+        <LoadingSpinner
+          css={{ height: 40, width: 40, fill: 'primary-color' }}
+        />
         <Text style="subtitle2" css={{ mt: '4', mb: '2', textAlign: 'center' }}>
           {currentStep?.description}
         </Text>

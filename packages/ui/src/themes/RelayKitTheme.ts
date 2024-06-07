@@ -60,7 +60,7 @@ export interface RelayKitTheme {
 }
 
 export const defaultTheme: RelayKitTheme = {
-  font: '-apple-system, Helvetica, sans-serif',
+  font: 'Inter, -apple-system, Helvetica, sans-serif',
   primaryColor: 'primary9',
   text: {
     default: 'gray12',
