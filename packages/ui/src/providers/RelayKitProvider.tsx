@@ -16,6 +16,7 @@ export type CoinGecko = {
 
 type RelayKitProviderOptions = {
   duneApiKey?: string
+  disablePoweredByReservoir?: boolean
 }
 export interface RelayKitProviderProps {
   children: ReactNode
@@ -118,7 +119,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
 
   useEffect(() => {
     setProviderOptions({
-      duneApiKey: options.duneApiKey
+      duneApiKey: options.duneApiKey,
+      disablePoweredByReservoir: options.disablePoweredByReservoir
     })
   }, [options])
 

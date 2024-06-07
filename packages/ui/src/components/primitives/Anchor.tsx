@@ -42,30 +42,39 @@ const AnchorStyle = cva({
       }
     },
     weight: {
+      heavy: { fontWeight: 900 },
       bold: { fontWeight: 700 },
       semi_bold: { fontWeight: 600 }
     }
   }
 })
 
+type AnchorCssProps = Parameters<typeof AnchorStyle>['0']
+
 const Anchor: FC<
-  AnchorHTMLAttributes<HTMLAnchorElement> & { css?: Styles }
-> = ({ css, ...props }) => {
+  AnchorHTMLAttributes<HTMLAnchorElement> & AnchorCssProps & { css?: Styles }
+> = ({ css, weight, color, ...props }) => {
   return (
     <a
       {...props}
-      className={designCss(AnchorStyle.raw(), designCss.raw(css))}
+      className={designCss(
+        AnchorStyle.raw({ weight, color }),
+        designCss.raw(css)
+      )}
     ></a>
   )
 }
 
 export const AnchorButton: FC<
-  ButtonHTMLAttributes<HTMLButtonElement> & { css?: Styles }
-> = ({ css, children, ...props }) => {
+  ButtonHTMLAttributes<HTMLButtonElement> & AnchorCssProps & { css?: Styles }
+> = ({ css, weight, color, children, ...props }) => {
   return (
     <button
       {...props}
-      className={designCss(AnchorStyle.raw(), designCss.raw(css))}
+      className={designCss(
+        AnchorStyle.raw({ weight, color }),
+        designCss.raw(css)
+      )}
     >
       {children}
     </button>

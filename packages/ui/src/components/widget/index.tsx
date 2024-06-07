@@ -1,6 +1,6 @@
 import { Flex, Button, Text, Box } from '../primitives'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { easeInOut, motion } from 'framer-motion'
 import { CustomAddressModal } from '../common/CustomAddressModal'
 import {
@@ -15,7 +15,7 @@ import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useConfig, useWalletClient } from 'wagmi'
 import TokenSelector from '../common/TokenSelector'
 import type { Token } from '../../types'
-import { AnchorButton } from '../primitives/Anchor'
+import Anchor, { AnchorButton } from '../primitives/Anchor'
 import {
   formatNumber,
   formatFixedLength,
@@ -45,11 +45,12 @@ import {
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { WidgetErrorWell } from '../common/WidgetErrorWell'
 import { SwapModal } from '../common/TransactionModal/SwapModal'
-import { getWalletClient, switchChain } from 'wagmi/actions'
+import { switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
 import { useMediaQuery } from 'usehooks-ts'
 import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -70,6 +71,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onConnectWallet,
   onAnalyticEvent
 }) => {
+  const providerOptionsContext = useContext(ProviderOptionsContext)
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
   const walletClient = useWalletClient()
@@ -483,8 +485,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -660,8 +662,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -964,6 +966,48 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setCustomToAddress(undefined)
           }}
         />
+        {!providerOptionsContext.disablePoweredByReservoir && (
+          <Flex
+            align="center"
+            css={{
+              mx: 'auto',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pt: 12
+            }}
+          >
+            <Text
+              style="subtitle3"
+              color="subtle"
+              css={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 1,
+                lineHeight: '12px',
+                fontWeight: 400,
+                color: '$neutralText'
+              }}
+            >
+              Powered by{' '}
+              <Anchor
+                href="https://reservoir.tools/"
+                target="_blank"
+                weight="heavy"
+                color="gray"
+                css={{
+                  height: 12,
+                  fontSize: 14,
+                  '&:hover': {
+                    color: '$neutralSolid',
+                    fill: '$neutralSolid'
+                  }
+                }}
+              >
+                Reservoir
+              </Anchor>
+            </Text>
+          </Flex>
+        )}
       </Flex>
     </motion.div>
   )
