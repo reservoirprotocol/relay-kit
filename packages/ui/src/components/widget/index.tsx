@@ -795,7 +795,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       )}
                     </button>
 
-                    <Flex css={{ gap: '2' }}>
+                    <Flex css={{ gap: '2' }} align="center">
                       {feesOpen ? null : (
                         <>
                           <FontAwesomeIcon
