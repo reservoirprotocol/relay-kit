@@ -795,7 +795,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       )}
                     </button>
 
-                    <Flex css={{ gap: '2' }}>
+                    <Flex css={{ gap: '2' }} align="center">
                       {feesOpen ? null : (
                         <>
                           <FontAwesomeIcon
@@ -985,7 +985,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 gap: 1,
                 lineHeight: '12px',
                 fontWeight: 400,
-                color: '$neutralText'
+                color: 'text-subtle'
               }}
             >
               Powered by{' '}
