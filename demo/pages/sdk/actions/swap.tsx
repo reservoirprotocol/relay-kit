@@ -175,7 +175,7 @@ const SwapActionPage: NextPage = () => {
           fontWeight: 800,
           cursor: 'pointer'
         }}
-        onClick={() => {
+        onClick={async () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
@@ -186,7 +186,7 @@ const SwapActionPage: NextPage = () => {
             throw 'Must include an amount for swapping'
           }
 
-          client?.actions.swap({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet,
             toChainId,
@@ -194,13 +194,20 @@ const SwapActionPage: NextPage = () => {
             amount,
             currency: fromCurrency,
             recipient: recipient ? (recipient as Address) : undefined,
-            depositGasLimit,
             txs: [
               ...txs as any
             ],
             options: {
               tradeType
             },
+          })
+          if (!quote) {
+            throw "Missing the quote"
+          }
+          client?.actions.execute({
+            quote,
+            wallet,
+            depositGasLimit,
             onProgress: (data) => {
               console.log(data)
             }

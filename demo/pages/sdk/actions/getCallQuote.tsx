@@ -5,6 +5,7 @@ import { Execute } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { zeroAddress } from 'viem'
 
 const GetCallQuotePage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
@@ -101,11 +102,13 @@ const GetCallQuotePage: NextPage = () => {
           if (!client) {
             throw "Missing Client!"
           }
-          const quote = await client?.actions.getCallQuote({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet, // optional
             txs: txs as any,
-            toChainId
+            toChainId,
+            currency: zeroAddress,
+            toCurrency: zeroAddress
           })
 
           setResponse(quote)

@@ -12,7 +12,7 @@ import {
 } from '../../hooks'
 import type { Address } from 'viem'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
-import { useAccount, useConfig } from 'wagmi'
+import { useAccount, useConfig, useWalletClient } from 'wagmi'
 import TokenSelector from '../common/TokenSelector'
 import type { Token } from '../../types'
 import { AnchorButton } from '../primitives/Anchor'
@@ -72,6 +72,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 }) => {
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
+  const walletClient = useWalletClient()
   const isSmallDevice = useMediaQuery('(max-width: 730px)')
   const { address, chainId: activeWalletChainId, connector } = useAccount()
   const [addressModalOpen, setAddressModalOpen] = useState(false)
@@ -162,9 +163,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const {
     data: quote,
     isLoading: isFetchingQuote,
+    swap: executeSwap,
     error
   } = useSwapQuote(
     relayClient ? relayClient : undefined,
+    walletClient.data,
     fromToken && toToken
       ? {
           user: customToAddress ?? address ?? deadAddress,
@@ -313,75 +316,45 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     try {
       onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
       setWaitingForSteps(true)
-      const wallet = await getWalletClient(wagmiConfig)
-      if (!relayClient || !wallet || !address) {
-        throw 'Missing Client or wallet'
+
+      if (!executeSwap) {
+        throw 'Missing a quote'
       }
 
-      if (!toToken || !fromToken) {
-        throw 'Missing an origin or destinations token'
-      }
-
-      if (fromToken.chainId !== activeWalletChainId) {
+      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
         await switchChain(wagmiConfig, {
           chainId: fromToken.chainId
         })
       }
 
-      relayClient?.actions
-        .swap({
-          wallet,
-          chainId: fromToken.chainId,
-          toChainId: toToken.chainId,
-          currency: fromToken.address,
-          toCurrency: toToken.address,
-          recipient: customToAddress ?? address,
-          amount:
-            tradeType === 'EXACT_INPUT'
-              ? parseUnits(
-                  debouncedInputAmountValue,
-                  fromToken.decimals
-                ).toString()
-              : parseUnits(
-                  debouncedOutputAmountValue,
-                  toToken.decimals
-                ).toString(),
-          options: {
-            tradeType
-          },
-          onProgress: ({
-            steps,
-            currentStep,
-            currentStepItem,
-            txHashes,
-            details
-          }) => {
-            // Only send event on first onProgress callback
-            const firstStepId = steps && steps[0] ? steps[0].id : ''
-            if (
-              (currentStep?.id === firstStepId &&
-                currentStepItem?.status === 'incomplete' &&
-                !txHashes) ||
-              (txHashes && txHashes.length === 0)
-            ) {
-              onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
-                wallet_connector: connector?.name,
-                quote_id: steps ? extractQuoteId(steps) : undefined,
-                amount_in: parseFloat(`${debouncedInputAmountValue}`),
-                currency_in: fromToken.symbol,
-                chain_id_in: fromToken.chainId,
-                amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-                currency_out: toToken.symbol,
-                chain_id_out: toToken.chainId
-              })
-            }
-
-            setSteps(steps)
-            setDetails(details)
+      executeSwap(
+        ({ steps, currentStep, currentStepItem, txHashes, details }) => {
+          // Only send event on first onProgress callback
+          const firstStepId = steps && steps[0] ? steps[0].id : ''
+          if (
+            (currentStep?.id === firstStepId &&
+              currentStepItem?.status === 'incomplete' &&
+              !txHashes) ||
+            (txHashes && txHashes.length === 0)
+          ) {
+            onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+              wallet_connector: connector?.name,
+              quote_id: steps ? extractQuoteId(steps) : undefined,
+              amount_in: parseFloat(`${debouncedInputAmountValue}`),
+              currency_in: fromToken?.symbol,
+              chain_id_in: fromToken?.chainId,
+              amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+              currency_out: toToken?.symbol,
+              chain_id_out: toToken?.chainId
+            })
           }
-        })
-        .catch((error: any) => {
+
+          setSteps(steps)
+          setDetails(details)
+        }
+      )
+        ?.catch((error: any) => {
           if (
             error &&
             ((typeof error.message === 'string' &&
@@ -442,6 +415,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     tradeType,
+    executeSwap,
     setSteps,
     setDetails,
     invalidateBalanceQueries

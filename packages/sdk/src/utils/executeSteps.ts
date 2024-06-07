@@ -37,7 +37,7 @@ export type SetStateData = {
 
 export async function executeSteps(
   chainId: number,
-  request: AxiosRequestConfig,
+  request: AxiosRequestConfig = {},
   wallet: AdaptedWallet,
   setState: (data: SetStateData) => any,
   newJson?: Execute,

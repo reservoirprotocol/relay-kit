@@ -1,7 +1,10 @@
 import {
   MAINNET_RELAY_API,
   RelayClient,
-  type paths
+  type AdaptedWallet,
+  type Execute,
+  type paths,
+  type ProgressData
 } from '@reservoir0x/relay-sdk'
 import { axiosPostFetcher } from '../fetcher'
 import {
@@ -10,6 +13,7 @@ import {
   type QueryKey
 } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import type { WalletClient } from 'viem'
 
 type ExecuteSwapBody =
   paths['/execute/swap']['post']['requestBody']['content']['application/json']
@@ -33,8 +37,11 @@ export const querySwapQuote = function (
   return axiosPostFetcher(url.href, options)
 }
 
+type onProgress = (data: ProgressData) => void
+
 export default function (
   client?: RelayClient,
+  wallet?: WalletClient | AdaptedWallet,
   options?: ExecuteSwapBody,
   onRequest?: () => void,
   onResponse?: (data: ExecuteSwapResponse) => void,
@@ -59,9 +66,25 @@ export default function (
     () =>
       ({
         ...response,
-        data: response.error ? undefined : response.data
+        data: response.error ? undefined : response.data,
+        swap: (onProgress: onProgress) => {
+          if (!wallet) {
+            throw 'Missing a valid wallet'
+          }
+
+          if (!response.data) {
+            throw 'Missing a quote'
+          }
+
+          return client?.actions?.execute({
+            wallet,
+            quote: response.data as Execute,
+            onProgress
+          })
+        }
       }) as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
+        swap: (onProgress: onProgress) => Promise<Execute> | undefined
       },
     [response.data, response.error]
   )
