@@ -33,7 +33,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     if (!wagmiConfig && chains && viemChains) {
       setWagmiConfig(
         getDefaultConfig({
-          appName: 'Relay SDK Demo',
+          appName: 'Relay Playground',
           projectId: WALLET_CONNECT_PROJECT_ID,
           chains: (viemChains && viemChains.length === 0
             ? [mainnet]
@@ -50,7 +50,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   return (
     <RelayKitProvider
       options={{
-        source: 'relay-demo',
+        source: 'relay-playground',
         logLevel: LogLevel.Verbose,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
         chains

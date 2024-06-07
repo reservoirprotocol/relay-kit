@@ -93,6 +93,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
                 position: 'absolute',
                 width: 50,
                 height: 50,
+                // @TODO: update theme colors
                 background: 'primary3',
                 color: 'primary9',
                 border: '3px solid modal-background',

@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["relay-sdk-demo", "relay-ui-kit-playground"]
+  "ignore": ["relay-sdk-demo", "playground"]
 }

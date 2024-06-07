@@ -405,6 +405,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               {/* Loading State*/}
               {isLoading ? (
                 <Flex direction="column" align="center" css={{ py: '5' }}>
+                  {/* @TODO: update theme colors */}
                   <LoadingSpinner
                     css={{ height: 40, width: 40, fill: 'primary9' }}
                   />
