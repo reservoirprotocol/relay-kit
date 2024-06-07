@@ -371,7 +371,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Flex
               css={{
                 width: '100%',
-                '--borderColor': 'colors.gray.5',
+                '--borderColor': 'colors.subtle-border-color',
                 borderBottom: '1px solid var(--borderColor)',
                 pr: '4'
               }}
@@ -405,6 +405,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               {/* Loading State*/}
               {isLoading ? (
                 <Flex direction="column" align="center" css={{ py: '5' }}>
+                  {/* @TODO: update theme colors */}
                   <LoadingSpinner
                     css={{ height: 40, width: 40, fill: 'primary9' }}
                   />
@@ -481,7 +482,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Flex
               css={{
                 width: '100%',
-                '--borderColor': 'colors.gray.5',
+                '--borderColor': 'colors.subtle-border-color',
                 borderBottom: '1px solid var(--borderColor)'
               }}
             >
@@ -518,8 +519,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       cursor: 'pointer',
                       px: '4',
                       py: '2',
+                      transition: 'backdrop-filter 250ms linear',
                       _hover: {
-                        backgroundColor: 'gray3'
+                        backdropFilter: 'brightness(95%)'
                       },
                       flexShrink: 0,
                       alignContent: 'center',
@@ -599,8 +601,9 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         cursor: 'pointer',
         px: '4',
         py: '2',
+        transition: 'backdrop-filter 250ms linear',
         _hover: {
-          backgroundColor: 'gray3'
+          backdropFilter: 'brightness(95%)'
         },
         flexShrink: 0,
         alignContent: 'center',
@@ -630,10 +633,10 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
             key={index}
             css={{
               ml: index > 0 ? '-4px' : 0,
-              '--borderColor': 'colors.neutralBg',
+              '--borderColor': 'colors.modal-background',
               border: '1px solid var(--borderColor)',
               borderRadius: 4,
-              background: 'neutralBg',
+              background: 'modal-background',
               overflow: 'hidden',
               width: 18,
               height: 18

@@ -79,7 +79,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               position: 'relative'
             }}
           >
-            {fillTime !== '-' && seconds <= 30 ? (
+            {fillTime !== '-' && seconds <= 30 && seconds >= 0 ? (
               <Text style="h3">{fillTime}</Text>
             ) : (
               <Box css={{ color: 'success', mr: '$2' }}>
@@ -93,9 +93,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
                 position: 'absolute',
                 width: 50,
                 height: 50,
+                // @TODO: update theme colors
                 background: 'primary3',
                 color: 'primary9',
-                border: '3px solid neutralBg',
+                border: '3px solid modal-background',
                 borderRadius: '999999px',
                 right: -40,
                 bottom: -12

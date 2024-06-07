@@ -35,9 +35,9 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
           bottom: 0,
           borderRadius: 4,
           overflow: 'hidden',
-          '--borderColor': 'colors.neutralBg',
+          '--borderColor': 'colors.modal-background',
           border: '1px solid var(--borderColor)',
-          backgroundColor: 'neutralBg'
+          backgroundColor: 'modal-background'
         }}
       />
     </Flex>

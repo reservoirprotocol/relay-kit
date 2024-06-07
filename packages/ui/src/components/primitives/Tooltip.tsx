@@ -6,13 +6,13 @@ import { cva } from '@reservoir0x/relay-design-system/css'
 
 const TooltipArrowStyle = cva({
   base: {
-    fill: 'neutralBg'
+    fill: 'modal-background'
   }
 })
 
 const PopoverArrow = cva({
   base: {
-    fill: 'neutralBg'
+    fill: 'modal-background'
   }
 })
 
@@ -52,7 +52,7 @@ const Tooltip = ({
           >
             <Box
               css={{
-                background: 'neutralBg',
+                background: 'modal-background',
                 p: '2'
               }}
             >
@@ -89,7 +89,7 @@ const Tooltip = ({
         >
           <Box
             css={{
-              background: 'neutralBg',
+              background: 'modal-background',
               p: '2'
             }}
           >

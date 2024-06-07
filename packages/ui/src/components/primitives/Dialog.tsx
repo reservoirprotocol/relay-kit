@@ -40,8 +40,9 @@ const Overlay = forwardRef<
 
 const ContentCss = cva({
   base: {
-    backgroundColor: 'neutralBg',
-    borderRadius: 16,
+    backgroundColor: 'modal-background',
+    borderRadius: 'modal-border-radius',
+    border: 'modal-border',
     position: 'fixed',
     left: '50%',
     top: '100%',

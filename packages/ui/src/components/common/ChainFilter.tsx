@@ -36,7 +36,8 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
             display: 'flex',
             alignContent: 'center',
             lineHeight: '20px',
-            backgroundColor: 'gray3'
+            backgroundColor: 'dropdown-background',
+            borderRadius: 'dropdown-border-radius'
           }}
         >
           {value.id ? (
@@ -89,9 +90,11 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   gap: '2',
                   cursor: 'pointer',
                   p: '2',
+                  transition: 'backdrop-filter 250ms linear',
                   _hover: {
-                    backgroundColor: 'gray2'
+                    backdropFilter: 'brightness(95%)'
                   },
+
                   flexShrink: 0,
                   alignContent: 'center',
 

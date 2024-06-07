@@ -151,9 +151,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     enabled: toToken !== undefined
   })
 
-  //TODO fix
-  const isLightTheme = true
-
   const invalidateBalanceQueries = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
@@ -434,14 +431,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         direction="column"
         css={{
           width: '100%',
-          borderRadius: 16,
+          borderRadius: 'widget-border-radius',
           overflow: 'hidden',
-          backgroundColor: 'neutralBg',
-          boxShadow: isLightTheme
-            ? '0px 4px 30px rgba(0, 0, 0, 0.10)'
-            : undefined,
-          '--borderColor': 'colors.gray.6',
-          border: isLightTheme ? undefined : '1px solid var(--borderColor)',
+          backgroundColor: 'widget-background',
+          boxShadow: 'widget-box-shadow',
+          border: 'widget-border',
           p: '4',
           minWidth: 300,
           maxWidth: 440
@@ -455,10 +449,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'start',
-            backgroundColor: 'gray1',
+            backgroundColor: 'widget-card-background',
             gap: '3',
             p: '12px 12px',
-            borderRadius: 12
+            borderRadius: 'widget-card-border-radius',
+            border: 'widget-card-border'
           }}
         >
           <Text style="subtitle1">From</Text>
@@ -488,8 +483,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                    ? formatFixedLength(amountInputValue, 8)
-                    : amountInputValue
+                  ? formatFixedLength(amountInputValue, 8)
+                  : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -614,10 +609,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'start',
-            backgroundColor: 'gray1',
+            backgroundColor: 'widget-card-background',
             gap: '3',
             p: '12px 12px',
-            borderRadius: 12,
+            borderRadius: 'widget-card-border-radius',
+            border: 'widget-card-border',
             mb: '3'
           }}
         >
@@ -664,8 +660,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                    ? formatFixedLength(amountOutputValue, 8)
-                    : amountOutputValue
+                  ? formatFixedLength(amountOutputValue, 8)
+                  : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -737,7 +733,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             css={{
               borderRadius: 16,
               overflow: 'hidden',
-              '--borderColor': 'colors.gray.6',
+              '--borderColor': 'colors.subtle-border-color',
               border: '1px solid var(--borderColor)',
               p: '3',
               mb: '3'
@@ -868,7 +864,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     height: 1,
                     width: '100%',
                     my: '2',
-                    background: 'gray5'
+                    background: 'subtle-border-color'
                   }}
                 />
                 <Flex align="start" justify="between">

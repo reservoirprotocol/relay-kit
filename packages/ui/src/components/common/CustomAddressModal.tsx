@@ -121,8 +121,7 @@ export const CustomAddressModal: FC<Props> = ({
                 css={{
                   right: 2,
                   top: 3,
-                  position: 'absolute',
-                  backgroundColor: 'gray3'
+                  position: 'absolute'
                 }}
               />
             )}
@@ -134,7 +133,7 @@ export const CustomAddressModal: FC<Props> = ({
           ) : null}
 
           <Button
-            color="light"
+            color="secondary"
             size="small"
             css={{ minHeight: 36, mr: 'auto' }}
             onClick={() => {

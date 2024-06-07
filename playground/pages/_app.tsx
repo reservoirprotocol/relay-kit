@@ -1,12 +1,13 @@
-import '@reservoir0x/relay-kit-ui/styles.css'
+import '@/styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
-import '../fonts.css'
+import '@reservoir0x/relay-kit-ui/styles.css'
 
 import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
+
 import { Chain, mainnet } from 'wagmi/chains'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
@@ -32,7 +33,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     if (!wagmiConfig && chains && viemChains) {
       setWagmiConfig(
         getDefaultConfig({
-          appName: 'Relay SDK Demo',
+          appName: 'Relay Playground',
           projectId: WALLET_CONNECT_PROJECT_ID,
           chains: (viemChains && viemChains.length === 0
             ? [mainnet]
@@ -49,53 +50,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   return (
     <RelayKitProvider
       options={{
-        source: 'relay-demo',
+        source: 'relay-playground',
         logLevel: LogLevel.Verbose,
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
         chains
       }}
-      theme={
-        {
-          // focusColor: 'green',
-          // subtleBorderColor: 'green',
-          // text: {
-          //   default: 'red',
-          //   subtle: 'purple'
-          // },
-          // input: {
-          //   background: 'red'
-          // },
-          // buttons: {
-          //   tertiary: {
-          //     background: 'orange',
-          //     color: 'red',
-          //     hover: {
-          //       color: 'blue',
-          //       background: 'purple'
-          //     }
-          //   },
-          //   disabled: {
-          //     background: 'green',
-          //     color: 'red'
-          //   }
-          // },
-          // widget: {
-          //   background: 'pink',
-          //   borderRadius: '0px',
-          //   border: '2px solid orange',
-          //   card: {
-          //     background: 'pink'
-          //   }
-          // },
-          // modal: {
-          //   background: 'orange'
-          // },
-          // dropdown: {
-          //   background: 'red',
-          //   borderRadius: '0px'
-          // }
-        }
-      }
+      theme={{}}
     >
       {wagmiConfig ? (
         <WagmiProvider config={wagmiConfig}>

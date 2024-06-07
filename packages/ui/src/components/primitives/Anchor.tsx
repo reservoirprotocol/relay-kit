@@ -11,9 +11,15 @@ const AnchorStyle = cva({
     width: 'max-content',
     fontWeight: 500,
     fontSize: 14,
-    color: 'primary11',
+    color: 'anchor-color',
     _hover: {
-      color: 'primary9'
+      color: 'anchor-hover-color'
+    },
+    '--focusColor': 'colors.focus-color',
+    _focusVisible: {
+      boxShadow: '0 0 0 2px var(--focusColor)',
+      outline: 'none',
+      borderRadius: '4px'
     }
   },
   variants: {
@@ -23,9 +29,9 @@ const AnchorStyle = cva({
         _hover: { color: 'gray12' }
       },
       base: {
-        color: 'primary11',
+        color: 'anchor-color',
         _hover: {
-          color: 'primary9'
+          color: 'anchor-hover-color'
         }
       },
       black: {

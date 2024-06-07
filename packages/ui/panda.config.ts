@@ -71,17 +71,6 @@ export default defineConfig({
   // Files to exclude
   exclude: [],
 
-  //CSS to always generate
-  staticCss: {
-    css: [
-      {
-        properties: {
-          px: ['1', '2', '3', '4', '5'],
-          py: ['1', '2', '3', '4', '5']
-        }
-      }
-    ]
-  },
   presets: [
     radixColorsPreset({
       darkMode: {
@@ -122,6 +111,7 @@ export default defineConfig({
       data_state_checked: '&[data-state="checked"]'
     }
   },
+  prefix: 'relay',
 
   // Useful for theme customization
   theme: {
@@ -142,14 +132,97 @@ export default defineConfig({
         success: { value: 'linear-gradient(to right, #30A46C, #0ADF79)' }
       }
     },
+
     semanticTokens: {
       colors: {
-        neutralBg: { value: { base: 'white', _dark: '{colors.gray.1}' } },
-        neutralBgSubtle: {
-          value: { base: '{colors.gray.1}', _dark: '{colors.gray.3}' }
+        'focus-color': { value: { base: '{colors.primary7}' } },
+        'subtle-border-color': { value: { base: '{colors.gray.5}' } },
+
+        // Text
+        'text-default': { value: { base: '{colors.gray.12}' } },
+        'text-subtle': { value: { base: '{colors.gray.11}' } },
+        'text-error': { value: { base: '{colors.red.12}' } },
+        'text-success': { value: { base: '{colors.green.11}' } },
+
+        // Primary Button
+        'primary-button-background': { value: { base: '{colors.primary9}' } },
+        'primary-button-color': { value: { base: 'white' } },
+        'primary-button-hover-background': {
+          value: { base: '{colors.primary10}' }
         },
-        muted: { value: { base: '{colors.gray.3}' } },
-        success: { value: { base: '{colors.green.11 }' } }
+        'primary-button-hover-color': {
+          value: { base: 'white' }
+        },
+
+        // Secondary Button
+        'secondary-button-background': { value: { base: '{colors.primary3}' } },
+        'secondary-button-color': { value: { base: '{colors.primary11}' } },
+        'secondary-button-hover-background': {
+          value: { base: '{colors.primary4}' }
+        },
+        'secondary-button-hover-color': {
+          value: { base: '{colors.primary11}' }
+        },
+
+        // Tertiary Button
+        'tertiary-button-background': { value: { base: '{colors.gray1}' } },
+        'tertiary-button-color': { value: { base: '{colors.primary11}' } },
+        'tertiary-button-hover-background': {
+          value: { base: '{colors.primary2}' }
+        },
+        'tertiary-button-hover-color': {
+          value: { base: '{colors.primary11}' }
+        },
+
+        // Disabled Button
+        'button-disabled-background': {
+          value: { base: '{colors.gray.8}' }
+        },
+        'button-disabled-color': {
+          value: { base: '{colors.gray.11}' }
+        },
+
+        // Input
+        'input-background': {
+          value: { base: '{colors.gray.3}' }
+        },
+
+        // Anchor
+        'anchor-color': { value: { base: '{colors.primary11}' } },
+        'anchor-hover-color': { value: { base: '{colors.primary9}' } },
+
+        // Dropdown
+        'dropdown-background': { value: { base: '{colors.gray.3}' } },
+
+        // Widget
+        'widget-background': {
+          value: { base: 'white', _dark: '{colors.gray.1}' }
+        },
+        'widget-card-background': { value: { base: '{colors.gray.1}' } },
+
+        // Modal
+        'modal-background': {
+          value: { base: 'white', _dark: '{colors.gray.1}' }
+        },
+
+        // Skeleton
+        'skeleton-background': { value: { base: '{colors.gray.3}' } }
+      },
+      radii: {
+        'widget-border-radius': { value: { base: '16px' } },
+        'widget-card-border-radius': { value: '12px' },
+        'modal-border-radius': { value: { base: '16px' } },
+        'input-border-radius': { value: { base: '8px' } },
+        'dropdown-border-radius': { value: { base: '8px' } }
+      },
+      borders: {
+        'widget-border': { value: { base: '0x solid white' } },
+        'modal-border': { value: { base: '0x solid white' } }
+      },
+      shadows: {
+        'widget-box-shadow': {
+          value: { base: '0px 4px 30px rgba(0, 0, 0, 0.10)' }
+        }
       }
     },
     extend: {
@@ -202,6 +275,13 @@ export default defineConfig({
         to: { height: 0 }
       }
     }
+  },
+  layers: {
+    base: 'panda_base',
+    recipes: 'panda_recipes',
+    reset: 'panda_reset',
+    tokens: 'panda_tokens',
+    utilities: 'panda_utilities'
   },
 
   // The output directory for your css system
