@@ -457,7 +457,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               }}
               placeholder="Search for a chain"
               icon={
-                <Box css={{ color: 'gray9', pt: '1' }}>
+                <Box css={{ color: 'gray9' }}>
                   <FontAwesomeIcon
                     icon={faMagnifyingGlass}
                     width={16}
@@ -631,15 +631,15 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
           <ChainIcon
             chainId={Number(currency.chainId)}
             key={index}
+            width={18}
+            height={18}
             css={{
               ml: index > 0 ? '-4px' : 0,
               '--borderColor': 'colors.modal-background',
               border: '1px solid var(--borderColor)',
               borderRadius: 4,
               background: 'modal-background',
-              overflow: 'hidden',
-              width: 18,
-              height: 18
+              overflow: 'hidden'
             }}
           />
         ))}
