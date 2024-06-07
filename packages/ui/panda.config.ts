@@ -164,6 +164,16 @@ export default defineConfig({
           value: { base: '{colors.primary11}' }
         },
 
+        // Tertiary Button
+        'tertiary-button-background': { value: { base: '{colors.gray1}' } },
+        'tertiary-button-color': { value: { base: '{colors.primary11}' } },
+        'tertiary-button-hover-background': {
+          value: { base: '{colors.primary2}' }
+        },
+        'tertiary-button-hover-color': {
+          value: { base: '{colors.primary11}' }
+        },
+
         // Disabled Button
         'button-disabled-background': {
           value: { base: '{colors.gray.8}' }
@@ -178,11 +188,17 @@ export default defineConfig({
         },
 
         // Anchor
+        'anchor-color': { value: { base: '{colors.primary11}' } },
+        'anchor-hover-color': { value: { base: '{colors.primary9}' } },
+
+        // Dropdown
+        'dropdown-background': { value: { base: '{colors.gray.3}' } },
 
         // Widget
         'widget-background': {
           value: { base: 'white', _dark: '{colors.gray.1}' }
         },
+        'widget-card-background': { value: { base: '{colors.gray.1}' } },
 
         // Modal
         'modal-background': {
@@ -194,8 +210,10 @@ export default defineConfig({
       },
       radii: {
         'widget-border-radius': { value: { base: '16px' } },
+        'widget-card-border-radius': { value: '12px' },
         'modal-border-radius': { value: { base: '16px' } },
-        'input-border-radius': { value: { base: '8px' } }
+        'input-border-radius': { value: { base: '8px' } },
+        'dropdown-border-radius': { value: { base: '8px' } }
       },
       borders: {
         'widget-border': { value: { base: '0x solid white' } },
@@ -257,6 +275,13 @@ export default defineConfig({
         to: { height: 0 }
       }
     }
+  },
+  layers: {
+    base: 'panda_base',
+    recipes: 'panda_recipes',
+    reset: 'panda_reset',
+    tokens: 'panda_tokens',
+    utilities: 'panda_utilities'
   },
 
   // The output directory for your css system

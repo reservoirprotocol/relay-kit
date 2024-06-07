@@ -56,6 +56,22 @@ export const themeOverrides: ThemeOverridesMap = {
         background: '--relay-colors-secondary-button-hover-background'
       }
     },
+    tertiary: {
+      color: '--relay-colors-tertiary-button-color',
+      background: '--relay-colors-tertiary-button-background',
+      hover: {
+        color: '--relay-colors-tertiary-button-hover-color',
+        background: '--relay-colors-tertiary-button-hover-background'
+      }
+    },
+    white: {
+      color: '--relay-colors-primary-button-color',
+      background: '--relay-colors-primary-button-background',
+      hover: {
+        color: '--relay-colors-primary-button-hover-color',
+        background: '--relay-colors-primary-button-hover-background'
+      }
+    },
     disabled: {
       color: '--relay-colors-button-disabled-color',
       background: '--relay-colors-button-disabled-background'
@@ -65,12 +81,25 @@ export const themeOverrides: ThemeOverridesMap = {
     background: '--relay-colors-input-background',
     borderRadius: '--relay-radii-input-border-radius'
   },
+  anchor: {
+    color: '--relay-colors-anchor-color',
+    hover: {
+      color: '--relay-colors-anchor-hover-color'
+    }
+  },
+  dropdown: {
+    background: '--relay-colors-dropdown-background',
+    borderRadius: '--relay-radii-dropdown-border-radius'
+  },
   widget: {
     background: '--relay-colors-widget-background',
     borderRadius: '--relay-radii-widget-border-radius',
     border: '--relay-borders-widget-border',
     boxShadow: '--relay-shadows-widget-box-shadow',
-    card: {}
+    card: {
+      background: '--relay-colors-widget-card-background',
+      borderRadius: '--relay-radii-widget-card-border-radius'
+    }
   },
   modal: {
     background: '--relay-colors-modal-background',

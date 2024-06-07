@@ -1,16 +1,16 @@
+import '@reservoir0x/relay-kit-ui/styles.css'
+import '@rainbow-me/rainbowkit/styles.css'
+import '../fonts.css'
+
 import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
-import '../fonts.css'
-import '@rainbow-me/rainbowkit/styles.css'
-import '../fonts.css'
 import { Chain, mainnet } from 'wagmi/chains'
-import { darkTheme, RelayKitProvider } from '@reservoir0x/relay-kit-ui'
+import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import { LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
-import '@reservoir0x/relay-kit-ui/styles.css'
 
 const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 const WALLET_CONNECT_PROJECT_ID =
@@ -21,47 +21,6 @@ type AppWrapperProps = {
 }
 
 const queryClient = new QueryClient()
-
-const relayKitTheme = darkTheme({
-  // focusColor: 'blue',
-  // buttons: {
-  //   primary: {
-  //     background: 'var(--relay-colors-primary11)',
-  //     color: 'rgb(255, 191, 0)',
-  //     hover: {
-  //       background: '#FBCEB1',
-  //       color: 'purple'
-  //     }
-  //   },
-  //   secondary: {
-  //     background: 'green',
-  //     color: 'red',
-  //     hover: {
-  //       background: '#FBCEB1',
-  //       color: 'purple'
-  //     }
-  //   },
-  //   disabled: {
-  //     background: 'red',
-  //     color: 'pink'
-  //   }
-  // },
-  // input: {
-  //   background: 'green',
-  //   borderRadius: '0px'
-  // },
-  // widget: {
-  //   borderRadius: '0',
-  //   border: '1px solid red',
-  //   boxShadow: '0px 4px 30px green',
-  //   card: {}
-  // },
-  // modal: {
-  //   borderRadius: '20px',
-  //   background: 'orange',
-  //   border: '2px solid yellow'
-  // }
-})
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
@@ -95,7 +54,46 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
         chains
       }}
-      theme={relayKitTheme}
+      theme={{
+        // focusColor: 'green',
+        // subtleBorderColor: 'green',
+        // text: {
+        //   default: 'red',
+        //   subtle: 'purple'
+        // },
+        // input: {
+        //   background: 'red'
+        // },
+        // buttons: {
+        //   tertiary: {
+        //     background: 'orange',
+        //     color: 'red',
+        //     hover: {
+        //       color: 'blue',
+        //       background: 'purple'
+        //     }
+        //   },
+        //   disabled: {
+        //     background: 'green',
+        //     color: 'red'
+        //   }
+        // },
+        widget: {
+          background: 'pink',
+          // borderRadius: '0px',
+          // border: '2px solid orange',
+          card: {
+            // background: 'pink'
+          }
+        },
+        modal: {
+          // background: 'orange'
+        },
+        dropdown: {
+          // background: 'red',
+          // borderRadius: '0px'
+        }
+      }}
     >
       {wagmiConfig ? (
         <WagmiProvider config={wagmiConfig}>

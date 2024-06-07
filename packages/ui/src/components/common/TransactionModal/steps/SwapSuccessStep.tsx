@@ -79,7 +79,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               position: 'relative'
             }}
           >
-            {fillTime !== '-' && seconds <= 30 ? (
+            {fillTime !== '-' && seconds <= 30 && seconds >= 0 ? (
               <Text style="h3">{fillTime}</Text>
             ) : (
               <Box css={{ color: 'success', mr: '$2' }}>

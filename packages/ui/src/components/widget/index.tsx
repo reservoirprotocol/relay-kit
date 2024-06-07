@@ -475,10 +475,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'start',
-            backgroundColor: 'gray1',
+            backgroundColor: 'widget-card-background',
             gap: '3',
             p: '12px 12px',
-            borderRadius: 12
+            borderRadius: 'widget-card-border-radius',
+            border: 'widget-card-border'
           }}
         >
           <Text style="subtitle1">From</Text>
@@ -634,10 +635,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'start',
-            backgroundColor: 'gray1',
+            backgroundColor: 'widget-card-background',
             gap: '3',
             p: '12px 12px',
-            borderRadius: 12,
+            borderRadius: 'widget-card-border-radius',
+            border: 'widget-card-border',
             mb: '3'
           }}
         >

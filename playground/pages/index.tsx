@@ -1,21 +1,20 @@
-import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { SwapWidget } from '@reservoir0x/relay-kit-ui'
-import { NextPage } from 'next'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 
-const Index: NextPage = () => {
+export default function Home() {
   const { openConnectModal } = useConnectModal()
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        paddingTop: 50
-      }}
-    >
+    <main className="flex items-center justify-center w-full py-20">
       <SwapWidget
+        defaultToToken={{
+          chainId: 10,
+          address: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+          decimals: 6,
+          name: 'USDC',
+          symbol: 'USDC',
+          logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
+        }}
         defaultFromToken={{
           chainId: 8453,
           address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
@@ -30,8 +29,6 @@ const Index: NextPage = () => {
           console.log('Analytic Event', eventName, data)
         }}
       />
-    </div>
+    </main>
   )
 }
-
-export default Index

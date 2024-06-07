@@ -21,6 +21,7 @@ export interface RelayKitTheme {
   buttons?: {
     primary?: Button
     secondary?: Button
+    tertiary?: Button
     disabled?: {
       color?: string
       background?: string
@@ -33,18 +34,21 @@ export interface RelayKitTheme {
   }
   anchor?: {
     color?: string
-    font?: string
     hover?: {
       color?: string
     }
   }
+  dropdown?: {
+    background?: string
+    borderRadius?: string
+  }
   widget?: {
+    background?: string
     borderRadius?: string
     border?: string
     boxShadow?: string
     card?: {
       background?: string
-      border?: string
       borderRadius?: string
     }
   }

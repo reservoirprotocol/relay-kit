@@ -49,11 +49,12 @@ const ButtonCss = cva({
           color: 'secondary-button-hover-color'
         }
       },
-      light: {
-        color: 'primary11',
-        backgroundColor: 'gray1',
+      tertiary: {
+        backgroundColor: 'tertiary-button-background',
+        color: 'tertiary-button-color',
         '&:hover': {
-          backgroundColor: 'primary2'
+          backgroundColor: 'tertiary-button-hover-background',
+          color: 'tertiary-button-hover-color'
         }
       },
       ghost: {
@@ -63,8 +64,9 @@ const ButtonCss = cva({
       white: {
         '--borderColor': 'colors.subtle-border-color',
         backgroundColor: 'widget-background',
+        transition: 'filter 250ms linear',
         '&:hover': {
-          backgroundColor: 'gray2'
+          filter: 'brightness(97%)'
         },
         border: '1px solid var(--borderColor)'
       }

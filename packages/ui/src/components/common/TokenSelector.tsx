@@ -481,7 +481,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Flex
               css={{
                 width: '100%',
-                '--borderColor': 'colors.gray.5',
+                '--borderColor': 'colors.subtle-border-color',
                 borderBottom: '1px solid var(--borderColor)'
               }}
             >
@@ -518,8 +518,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       cursor: 'pointer',
                       px: '4',
                       py: '2',
+                      transition: 'backdrop-filter 250ms linear',
                       _hover: {
-                        backgroundColor: 'gray3'
+                        backdropFilter: 'brightness(95%)'
                       },
                       flexShrink: 0,
                       alignContent: 'center',
@@ -599,8 +600,9 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         cursor: 'pointer',
         px: '4',
         py: '2',
+        transition: 'backdrop-filter 250ms linear',
         _hover: {
-          backgroundColor: 'gray3'
+          backdropFilter: 'brightness(95%)'
         },
         flexShrink: 0,
         alignContent: 'center',
