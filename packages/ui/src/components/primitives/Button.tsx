@@ -58,8 +58,7 @@ const ButtonCss = cva({
         }
       },
       ghost: {
-        backgroundColor: 'transparent',
-        p: 0
+        backgroundColor: 'transparent'
       },
       white: {
         '--borderColor': 'colors.subtle-border-color',

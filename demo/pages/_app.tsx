@@ -56,6 +56,10 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       }}
       theme={
         {
+          // primaryColor: 'red',
+          // anchor: {
+          //   color: 'red'
+          // }
           // focusColor: 'green',
           // subtleBorderColor: 'green',
           // text: {

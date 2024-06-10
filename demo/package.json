@@ -15,7 +15,7 @@
   "dependencies": {
     "@next/bundle-analyzer": "^14.2.3",
     "@radix-ui/colors": "^0.1.8",
-    "@rainbow-me/rainbowkit": "2.0.0",
+    "@rainbow-me/rainbowkit": "2.1.2",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
     "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",
@@ -26,8 +26,8 @@
     "next-themes": "^0.2.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "viem": "~2.7.8",
-    "wagmi": "~2.5.7"
+    "viem": "~2.9.31",
+    "wagmi": "~2.9.8"
   },
   "devDependencies": {
     "@types/node": "^12.12.21",

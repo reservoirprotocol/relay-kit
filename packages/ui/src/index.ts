@@ -1,6 +1,6 @@
 //theming
 export type { RelayKitTheme } from './themes/RelayKitTheme'
-export { darkTheme, lightTheme } from './themes'
+export { defaultTheme } from './themes'
 
 //Providers
 export { RelayKitProvider } from './providers/RelayKitProvider.js'

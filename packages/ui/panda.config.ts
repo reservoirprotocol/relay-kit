@@ -135,6 +135,7 @@ export default defineConfig({
 
     semanticTokens: {
       colors: {
+        'primary-color': { value: { base: '{colors.primary9}' } },
         'focus-color': { value: { base: '{colors.primary7}' } },
         'subtle-border-color': { value: { base: '{colors.gray.5}' } },
 
@@ -212,7 +213,6 @@ export default defineConfig({
         'widget-border-radius': { value: { base: '16px' } },
         'widget-card-border-radius': { value: '12px' },
         'modal-border-radius': { value: { base: '16px' } },
-        'input-border-radius': { value: { base: '8px' } },
         'dropdown-border-radius': { value: { base: '8px' } }
       },
       borders: {
