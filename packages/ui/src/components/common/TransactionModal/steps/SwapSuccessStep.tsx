@@ -53,6 +53,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     fromToken.chainId === toToken.chainId
 
   const actionTitle = isWrap ? 'wrapped' : isUnwrap ? 'unwrapped' : 'swapped'
+  const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
+    ? 'https://testnets.relay.link'
+    : 'https://relay.link'
 
   return (
     <>
@@ -172,7 +175,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         {transaction?.data?.inTxs?.[0]?.hash ? (
           <a
-            href={`https://relay.link/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
+            href={`${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
             style={{ width: '100%' }}
             target="_blank"
           >

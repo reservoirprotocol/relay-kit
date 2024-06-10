@@ -64,40 +64,42 @@ const Tooltip = ({
     )
   }
   return (
-    <TooltipPrimitive.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange}
-      delayDuration={250}
-    >
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-      <TooltipPrimitive.Content
-        sideOffset={2}
-        side="bottom"
-        align="center"
-        style={{ zIndex: 100 }}
-        {...props}
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
+        delayDuration={250}
       >
-        <div className={TooltipArrowStyle()}></div>
-        <Box
-          css={{
-            zIndex: 9999,
-            boxShadow: '0px 1px 5px rgba(0,0,0,0.2)',
-            borderRadius: 8,
-            overflow: 'hidden'
-          }}
+        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Content
+          sideOffset={2}
+          side="bottom"
+          align="center"
+          style={{ zIndex: 100 }}
+          {...props}
         >
+          <div className={TooltipArrowStyle()}></div>
           <Box
             css={{
-              background: 'modal-background',
-              p: '2'
+              zIndex: 9999,
+              boxShadow: '0px 1px 5px rgba(0,0,0,0.2)',
+              borderRadius: 8,
+              overflow: 'hidden'
             }}
           >
-            {content}
+            <Box
+              css={{
+                background: 'modal-background',
+                p: '2'
+              }}
+            >
+              {content}
+            </Box>
           </Box>
-        </Box>
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Root>
+        </TooltipPrimitive.Content>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   )
 }
 
