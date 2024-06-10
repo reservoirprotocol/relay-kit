@@ -213,7 +213,6 @@ export default defineConfig({
         'widget-border-radius': { value: { base: '16px' } },
         'widget-card-border-radius': { value: '12px' },
         'modal-border-radius': { value: { base: '16px' } },
-        'input-border-radius': { value: { base: '8px' } },
         'dropdown-border-radius': { value: { base: '8px' } }
       },
       borders: {

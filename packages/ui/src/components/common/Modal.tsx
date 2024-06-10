@@ -21,10 +21,6 @@ type ModalProps = {
 export const Modal: FC<
   ComponentPropsWithoutRef<typeof DialogRoot> & ModalProps
 > = ({ trigger, contentCss, showCloseButton = true, children, ...props }) => {
-  // const { resolvedTheme } = useTheme()
-  // const isLightTheme = resolvedTheme === 'light'
-  const isLightTheme = true
-
   return (
     <DialogRoot modal={true} {...props}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -42,8 +38,8 @@ export const Modal: FC<
         >
           <AnimatedContent
             css={{
-              '--borderColor': 'colors.gray.6',
-              border: isLightTheme ? undefined : '1px solid var(--borderColor)',
+              '--borderColor': 'colors.subtle-border-color',
+              border: '1px solid var(--borderColor)',
               padding: '5',
               ...contentCss
             }}
