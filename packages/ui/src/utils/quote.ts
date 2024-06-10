@@ -1,18 +1,25 @@
-import type { CallFees, Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { formatBN, formatDollar } from './numbers'
-import { formatUnits, parseUnits } from 'viem'
+import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import { formatBN, formatDollar, formatPercentage } from './numbers'
 import type { BridgeFee } from '../types'
-import type { Currency } from '../constants/currencies'
 import { formatSeconds } from './time'
 import type { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
 
 type ExecuteSwapResponse = ReturnType<typeof useSwapQuote>['data']
 
 export const parseFees = (
-  fees: CallFees,
   selectedTo: RelayChain,
-  selectedFrom: RelayChain
-): BridgeFee[] => {
+  selectedFrom: RelayChain,
+  quote?: ReturnType<typeof useSwapQuote>['data']
+): {
+  breakdown: BridgeFee[]
+  totalFees: {
+    usd: string
+    priceImpactPercentage: string
+    priceImpact: string
+    swapImpact: string
+  }
+} => {
+  const fees = quote?.fees
   const gasFee = BigInt(fees?.gas?.amount ?? 0)
   const formattedGasFee = formatBN(
     gasFee,
@@ -38,119 +45,60 @@ export const parseFees = (
         5,
         Number(fees?.relayerService?.currency?.decimals ?? 18)
       )
-
-  return [
-    {
-      raw: gasFee,
-      formatted: `${formattedGasFee}`,
-      usd: fees?.gas?.amountUsd
-        ? formatDollar(Number(fees.gas.amountUsd))
-        : '0',
-      name: `Deposit Gas (${selectedFrom.displayName})`,
-      tooltip: null,
-      type: 'gas',
-      id: 'origin-gas',
-      currency: fees?.gas?.currency
-    },
-    {
-      raw: relayerGasFee,
-      formatted: `${formattedRelayerGas}`,
-      usd: fees?.gas?.amountUsd
-        ? formatDollar(Number(fees.relayerGas?.amountUsd))
-        : '0',
-      name: `Fill Gas (${selectedTo.displayName})`,
-      tooltip: null,
-      type: 'gas',
-      id: 'destination-gas',
-      currency: fees?.relayerGas?.currency
-    },
-    {
-      raw: relayerFee,
-      formatted: `${relayerFeeIsReward ? '+' : ''}${formattedRelayer}`,
-      usd:
-        `${relayerFeeIsReward ? '+' : ''}` + fees?.relayerService?.amountUsd
-          ? formatDollar(Number(fees?.relayerService?.amountUsd))
+  const totalFeesUsd =
+    Number(fees?.relayer?.amountUsd ?? 0) + Number(fees?.app?.amountUsd ?? 0)
+  const amountInUsd = Number(quote?.details?.currencyIn?.amountUsd ?? 0)
+  const amountOutUsd = Number(quote?.details?.currencyOut?.amountUsd ?? 0)
+  const totalImpact = amountInUsd - amountOutUsd
+  const swapImpact = totalImpact - totalFeesUsd
+  const totalImpactPercentage = `${totalImpact > 0 ? '-' : '+'}${formatPercentage((Math.abs(totalImpact) / amountInUsd) * 100)}%`
+  debugger
+  return {
+    breakdown: [
+      {
+        raw: gasFee,
+        formatted: `${formattedGasFee}`,
+        usd: fees?.gas?.amountUsd
+          ? formatDollar(Number(fees.gas.amountUsd))
           : '0',
-      name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
-      tooltip: null,
-      type: 'relayer',
-      id: 'relayer-fee',
-      currency: fees?.relayerService?.currency
+        name: `Deposit Gas (${selectedFrom.displayName})`,
+        tooltip: null,
+        type: 'gas',
+        id: 'origin-gas',
+        currency: fees?.gas?.currency
+      },
+      {
+        raw: relayerGasFee,
+        formatted: `${formattedRelayerGas}`,
+        usd: fees?.gas?.amountUsd
+          ? formatDollar(Number(fees.relayerGas?.amountUsd))
+          : '0',
+        name: `Fill Gas (${selectedTo.displayName})`,
+        tooltip: null,
+        type: 'gas',
+        id: 'destination-gas',
+        currency: fees?.relayerGas?.currency
+      },
+      {
+        raw: relayerFee,
+        formatted: `${relayerFeeIsReward ? '+' : ''}${formattedRelayer}`,
+        usd:
+          `${relayerFeeIsReward ? '+' : ''}` + fees?.relayerService?.amountUsd
+            ? formatDollar(Number(fees?.relayerService?.amountUsd))
+            : '0',
+        name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
+        tooltip: null,
+        type: 'relayer',
+        id: 'relayer-fee',
+        currency: fees?.relayerService?.currency
+      }
+    ],
+    totalFees: {
+      usd: formatDollar(totalFeesUsd),
+      priceImpactPercentage: totalImpactPercentage,
+      priceImpact: formatDollar(totalImpact),
+      swapImpact: formatDollar(swapImpact)
     }
-  ]
-}
-
-export const calculateTransactionFee = (
-  fees: CallFees,
-  currency: Currency,
-  usePermit: boolean,
-  gasUsdConversion: number,
-  currencyUsdConversion: number,
-  amountUsd: number
-) => {
-  const gasFee = BigInt(fees?.gas?.amount ?? 0)
-  const relayerFee = BigInt(fees?.relayer?.amount?.replace('-', '') ?? 0)
-  const relayerFeeIsReward = fees?.relayer?.amount?.includes('-')
-  const gasCurrencyDecimals = usePermit ? currency.decimals : 18
-  const gasUsd =
-    gasUsdConversion * Number(formatUnits(gasFee, gasCurrencyDecimals))
-  const gasUsdFormatted = formatDollar(gasUsd)
-  const relayerUsd =
-    currencyUsdConversion * Number(formatUnits(relayerFee, currency.decimals))
-  const relayerUsdFormatted = formatDollar(relayerUsd)
-  const totalUsd = relayerFeeIsReward
-    ? gasUsd + -1 * relayerUsd
-    : gasUsd + relayerUsd
-  const totalUsdFormatted =
-    totalUsd > 0 ? formatDollar(totalUsd) : `+ ${formatDollar(totalUsd * -1)}`
-  const priceImpactFees = gasUsd + relayerUsd * (relayerFeeIsReward ? -1 : 1)
-  const priceImpact = (priceImpactFees / (amountUsd + priceImpactFees)) * 100
-  const priceImpactFormatted = `${priceImpact.toFixed(
-    Number.isInteger(priceImpact) ? 0 : 2
-  )}%`
-
-  return {
-    gasFee,
-    relayerFee,
-    gasCurrencyDecimals,
-    gasUsd,
-    gasUsdFormatted,
-    relayerUsd,
-    relayerUsdFormatted,
-    totalUsd,
-    totalUsdFormatted,
-    priceImpact,
-    priceImpactFormatted
-  }
-}
-
-export const calculateTotalAmount = (
-  amount: string,
-  currency: Currency,
-  currencyUsdConversion: number,
-  transactionFees: ReturnType<typeof calculateTransactionFee>
-) => {
-  // Raw amount is wrong if erc20 not using permit
-  const raw =
-    parseUnits(amount != '' ? amount : '0', currency.decimals) +
-    transactionFees.gasFee +
-    transactionFees.relayerFee
-  const rawExcludingOriginGas = raw - transactionFees.gasFee
-  const formattedExcludingOriginGas = `${formatBN(
-    rawExcludingOriginGas,
-    5,
-    currency.decimals
-  )}`
-
-  const amountUsd = currencyUsdConversion * Number(amount)
-
-  return {
-    raw,
-    usd: formatDollar(
-      amountUsd + transactionFees.gasUsd + transactionFees.relayerUsd
-    ),
-    rawExcludingOriginGas,
-    formattedExcludingOriginGas
   }
 }
 

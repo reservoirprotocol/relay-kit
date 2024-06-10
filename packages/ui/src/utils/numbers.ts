@@ -208,10 +208,22 @@ function formatFixedLength(amount: string, maxLength: number) {
   return result
 }
 
+function formatPercentage(number: number) {
+  const numStr = number.toString()
+  const decimalIndex = numStr.indexOf('.')
+
+  if (decimalIndex !== -1 && numStr.length - decimalIndex - 1 > 2) {
+    return number.toFixed(2)
+  }
+
+  return numStr
+}
+
 export {
   formatDollar,
   formatBN,
   formatFixedLength,
   formatNumber,
-  truncateBalance
+  truncateBalance,
+  formatPercentage
 }

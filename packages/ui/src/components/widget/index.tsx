@@ -27,15 +27,12 @@ import { useQueryClient } from '@tanstack/react-query'
 import AmountInput from '../common/AmountInput'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import { deadAddress } from '../../constants/address'
 import type { Execute } from '@reservoir0x/relay-sdk'
-import * as Collapsible from '@radix-ui/react-collapsible'
-import { StyledCollapsibleContent } from '../common/StyledCollapisbleContent'
-import { FeeBreakdown } from '../common/FeeBreakdown'
 import {
   calculateRelayerFeeProportionUsd,
   calculateTimeEstimate,
@@ -52,6 +49,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider'
+import Tooltip from '../primitives/Tooltip'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -114,7 +112,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     500
   )
 
-  const [feesOpen, setFeesOpen] = useState(false)
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   const [swapError, setSwapError] = useState<Error | null>(null)
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
@@ -253,7 +250,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
     const toChain = chains?.find((chain) => chain.id === toToken?.chainId)
     return fromToken && toToken && fromChain && toChain && quote
-      ? parseFees(quote?.fees, toChain, fromChain)
+      ? parseFees(toChain, fromChain, quote)
       : null
   }, [quote, fromToken, toToken, relayClient])
 
@@ -277,7 +274,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   )
 
   const timeEstimate = calculateTimeEstimate(quote?.breakdown)
-  const originGasFee = feeBreakdown?.find((fee) => fee.id === 'origin-gas')
+  const originGasFee = feeBreakdown?.breakdown?.find(
+    (fee) => fee.id === 'origin-gas'
+  )
 
   const swapRate = quote?.details?.rate
   const compactSwapRate = Boolean(swapRate && swapRate.length > 8)
@@ -724,9 +723,75 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             )}
             {quote?.details?.currencyOut?.amountUsd &&
             Number(quote.details.currencyOut.amountUsd) > 0 ? (
-              <Text style="subtitle3" color="subtle" css={{}}>
-                {formatDollar(Number(quote.details.currencyOut.amountUsd))}
-              </Text>
+              <Flex align="center" css={{ gap: '1' }}>
+                <Text style="subtitle3" color="subtle">
+                  {formatDollar(Number(quote.details.currencyOut.amountUsd))}
+                </Text>
+                <Tooltip
+                  content={
+                    <Flex css={{ minWidth: 200 }} direction="column">
+                      <Flex align="center" css={{ width: '100%' }}>
+                        <Text style="subtitle3" css={{ mr: 'auto' }}>
+                          Total Fees
+                        </Text>
+                        <Text style="subtitle3" css={{ mr: '1' }}>
+                          {feeBreakdown?.totalFees.usd}
+                        </Text>
+                        <Text style="subtitle3" color="subtle">
+                          ({feeBreakdown?.totalFees.priceImpactPercentage})
+                        </Text>
+                      </Flex>
+                      <Box
+                        css={{
+                          width: '100%',
+                          height: 1,
+                          backgroundColor: 'slate.6',
+                          marginTop: '2',
+                          marginBottom: '2'
+                        }}
+                      />
+                      {/* <Flex align="center" css={{ width: '100%' }}>
+                        <Text
+                          style="subtitle3"
+                          color="subtle"
+                          css={{ mr: 'auto' }}
+                        >
+                          Swap Impact
+                        </Text>
+                        <Text style="subtitle3">
+                          {feeBreakdown?.totalFees.swapImpact}
+                        </Text>
+                      </Flex> */}
+                      {feeBreakdown?.breakdown.map((fee) => {
+                        if (fee.id === 'origin-gas') {
+                          return null
+                        }
+                        return (
+                          <Flex align="center" css={{ width: '100%' }}>
+                            <Text
+                              style="subtitle3"
+                              color="subtle"
+                              css={{ mr: 'auto' }}
+                            >
+                              {fee.name}
+                            </Text>
+                            <Text style="subtitle3">{fee.usd}</Text>
+                          </Flex>
+                        )
+                      })}
+                    </Flex>
+                  }
+                >
+                  <div>
+                    <Flex align="center">
+                      <Text style="subtitle3" color="subtle">
+                        ({feeBreakdown?.totalFees.priceImpactPercentage})
+                        <FontAwesomeIcon icon={faInfoCircle} width={16} />
+                      </Text>
+                    </Flex>
+                  </div>
+                </Tooltip>
+              </Flex>
             ) : null}
           </Flex>
         </Flex>
@@ -750,152 +815,55 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               mb: '3'
             }}
           >
-            <Collapsible.Root
-              className="w-[300px]"
-              open={feesOpen}
-              onOpenChange={setFeesOpen}
+            <Flex
+              justify="between"
+              css={{
+                flexDirection: isSmallDevice ? 'column' : 'row',
+                alignItems: isSmallDevice ? 'start' : 'row',
+                gap: isSmallDevice ? '2' : undefined,
+                width: '100%'
+              }}
             >
-              <Collapsible.Trigger asChild>
-                <button
-                  style={{
-                    width: '100%',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <Flex
-                    justify="between"
-                    css={{
-                      flexDirection: isSmallDevice ? 'column' : 'row',
-                      alignItems: isSmallDevice ? 'start' : 'row',
-                      gap: isSmallDevice ? '2' : undefined,
-                      width: '100%'
-                    }}
-                  >
-                    <button
-                      style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        setRateMode(rateMode === 'input' ? 'output' : 'input')
-                        e.preventDefault()
-                      }}
-                    >
-                      {rateMode === 'input' ? (
-                        <Text style="subtitle2">
-                          1 {fromToken?.symbol} ={' '}
-                          {formatNumber(
-                            Number(swapRate) / 1,
-                            5,
-                            compactSwapRate
-                          )}{' '}
-                          {toToken?.symbol}
-                        </Text>
-                      ) : (
-                        <Text style="subtitle2">
-                          1 {toToken?.symbol} ={' '}
-                          {formatNumber(
-                            1 / Number(swapRate),
-                            5,
-                            compactSwapRate
-                          )}{' '}
-                          {fromToken?.symbol}
-                        </Text>
-                      )}
-                    </button>
+              <button
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  setRateMode(rateMode === 'input' ? 'output' : 'input')
+                  e.preventDefault()
+                }}
+              >
+                {rateMode === 'input' ? (
+                  <Text style="subtitle2">
+                    1 {fromToken?.symbol} ={' '}
+                    {formatNumber(Number(swapRate) / 1, 5, compactSwapRate)}{' '}
+                    {toToken?.symbol}
+                  </Text>
+                ) : (
+                  <Text style="subtitle2">
+                    1 {toToken?.symbol} ={' '}
+                    {formatNumber(1 / Number(swapRate), 5, compactSwapRate)}{' '}
+                    {fromToken?.symbol}
+                  </Text>
+                )}
+              </button>
 
-                    <Flex css={{ gap: '2' }} align="center">
-                      {feesOpen ? null : (
-                        <>
-                          <FontAwesomeIcon
-                            icon={faClock}
-                            width={16}
-                            style={{
-                              color:
-                                timeEstimate.time < 30 ? '#30A46C' : '#FFA01C'
-                            }}
-                          />
-                          <Text style="subtitle2">
-                            ~ {timeEstimate.formattedTime}
-                          </Text>
-                          <Box
-                            css={{ width: 1, background: 'gray6', height: 20 }}
-                          />
-                          <FontAwesomeIcon
-                            icon={faGasPump}
-                            width={16}
-                            style={{ color: '#C1C8CD' }}
-                          />
-                          <Text style="subtitle2">{originGasFee?.usd}</Text>
-                        </>
-                      )}
-                      {isSmallDevice ? null : (
-                        <Flex
-                          css={{
-                            color: 'gray9',
-                            alignItems: 'center'
-                          }}
-                        >
-                          <FontAwesomeIcon
-                            style={{
-                              transform: feesOpen
-                                ? 'rotate(180deg)'
-                                : 'rotate(0)',
-                              transition: '.3s'
-                            }}
-                            icon={faChevronDown}
-                            width={16}
-                          />
-                        </Flex>
-                      )}
-                    </Flex>
-                  </Flex>
-                  {isSmallDevice ? (
-                    <Flex
-                      css={{
-                        color: 'gray9',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <FontAwesomeIcon
-                        style={{
-                          transform: feesOpen ? 'rotate(180deg)' : 'rotate(0)',
-                          transition: '.3s'
-                        }}
-                        icon={faChevronDown}
-                        width={16}
-                      />
-                    </Flex>
-                  ) : null}
-                </button>
-              </Collapsible.Trigger>
-              <StyledCollapsibleContent>
-                <Box
-                  css={{
-                    height: 1,
-                    width: '100%',
-                    my: '2',
-                    background: 'subtle-border-color'
+              <Flex css={{ gap: '2' }} align="center">
+                <FontAwesomeIcon
+                  icon={faClock}
+                  width={16}
+                  style={{
+                    color: timeEstimate.time < 30 ? '#30A46C' : '#FFA01C'
                   }}
                 />
-                <Flex align="start" justify="between">
-                  <Text style="subtitle2" color="subtle">
-                    Transfer Time
-                  </Text>
-                  <Flex css={{ gap: '1' }}>
-                    <FontAwesomeIcon
-                      icon={faClock}
-                      width={16}
-                      style={{
-                        color: timeEstimate.time < 30 ? '#30A46C' : '#FFA01C'
-                      }}
-                    />
-                    <Text style="subtitle2">~{timeEstimate.formattedTime}</Text>
-                  </Flex>
-                </Flex>
-                <FeeBreakdown feeBreakdown={feeBreakdown} />
-              </StyledCollapsibleContent>
-            </Collapsible.Root>
+                <Text style="subtitle2">~ {timeEstimate.formattedTime}</Text>
+                <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+                <FontAwesomeIcon
+                  icon={faGasPump}
+                  width={16}
+                  style={{ color: '#C1C8CD' }}
+                />
+                <Text style="subtitle2">{originGasFee?.usd}</Text>
+              </Flex>
+            </Flex>
           </Box>
         ) : null}
         <WidgetErrorWell

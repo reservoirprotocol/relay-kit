@@ -7,6 +7,7 @@ import ErrorWell from '../../ErrorWell'
 import { truncateAddress } from '../../../../utils/truncate'
 import { type Address } from 'viem'
 import { type TxHashes } from '../TransactionModalRenderer'
+import { useRelayClient } from '../../../../hooks'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -22,6 +23,10 @@ export const ErrorStep: FC<ErrorStepProps> = ({
   onOpenChange
 }) => {
   const isCapacityExceeded = error?.message?.includes('Capacity exceeded')
+  const relayClient = useRelayClient()
+  const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
+    ? 'https://testnets.relay.link'
+    : 'https://relay.link'
 
   return (
     <Flex
@@ -79,7 +84,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             return (
               <Anchor
                 key={txHash}
-                href={`https://relay.link/transactions/?txHash=${txHash}`}
+                href={`${baseTransactionUrl}/transactions/?txHash=${txHash}`}
                 target="_blank"
               >
                 View Tx: {truncateAddress(txHash)}
