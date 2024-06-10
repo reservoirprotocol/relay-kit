@@ -3,7 +3,7 @@
   "private": true,
   "engines": {
     "node": "^18.x",
-    "pnpm": "8.15.1"
+    "pnpm": ">=8.15.1"
   },
   "type": "module",
   "workspaces": [
