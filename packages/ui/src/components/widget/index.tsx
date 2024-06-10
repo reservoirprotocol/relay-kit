@@ -13,6 +13,7 @@ import {
 import type { Address } from 'viem'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useConfig, useWalletClient } from 'wagmi'
+import { useCapabilities } from 'wagmi/experimental'
 import TokenSelector from '../common/TokenSelector'
 import type { Token } from '../../types'
 import Anchor, { AnchorButton } from '../primitives/Anchor'
@@ -159,6 +160,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
   }, [queryClient, fromBalanceQueryKey, toBalanceQueryKey, address])
 
+  const { data: capabilities } = useCapabilities()
+  const hasAuxiliaryFundsSupport = Boolean(
+    fromToken?.chainId
+      ? capabilities?.[fromToken?.chainId]?.auxiliaryFunds?.supported
+      : false
+  )
+
   const {
     data: quote,
     isLoading: isFetchingQuote,
@@ -255,7 +263,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     !fromBalanceErrorFetching &&
       totalAmount &&
       address &&
-      (fromBalance ?? 0n) < totalAmount
+      (fromBalance ?? 0n) < totalAmount &&
+      !hasAuxiliaryFundsSupport
   )
 
   const fetchQuoteErrorMessage = error
