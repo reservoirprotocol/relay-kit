@@ -1,14 +1,14 @@
 import { type FC, useState, useEffect } from 'react'
-import { Text, Flex, Button, Input, Anchor } from '../primitives'
-import { Modal } from '../common/Modal'
+import { Text, Flex, Button, Input, Anchor } from '../primitives/index.js'
+import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWallet } from '@fortawesome/free-solid-svg-icons/faWallet'
-import { useENSResolver } from '../../hooks'
-import { isENSName } from '../../utils/ens'
-import { LoadingSpinner } from '../common/LoadingSpinner'
+import { useENSResolver } from '../../hooks/index.js'
+import { isENSName } from '../../utils/ens.js'
+import { LoadingSpinner } from '../common/LoadingSpinner.js'
 import { useAccount } from 'wagmi'
-import { EventNames } from '../../constants/events'
+import { EventNames } from '../../constants/events.js'
 
 type Props = {
   open: boolean

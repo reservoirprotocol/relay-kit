@@ -1,31 +1,37 @@
 import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
-import { Box, Button, ChainIcon, Flex, Input, Text } from '../primitives'
+import {
+  Box,
+  Button,
+  ChainIcon,
+  Flex,
+  Input,
+  Text
+} from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
 import { Modal } from '../common/Modal'
 import type { Token } from '../../types'
-import { ChainTokenIcon } from '../primitives/ChainTokenIcon'
+import { ChainTokenIcon } from '../primitives/ChainTokenIcon.js'
 import Fuse from 'fuse.js'
-import ChainFilter, { type ChainFilterValue } from '../common/ChainFilter'
+import ChainFilter, { type ChainFilterValue } from '../common/ChainFilter.js'
 import useRelayClient from '../../hooks/useRelayClient'
 import { type Chain, isAddress, zeroAddress } from 'viem'
-import { useDebounceState, useDuneBalances } from '../../hooks'
+import { useDebounceState, useDuneBalances } from '../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { LoadingSpinner } from '../common/LoadingSpinner'
+import { LoadingSpinner } from '../common/LoadingSpinner.js'
 // import { EventNames } from '../../analytics/events'
-import { truncateAddress } from '../../utils/truncate'
+import { truncateAddress } from '../../utils/truncate.js'
 import { useAccount } from 'wagmi'
-import { polygon } from 'viem/chains'
-import { type DuneBalanceResponse } from '../../hooks/useDuneBalances'
-import { formatBN } from '../../utils/numbers'
+import { type DuneBalanceResponse } from '../../hooks/useDuneBalances.js'
+import { formatBN } from '../../utils/numbers.js'
 import {
   type CurrencyList,
   type Currency,
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
-import { EventNames } from '../../constants/events'
+import { EventNames } from '../../constants/events.js'
 
 const fuseSearchOptions = {
   includeScore: true,

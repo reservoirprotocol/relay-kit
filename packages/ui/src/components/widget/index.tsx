@@ -1,37 +1,37 @@
-import { Flex, Button, Text, Box } from '../primitives'
+import { Flex, Button, Text, Box } from '../primitives/index.js'
 import type { FC } from 'react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { easeInOut, motion } from 'framer-motion'
-import { CustomAddressModal } from '../common/CustomAddressModal'
+import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import {
   useCurrencyBalance,
   useENSResolver,
   useMounted,
   useRelayClient,
   useDebounceState
-} from '../../hooks'
+} from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useConfig, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
-import TokenSelector from '../common/TokenSelector'
-import type { Token } from '../../types'
-import Anchor, { AnchorButton } from '../primitives/Anchor'
+import TokenSelector from '../common/TokenSelector.js'
+import type { Token } from '../../types/index.js'
+import Anchor, { AnchorButton } from '../primitives/Anchor.js'
 import {
   formatNumber,
   formatFixedLength,
   formatDollar
-} from '../../utils/numbers'
+} from '../../utils/numbers.js'
 import { mainnet } from 'viem/chains'
 import { useQueryClient } from '@tanstack/react-query'
-import AmountInput from '../common/AmountInput'
+import AmountInput from '../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import { deadAddress } from '../../constants/address'
+import { deadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculateRelayerFeeProportionUsd,
@@ -39,16 +39,16 @@ import {
   extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
-} from '../../utils/quote'
-import { LoadingSpinner } from '../common/LoadingSpinner'
-import { WidgetErrorWell } from '../common/WidgetErrorWell'
-import { SwapModal } from '../common/TransactionModal/SwapModal'
+} from '../../utils/quote.js'
+import { LoadingSpinner } from '../common/LoadingSpinner.js'
+import { WidgetErrorWell } from '../common/WidgetErrorWell.js'
+import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { switchChain } from 'wagmi/actions'
-import { BalanceDisplay } from '../common/BalanceDisplay'
+import { BalanceDisplay } from '../common/BalanceDisplay.js'
 import { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { EventNames } from '../../constants/events'
-import { ProviderOptionsContext } from '../../providers/RelayKitProvider'
-import Tooltip from '../primitives/Tooltip'
+import { EventNames } from '../../constants/events.js'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
+import Tooltip from '../primitives/Tooltip.js'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token

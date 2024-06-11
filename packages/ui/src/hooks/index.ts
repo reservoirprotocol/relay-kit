@@ -1,9 +1,9 @@
-import useMounted from './useMounted'
-import useENSResolver from './useENSResolver'
-import useCurrencyBalance from './useCurrencyBalance'
-import useRelayClient from './useRelayClient'
-import useDebounceState from './useDebounceState'
-import useDuneBalances from './useDuneBalances'
+import useMounted from './useMounted.js'
+import useENSResolver from './useENSResolver.js'
+import useCurrencyBalance from './useCurrencyBalance.js'
+import useRelayClient from './useRelayClient.js'
+import useDebounceState from './useDebounceState.js'
+import useDuneBalances from './useDuneBalances.js'
 
 export {
   useMounted,
