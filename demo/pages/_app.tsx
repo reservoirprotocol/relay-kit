@@ -79,6 +79,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           },
           focusColor: '#00C7FF',
           subtleBorderColor: '#808080',
+          subtleBackgroundColor: '#808080',
           text: {
             default: 'black',
             subtle: 'black'
