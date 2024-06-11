@@ -493,8 +493,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -670,8 +670,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -735,7 +735,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           Total Fees
                         </Text>
                         <Text style="subtitle3" css={{ mr: '1' }}>
-                          {feeBreakdown?.totalFees.usd}
+                          {feeBreakdown?.totalFees.priceImpact}
                         </Text>
                         <Text style="subtitle3" color="subtle">
                           ({feeBreakdown?.totalFees.priceImpactPercentage})
@@ -750,7 +750,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           marginBottom: '2'
                         }}
                       />
-                      {/* <Flex align="center" css={{ width: '100%' }}>
+                      <Flex align="center" css={{ width: '100%' }}>
                         <Text
                           style="subtitle3"
                           color="subtle"
@@ -761,7 +761,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         <Text style="subtitle3">
                           {feeBreakdown?.totalFees.swapImpact}
                         </Text>
-                      </Flex> */}
+                      </Flex>
                       {feeBreakdown?.breakdown.map((fee) => {
                         if (fee.id === 'origin-gas') {
                           return null
