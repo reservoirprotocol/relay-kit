@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.0
+
+### Major Changes
+
+- ba72406: Refactor SDK to simplify, add ui packages
+
 ## 0.7.0
 
 ### Minor Changes
