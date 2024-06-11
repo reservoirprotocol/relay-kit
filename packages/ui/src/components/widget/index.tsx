@@ -174,7 +174,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     walletClient.data,
     fromToken && toToken
       ? {
-          user: customToAddress ?? address ?? deadAddress,
+          user: address ?? deadAddress,
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
