@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 4a55654: Fix deploy script
+
 ## 1.0.0
 
 ### Major Changes
