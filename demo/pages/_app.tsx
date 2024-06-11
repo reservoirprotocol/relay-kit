@@ -96,6 +96,15 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
                 background: '#00C7FF'
               }
             },
+            secondary: {
+              background: 'gray',
+              color: '#00C7FF',
+              hover: {
+                color: '#00C7FF',
+                background: 'gray'
+              }
+            },
+
             disabled: {
               background: '#808080',
               color: 'white'
