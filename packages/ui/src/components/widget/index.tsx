@@ -45,7 +45,7 @@ import { WidgetErrorWell } from '../common/WidgetErrorWell'
 import { SwapModal } from '../common/TransactionModal/SwapModal'
 import { switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
-import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
+import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider'
 import Tooltip from '../primitives/Tooltip'
@@ -165,9 +165,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const {
     data: quote,
     isLoading: isFetchingQuote,
-    swap: executeSwap,
+    executeQuote: executeSwap,
     error
-  } = useSwapQuote(
+  } = useQuote(
     relayClient ? relayClient : undefined,
     walletClient.data,
     fromToken && toToken

@@ -2,14 +2,14 @@ import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers'
 import type { BridgeFee } from '../types'
 import { formatSeconds } from './time'
-import type { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
+import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
-type ExecuteSwapResponse = ReturnType<typeof useSwapQuote>['data']
+type ExecuteSwapResponse = ReturnType<typeof useQuote>['data']
 
 export const parseFees = (
   selectedTo: RelayChain,
   selectedFrom: RelayChain,
-  quote?: ReturnType<typeof useSwapQuote>['data']
+  quote?: ReturnType<typeof useQuote>['data']
 ): {
   breakdown: BridgeFee[]
   totalFees: {

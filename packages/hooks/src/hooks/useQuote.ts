@@ -29,7 +29,7 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
-export const querySwapQuote = function (
+export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: ExecuteSwapBody
 ): Promise<ExecuteSwapResponse> {
@@ -48,10 +48,10 @@ export default function (
   queryOptions?: Partial<QueryOptions>
 ) {
   const response = (useQuery as QueryType)({
-    queryKey: ['useSwapQuote', options],
+    queryKey: ['useQuote', options],
     queryFn: () => {
       onRequest?.()
-      const promise = querySwapQuote(client?.baseApiUrl, options)
+      const promise = queryQuote(client?.baseApiUrl, options)
       promise.then((response: any) => {
         onResponse?.(response)
       })
@@ -62,7 +62,7 @@ export default function (
     ...queryOptions
   })
 
-  const swap = useCallback(
+  const executeQuote = useCallback(
     (onProgress: onProgress) => {
       if (!wallet) {
         throw 'Missing a valid wallet'
@@ -86,11 +86,11 @@ export default function (
       ({
         ...response,
         data: response.error ? undefined : response.data,
-        swap
-      } as Omit<ReturnType<QueryType>, 'data'> & {
+        executeQuote
+      }) as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
-        swap: (onProgress: onProgress) => Promise<Execute> | undefined
-      }),
-    [response.data, response.error, response.isLoading, swap]
+        executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
+      },
+    [response.data, response.error, response.isLoading, executeQuote]
   )
 }
