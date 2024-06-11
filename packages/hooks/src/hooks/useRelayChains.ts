@@ -61,5 +61,5 @@ export default function (
       viemChains?: ConfiguredViemChain['viemChain'][]
       chains?: ConfiguredViemChain[]
     }
-  }, [response.data])
+  }, [response.data, response.error, response.isLoading])
 }

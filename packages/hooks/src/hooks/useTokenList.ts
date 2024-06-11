@@ -50,5 +50,5 @@ export default function (
     } as Omit<ReturnType<QueryType>, 'data'> & {
       data?: GetCurrenciesResponse
     }
-  }, [response.data, response.error])
+  }, [response.data, response.error, response.isLoading])
 }
