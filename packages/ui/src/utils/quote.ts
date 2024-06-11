@@ -1,5 +1,5 @@
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { formatBN, formatDollar, formatPercentage } from './numbers'
+import { formatBN, formatDollar } from './numbers'
 import type { BridgeFee } from '../types'
 import { formatSeconds } from './time'
 import type { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
@@ -13,10 +13,10 @@ export const parseFees = (
 ): {
   breakdown: BridgeFee[]
   totalFees: {
-    usd: string
-    priceImpactPercentage: string
-    priceImpact: string
-    swapImpact: string
+    usd?: string
+    priceImpactPercentage?: string
+    priceImpact?: string
+    swapImpact?: string
   }
 } => {
   const fees = quote?.fees
@@ -47,12 +47,6 @@ export const parseFees = (
       )
   const totalFeesUsd =
     Number(fees?.relayer?.amountUsd ?? 0) + Number(fees?.app?.amountUsd ?? 0)
-  const amountInUsd = Number(quote?.details?.currencyIn?.amountUsd ?? 0)
-  const amountOutUsd = Number(quote?.details?.currencyOut?.amountUsd ?? 0)
-  const totalImpact = amountInUsd - amountOutUsd
-  const swapImpact = totalImpact - totalFeesUsd
-  const totalImpactPercentage = `${totalImpact > 0 ? '-' : '+'}${formatPercentage((Math.abs(totalImpact) / amountInUsd) * 100)}%`
-  debugger
   return {
     breakdown: [
       {
@@ -95,9 +89,19 @@ export const parseFees = (
     ],
     totalFees: {
       usd: formatDollar(totalFeesUsd),
-      priceImpactPercentage: totalImpactPercentage,
-      priceImpact: formatDollar(totalImpact),
-      swapImpact: formatDollar(swapImpact)
+      priceImpactPercentage: quote?.details?.totalImpact?.percent
+        ? `${quote?.details?.totalImpact?.percent}%`
+        : undefined,
+      priceImpact: quote?.details?.totalImpact?.usd
+        ? formatDollar(
+            Math.abs(parseFloat(quote?.details?.totalImpact?.usd ?? 0))
+          )
+        : undefined,
+      swapImpact: quote?.details?.swapImpact?.usd
+        ? formatDollar(
+            Math.abs(parseFloat(quote?.details?.swapImpact?.usd ?? 0))
+          )
+        : undefined
     }
   }
 }

@@ -29,6 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
     "node-fetch": "^3.3.2",
     "rimraf": "^5.0.5"
   },
@@ -37,7 +38,8 @@
     "viem": "^2.9.31"
   },
   "dependencies": {
-    "axios": "^1.6.5"
+    "axios": "^1.6.5",
+    "lodash-es": "^4.17.21"
   },
   "keywords": [
     "eth",

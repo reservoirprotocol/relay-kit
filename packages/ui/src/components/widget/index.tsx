@@ -174,7 +174,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     walletClient.data,
     fromToken && toToken
       ? {
-          user: customToAddress ?? address ?? deadAddress,
+          user: address ?? deadAddress,
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
@@ -735,7 +735,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           Total Fees
                         </Text>
                         <Text style="subtitle3" css={{ mr: '1' }}>
-                          {feeBreakdown?.totalFees.usd}
+                          {feeBreakdown?.totalFees.priceImpact}
                         </Text>
                         <Text style="subtitle3" color="subtle">
                           ({feeBreakdown?.totalFees.priceImpactPercentage})
@@ -750,7 +750,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           marginBottom: '2'
                         }}
                       />
-                      {/* <Flex align="center" css={{ width: '100%' }}>
+                      <Flex align="center" css={{ width: '100%' }}>
                         <Text
                           style="subtitle3"
                           color="subtle"
@@ -761,7 +761,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         <Text style="subtitle3">
                           {feeBreakdown?.totalFees.swapImpact}
                         </Text>
-                      </Flex> */}
+                      </Flex>
                       {feeBreakdown?.breakdown.map((fee) => {
                         if (fee.id === 'origin-gas') {
                           return null

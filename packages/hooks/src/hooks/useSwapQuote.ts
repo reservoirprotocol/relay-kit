@@ -12,7 +12,7 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { WalletClient } from 'viem'
 
 type ExecuteSwapBody =
@@ -62,30 +62,35 @@ export default function (
     ...queryOptions
   })
 
+  const swap = useCallback(
+    (onProgress: onProgress) => {
+      if (!wallet) {
+        throw 'Missing a valid wallet'
+      }
+
+      if (!response.data) {
+        throw 'Missing a quote'
+      }
+
+      return client?.actions?.execute({
+        wallet,
+        quote: response.data as Execute,
+        onProgress
+      })
+    },
+    [response.data, wallet, client]
+  )
+
   return useMemo(
     () =>
       ({
         ...response,
         data: response.error ? undefined : response.data,
-        swap: (onProgress: onProgress) => {
-          if (!wallet) {
-            throw 'Missing a valid wallet'
-          }
-
-          if (!response.data) {
-            throw 'Missing a quote'
-          }
-
-          return client?.actions?.execute({
-            wallet,
-            quote: response.data as Execute,
-            onProgress
-          })
-        }
+        swap
       }) as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
         swap: (onProgress: onProgress) => Promise<Execute> | undefined
       },
-    [response.data, response.error]
+    [response.data, response.error, swap]
   )
 }

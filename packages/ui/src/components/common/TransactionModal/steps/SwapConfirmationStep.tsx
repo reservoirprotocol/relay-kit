@@ -29,7 +29,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         <Flex
           direction="column"
           css={{
-            backgroundColor: 'gray1',
+            backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
             gap: 1,
@@ -65,7 +65,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         <Flex
           direction="column"
           css={{
-            backgroundColor: 'gray1',
+            backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
             gap: 1,
@@ -90,12 +90,14 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
       <Button
         disabled={true}
         css={{
-          color: 'gray12 !important',
+          color: 'button-disabled-color !important',
           mt: 8,
           justifyContent: 'center'
         }}
       >
-        <LoadingSpinner css={{ height: 16, width: 16, fill: 'gray12' }} />
+        <LoadingSpinner
+          css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
+        />
         Waiting for Wallet Confirmation
       </Button>
     </>

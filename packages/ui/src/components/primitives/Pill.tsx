@@ -8,7 +8,8 @@ import type { FlexCss } from './Flex'
 
 export const PillStyle = cva({
   base: {
-    background: 'primary',
+    display: 'flex',
+    background: 'subtle-background-color',
     px: '3',
     py: '1',
     gap: '1'

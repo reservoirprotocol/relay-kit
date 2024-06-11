@@ -792,6 +792,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -1300,6 +1301,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -1498,6 +1500,8 @@ export interface paths {
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
             usePermit?: boolean;
+            /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
+            slippageTolerance?: string;
             appFees?: {
                 /** @description Address that will receive the app fee, if not specified then the user address is used */
                 recipient?: string;
@@ -1717,6 +1721,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -1843,8 +1848,32 @@ export interface paths {
                   amountFormatted?: string;
                   amountUsd?: string;
                 };
+                /** @description The difference between the input and output values, including fees */
+                totalImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The impact of the swap, not factoring in fees */
+                swapImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
                 /** @description The swap rate which is equal to 1 input unit in the output unit, e.g. 1 USDC -> x ETH. This value can fluctuate based on gas and fees. */
                 rate?: string;
+                slippageTolerance?: {
+                  /** @description The slippage tolerance on the origin chain swap */
+                  origin?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                  /** @description The slippage tolerance on the destination chain swap */
+                  destination?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                };
               };
             };
           };
@@ -2394,7 +2423,7 @@ export interface paths {
             /** @description Return default currencies */
             defaultList?: boolean;
             /** @description Chain IDs to search for currencies */
-            chainIds?: unknown[];
+            chainIds?: number[];
             /** @description Search term for currencies */
             term?: string;
             /** @description Address of the currency contract */
@@ -2402,7 +2431,7 @@ export interface paths {
             /** @description ID to search for a currency group */
             currencyId?: string;
             /** @description List of token addresses, like: chainId:address */
-            tokens?: unknown[];
+            tokens?: string[];
             /** @description Filter verified currencies */
             verified?: boolean;
             /** @description Limit the number of results */

@@ -7,7 +7,12 @@ const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
 })
 
 function formatDollar(price?: number | null) {
-  return price !== undefined && price !== null ? formatUsdCurrency(price) : '-'
+  const formatted =
+    price !== undefined && price !== null ? formatUsdCurrency(price) : '-'
+  if (formatted === '$0.00' && price && price > 0) {
+    return '< $0.00'
+  }
+  return formatted
 }
 
 function formatNumber(
@@ -208,22 +213,10 @@ function formatFixedLength(amount: string, maxLength: number) {
   return result
 }
 
-function formatPercentage(number: number) {
-  const numStr = number.toString()
-  const decimalIndex = numStr.indexOf('.')
-
-  if (decimalIndex !== -1 && numStr.length - decimalIndex - 1 > 2) {
-    return number.toFixed(2)
-  }
-
-  return numStr
-}
-
 export {
   formatDollar,
   formatBN,
   formatFixedLength,
   formatNumber,
-  truncateBalance,
-  formatPercentage
+  truncateBalance
 }

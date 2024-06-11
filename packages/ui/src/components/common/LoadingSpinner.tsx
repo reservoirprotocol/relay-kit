@@ -23,7 +23,7 @@ const SpinnerSVG: FC<SVGProps<SVGSVGElement>> = (props) => {
 const LoadingSpinnerCss = cva({
   base: {
     animation: 'spin 1s linear infinite',
-    fill: 'gray9'
+    fill: 'primary-color'
   }
 })
 

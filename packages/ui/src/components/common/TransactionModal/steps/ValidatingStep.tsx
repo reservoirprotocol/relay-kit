@@ -19,7 +19,6 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
   return (
     <>
       <Flex direction="column" align="center" justify="between">
-        {/* @TODO: update theme colors */}
         <LoadingSpinner
           css={{ height: 40, width: 40, fill: 'primary-color' }}
         />
@@ -47,12 +46,14 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
       <Button
         disabled={true}
         css={{
-          color: 'gray12 !important',
+          color: 'button-disabled-color !important',
           mt: 8,
           justifyContent: 'center'
         }}
       >
-        <LoadingSpinner css={{ height: 16, width: 16, fill: 'gray12' }} />
+        <LoadingSpinner
+          css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
+        />
         Validating Transaction
       </Button>
     </>

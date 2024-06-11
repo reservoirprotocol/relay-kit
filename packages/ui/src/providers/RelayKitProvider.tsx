@@ -34,6 +34,7 @@ export const themeOverrides: ThemeOverridesMap = {
   font: '--relay-fonts-body',
   primaryColor: '--relay-colors-primary-color',
   focusColor: '--relay-colors-focus-color',
+  subtleBackgroundColor: '--relay-colors-subtle-background-color',
   subtleBorderColor: '--relay-colors-subtle-border-color',
   text: {
     default: '--relay-colors-text-default',
