@@ -85,6 +85,9 @@ export const themeOverrides: ThemeOverridesMap = {
     borderRadius: '--relay-radii-input-border-radius',
     color: '--relay-colors-input-color'
   },
+  skeleton: {
+    background: '--relay-colors-skeleton-background'
+  },
   anchor: {
     color: '--relay-colors-anchor-color',
     hover: {

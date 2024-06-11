@@ -33,6 +33,9 @@ export interface RelayKitTheme {
     borderRadius?: string
     color?: string
   }
+  skeleton?: {
+    background?: string
+  }
   anchor?: {
     color?: string
     hover?: {
@@ -106,6 +109,9 @@ export const defaultTheme: RelayKitTheme = {
     background: 'gray3',
     borderRadius: '8px',
     color: 'gray12'
+  },
+  skeleton: {
+    background: 'gray3'
   },
   anchor: {
     color: 'primary11',
