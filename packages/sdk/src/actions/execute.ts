@@ -7,6 +7,7 @@ import {
 } from '../utils/index.js'
 import { type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
+import { cloneDeep } from 'lodash-es'
 
 export type ExecuteActionParameters = {
   quote: Execute
@@ -49,6 +50,8 @@ export async function execute(data: ExecuteActionParameters) {
       throw new Error('Missing chainId from quote')
     }
 
+    const modifiableQuote = cloneDeep(quote)
+
     const data = await executeSteps(
       chainId,
       undefined,
@@ -67,7 +70,7 @@ export async function execute(data: ExecuteActionParameters) {
           txHashes
         })
       },
-      quote,
+      modifiableQuote,
       depositGasLimit
         ? {
             deposit: {

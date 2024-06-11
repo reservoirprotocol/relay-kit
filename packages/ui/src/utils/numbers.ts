@@ -9,7 +9,6 @@ const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
 function formatDollar(price?: number | null) {
   const formatted =
     price !== undefined && price !== null ? formatUsdCurrency(price) : '-'
-  debugger
   if (formatted === '$0.00' && price && price > 0) {
     return '< $0.00'
   }
