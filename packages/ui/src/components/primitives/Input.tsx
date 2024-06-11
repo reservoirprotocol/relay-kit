@@ -20,7 +20,7 @@ const StyledInputCss = cva({
     borderRadius: 'input-border-radius',
     fontFamily: 'body',
     fontSize: 16,
-    color: 'gray12',
+    color: 'input-color',
     backgroundColor: 'input-background',
     _placeholder: {
       color: 'gray10'

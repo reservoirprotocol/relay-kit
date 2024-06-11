@@ -90,12 +90,14 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
       <Button
         disabled={true}
         css={{
-          color: 'gray12 !important',
+          color: 'button-disabled-color !important',
           mt: 8,
           justifyContent: 'center'
         }}
       >
-        <LoadingSpinner css={{ height: 16, width: 16, fill: 'gray12' }} />
+        <LoadingSpinner
+          css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
+        />
         Waiting for Wallet Confirmation
       </Button>
     </>

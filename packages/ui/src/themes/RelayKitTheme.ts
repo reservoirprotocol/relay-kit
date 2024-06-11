@@ -30,6 +30,7 @@ export interface RelayKitTheme {
   input?: {
     background?: string
     borderRadius?: string
+    color?: string
   }
   anchor?: {
     color?: string
@@ -101,7 +102,8 @@ export const defaultTheme: RelayKitTheme = {
   },
   input: {
     background: 'gray3',
-    borderRadius: '8px'
+    borderRadius: '8px',
+    color: 'gray12'
   },
   anchor: {
     color: 'primary11',

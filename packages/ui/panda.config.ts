@@ -187,6 +187,7 @@ export default defineConfig({
         'input-background': {
           value: { base: '{colors.gray.3}' }
         },
+        'input-color': { value: { base: '{colors.gray.12}' } },
 
         // Anchor
         'anchor-color': { value: { base: '{colors.primary11}' } },
