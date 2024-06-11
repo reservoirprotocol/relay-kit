@@ -521,7 +521,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       py: '2',
                       transition: 'backdrop-filter 250ms linear',
                       _hover: {
-                        backdropFilter: 'brightness(95%)'
+                        backgroundColor: 'gray/10'
                       },
                       flexShrink: 0,
                       alignContent: 'center',
@@ -603,7 +603,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         py: '2',
         transition: 'backdrop-filter 250ms linear',
         _hover: {
-          backdropFilter: 'brightness(95%)'
+          backgroundColor: 'gray/10'
         },
         flexShrink: 0,
         alignContent: 'center',
