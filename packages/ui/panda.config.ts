@@ -137,6 +137,7 @@ export default defineConfig({
       colors: {
         'primary-color': { value: { base: '{colors.primary9}' } },
         'focus-color': { value: { base: '{colors.primary7}' } },
+        'subtle-background-color': { value: { base: '{colors.gray.1}' } },
         'subtle-border-color': { value: { base: '{colors.gray.5}' } },
 
         // Text

@@ -11,6 +11,7 @@ export interface RelayKitTheme {
   font?: string
   primaryColor?: string
   focusColor?: string
+  subtleBackgroundColor?: string
   subtleBorderColor?: string
   text?: {
     default?: string
@@ -63,6 +64,7 @@ export const defaultTheme: RelayKitTheme = {
   font: 'Inter, -apple-system, Helvetica, sans-serif',
   primaryColor: 'primary9',
   focusColor: 'primary7',
+  subtleBackgroundColor: 'gray1',
   subtleBorderColor: 'gray5',
   text: {
     default: 'gray12',

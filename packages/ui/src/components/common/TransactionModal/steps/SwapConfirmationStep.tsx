@@ -29,7 +29,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         <Flex
           direction="column"
           css={{
-            backgroundColor: 'gray1',
+            backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
             gap: 1,
@@ -65,7 +65,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         <Flex
           direction="column"
           css={{
-            backgroundColor: 'gray1',
+            backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
             gap: 1,

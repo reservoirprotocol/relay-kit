@@ -19,7 +19,6 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
   return (
     <>
       <Flex direction="column" align="center" justify="between">
-        {/* @TODO: update theme colors */}
         <LoadingSpinner
           css={{ height: 40, width: 40, fill: 'primary-color' }}
         />
