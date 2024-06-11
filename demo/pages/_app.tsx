@@ -70,52 +70,53 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
           chains
         }}
-        theme={
-          {
-            // primaryColor: 'red',
-            // anchor: {
-            //   color: 'red'
-            // }
-            // focusColor: 'green',
-            // subtleBorderColor: 'green',
-            // text: {
-            //   default: 'red',
-            //   subtle: 'purple'
-            // },
-            // input: {
-            //   background: 'red'
-            // },
-            // buttons: {
-            //   tertiary: {
-            //     background: 'orange',
-            //     color: 'red',
-            //     hover: {
-            //       color: 'blue',
-            //       background: 'purple'
-            //     }
-            //   },
-            //   disabled: {
-            //     background: 'green',
-            //     color: 'red'
-            //   }
-            // },
-            // widget: {
-            //   background: 'pink',
-            //   borderRadius: '0px',
-            //   border: '2px solid orange',
-            //   card: {
-            //     background: 'pink'
-            //   }
-            // },
-            // modal: {
-            //   background: 'orange'
-            // },
-            // dropdown: {
-            //   background: 'red',
-            //   borderRadius: '0px'
-            // }
+        theme={{
+          anchor: {
+            color: 'red',
+            hover: {
+              color: 'red'
+            }
+          },
+          focusColor: '#00C7FF',
+          subtleBorderColor: '#808080',
+          text: {
+            default: 'black',
+            subtle: 'black'
+          },
+          input: {
+            background: '#F3F3F3',
+            color: 'black'
+          },
+          buttons: {
+            primary: {
+              background: '#00C7FF',
+              color: 'white',
+              hover: {
+                color: 'white',
+                background: '#00C7FF'
+              }
+            },
+            disabled: {
+              background: '#808080',
+              color: 'white'
+            }
+          },
+          widget: {
+            background: 'rgb(230 249 255 / 1)',
+            borderRadius: '0px',
+            border: '2px solid #00C7FF',
+            card: {
+              background: 'white',
+              borderRadius: '0px'
+            }
+          },
+          modal: {
+            background: 'white'
+          },
+          dropdown: {
+            background: '#F3F3F3'
           }
-        }
+        }}
       >
         {wagmiConfig ? (
           <WagmiProvider config={wagmiConfig}>

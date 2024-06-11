@@ -46,15 +46,16 @@ const DropdownMenuItemCss = cva({
     alignItems: 'center',
     fontSize: 16,
     color: 'gray12',
-    backgroundColor: 'gray2',
+    backgroundColor: 'modal-background',
     p: '3',
     outline: 'none',
     cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'gray5'
+    transition: 'backdrop-filter 250ms linear',
+    _hover: {
+      backdropFilter: 'brightness(95%)'
     },
     '&:focus': {
-      backgroundColor: 'gray5'
+      backgroundColor: 'focus-color'
     }
   }
 })

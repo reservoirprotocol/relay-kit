@@ -34,6 +34,7 @@ export const themeOverrides: ThemeOverridesMap = {
   font: '--relay-fonts-body',
   primaryColor: '--relay-colors-primary-color',
   focusColor: '--relay-colors-focus-color',
+  subtleBorderColor: '--relay-colors-subtle-border-color',
   text: {
     default: '--relay-colors-text-default',
     subtle: '--relay-colors-text-subtle',
@@ -80,7 +81,8 @@ export const themeOverrides: ThemeOverridesMap = {
   },
   input: {
     background: '--relay-colors-input-background',
-    borderRadius: '--relay-radii-input-border-radius'
+    borderRadius: '--relay-radii-input-border-radius',
+    color: '--relay-colors-input-color'
   },
   anchor: {
     color: '--relay-colors-anchor-color',

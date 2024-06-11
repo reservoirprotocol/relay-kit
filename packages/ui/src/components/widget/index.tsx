@@ -511,13 +511,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 textAlign: 'right',
                 color:
                   isFetchingQuote && tradeType === 'EXACT_OUTPUT'
-                    ? 'gray11'
-                    : 'gray12',
+                    ? 'text-subtle'
+                    : 'input-color',
                 _placeholder: {
                   color:
                     isFetchingQuote && tradeType === 'EXACT_OUTPUT'
-                      ? 'gray11'
-                      : 'gray12'
+                      ? 'text-subtle'
+                      : 'input-color'
                 }
               }}
             />
