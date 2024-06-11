@@ -87,10 +87,10 @@ export default function (
         ...response,
         data: response.error ? undefined : response.data,
         swap
-      }) as Omit<ReturnType<QueryType>, 'data'> & {
+      } as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
         swap: (onProgress: onProgress) => Promise<Execute> | undefined
-      },
-    [response.data, response.error, swap]
+      }),
+    [response.data, response.error, response.isLoading, swap]
   )
 }
