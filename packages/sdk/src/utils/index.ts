@@ -9,3 +9,7 @@ export { adaptViemWallet } from './viemWallet.js'
 export { configureViemChain, convertViemChainToRelayChain } from './chain.js'
 export { fetchChainConfigs } from './fetchChainConfigs.js'
 export { getCurrentStepData } from './getCurrentStepData.js'
+export {
+  type SimulateContractRequest,
+  isSimulateContractRequest
+} from './simulateContract.js'

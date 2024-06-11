@@ -178,3 +178,9 @@ dist
 _cjs
 _esm
 _types
+## Panda
+styled-system
+styled-system-studio
+dist
+design-system
+!design-system/package.json

@@ -24,10 +24,15 @@ import { useSigner } from "wagmi";
 const { data: signer } = useSigner();
 const wallet = adaptEthersSigner(signer);
 
-getClient().actions.call({
+const quote = getClient().actions.getQuote({
   chainId: 7777777,
   toChainId: 8453,
   txs: [{ to: "0x30385bce01da4b415cae1db21d41e9f6eab3ba50", value: "1000000" }],
+  wallet: wallet,
+});
+
+getClient().actions.execute({
+  quote: quote,
   wallet: wallet,
   onProgress: (steps) => {
     console.log(steps);

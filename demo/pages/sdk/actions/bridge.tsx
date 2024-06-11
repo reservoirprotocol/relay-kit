@@ -1,16 +1,15 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { BridgeActionParameters, getClient } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
-import { Address, isAddress } from 'viem'
+import { Address, isAddress, zeroAddress } from 'viem'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 
 const BridgeActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
   const [amount, setAmount] = useState<string>('')
-  const [currency, setCurrency] =
-    useState<BridgeActionParameters['currency']>('eth')
+  const [currency, setCurrency] = useState<string>(zeroAddress)
   const [usePermit, setUsePermit] = useState(false)
   const [canonical, setCanonical] = useState(false)
   const [useExactInput, setUseExactInput] = useState(false)
@@ -18,6 +17,7 @@ const BridgeActionPage: NextPage = () => {
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const [depositGasLimit, setDepositGasLimit] = useState('')
   const { data: wallet } = useWalletClient()
+  const client = useRelayClient()
 
   return (
     <div
@@ -63,26 +63,12 @@ const BridgeActionPage: NextPage = () => {
       <div>
         <div>
           <label>Currency: </label>
-          <div>
-            <input
-              type="radio"
-              value="eth"
-              name="currency"
-              checked={currency === 'eth'}
-              onChange={(e) => setCurrency(e.target.value as 'eth')}
-            />
-            <label>ETH</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              value="usdc"
-              name="currency"
-              checked={currency === 'usdc'}
-              onChange={(e) => setCurrency(e.target.value as 'usdc')}
-            />
-            <label>USDC</label>
-          </div>
+          <input
+            type="number"
+            placeholder="What currency to bridge?"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+          />
         </div>
       </div>
 
@@ -147,7 +133,7 @@ const BridgeActionPage: NextPage = () => {
           fontWeight: 800,
           cursor: 'pointer'
         }}
-        onClick={() => {
+        onClick={async () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
@@ -158,24 +144,35 @@ const BridgeActionPage: NextPage = () => {
             throw 'Must include an amount for bridging'
           }
 
-          getClient()?.actions.bridge({
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet,
             toChainId,
             amount,
             currency,
+            toCurrency: currency,
             recipient: recipient ? (recipient as Address) : undefined,
-            depositGasLimit,
+            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
             options: {
               usePermit: usePermit,
-              useExternalLiquidity: canonical,
-              useExactInput: useExactInput
-            },
+              useExternalLiquidity: canonical
+            }
+          })
+
+          if (!quote) {
+            throw 'Missing a quote'
+          }
+
+          client?.actions.execute({
+            wallet,
+            quote,
+            depositGasLimit,
             onProgress: (data) => {
               console.log(data)
             }
           })
-        }}>
+        }}
+      >
         Execute Bridge
       </button>
     </div>

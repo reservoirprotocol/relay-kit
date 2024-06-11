@@ -12,6 +12,7 @@ import type { RelayChain } from './types/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
 import * as actions from './actions/index.js'
 import * as utils from './utils/index.js'
+import { MAINNET_RELAY_API } from './constants/servers.js'
 
 /**
  * RelayClient Configuration Options
@@ -20,7 +21,7 @@ import * as utils from './utils/index.js'
  * @param maxPollingAttemptsBeforeTimeout The maximum number of attempts the synced api is polled before timing out. The api is polled every 5 secs (default is 30)
  */
 export type RelayClientOptions = {
-  baseApiUrl: string
+  baseApiUrl?: string
   source?: string
   logLevel?: LogLevel
   pollingInterval?: number
@@ -59,7 +60,7 @@ export class RelayClient {
   readonly actions = actions
 
   constructor(options: RelayClientOptions) {
-    this.baseApiUrl = options.baseApiUrl
+    this.baseApiUrl = options.baseApiUrl ?? MAINNET_RELAY_API
     this.logLevel =
       options.logLevel !== undefined ? options.logLevel : LogLevel.None
     this.pollingInterval = options.pollingInterval
@@ -67,7 +68,7 @@ export class RelayClient {
       options.maxPollingAttemptsBeforeTimeout
     if (options.chains) {
       this.chains = options.chains
-    } else if (options.baseApiUrl.includes('testnets')) {
+    } else if (options.baseApiUrl?.includes('testnets')) {
       this.chains = _backupTestnetChains
     } else {
       this.chains = _backupChains

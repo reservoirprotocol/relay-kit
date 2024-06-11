@@ -26,5 +26,5 @@ export type RelayChain = {
   }
   depositEnabled?: boolean
   erc20Currencies?: Erc20Currencies
-  viemChain?: Chain
+  viemChain: Chain
 }

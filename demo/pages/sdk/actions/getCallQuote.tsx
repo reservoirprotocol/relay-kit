@@ -1,9 +1,11 @@
 import { NextPage } from 'next'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { Execute, getClient, paths } from '@reservoir0x/relay-sdk'
+import { Execute } from '@reservoir0x/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
+import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { zeroAddress } from 'viem'
 
 const GetCallQuotePage: NextPage = () => {
   const [txs, setTxs] = useState<string[]>([])
@@ -12,6 +14,7 @@ const GetCallQuotePage: NextPage = () => {
   const [fromChainId, setFromChainId] = useState<number>(base.id)
   const { data: wallet } = useWalletClient()
   const [response, setResponse] = useState<Execute | null>(null)
+  const client = useRelayClient()
 
   return (
     <div
@@ -96,11 +99,17 @@ const GetCallQuotePage: NextPage = () => {
           cursor: 'pointer'
         }}
         onClick={async () => {
-          const quote = await getClient()?.actions.getCallQuote({
+          if (!client) {
+            throw 'Missing Client!'
+          }
+          const quote = await client?.actions.getQuote({
             chainId: fromChainId,
             wallet, // optional
             txs: txs as any,
-            toChainId
+            toChainId,
+            currency: zeroAddress,
+            toCurrency: zeroAddress,
+            tradeType: 'EXACT_OUTPUT'
           })
 
           setResponse(quote)

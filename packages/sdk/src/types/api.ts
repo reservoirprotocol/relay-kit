@@ -95,6 +95,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -133,7 +134,7 @@ export interface paths {
             active?: boolean;
             metadata?: Record<string, never>;
             /** @enum {string} */
-            nativeCurrency: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
+            nativeCurrency: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
           };
         };
       };
@@ -151,6 +152,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -159,6 +161,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -167,6 +170,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -221,6 +225,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -229,6 +234,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -237,6 +243,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -327,7 +334,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "degen" | "eth" | "usdc" | "xai";
+          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
         };
       };
       responses: {
@@ -354,6 +361,15 @@ export interface paths {
             };
           };
         };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
       };
     };
   };
@@ -369,7 +385,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -468,7 +484,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -479,10 +495,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -544,7 +560,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -776,6 +792,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -838,6 +855,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -846,6 +864,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -854,6 +873,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -964,7 +984,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -975,10 +995,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
               };
               /**
                * @example {
@@ -1281,6 +1301,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -1349,6 +1370,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
               tx?: {
                 to?: string;
                 value?: string;
@@ -1362,6 +1384,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -1370,6 +1393,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
               tx?: {
                 to?: string;
                 value?: string;
@@ -1457,11 +1481,32 @@ export interface paths {
              * @enum {string}
              */
             tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
-            source?: string;
             txs?: {
                 to?: string;
                 value?: string;
                 data?: string;
+              }[];
+            source?: string;
+            /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
+            refundTo?: string;
+            /** @description Always refund on the origin chain in case of any issues */
+            refundOnOrigin?: boolean;
+            /**
+             * @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @default true
+             */
+            useForwarder?: boolean;
+            /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
+            useExternalLiquidity?: boolean;
+            /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
+            usePermit?: boolean;
+            /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
+            slippageTolerance?: string;
+            appFees?: {
+                /** @description Address that will receive the app fee, if not specified then the user address is used */
+                recipient?: string;
+                /** @description App fees to be charged for execution in basis points, e.g. 100 = 1% */
+                fee?: string;
               }[];
           };
         };
@@ -1676,6 +1721,7 @@ export interface paths {
                   amountUsd?: string;
                 };
                 /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
                  * @example {
                  *   "currency": {
                  *     "chainId": 8453,
@@ -1802,8 +1848,32 @@ export interface paths {
                   amountFormatted?: string;
                   amountUsd?: string;
                 };
+                /** @description The difference between the input and output values, including fees */
+                totalImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The impact of the swap, not factoring in fees */
+                swapImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
                 /** @description The swap rate which is equal to 1 input unit in the output unit, e.g. 1 USDC -> x ETH. This value can fluctuate based on gas and fees. */
                 rate?: string;
+                slippageTolerance?: {
+                  /** @description The slippage tolerance on the origin chain swap */
+                  origin?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                  /** @description The slippage tolerance on the destination chain swap */
+                  destination?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                };
               };
             };
           };
@@ -2300,6 +2370,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -2308,6 +2379,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -2316,6 +2388,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              code?: string;
             };
           };
         };
@@ -2335,6 +2408,7 @@ export interface paths {
               MATIC?: number;
               USDC?: number;
               XAI?: number;
+              SIPHER?: number;
             };
           };
         };
@@ -2349,7 +2423,7 @@ export interface paths {
             /** @description Return default currencies */
             defaultList?: boolean;
             /** @description Chain IDs to search for currencies */
-            chainIds?: unknown[];
+            chainIds?: number[];
             /** @description Search term for currencies */
             term?: string;
             /** @description Address of the currency contract */
@@ -2357,7 +2431,7 @@ export interface paths {
             /** @description ID to search for a currency group */
             currencyId?: string;
             /** @description List of token addresses, like: chainId:address */
-            tokens?: unknown[];
+            tokens?: string[];
             /** @description Filter verified currencies */
             verified?: boolean;
             /** @description Limit the number of results */
@@ -2382,6 +2456,150 @@ export interface paths {
                     isNative?: boolean;
                   };
                 }[][];
+          };
+        };
+      };
+    };
+  };
+  "/currencies/token/price": {
+    get: {
+      parameters: {
+        query: {
+          address: string;
+          chainId: number;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              price?: number;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              error?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/add": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: number;
+            address: string;
+            symbol: string;
+            name: string;
+            decimals: number;
+            logoURI: string;
+            verified: boolean;
+            isNative: boolean;
+            groupID: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/update": {
+    post: {
+      parameters: {
+        header: {
+          "x-admin-api-key": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: number;
+            address: string;
+            symbol?: string;
+            name?: string;
+            decimals?: number;
+            logoURI?: string;
+            verified?: boolean;
+            isNative?: boolean;
+            groupID?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
           };
         };
       };
