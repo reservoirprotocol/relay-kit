@@ -344,7 +344,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                     />
                   </Box>
                 }
-                iconCss={{ top: 0, pt: 2 }}
                 containerCss={{ width: '100%', height: 40 }}
                 css={{
                   width: '100%',
@@ -464,7 +463,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   />
                 </Box>
               }
-              iconCss={{ top: 0, pt: 2 }}
               containerCss={{ width: '100%', height: 40 }}
               css={{
                 width: '100%',

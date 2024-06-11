@@ -45,8 +45,7 @@ import { WidgetErrorWell } from '../common/WidgetErrorWell'
 import { SwapModal } from '../common/TransactionModal/SwapModal'
 import { switchChain } from 'wagmi/actions'
 import { BalanceDisplay } from '../common/BalanceDisplay'
-import { useMediaQuery } from 'usehooks-ts'
-import { useSwapQuote } from '@reservoir0x/relay-kit-hooks'
+import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider'
 import Tooltip from '../primitives/Tooltip'
@@ -74,7 +73,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
   const walletClient = useWalletClient()
-  const isSmallDevice = useMediaQuery('(max-width: 730px)')
   const { address, chainId: activeWalletChainId, connector } = useAccount()
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
@@ -167,9 +165,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const {
     data: quote,
     isLoading: isFetchingQuote,
-    swap: executeSwap,
+    executeQuote: executeSwap,
     error
-  } = useSwapQuote(
+  } = useQuote(
     relayClient ? relayClient : undefined,
     walletClient.data,
     fromToken && toToken
@@ -493,8 +491,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -670,8 +668,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -818,9 +816,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             <Flex
               justify="between"
               css={{
-                flexDirection: isSmallDevice ? 'column' : 'row',
-                alignItems: isSmallDevice ? 'start' : 'row',
-                gap: isSmallDevice ? '2' : undefined,
+                flexDirection: 'row',
+                gap: '2',
                 width: '100%'
               }}
             >

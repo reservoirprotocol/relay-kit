@@ -1,9 +1,6 @@
 //hooks
 export { default as useRequests, queryRequests } from './hooks/useRequests.js'
-export {
-  default as useSwapQuote,
-  querySwapQuote
-} from './hooks/useSwapQuote.js'
+export { default as useQuote, queryQuote } from './hooks/useQuote.js'
 export {
   default as useTokenList,
   queryTokenList
