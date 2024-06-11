@@ -79,6 +79,7 @@ const Input: FC<
   ...props
 }) => {
   const { size, ellipsify, ...inputProps } = props
+
   return (
     <Flex
       css={{
@@ -86,11 +87,11 @@ const Input: FC<
       }}
     >
       {icon && (
-        <Flex css={{ position: icon ? 'relative' : 'inherit' }}>
+        <Flex css={{ position: 'relative' }}>
           <Box
             css={{
               position: 'absolute',
-              top: 12,
+              top: 8,
               left: iconPosition === 'right' ? 'unset' : 16,
               right: iconPosition === 'right' ? 16 : 'unset',
               zIndex: 0,
