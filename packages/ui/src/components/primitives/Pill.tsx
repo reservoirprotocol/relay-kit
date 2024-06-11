@@ -4,7 +4,7 @@ import {
   type Styles
 } from '@reservoir0x/relay-design-system/css'
 import type { FC, HTMLAttributes } from 'react'
-import type { FlexCss } from './Flex'
+import type { FlexCss } from './Flex.js'
 
 export const PillStyle = cva({
   base: {

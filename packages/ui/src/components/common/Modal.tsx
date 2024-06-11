@@ -1,12 +1,12 @@
 import type { ComponentPropsWithoutRef, FC, ReactNode } from 'react'
-import { AnimatedContent, Overlay } from '../primitives/Dialog'
+import { AnimatedContent, Overlay } from '../primitives/Dialog.js'
 import {
   Root as DialogRoot,
   DialogTrigger,
   DialogPortal,
   DialogClose
 } from '@radix-ui/react-dialog'
-import { Button } from '../primitives'
+import { Button } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark'
 import type { SystemStyleObject } from '@reservoir0x/relay-design-system/types'

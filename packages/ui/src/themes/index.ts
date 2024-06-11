@@ -1,3 +1,3 @@
-export { defaultTheme } from './RelayKitTheme'
+export { defaultTheme } from './RelayKitTheme.js'
 
-export type { RelayKitTheme } from './RelayKitTheme'
+export type { RelayKitTheme } from './RelayKitTheme.js'

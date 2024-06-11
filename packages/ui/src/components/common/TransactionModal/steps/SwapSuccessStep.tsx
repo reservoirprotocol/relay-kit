@@ -7,17 +7,17 @@ import {
   Pill,
   Text,
   ChainTokenIcon
-} from '../../../primitives'
+} from '../../../primitives/index.js'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
-import { truncateAddress } from '../../../../utils/truncate'
-import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
-import { type TxHashes } from '../TransactionModalRenderer'
-import { type Token } from '../../../../types'
+import { truncateAddress } from '../../../../utils/truncate.js'
+import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl.js'
+import { type TxHashes } from '../TransactionModalRenderer.js'
+import { type Token } from '../../../../types/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
-import { useRelayClient } from '../../../../hooks'
+import { useRelayClient } from '../../../../hooks/index.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token

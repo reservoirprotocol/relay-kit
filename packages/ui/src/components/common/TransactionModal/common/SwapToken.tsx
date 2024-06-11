@@ -1,6 +1,6 @@
 import React, { type FC } from 'react'
-import { Flex, Text, ChainTokenIcon } from '../../../primitives'
-import { type Token } from '../../../../types'
+import { Flex, Text, ChainTokenIcon } from '../../../primitives/index.js'
+import { type Token } from '../../../../types/index.js'
 
 type SwapTokenProps = {
   token: Token

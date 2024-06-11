@@ -1,5 +1,5 @@
-import type { RelayKitTheme } from '../themes'
-import type { ThemeOverridesMap } from '../providers/RelayKitProvider'
+import type { RelayKitTheme } from '../themes/index.js'
+import type { ThemeOverridesMap } from '../providers/RelayKitProvider.js'
 
 export function getValueFromKey(obj: any, key: string): any {
   const keys = key.split('.')

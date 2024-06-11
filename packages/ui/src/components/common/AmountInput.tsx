@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, FC } from 'react'
-import { Input } from '../primitives'
+import { Input } from '../primitives/index.js'
 
 type Props = {
   value: string

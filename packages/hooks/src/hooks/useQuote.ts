@@ -6,7 +6,7 @@ import {
   type paths,
   type ProgressData
 } from '@reservoir0x/relay-sdk'
-import { axiosPostFetcher } from '../fetcher'
+import { axiosPostFetcher } from '../fetcher.js'
 import {
   useQuery,
   type DefaultError,

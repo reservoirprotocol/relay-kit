@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import Flex from './Flex'
+import Flex from './Flex.js'
 import { type Styles } from '@reservoir0x/relay-design-system/css'
 
 type SkeletonProps = {

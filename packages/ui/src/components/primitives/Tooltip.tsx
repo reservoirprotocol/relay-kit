@@ -1,7 +1,7 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import * as Popover from '@radix-ui/react-popover'
 import { useMediaQuery } from 'usehooks-ts'
-import Box from './Box'
+import Box from './Box.js'
 import { cva } from '@reservoir0x/relay-design-system/css'
 
 const TooltipArrowStyle = cva({

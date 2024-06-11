@@ -1,4 +1,4 @@
-import { axiosPostFetcher } from '../fetcher'
+import { axiosPostFetcher } from '../fetcher.js'
 import { useMemo } from 'react'
 import { MAINNET_RELAY_API, type paths } from '@reservoir0x/relay-sdk'
 import {

@@ -1,5 +1,5 @@
 import { formatUnits } from 'viem'
-import { isSafariBrowser } from './browser'
+import { isSafariBrowser } from './browser.js'
 
 const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
   style: 'currency',

@@ -17,11 +17,9 @@ import {
   calculateExecutionTime,
   calculateFillTime,
   extractDepositRequestId
-} from '../../../utils/relayTransaction'
-// import { EventNames } from '../../../analytics/events'
-// import { extractQuoteId } from '../../../utils/quote'
+} from '../../../utils/relayTransaction.js'
 import { useRequests } from '@reservoir0x/relay-kit-hooks'
-import { useRelayClient } from '../../../hooks'
+import { useRelayClient } from '../../../hooks/index.js'
 
 export enum TransactionProgressStep {
   WalletConfirmation,
