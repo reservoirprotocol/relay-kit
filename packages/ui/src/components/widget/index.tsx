@@ -74,9 +74,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
-
-  console.log(providerOptionsContext.appFees)
-  console.log(providerOptionsContext.appName)
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
   const walletClient = useWalletClient()
