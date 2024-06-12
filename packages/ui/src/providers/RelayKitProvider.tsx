@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react'
 import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
-import type { RelayClientOptions } from '@reservoir0x/relay-sdk'
+import type { RelayClientOptions, paths } from '@reservoir0x/relay-sdk'
 import type { RelayKitTheme } from '../themes/index.js'
 import { generateCssVars } from '../utils/theme.js'
 
@@ -14,7 +14,12 @@ export type CoinGecko = {
   coinIds?: CoinId
 }
 
+export type AppFees =
+  paths['/execute/swap']['post']['requestBody']['content']['application/json']['appFees']
+
 type RelayKitProviderOptions = {
+  appName?: string
+  appFees?: AppFees
   duneApiKey?: string
   disablePoweredByReservoir?: boolean
 }
@@ -125,6 +130,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
 
   useEffect(() => {
     setProviderOptions({
+      appName: options.appName,
+      appFees: options.appFees,
       duneApiKey: options.duneApiKey,
       disablePoweredByReservoir: options.disablePoweredByReservoir
     })

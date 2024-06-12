@@ -192,6 +192,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           destinationCurrency: toToken.address,
           recipient: (customToAddress ?? address) as string,
           tradeType,
+          appFees: providerOptionsContext.appFees,
           amount:
             tradeType === 'EXACT_INPUT'
               ? parseUnits(

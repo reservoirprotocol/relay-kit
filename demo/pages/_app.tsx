@@ -68,7 +68,14 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           source: 'relay-demo',
           logLevel: LogLevel.Verbose,
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-          chains
+          chains,
+          appName: 'Relay Demo'
+          // appFees: [
+          //   {
+          //     recipient: '0x0000000000000000000000000000000000000000',
+          //     fee: '100' // 1%
+          //   }
+          // ]
         }}
         theme={
           {
