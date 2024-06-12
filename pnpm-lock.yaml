@@ -247,12 +247,18 @@ importers:
         specifier: ~2.9.8
         version: 2.9.11(@tanstack/react-query@5.20.2)(@types/react@18.2.55)(react-dom@18.2.0)(react-i18next@13.5.0)(react-native@0.73.4)(react@18.2.0)(typescript@5.3.3)(viem@2.9.32)
     devDependencies:
+      '@csstools/postcss-cascade-layers':
+        specifier: ^4.0.6
+        version: 4.0.6(postcss@8.4.38)
       '@pandacss/dev':
         specifier: ^0.40.0
         version: 0.40.0(typescript@5.3.3)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
+      postcss:
+        specifier: ^8
+        version: 8.4.38
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5

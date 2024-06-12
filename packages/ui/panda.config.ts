@@ -1,5 +1,7 @@
 import { defineConfig } from '@pandacss/dev'
 import radixColorsPreset from 'pandacss-preset-radix-colors'
+import postcss from 'postcss'
+import postcssCascadeLayers from '@csstools/postcss-cascade-layers'
 
 export const Colors = {
   // Primary
@@ -72,6 +74,14 @@ export default defineConfig({
 
   // Files to exclude
   exclude: [],
+
+  hooks: {
+    'cssgen:done': ({ artifact, content }) => {
+      if (artifact === 'styles.css') {
+        return postcss([postcssCascadeLayers()]).process(content).css
+      }
+    }
+  },
 
   presets: [
     radixColorsPreset({
