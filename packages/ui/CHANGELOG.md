@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.4
+
+### Patch Changes
+
+- 592feb1: Make tanstack query a peer dependency
+- Updated dependencies [592feb1]
+  - @reservoir0x/relay-kit-hooks@1.0.3
+
 ## 1.0.3
 
 ### Patch Changes
