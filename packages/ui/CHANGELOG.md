@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.3
+
+### Patch Changes
+
+- ac60282: Make wagmi a peer dependency
+
 ## 1.0.2
 
 ### Patch Changes
