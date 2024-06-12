@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.2
+
+### Patch Changes
+
+- 2c6d3da: Fix esm import errors
+- Updated dependencies [2c6d3da]
+  - @reservoir0x/relay-kit-hooks@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
