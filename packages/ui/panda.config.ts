@@ -63,7 +63,9 @@ export const Colors = {
 export default defineConfig({
   jsxFramework: 'react',
   // Whether to use css reset
-  preflight: true,
+  preflight: {
+    scope: '.relay-kit-reset'
+  },
 
   // Where to look for your css declarations
   include: ['./src/**/*.{js,jsx,ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],

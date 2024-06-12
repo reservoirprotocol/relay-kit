@@ -31,7 +31,7 @@ const Overlay = forwardRef<
     <DialogPrimitive.Overlay
       ref={forwardedRef}
       {...props}
-      className={designCss(OverlayStyle.raw(), designCss.raw(css))}
+      className={`${designCss(OverlayStyle.raw(), designCss.raw(css))} relay-kit-reset`}
     >
       {children}
     </DialogPrimitive.Overlay>
