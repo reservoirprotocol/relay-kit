@@ -138,7 +138,7 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       <RelayClientProvider options={options}>
         <style
           dangerouslySetInnerHTML={{
-            __html: `:root {
+            __html: `.relay-kit-reset {
               ${cssVariables}
             }`
           }}
