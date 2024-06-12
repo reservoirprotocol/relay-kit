@@ -74,6 +74,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
+
+  console.log(providerOptionsContext.appFees)
+  console.log(providerOptionsContext.appName)
   const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
   const walletClient = useWalletClient()
@@ -192,6 +195,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           destinationCurrency: toToken.address,
           recipient: (customToAddress ?? address) as string,
           tradeType,
+          appFees: providerOptionsContext.appFees,
           amount:
             tradeType === 'EXACT_INPUT'
               ? parseUnits(
