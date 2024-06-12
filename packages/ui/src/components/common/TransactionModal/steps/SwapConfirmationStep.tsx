@@ -1,8 +1,13 @@
 import { type FC } from 'react'
-import { Button, Flex, Text, ChainTokenIcon } from '../../../primitives'
+import {
+  Button,
+  Flex,
+  Text,
+  ChainTokenIcon
+} from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { LoadingSpinner } from '../../LoadingSpinner'
-import { type Token } from '../../../../types'
+import { LoadingSpinner } from '../../LoadingSpinner.js'
+import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
 
 type SwapConfirmationStepProps = {

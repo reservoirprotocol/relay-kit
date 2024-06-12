@@ -1,5 +1,5 @@
 import { mainnet } from 'wagmi/chains'
-import { truncateAddress, truncateEns } from '../utils/truncate'
+import { truncateAddress, truncateEns } from '../utils/truncate.js'
 import {
   useQuery,
   type DefaultError,

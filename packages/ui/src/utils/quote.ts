@@ -1,7 +1,7 @@
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { formatBN, formatDollar } from './numbers'
-import type { BridgeFee } from '../types'
-import { formatSeconds } from './time'
+import { formatBN, formatDollar } from './numbers.js'
+import type { BridgeFee } from '../types/index.js'
+import { formatSeconds } from './time.js'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 type ExecuteSwapResponse = ReturnType<typeof useQuote>['data']

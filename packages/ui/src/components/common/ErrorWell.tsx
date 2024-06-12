@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Text } from '../primitives'
+import { Text } from '../primitives/index.js'
 
 interface Props {
   error?: Error | null

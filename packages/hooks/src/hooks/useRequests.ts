@@ -10,7 +10,7 @@ import {
   type InfiniteData,
   type QueryKey
 } from '@tanstack/react-query'
-import fetcher from '../fetcher'
+import fetcher from '../fetcher.js'
 
 export type UserTransactionQuery =
   paths['/requests']['get']['parameters']['query'] & { id?: string }

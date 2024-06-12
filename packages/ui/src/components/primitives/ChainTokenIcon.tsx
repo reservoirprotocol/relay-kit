@@ -1,6 +1,6 @@
 import { type FC } from 'react'
-import Flex from './Flex'
-import ChainIcon from './ChainIcon'
+import Flex from './Flex.js'
+import ChainIcon from './ChainIcon.js'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
 
 type ChainTokenProps = {

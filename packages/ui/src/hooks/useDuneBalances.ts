@@ -1,5 +1,5 @@
 import { formatUnits, zeroAddress } from 'viem'
-import { ProviderOptionsContext } from '../providers/RelayKitProvider'
+import { ProviderOptionsContext } from '../providers/RelayKitProvider.js'
 import { useContext } from 'react'
 import {
   useQuery,

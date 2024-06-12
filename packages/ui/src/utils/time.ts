@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import time from 'dayjs/plugin/relativeTime'
+import time from 'dayjs/plugin/relativeTime.js'
 
 dayjs.extend(time)
 

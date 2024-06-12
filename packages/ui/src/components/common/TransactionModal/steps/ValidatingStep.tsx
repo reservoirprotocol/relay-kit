@@ -1,10 +1,10 @@
 import type { FC } from 'react'
-import { Anchor, Button, Flex, Text } from '../../../primitives'
-import { LoadingSpinner } from '../../LoadingSpinner'
-import { truncateAddress } from '../../../../utils/truncate'
-import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl'
+import { Anchor, Button, Flex, Text } from '../../../primitives/index.js'
+import { LoadingSpinner } from '../../LoadingSpinner.js'
+import { truncateAddress } from '../../../../utils/truncate.js'
+import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl.js'
 import type { ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
-import { useRelayClient } from '../../../../hooks'
+import { useRelayClient } from '../../../../hooks/index.js'
 
 type ValidatingStepProps = {
   currentStep?: ExecuteStep | null

@@ -5,7 +5,7 @@ import {
   setParams,
   type paths
 } from '@reservoir0x/relay-sdk'
-import fetcher from '../fetcher'
+import fetcher from '../fetcher.js'
 import {
   useQuery,
   type DefaultError,

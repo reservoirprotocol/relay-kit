@@ -1,17 +1,11 @@
-import Flex from './Flex'
-import type {
-  FC,
-  HTMLProps,
-  PropsWithChildren,
-  ReactNode,
-  RefObject
-} from 'react'
+import Flex from './Flex.js'
+import type { FC, HTMLProps, PropsWithChildren, ReactNode } from 'react'
 import {
   cva,
   css as designCss,
   type Styles
 } from '@reservoir0x/relay-design-system/css'
-import Box from './Box'
+import Box from './Box.js'
 
 const StyledInputCss = cva({
   base: {

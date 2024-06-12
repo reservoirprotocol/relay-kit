@@ -1,8 +1,8 @@
 import React, { type FC, useState } from 'react'
 import { type Chain } from 'viem/chains'
-import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown'
-import { Button, Flex, Text } from '../primitives'
-import ChainIcon from '../primitives/ChainIcon'
+import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
+import { Button, Flex, Text } from '../primitives/index.js'
+import ChainIcon from '../primitives/ChainIcon.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 

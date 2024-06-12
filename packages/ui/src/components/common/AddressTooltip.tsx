@@ -1,8 +1,8 @@
 import type { FC } from 'react'
 import type { Address } from 'viem'
-import Tooltip from '../primitives/Tooltip'
-import { Text } from '../primitives'
-import { truncateAddress } from '../../utils/truncate'
+import Tooltip from '../primitives/Tooltip.js'
+import { Text } from '../primitives/index.js'
+import { truncateAddress } from '../../utils/truncate.js'
 
 type AddressTooltipProps = {
   address: Address

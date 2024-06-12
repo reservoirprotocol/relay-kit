@@ -5,17 +5,17 @@ import {
   type ChildrenProps,
   TransactionModalRenderer,
   TransactionProgressStep
-} from './TransactionModalRenderer'
-import { Modal } from '../Modal'
-import { Flex, Text } from '../../primitives'
-import { ErrorStep } from './steps/ErrorStep'
-import { ValidatingStep } from './steps/ValidatingStep'
-import { EventNames } from '../../../constants/events'
-import { SwapConfirmationStep } from './steps/SwapConfirmationStep'
-import { type Token } from '../../../types'
-import { SwapSuccessStep } from './steps/SwapSuccessStep'
-import { formatBN } from '../../../utils/numbers'
-import { extractQuoteId } from '../../../utils/quote'
+} from './TransactionModalRenderer.js'
+import { Modal } from '../Modal.js'
+import { Flex, Text } from '../../primitives/index.js'
+import { ErrorStep } from './steps/ErrorStep.js'
+import { ValidatingStep } from './steps/ValidatingStep.js'
+import { EventNames } from '../../../constants/events.js'
+import { SwapConfirmationStep } from './steps/SwapConfirmationStep.js'
+import { type Token } from '../../../types/index.js'
+import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
+import { formatBN } from '../../../utils/numbers.js'
+import { extractQuoteId } from '../../../utils/quote.js'
 
 type SwapModalProps = {
   open: boolean

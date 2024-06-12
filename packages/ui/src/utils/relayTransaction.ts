@@ -1,6 +1,6 @@
 import { type Execute, RelayClient } from '@reservoir0x/relay-sdk'
-import { type RelayTransaction } from '../types'
-import { relativeTime } from './time'
+import { type RelayTransaction } from '../types/index.js'
+import { relativeTime } from './time.js'
 
 export const extractFromChain = (
   transaction?: RelayTransaction | null,

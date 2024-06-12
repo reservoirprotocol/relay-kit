@@ -1,11 +1,11 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
 import { type FC } from 'react'
-import { Box, Flex, Text } from '../primitives'
+import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
-import { type Currency } from '../../constants/currencies'
-import { formatBN } from '../../utils/numbers'
-import Tooltip from '../primitives/Tooltip'
+import { type Currency } from '../../constants/currencies.js'
+import { formatBN } from '../../utils/numbers.js'
+import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 
 type Props = {

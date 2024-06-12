@@ -1,6 +1,6 @@
 import { type FC } from 'react'
-import { Flex } from './'
-import useRelayClient from '../../hooks/useRelayClient'
+import { Flex } from './index.js'
+import useRelayClient from '../../hooks/useRelayClient.js'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
 
 type Props = {
