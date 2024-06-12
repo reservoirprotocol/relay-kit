@@ -1,5 +1,7 @@
 import { defineConfig } from '@pandacss/dev'
 import radixColorsPreset from 'pandacss-preset-radix-colors'
+import postcss from 'postcss'
+import postcssCascadeLayers from '@csstools/postcss-cascade-layers'
 
 export const Colors = {
   // Primary
@@ -63,13 +65,23 @@ export const Colors = {
 export default defineConfig({
   jsxFramework: 'react',
   // Whether to use css reset
-  preflight: true,
+  preflight: {
+    scope: '.relay-kit-reset'
+  },
 
   // Where to look for your css declarations
   include: ['./src/**/*.{js,jsx,ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
 
   // Files to exclude
   exclude: [],
+
+  hooks: {
+    'cssgen:done': ({ artifact, content }) => {
+      if (artifact === 'styles.css') {
+        return postcss([postcssCascadeLayers()]).process(content).css
+      }
+    }
+  },
 
   presets: [
     radixColorsPreset({

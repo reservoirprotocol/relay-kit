@@ -434,6 +434,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         duration: 0.3,
         ease: easeInOut
       }}
+      className="relay-kit-reset"
     >
       <Flex
         direction="column"
