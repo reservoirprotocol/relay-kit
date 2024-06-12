@@ -56,6 +56,8 @@ type SwapWidgetProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
+  onFromTokenChange?: (token?: Token) => void
+  onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -66,6 +68,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  onFromTokenChange,
+  onToTokenChange,
   onConnectWallet,
   onAnalyticEvent
 }) => {
@@ -125,6 +129,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     }
   )
   const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
+
+  const handleSetFromToken = (token?: Token) => {
+    setFromToken(token)
+    onFromTokenChange?.(token)
+  }
+  const handleSetToToken = (token?: Token) => {
+    setToToken(token)
+    onToTokenChange?.(token)
+  }
 
   const {
     value: fromBalance,
@@ -479,10 +492,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   token.address === toToken?.address &&
                   token.chainId === toToken?.chainId
                 ) {
-                  setFromToken(toToken)
-                  setToToken(fromToken)
+                  handleSetFromToken(toToken)
+                  handleSetToToken(fromToken)
                 } else {
-                  setFromToken(token)
+                  handleSetFromToken(token)
                 }
               }}
               context="from"
@@ -492,8 +505,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                    ? formatFixedLength(amountInputValue, 8)
-                    : amountInputValue
+                  ? formatFixedLength(amountInputValue, 8)
+                  : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -600,8 +613,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   setAmountInputValue(amountOutputValue)
                 }
 
-                setFromToken(toToken)
-                setToToken(fromToken)
+                handleSetFromToken(toToken)
+                handleSetToToken(fromToken)
                 debouncedAmountInputControls.flush()
                 debouncedAmountOutputControls.flush()
               }
@@ -655,10 +668,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   token.address === fromToken?.address &&
                   token.chainId === fromToken?.chainId
                 ) {
-                  setToToken(fromToken)
-                  setFromToken(toToken)
+                  handleSetToToken(fromToken)
+                  handleSetFromToken(toToken)
                 } else {
-                  setToToken(token)
+                  handleSetToToken(token)
                 }
               }}
               context="to"
@@ -669,8 +682,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                    ? formatFixedLength(amountOutputValue, 8)
-                    : amountOutputValue
+                  ? formatFixedLength(amountOutputValue, 8)
+                  : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
