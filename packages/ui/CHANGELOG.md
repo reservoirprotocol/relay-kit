@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.5
+
+### Patch Changes
+
+- ce46e72: Strip layers from generated ui kit stylesheet
+- Updated dependencies [ce46e72]
+  - @reservoir0x/relay-design-system@0.0.2
+  - @reservoir0x/relay-kit-hooks@1.0.4
+  - @reservoir0x/relay-sdk@1.0.2
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 9.0.2
+
+### Patch Changes
+
+- ce46e72: Strip layers from generated ui kit stylesheet
+- Updated dependencies [ce46e72]
+  - @reservoir0x/relay-sdk@1.0.2
+
 ## 9.0.1
 
 ### Patch Changes
