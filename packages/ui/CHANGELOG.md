@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.6
+
+### Patch Changes
+
+- 7aa524c: Add app name and fees to RelayKitProvider options
+- 9ad0dda: Add token change callbacks
+- 7a073f8: Fix theme override selector
+
 ## 1.0.5
 
 ### Patch Changes
