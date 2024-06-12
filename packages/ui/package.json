@@ -45,7 +45,8 @@
     "react-dom": "^18.0",
     "typescript": "^5.0.0",
     "viem": "^2.9.31",
-    "wagmi": "~2.9.8"
+    "wagmi": "~2.9.8",
+    "@tanstack/react-query": ">=5.0.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
@@ -59,7 +60,6 @@
     "@reservoir0x/relay-design-system": "workspace:^",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",
-    "@tanstack/react-query": "^5.20.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "axios": "^1.7.2",

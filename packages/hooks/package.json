@@ -36,11 +36,11 @@
     "react": "^18.0",
     "react-dom": "^18.0",
     "typescript": "^5.0.0",
-    "viem": "^2.9.31"
+    "viem": "^2.9.31",
+    "@tanstack/react-query": ">=5.0.0"
   },
   "dependencies": {
     "@reservoir0x/relay-sdk": "workspace:*",
-    "@tanstack/react-query": "^5.20.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "axios": "^1.7.2"
