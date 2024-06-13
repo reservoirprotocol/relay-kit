@@ -39,6 +39,12 @@ const Index: NextPage = () => {
           <Link href="/sdk/actions/getBridgeQuote">getBridgeQuote</Link>
           <Link href="/sdk/actions/getSwapQuote">getSwapQuote</Link>
         </nav>
+        <h2>
+          <b>Hooks</b>
+        </h2>
+        <nav style={{ display: 'flex', gap: 15 }}>
+          <Link href="/hooks/useRelayConfig">useRelayConfig</Link>
+        </nav>
       </div>
     </Layout>
   )
