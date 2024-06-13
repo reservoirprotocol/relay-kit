@@ -1,7 +1,6 @@
 import { Flex, Button, Text, Box } from '../primitives/index.js'
 import type { FC } from 'react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { easeInOut, motion } from 'framer-motion'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import {
   useCurrencyBalance,
@@ -441,15 +440,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   ])
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.3,
-        ease: easeInOut
-      }}
-      className="relay-kit-reset"
-    >
+    <div className="relay-kit-reset">
       <Flex
         direction="column"
         css={{
@@ -506,8 +497,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -683,8 +674,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -998,7 +989,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           </Flex>
         )}
       </Flex>
-    </motion.div>
+    </div>
   )
 }
 
