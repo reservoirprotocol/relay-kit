@@ -9,6 +9,10 @@ export {
   default as useRelayChains,
   queryRelayChains
 } from './hooks/useRelayChains.js'
+export {
+  default as useRelayConfig,
+  queryRelayConfig
+} from './hooks/useRelayConfig.js'
 
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'
