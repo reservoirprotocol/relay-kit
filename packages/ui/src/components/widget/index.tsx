@@ -506,8 +506,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -683,8 +683,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -799,7 +799,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Flex align="center">
                       <Text style="subtitle3" color="subtle">
                         ({feeBreakdown?.totalFees.priceImpactPercentage})
-                        <FontAwesomeIcon icon={faInfoCircle} width={16} />
+                        <FontAwesomeIcon
+                          icon={faInfoCircle}
+                          width={16}
+                          style={{ display: 'inline' }}
+                        />
                       </Text>
                     </Flex>
                   </div>
