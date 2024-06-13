@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.3
+
+### Patch Changes
+
+- 772b657: Optimize the way we import lodash
+
 ## 1.0.2
 
 ### Patch Changes
