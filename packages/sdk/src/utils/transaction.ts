@@ -127,7 +127,7 @@ export async function sendTransactionSafely(
   }
 
   isValidating?.()
-  debugger
+
   // Poll the confirmation url to confirm the transaction went through
   while (
     waitingForConfirmation &&
