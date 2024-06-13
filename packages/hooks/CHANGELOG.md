@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.5
+
+### Patch Changes
+
+- 2922c29: Add useRelayConfig hook
+- Updated dependencies [772b657]
+  - @reservoir0x/relay-sdk@1.0.3
+
 ## 1.0.4
 
 ### Patch Changes

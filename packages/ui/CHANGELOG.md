@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.7
+
+### Patch Changes
+
+- 5759936: Add app fee to breakdown ui
+- 0c7e56c: Fix info icon alignment
+- a3d4c06: Fix input icon position
+- 0a8325b: Filter token search by configured tokens
+- Updated dependencies [772b657]
+- Updated dependencies [2922c29]
+  - @reservoir0x/relay-sdk@1.0.3
+  - @reservoir0x/relay-kit-hooks@1.0.5
+
 ## 1.0.6
 
 ### Patch Changes
