@@ -85,7 +85,7 @@ const Input: FC<
           <Box
             css={{
               position: 'absolute',
-              top: 8,
+              top: 12,
               left: iconPosition === 'right' ? 'unset' : 16,
               right: iconPosition === 'right' ? 16 : 'unset',
               zIndex: 0,
