@@ -1,5 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import type {
   ComponentPropsWithoutRef,
   ElementRef,
@@ -111,7 +111,7 @@ const AnimatedContent = forwardRef<
     : {
         initial: {
           opacity: 0,
-          top: '50%',
+          top: '45%',
           transform: 'translateX(-50%) translateY(-50%)'
         },
         animate: {
@@ -121,7 +121,7 @@ const AnimatedContent = forwardRef<
         },
         exit: {
           opacity: 0,
-          top: '50%',
+          top: '45%',
           transform: 'translateX(-50%) translateY(-50%)'
         }
       }
@@ -136,7 +136,10 @@ const AnimatedContent = forwardRef<
       <motion.div
         key={isMobile + 'modal'}
         ref={forwardedRef}
-        transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.2 }}
+        transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.3 }}
+        style={{
+          transition: 'opacity ease-in 0.2s'
+        }}
         {...animation}
       >
         {children}
@@ -163,13 +166,15 @@ const Dialog = forwardRef<
       <DialogPrimitive.DialogTrigger asChild>
         {trigger}
       </DialogPrimitive.DialogTrigger>
-      {open && (
-        <DialogPrimitive.DialogPortal {...portalProps}>
-          <Content ref={forwardedRef} {...props}>
-            {children}
-          </Content>
-        </DialogPrimitive.DialogPortal>
-      )}
+      <AnimatePresence>
+        {open ? (
+          <DialogPrimitive.DialogPortal forceMount {...portalProps}>
+            <AnimatedContent ref={forwardedRef} forceMount {...props}>
+              {children}
+            </AnimatedContent>
+          </DialogPrimitive.DialogPortal>
+        ) : null}
+      </AnimatePresence>
     </DialogPrimitive.Root>
   )
 })

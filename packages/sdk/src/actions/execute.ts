@@ -7,7 +7,7 @@ import {
 } from '../utils/index.js'
 import { type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import { cloneDeep } from 'lodash-es'
+import cloneDeep from 'lodash-es/cloneDeep.js'
 
 export type ExecuteActionParameters = {
   quote: Execute
