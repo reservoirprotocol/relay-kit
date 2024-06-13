@@ -45,48 +45,70 @@ export const parseFees = (
         5,
         Number(fees?.relayerService?.currency?.decimals ?? 18)
       )
+  const appFee = BigInt(fees?.app?.amount ?? 0)
   const totalFeesUsd =
     Number(fees?.relayer?.amountUsd ?? 0) + Number(fees?.app?.amountUsd ?? 0)
+
+  const breakdown: BridgeFee[] = [
+    {
+      raw: gasFee,
+      formatted: `${formattedGasFee}`,
+      usd: fees?.gas?.amountUsd
+        ? formatDollar(Number(fees.gas.amountUsd))
+        : '0',
+      name: `Deposit Gas (${selectedFrom.displayName})`,
+      tooltip: null,
+      type: 'gas',
+      id: 'origin-gas',
+      currency: fees?.gas?.currency
+    },
+    {
+      raw: relayerGasFee,
+      formatted: `${formattedRelayerGas}`,
+      usd: fees?.gas?.amountUsd
+        ? formatDollar(Number(fees.relayerGas?.amountUsd))
+        : '0',
+      name: `Fill Gas (${selectedTo.displayName})`,
+      tooltip: null,
+      type: 'gas',
+      id: 'destination-gas',
+      currency: fees?.relayerGas?.currency
+    },
+    {
+      raw: relayerFee,
+      formatted: `${relayerFeeIsReward ? '+' : ''}${formattedRelayer}`,
+      usd:
+        `${relayerFeeIsReward ? '+' : ''}` + fees?.relayerService?.amountUsd
+          ? formatDollar(Number(fees?.relayerService?.amountUsd))
+          : '0',
+      name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
+      tooltip: null,
+      type: 'relayer',
+      id: 'relayer-fee',
+      currency: fees?.relayerService?.currency
+    }
+  ]
+  if (appFee) {
+    const formattedAppFee = formatBN(
+      appFee,
+      5,
+      Number(fees?.app?.currency?.decimals ?? 18)
+    )
+    breakdown.push({
+      raw: appFee,
+      formatted: `${formattedAppFee}`,
+      usd: fees?.app?.amountUsd
+        ? formatDollar(Number(fees.app.amountUsd))
+        : '0',
+      name: 'App Fee',
+      tooltip: null,
+      type: 'relayer',
+      id: 'app-fee',
+      currency: fees?.app?.currency
+    })
+  }
   return {
-    breakdown: [
-      {
-        raw: gasFee,
-        formatted: `${formattedGasFee}`,
-        usd: fees?.gas?.amountUsd
-          ? formatDollar(Number(fees.gas.amountUsd))
-          : '0',
-        name: `Deposit Gas (${selectedFrom.displayName})`,
-        tooltip: null,
-        type: 'gas',
-        id: 'origin-gas',
-        currency: fees?.gas?.currency
-      },
-      {
-        raw: relayerGasFee,
-        formatted: `${formattedRelayerGas}`,
-        usd: fees?.gas?.amountUsd
-          ? formatDollar(Number(fees.relayerGas?.amountUsd))
-          : '0',
-        name: `Fill Gas (${selectedTo.displayName})`,
-        tooltip: null,
-        type: 'gas',
-        id: 'destination-gas',
-        currency: fees?.relayerGas?.currency
-      },
-      {
-        raw: relayerFee,
-        formatted: `${relayerFeeIsReward ? '+' : ''}${formattedRelayer}`,
-        usd:
-          `${relayerFeeIsReward ? '+' : ''}` + fees?.relayerService?.amountUsd
-            ? formatDollar(Number(fees?.relayerService?.amountUsd))
-            : '0',
-        name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
-        tooltip: null,
-        type: 'relayer',
-        id: 'relayer-fee',
-        currency: fees?.relayerService?.currency
-      }
-    ],
+    breakdown,
     totalFees: {
       usd: formatDollar(totalFeesUsd),
       priceImpactPercentage: quote?.details?.totalImpact?.percent
