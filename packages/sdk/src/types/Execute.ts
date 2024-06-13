@@ -1,5 +1,6 @@
 import type { Address } from 'viem'
 import type { paths } from './api.js'
+import type { AxiosRequestConfig } from 'axios'
 
 export type CallFees =
   paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['fees']
@@ -61,6 +62,9 @@ export type Execute = {
       isValidatingSignature?: boolean
     }[]
   }[]
+
+  //Manually added request parameters that fetched the data
+  request?: AxiosRequestConfig
 }
 
 export type ExecuteStep = NonNullable<Execute['steps']>['0']

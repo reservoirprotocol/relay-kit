@@ -52,9 +52,11 @@ export async function execute(data: ExecuteActionParameters) {
 
     const modifiableQuote = cloneDeep(quote)
 
+    const { request, ..._quote } = modifiableQuote
+
     const data = await executeSteps(
       chainId,
-      undefined,
+      request,
       adaptedWallet,
       ({ steps, fees, breakdown, details }) => {
         const { currentStep, currentStepItem, txHashes } =
@@ -70,7 +72,7 @@ export async function execute(data: ExecuteActionParameters) {
           txHashes
         })
       },
-      modifiableQuote,
+      _quote,
       depositGasLimit
         ? {
             deposit: {
