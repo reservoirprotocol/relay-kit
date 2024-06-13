@@ -92,6 +92,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .sort((a, b) => a.name.localeCompare(b.name)) ?? []
     )
   }, [relayClient?.chains])
+  const configuredChainIds = useMemo(
+    () => configuredChains.map((chain) => chain.id),
+    [configuredChains]
+  )
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' && chainFilter.id === undefined
@@ -99,7 +103,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
     {
-      chainIds: chainFilter.id ? [chainFilter.id] : undefined,
+      chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
       address: isAddress(debouncedTokenSearchValue)
         ? debouncedTokenSearchValue
         : undefined,
@@ -117,20 +121,24 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     isLoading: isLoadingDuneBalances
   } = useDuneBalances(address && address !== zeroAddress ? address : undefined)
 
+  const duneTokenBalances = duneTokens?.balances.filter((balance) =>
+    configuredChainIds.includes(balance.chain_id)
+  )
+
   const { data: suggestedTokens, isLoading: isLoadingSuggestedTokens } =
     useTokenList(
       relayClient?.baseApiUrl,
-      duneTokens && duneTokens.balances
+      duneTokenBalances
         ? {
             //@ts-ignore
-            tokens: duneTokens.balances.map(
+            tokens: duneTokenBalances.map(
               (balance) => `${balance.chain_id}:${balance.address}`
             ),
             limit: 20
           }
         : undefined,
       {
-        enabled: duneTokens && duneTokens.balances ? true : false
+        enabled: duneTokenBalances ? true : false
       }
     )
   // Filter out unconfigured chains and append Relay Chain to each currency
