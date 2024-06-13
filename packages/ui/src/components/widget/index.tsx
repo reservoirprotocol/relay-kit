@@ -790,7 +790,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Flex align="center">
                       <Text style="subtitle3" color="subtle">
                         ({feeBreakdown?.totalFees.priceImpactPercentage})
-                        <FontAwesomeIcon icon={faInfoCircle} width={16} />
+                        <FontAwesomeIcon
+                          icon={faInfoCircle}
+                          width={16}
+                          style={{ display: 'inline' }}
+                        />
                       </Text>
                     </Flex>
                   </div>
