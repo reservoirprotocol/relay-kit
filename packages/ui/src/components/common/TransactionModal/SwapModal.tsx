@@ -28,6 +28,7 @@ type SwapModalProps = {
   error?: Error | null
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
+  onSuccess?: (data: Execute) => void
 }
 
 export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
@@ -39,7 +40,8 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     details,
     fromToken,
     toToken,
-    onAnalyticEvent
+    onAnalyticEvent,
+    onSuccess
   } = swapModalProps
   return (
     <TransactionModalRenderer
@@ -70,6 +72,11 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
           quote_id: quoteId
+        })
+        onSuccess?.({
+          steps: swapModalProps.steps as Execute['steps'],
+          fees: swapModalProps.fees,
+          details: swapModalProps.details as Execute['details']
         })
       }}
     >

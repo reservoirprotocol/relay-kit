@@ -60,6 +60,8 @@ type SwapWidgetProps = {
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onSwapSuccess?: (data: Execute) => void
+  onSwapError?: (error: string, data?: Execute) => void
 }
 
 const SwapWidget: FC<SwapWidgetProps> = ({
@@ -71,7 +73,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onSwapSuccess,
+  onSwapError
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const wagmiConfig = useConfig()
@@ -205,7 +209,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         }
       : undefined,
     () => {},
-    () => {},
+    ({ steps, details }) => {
+      onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+        wallet_connector: connector?.name,
+        quote_id: steps ? extractQuoteId(steps) : undefined,
+        amount_in: details?.currencyIn?.amountFormatted,
+        currency_in: details?.currencyIn?.currency?.symbol,
+        chain_id_in: details?.currencyIn?.currency?.chainId,
+        amount_out: details?.currencyOut?.amountFormatted,
+        currency_out: details?.currencyOut?.currency?.symbol,
+        chain_id_out: details?.currencyOut?.currency?.chainId
+      })
+    },
     {
       enabled:
         Boolean(
@@ -353,32 +368,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         })
       }
 
-      executeSwap(
-        ({ steps, currentStep, currentStepItem, txHashes, details }) => {
-          // Only send event on first onProgress callback
-          const firstStepId = steps && steps[0] ? steps[0].id : ''
-          if (
-            (currentStep?.id === firstStepId &&
-              currentStepItem?.status === 'incomplete' &&
-              !txHashes) ||
-            (txHashes && txHashes.length === 0)
-          ) {
-            onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
-              wallet_connector: connector?.name,
-              quote_id: steps ? extractQuoteId(steps) : undefined,
-              amount_in: parseFloat(`${debouncedInputAmountValue}`),
-              currency_in: fromToken?.symbol,
-              chain_id_in: fromToken?.chainId,
-              amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-              currency_out: toToken?.symbol,
-              chain_id_out: toToken?.chainId
-            })
-          }
-
-          setSteps(steps)
-          setDetails(details)
-        }
-      )
+      executeSwap(({ steps, details }) => {
+        setSteps(steps)
+        setDetails(details)
+      })
         ?.catch((error: any) => {
           if (
             error &&
@@ -408,6 +401,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             chain_id_out: toToken?.chainId
           })
           setSwapError(errorMessage)
+          onSwapError?.(errorMessage, quote as Execute)
         })
         .finally(() => {
           setWaitingForSteps(false)
@@ -426,6 +420,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         currency_out: toToken?.symbol,
         chain_id_out: toToken?.chainId
       })
+      onSwapError?.(e as any, quote as Execute)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -506,8 +501,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -684,8 +679,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
@@ -946,6 +941,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             fees={quote?.fees}
             address={address}
             onAnalyticEvent={onAnalyticEvent}
+            onSuccess={onSwapSuccess}
           />
         ) : null}
         <CustomAddressModal
