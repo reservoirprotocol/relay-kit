@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useMemo, useState } from 'react'
 import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
 import type { RelayClientOptions, paths } from '@reservoir0x/relay-sdk'
@@ -125,20 +125,21 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
   options,
   theme
 }: RelayKitProviderProps) {
-  const [providerOptions, setProviderOptions] =
-    useState<RelayKitProviderOptions>({})
-
-  useEffect(() => {
-    setProviderOptions({
+  const providerOptions = useMemo(
+    () => ({
       appName: options.appName,
       appFees: options.appFees,
       duneApiKey: options.duneApiKey,
       disablePoweredByReservoir: options.disablePoweredByReservoir
-    })
-  }, [options])
+    }),
+    [options]
+  )
 
   // Generate the CSS variable declarations
-  const cssVariables = generateCssVars(theme, themeOverrides)
+  const cssVariables = useMemo(
+    () => generateCssVars(theme, themeOverrides),
+    [theme]
+  )
 
   return (
     <ProviderOptionsContext.Provider value={providerOptions}>
