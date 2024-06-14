@@ -487,7 +487,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   direction: 'input',
                   token_symbol: token.symbol
                 })
-                handleSetFromToken(token)
+                if (
+                  token.address === toToken?.address &&
+                  token.chainId === toToken?.chainId &&
+                  address === recipient
+                ) {
+                  handleSetFromToken(toToken)
+                  handleSetToToken(fromToken)
+                } else {
+                  handleSetFromToken(token)
+                }
               }}
               context="from"
             />
@@ -655,7 +664,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   direction: 'output',
                   token_symbol: token.symbol
                 })
-                handleSetToToken(token)
+                if (
+                  token.address === fromToken?.address &&
+                  token.chainId === fromToken?.chainId &&
+                  address === recipient
+                ) {
+                  handleSetToToken(fromToken)
+                  handleSetFromToken(toToken)
+                } else {
+                  handleSetToToken(token)
+                }
               }}
               context="to"
               onAnalyticEvent={onAnalyticEvent}
