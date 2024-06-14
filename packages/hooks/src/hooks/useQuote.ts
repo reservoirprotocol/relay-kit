@@ -14,6 +14,7 @@ import {
 } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import type { WalletClient } from 'viem'
+import type { AxiosRequestConfig } from 'axios'
 
 type ExecuteSwapBody =
   paths['/execute/swap']['post']['requestBody']['content']['application/json']
@@ -32,9 +33,25 @@ type QueryOptions = Parameters<QueryType>['0']
 export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: ExecuteSwapBody
-): Promise<ExecuteSwapResponse> {
-  const url = new URL(`${baseApiUrl}/execute/swap`)
-  return axiosPostFetcher(url.href, options)
+): Promise<Execute> {
+  return new Promise((resolve, reject) => {
+    const url = new URL(`${baseApiUrl}/execute/swap`)
+    axiosPostFetcher(url.href, options)
+      .then((response) => {
+        const request: AxiosRequestConfig = {
+          url: url.href,
+          method: 'post',
+          data: options
+        }
+        resolve({
+          ...response,
+          request
+        })
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
 }
 
 type onProgress = (data: ProgressData) => void
