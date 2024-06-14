@@ -741,7 +741,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Flex css={{ minWidth: 200 }} direction="column">
                       <Flex align="center" css={{ width: '100%' }}>
                         <Text style="subtitle3" css={{ mr: 'auto' }}>
-                          Total Fees
+                          Total Price Impact
                         </Text>
                         <Text style="subtitle3" css={{ mr: '1' }}>
                           {feeBreakdown?.totalFees.priceImpact}
