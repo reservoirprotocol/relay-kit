@@ -798,7 +798,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         <FontAwesomeIcon
                           icon={faInfoCircle}
                           width={16}
-                          style={{ display: 'inline' }}
+                          style={{ display: 'inline-block', marginLeft: 4 }}
                         />
                       </Text>
                     </Flex>
