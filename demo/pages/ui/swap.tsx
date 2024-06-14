@@ -45,6 +45,12 @@ const SwapWidgetPage: NextPage = () => {
           onToTokenChange={(token) =>
             console.log('To token changed to: ', token)
           }
+          onSwapError={(e, data) => {
+            console.log('onSwapError Triggered', e, data)
+          }}
+          onSwapSuccess={(data) => {
+            console.log('onSwapSuccess Triggered', data)
+          }}
         />
       </div>
     </Layout>

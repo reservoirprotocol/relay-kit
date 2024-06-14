@@ -61,7 +61,7 @@ export default function (
   wallet?: WalletClient | AdaptedWallet,
   options?: ExecuteSwapBody,
   onRequest?: () => void,
-  onResponse?: (data: ExecuteSwapResponse) => void,
+  onResponse?: (data: Execute) => void,
   queryOptions?: Partial<QueryOptions>
 ) {
   const response = (useQuery as QueryType)({
