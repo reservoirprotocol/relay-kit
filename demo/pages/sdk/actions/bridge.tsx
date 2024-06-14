@@ -64,7 +64,7 @@ const BridgeActionPage: NextPage = () => {
         <div>
           <label>Currency: </label>
           <input
-            type="number"
+            type="string"
             placeholder="What currency to bridge?"
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}

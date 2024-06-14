@@ -108,5 +108,5 @@ export async function getQuote(
   if (res.status !== 200) {
     throw new APIError(res?.data?.message, res.status, res.data)
   }
-  return res.data as Execute
+  return { ...res.data, request } as Execute
 }
