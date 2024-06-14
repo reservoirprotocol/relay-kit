@@ -48,6 +48,7 @@ import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import Tooltip from '../primitives/Tooltip.js'
+import { ReservoirText } from '../../img/ReservoirText.js'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -991,13 +992,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 css={{
                   height: 12,
                   fontSize: 14,
-                  '&:hover': {
-                    color: '$neutralSolid',
-                    fill: '$neutralSolid'
-                  }
+                  fill: 'gray11',
+                  _hover: { fill: 'gray12' }
                 }}
               >
-                Reservoir
+                <ReservoirText />
               </Anchor>
             </Text>
           </Flex>
