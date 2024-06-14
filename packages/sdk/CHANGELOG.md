@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.4
+
+### Patch Changes
+
+- 6b5015b: Add request to quote to be passed into execute function
+
 ## 1.0.3
 
 ### Patch Changes
