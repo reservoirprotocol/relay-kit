@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.8
+
+### Patch Changes
+
+- f0ecb82: Allow same currency swapping when different recipient
+- 7361f60: Fix RelayKitProvider initialization
+- Updated dependencies [6b5015b]
+  - @reservoir0x/relay-sdk@1.0.4
+  - @reservoir0x/relay-kit-hooks@1.0.6
+
 ## 1.0.7
 
 ### Patch Changes
