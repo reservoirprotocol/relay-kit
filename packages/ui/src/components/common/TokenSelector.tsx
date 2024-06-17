@@ -143,7 +143,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     )
   // Filter out unconfigured chains and append Relay Chain to each currency
   const enhancedCurrencyList = useMemo(() => {
-    let _tokenList =
+    const _tokenList =
       tokenList && (tokenList as any).length
         ? (tokenList as CurrencyList[])
         : undefined

@@ -422,7 +422,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       })
       onSwapError?.(e as any, quote as Execute)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     relayClient,
     activeWalletChainId,
@@ -776,7 +775,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           return null
                         }
                         return (
-                          <Flex align="center" css={{ width: '100%' }}>
+                          <Flex
+                            key={fee.id}
+                            align="center"
+                            css={{ width: '100%' }}
+                          >
                             <Text
                               style="subtitle3"
                               color="subtle"

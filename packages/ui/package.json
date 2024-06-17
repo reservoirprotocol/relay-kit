@@ -23,7 +23,7 @@
     "./panda.buildinfo.json": "./dist/panda.buildinfo.json"
   },
   "scripts": {
-    "build": "pnpm prepare && pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types && pnpm run build:panda",
+    "build": "pnpm run lint && pnpm prepare && pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types && pnpm run build:panda",
     "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./_cjs/package.json",
     "build:esm": "tsc --project ./tsconfig.build.json --module es2015 --outDir ./_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./_esm/package.json",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --outDir ./_types --declarationDir ./_types --emitDeclarationOnly --declaration --declarationMap",
@@ -33,14 +33,24 @@
     "dev:types": "tsc --watch --project ./tsconfig.build.json --module esnext --outDir ./_types --declarationDir ./_types --emitDeclarationOnly --declaration --declarationMap",
     "clean": "rimraf ./_esm ./_cjs ./_types",
     "typecheck": "tsc --noEmit",
-    "prepare": "panda codegen"
+    "prepare": "panda codegen",
+    "lint": "pnpm eslint"
   },
   "devDependencies": {
     "@csstools/postcss-cascade-layers": "^4.0.6",
+    "@eslint/js": "^9.5.0",
     "@pandacss/dev": "^0.40.0",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "~8.57.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "globals": "^15.6.0",
     "node-fetch": "^3.3.2",
     "postcss": "^8",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.13.1"
   },
   "peerDependencies": {
     "@tanstack/react-query": ">=5.0.0",

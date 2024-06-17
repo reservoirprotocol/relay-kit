@@ -135,6 +135,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
     } else {
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const fromAmountFormatted = details?.currencyIn?.amount
