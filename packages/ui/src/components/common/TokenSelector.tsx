@@ -41,6 +41,7 @@ const fuseSearchOptions = {
 
 type TokenSelectorProps = {
   token?: Token
+  locked: boolean
   context: 'from' | 'to'
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -58,6 +59,7 @@ enum TokenSelectorStep {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
+  locked,
   context,
   setToken,
   onAnalyticEvent
@@ -285,6 +287,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           <Button
             color="white"
             corners="pill"
+            disabled={locked}
             css={{
               display: 'flex',
               alignItems: 'center',
@@ -293,7 +296,16 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               height: 46,
               maxWidth: 162,
               flexShrink: 0,
-              overflow: 'hidden'
+              overflow: 'hidden',
+              _disabled: {
+                backgroundColor: 'transparent',
+                border: 'none',
+                px: 0,
+                _hover: {
+                  backgroundColor: 'transparent',
+                  filter: 'none'
+                }
+              }
             }}
           >
             <Flex align="center" css={{ gap: '2' }}>
@@ -305,9 +317,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 {token.symbol}
               </Text>
             </Flex>
-            <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-              <FontAwesomeIcon icon={faChevronDown} width={14} />
-            </Box>
+            {locked ? null : (
+              <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
+                <FontAwesomeIcon icon={faChevronDown} width={14} />
+              </Box>
+            )}
           </Button>
         ) : (
           <Button
