@@ -25,11 +25,14 @@
     "build:adapter": "pnpm run -C packages/relay-ethers-wallet-adapter build",
     "syncSdkTypes": "node packages/sdk/scripts/sync-api.mjs",
     "sdk": "pnpm run -C packages/sdk dev",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky",
+    "lint": "pnpm run -C packages/ui lint && pnpm run -C packages/hooks lint"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
     "openapi-typescript": "^6.7.3",
     "tslib": "^2.6.2"
   },
