@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.7
+
+### Patch Changes
+
+- 813be48: Add onSuccess and onError callbacks for SwapWidget
+
 ## 1.0.6
 
 ### Patch Changes
