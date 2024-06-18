@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.11
+
+### Patch Changes
+
+- ffb9ebe: Fix button color when token selector is locked
+- 1945809: Move wallet chain id check to further in the flow
+- Updated dependencies [1945809]
+  - @reservoir0x/relay-kit-hooks@1.0.8
+  - @reservoir0x/relay-sdk@1.0.5
+
 ## 1.0.10
 
 ### Patch Changes
