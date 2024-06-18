@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.10
+
+### Patch Changes
+
+- b093883: Add lock token params to swap widget"
+
 ## 1.0.9
 
 ### Patch Changes
