@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.9
+
+### Patch Changes
+
+- 577658a: Update powered by reservoir to use logo
+- 525e523: Fix total price impact copy
+- 813be48: Add onSuccess and onError callbacks for SwapWidget
+- Updated dependencies [813be48]
+  - @reservoir0x/relay-kit-hooks@1.0.7
+
 ## 1.0.8
 
 ### Patch Changes
