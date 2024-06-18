@@ -60,18 +60,10 @@ export async function executeSteps(
     (2.5 * 60 * 1000) / pollingInterval
 
   const chain = client.chains.find((chain) => chain.id === chainId)
-  const walletChainId = await wallet.getChainId()
 
   if (!chain) {
     throw `Unable to find chain: Chain id ${chainId}`
-  } else if (chain.id !== walletChainId) {
-    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chain.id} `
   }
-
-  const viemClient = createPublicClient({
-    chain: chain?.viemChain,
-    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
-  })
 
   let json = newJson
   try {
@@ -221,7 +213,6 @@ export async function executeSteps(
                   })
                   await sendTransactionSafely(
                     transactionChainId,
-                    viemClient,
                     stepItem as TransactionStepItem,
                     step,
                     wallet,
@@ -515,6 +506,13 @@ export async function executeSteps(
   } catch (err: any) {
     let blockNumber = 0n
     try {
+      const chain = client.chains.find((chain) => chain.id === chainId)
+      const viemClient = createPublicClient({
+        chain: chain?.viemChain,
+        transport: wallet.transport
+          ? fallback([wallet.transport, http()])
+          : http()
+      })
       blockNumber = await viemClient.getBlockNumber()
     } catch (blockError) {
       client.log(

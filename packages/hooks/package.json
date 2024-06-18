@@ -39,13 +39,12 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.6.0",
-    "typescript": "^5.4.5",
+    "typescript": "5.4.5",
     "typescript-eslint": "^7.13.1"
   },
   "peerDependencies": {
     "react": "^18.0",
     "react-dom": "^18.0",
-    "typescript": "^5.0.0",
     "viem": "^2.9.31",
     "@tanstack/react-query": ">=5.0.0"
   },
