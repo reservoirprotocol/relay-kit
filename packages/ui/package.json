@@ -49,14 +49,13 @@
     "node-fetch": "^3.3.2",
     "postcss": "^8",
     "rimraf": "^5.0.5",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^7.13.1"
+    "typescript-eslint": "^7.13.1",
+    "typescript": "5.4.5"
   },
   "peerDependencies": {
     "@tanstack/react-query": ">=5.0.0",
     "react": "^18.0",
     "react-dom": "^18.0",
-    "typescript": "^5.0.0",
     "viem": "^2.9.31",
     "wagmi": "~2.9.8"
   },

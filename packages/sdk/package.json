@@ -31,10 +31,10 @@
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
     "node-fetch": "^3.3.2",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "typescript": "5.4.5"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0",
     "viem": "^2.9.31"
   },
   "dependencies": {

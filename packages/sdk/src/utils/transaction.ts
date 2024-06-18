@@ -1,4 +1,4 @@
-import type { Address, PublicClient } from 'viem'
+import { createPublicClient, fallback, http, type Address } from 'viem'
 import { LogLevel } from './logger.js'
 import type {
   Execute,
@@ -22,7 +22,6 @@ import { SolverStatusTimeoutError } from '../errors/index.js'
  */
 export async function sendTransactionSafely(
   chainId: number,
-  viemClient: PublicClient,
   item: TransactionStepItem,
   step: Execute['steps'][0],
   wallet: AdaptedWallet,
@@ -38,6 +37,17 @@ export async function sendTransactionSafely(
   isValidating?: () => void
 ) {
   const client = getClient()
+  const chain = client.chains.find((chain) => chain.id === chainId)
+  const walletChainId = await wallet.getChainId()
+  if (chainId !== walletChainId) {
+    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
+  }
+
+  const viemClient = createPublicClient({
+    chain: chain?.viemChain,
+    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
+  })
+
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
   if ((txHash as any) === 'null') {
     throw 'User rejected the request'

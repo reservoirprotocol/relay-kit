@@ -428,6 +428,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       })
       onSwapError?.(e as any, quote as Execute)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     relayClient,
     activeWalletChainId,
