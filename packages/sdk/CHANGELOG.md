@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.5
+
+### Patch Changes
+
+- 1945809: Move wallet chain id check to further in the flow
+
 ## 1.0.4
 
 ### Patch Changes

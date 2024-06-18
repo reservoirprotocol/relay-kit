@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.8
+
+### Patch Changes
+
+- 1945809: Move wallet chain id check to further in the flow
+- Updated dependencies [1945809]
+  - @reservoir0x/relay-sdk@1.0.5
+
 ## 1.0.7
 
 ### Patch Changes
