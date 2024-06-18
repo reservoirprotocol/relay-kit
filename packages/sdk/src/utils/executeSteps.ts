@@ -283,6 +283,10 @@ export async function executeSteps(
                     breakdown: json?.breakdown,
                     details: json?.details
                   })
+                  const walletChainId = await wallet.getChainId()
+                  if (chainId !== walletChainId) {
+                    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
+                  }
                   signature = await wallet.handleSignMessageStep(
                     stepItem as SignatureStepItem,
                     step
