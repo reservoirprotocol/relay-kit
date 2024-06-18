@@ -298,11 +298,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               flexShrink: 0,
               overflow: 'hidden',
               _disabled: {
-                backgroundColor: 'widget-background',
+                backgroundColor: 'transparent',
                 border: 'none',
                 px: 0,
                 _hover: {
-                  backgroundColor: 'widget-background',
+                  backgroundColor: 'transparent',
                   filter: 'none'
                 }
               }
