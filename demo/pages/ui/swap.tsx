@@ -18,14 +18,16 @@ const SwapWidgetPage: NextPage = () => {
         }}
       >
         <SwapWidget
-          // defaultToToken={{
-          //   chainId: 10,
-          //   address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-          //   decimals: 6,
-          //   name: "USDC",
-          //   symbol: "USDC",
-          //   logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
-          // }}
+          defaultToToken={{
+            chainId: 10,
+            address: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+            decimals: 6,
+            name: 'USDC',
+            symbol: 'USDC',
+            logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
+          }}
+          // lockToToken={true}
+          // lockFromToken={true}
           defaultFromToken={{
             chainId: 8453,
             address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',

@@ -56,6 +56,8 @@ type SwapWidgetProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
+  lockToToken?: boolean
+  lockFromToken?: boolean
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -70,6 +72,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  lockToToken = false,
+  lockFromToken = false,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
@@ -132,6 +136,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     }
   )
   const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
+
+  const hasLockedToken = lockFromToken || lockToToken
 
   const handleSetFromToken = (token?: Token) => {
     setFromToken(token)
@@ -476,6 +482,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <Flex align="center" justify="between" css={{ gap: '4' }}>
             <TokenSelector
               token={fromToken}
+              locked={lockFromToken}
               onAnalyticEvent={onAnalyticEvent}
               setToken={(token) => {
                 onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -500,8 +507,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                    ? formatFixedLength(amountInputValue, 8)
-                    : amountInputValue
+                  ? formatFixedLength(amountInputValue, 8)
+                  : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -581,42 +588,44 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             position: 'relative',
             my: -10,
             mx: 'auto',
-            height: 40
+            height: hasLockedToken ? 30 : 40
           }}
         >
-          <Button
-            size="small"
-            color="white"
-            css={{
-              color: 'gray9',
-              alignSelf: 'center',
-              px: '2',
-              py: '2',
-              borderWidth: '2px !important',
-              minHeight: 30,
-              zIndex: 10
-            }}
-            onClick={() => {
-              if (fromToken || toToken) {
-                if (tradeType === 'EXACT_INPUT') {
-                  setTradeType('EXACT_OUTPUT')
-                  setAmountInputValue('')
-                  setAmountOutputValue(amountInputValue)
-                } else {
-                  setTradeType('EXACT_INPUT')
-                  setAmountOutputValue('')
-                  setAmountInputValue(amountOutputValue)
-                }
+          {hasLockedToken ? null : (
+            <Button
+              size="small"
+              color="white"
+              css={{
+                color: 'gray9',
+                alignSelf: 'center',
+                px: '2',
+                py: '2',
+                borderWidth: '2px !important',
+                minHeight: 30,
+                zIndex: 10
+              }}
+              onClick={() => {
+                if (fromToken || toToken) {
+                  if (tradeType === 'EXACT_INPUT') {
+                    setTradeType('EXACT_OUTPUT')
+                    setAmountInputValue('')
+                    setAmountOutputValue(amountInputValue)
+                  } else {
+                    setTradeType('EXACT_INPUT')
+                    setAmountOutputValue('')
+                    setAmountInputValue(amountOutputValue)
+                  }
 
-                handleSetFromToken(toToken)
-                handleSetToToken(fromToken)
-                debouncedAmountInputControls.flush()
-                debouncedAmountOutputControls.flush()
-              }
-            }}
-          >
-            <FontAwesomeIcon icon={faArrowDown} width={16} height={16} />
-          </Button>
+                  handleSetFromToken(toToken)
+                  handleSetToToken(fromToken)
+                  debouncedAmountInputControls.flush()
+                  debouncedAmountOutputControls.flush()
+                }
+              }}
+            >
+              <FontAwesomeIcon icon={faArrowDown} width={16} height={16} />
+            </Button>
+          )}
         </Box>
         <Flex
           align="center"
@@ -654,6 +663,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <Flex align="center" justify="between" css={{ gap: '4' }}>
             <TokenSelector
               token={toToken}
+              locked={lockToToken}
               setToken={(token) => {
                 onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                   direction: 'output',
@@ -678,8 +688,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                    ? formatFixedLength(amountOutputValue, 8)
-                    : amountOutputValue
+                  ? formatFixedLength(amountOutputValue, 8)
+                  : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
