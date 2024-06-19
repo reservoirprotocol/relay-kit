@@ -414,9 +414,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                     : 'Tokens'
                   : null}
               </Text>
-              <Text style="body3" color="subtle" css={{ pl: '2', ml: 'auto' }}>
-                Balance
-              </Text>
+              {address ? (
+                <Text
+                  style="body3"
+                  color="subtle"
+                  css={{ pl: '2', ml: 'auto' }}
+                >
+                  Balance
+                </Text>
+              ) : undefined}
             </Flex>
             <Flex
               direction="column"
