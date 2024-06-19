@@ -176,8 +176,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
   }, [queryClient, fromBalanceQueryKey, toBalanceQueryKey, address])
-
-  const { data: capabilities } = useCapabilities()
+  const { data: capabilities } = useCapabilities({
+    query: {
+      enabled: connector && connector.id === 'coinbase'
+    }
+  })
   const hasAuxiliaryFundsSupport = Boolean(
     fromToken?.chainId
       ? capabilities?.[fromToken?.chainId]?.auxiliaryFunds?.supported
@@ -508,8 +511,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_INPUT'
                   ? amountInputValue
                   : amountInputValue
-                  ? formatFixedLength(amountInputValue, 8)
-                  : amountInputValue
+                    ? formatFixedLength(amountInputValue, 8)
+                    : amountInputValue
               }
               setValue={(e) => {
                 setAmountInputValue(e)
@@ -689,8 +692,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 tradeType === 'EXACT_OUTPUT'
                   ? amountOutputValue
                   : amountOutputValue
-                  ? formatFixedLength(amountOutputValue, 8)
-                  : amountOutputValue
+                    ? formatFixedLength(amountOutputValue, 8)
+                    : amountOutputValue
               }
               setValue={(e) => {
                 setAmountOutputValue(e)
