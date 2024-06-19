@@ -106,7 +106,12 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               }}
             >
               <Box css={{ width: 29, height: 27 }}>
-                <FontAwesomeIcon icon={faBolt} width={29} height={27} />
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  width={29}
+                  height={27}
+                  style={{ height: 27 }}
+                />
               </Box>
             </Flex>
           </Flex>
