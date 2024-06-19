@@ -178,7 +178,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   }, [queryClient, fromBalanceQueryKey, toBalanceQueryKey, address])
   const { data: capabilities } = useCapabilities({
     query: {
-      enabled: connector && connector.id === 'coinbase'
+      enabled: connector && connector.id === 'coinbaseWalletSDK'
     }
   })
   const hasAuxiliaryFundsSupport = Boolean(
