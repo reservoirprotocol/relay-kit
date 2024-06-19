@@ -219,7 +219,11 @@ export async function sendTransactionSafely(
     }
 
     if (!receipt) {
-      receiptController.abort()
+      if (!item.check) {
+        await receiptPromise
+      } else {
+        receiptController.abort()
+      }
     }
   }
 
