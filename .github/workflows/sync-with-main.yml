@@ -1,0 +1,27 @@
+name: Sync branches with main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-privy:
+    runs-on: ubuntu-latest
+    name: Syncing branches with main
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+      - name: Sync dev with main
+        run: |
+          git fetch --depth=2147483647
+          git checkout dev
+          git pull
+          git merge --no-ff main -m "Auto-merge main into dev"
+          git push
