@@ -875,14 +875,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 )}
               </button>
 
-              <Flex css={{ gap: '2' }} align="center">
-                <FontAwesomeIcon
-                  icon={faClock}
-                  width={16}
-                  style={{
-                    color: timeEstimate.time < 30 ? '#30A46C' : '#FFA01C'
-                  }}
-                />
+              <Flex
+                css={{
+                  gap: '2',
+                  color:
+                    timeEstimate.time <= 30
+                      ? '{colors.green.9}'
+                      : '{colors.amber.9}'
+                }}
+                align="center"
+              >
+                <FontAwesomeIcon icon={faClock} width={16} />
                 <Text style="subtitle2">~ {timeEstimate.formattedTime}</Text>
                 <Box css={{ width: 1, background: 'gray6', height: 20 }} />
                 <FontAwesomeIcon
