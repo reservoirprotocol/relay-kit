@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.12
+
+### Patch Changes
+
+- 4758845: Update swap time icon color code
+- 5a6f8ca: Hide balance column in TokenSelector when account is not connected
+- d2c94a3: Disable useCapabilities except for on coinbase wallet
+
 ## 1.0.11
 
 ### Patch Changes
