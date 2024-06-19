@@ -1,4 +1,10 @@
-import { createPublicClient, fallback, http, type Address } from 'viem'
+import {
+  createPublicClient,
+  fallback,
+  http,
+  type Address,
+  type TransactionReceipt
+} from 'viem'
 import { LogLevel } from './logger.js'
 import type {
   Execute,
@@ -42,6 +48,14 @@ export async function sendTransactionSafely(
   if (chainId !== walletChainId) {
     throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
   }
+  let receipt: TransactionReceipt | undefined
+  let transactionCancelled = false
+  const pollingInterval = client.pollingInterval ?? 5000
+  const maximumAttempts =
+    client.maxPollingAttemptsBeforeTimeout ??
+    (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
+  let waitingForConfirmation = true
+  let attemptCount = 0
 
   const viemClient = createPublicClient({
     chain: chain?.viemChain,
@@ -61,54 +75,12 @@ export async function sendTransactionSafely(
     headers
   })
 
-  const pollingInterval = client.pollingInterval ?? 5000
-  const maximumAttempts =
-    client.maxPollingAttemptsBeforeTimeout ??
-    (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
-  let attemptCount = 0
-  let waitingForConfirmation = true
-  let transactionCancelled = false
-
   if (!txHash) {
     throw Error('Transaction hash not returned from sendTransaction method')
   }
   setTxHashes([{ txHash: txHash, chainId: chainId }])
 
-  // Handle transaction replacements and cancellations
-  const receipt = await viemClient
-    .waitForTransactionReceipt({
-      hash: txHash,
-      onReplaced: (replacement) => {
-        if (replacement.reason === 'cancelled') {
-          transactionCancelled = true
-          throw Error('Transaction cancelled')
-        }
-
-        setTxHashes([
-          { txHash: replacement.transaction.hash, chainId: chainId }
-        ])
-        txHash = replacement.transaction.hash
-        attemptCount = 0 // reset attempt count
-        getClient()?.log(
-          ['Transaction replaced', replacement],
-          LogLevel.Verbose
-        )
-        postTransactionToSolver({
-          txHash,
-          chainId,
-          step,
-          request,
-          headers
-        })
-      }
-    })
-    .catch((error) => {
-      getClient()?.log(
-        ['Error in waitForTransactionReceipt', error],
-        LogLevel.Error
-      )
-    })
-
+  //Set up internal functions
   const validate = (res: AxiosResponse) => {
     getClient()?.log(
       ['Execute Steps: Polling for confirmation', res],
@@ -136,47 +108,119 @@ export async function sendTransactionSafely(
     return false
   }
 
-  isValidating?.()
-
-  // Poll the confirmation url to confirm the transaction went through
-  while (
-    waitingForConfirmation &&
-    attemptCount < maximumAttempts &&
-    !transactionCancelled
-  ) {
-    let res
-    if (item?.check?.endpoint && !request?.data?.useExternalLiquidity) {
-      res = await axios.request({
-        url: `${request.baseURL}${item?.check?.endpoint}`,
-        method: item?.check?.method,
-        headers: headers
-      })
-    }
-
-    if (!res || validate(res)) {
-      waitingForConfirmation = false // transaction confirmed
-    } else if (
-      // rely on tx confirmation if there is no check endpoint
-      !item?.check?.endpoint &&
-      receipt &&
-      receipt.status === 'success'
+  const pollForConfirmation = async () => {
+    isValidating?.()
+    // Poll the confirmation url to confirm the transaction went through
+    while (
+      waitingForConfirmation &&
+      attemptCount < maximumAttempts &&
+      !transactionCancelled
     ) {
-      waitingForConfirmation = false
-    } else if (res) {
-      if (res.data.status !== 'pending') {
-        attemptCount++
+      let res
+      if (item?.check?.endpoint && !request?.data?.useExternalLiquidity) {
+        res = await axios.request({
+          url: `${request.baseURL}${item?.check?.endpoint}`,
+          method: item?.check?.method,
+          headers: headers
+        })
       }
+      if (!res || validate(res)) {
+        waitingForConfirmation = false // transaction confirmed
+      } else if (res) {
+        if (res.data.status !== 'pending') {
+          attemptCount++
+        }
 
-      await new Promise((resolve) => setTimeout(resolve, pollingInterval))
+        await new Promise((resolve) => setTimeout(resolve, pollingInterval))
+      }
+    }
+
+    if (attemptCount >= maximumAttempts) {
+      throw new SolverStatusTimeoutError(txHash as Address, attemptCount)
+    }
+
+    if (transactionCancelled) {
+      throw Error('Transaction was cancelled')
+    }
+    return true
+  }
+
+  const waitForTransaction = () => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    // Handle transaction replacements and cancellations
+    return {
+      promise: viemClient
+        .waitForTransactionReceipt({
+          hash: txHash as Address,
+          onReplaced: (replacement) => {
+            if (signal.aborted) {
+              return
+            }
+            if (replacement.reason === 'cancelled') {
+              transactionCancelled = true
+              throw Error('Transaction cancelled')
+            }
+
+            setTxHashes([
+              { txHash: replacement.transaction.hash, chainId: chainId }
+            ])
+            txHash = replacement.transaction.hash
+            attemptCount = 0 // reset attempt count
+            getClient()?.log(
+              ['Transaction replaced', replacement],
+              LogLevel.Verbose
+            )
+            postTransactionToSolver({
+              txHash,
+              chainId,
+              step,
+              request,
+              headers
+            })
+          }
+        })
+        .then((data) => {
+          if (signal.aborted) {
+            return
+          }
+          receipt = data
+          getClient()?.log(
+            ['Transaction Receipt obtained', receipt],
+            LogLevel.Verbose
+          )
+        })
+        .catch((error) => {
+          if (signal.aborted) {
+            return
+          }
+          getClient()?.log(
+            ['Error in waitForTransactionReceipt', error],
+            LogLevel.Error
+          )
+        }),
+      controller
     }
   }
 
-  if (attemptCount >= maximumAttempts) {
-    throw new SolverStatusTimeoutError(txHash, attemptCount)
-  }
+  //Sequence internal functions
+  if (step.id === 'approve') {
+    await waitForTransaction().promise
+    await pollForConfirmation()
+  } else {
+    const { promise: receiptPromise, controller: receiptController } =
+      waitForTransaction()
+    const confirmationPromise = pollForConfirmation()
 
-  if (transactionCancelled) {
-    throw Error('Transaction was cancelled')
+    await Promise.race([receiptPromise, confirmationPromise])
+
+    if (waitingForConfirmation) {
+      await confirmationPromise
+    }
+
+    if (!receipt) {
+      receiptController.abort()
+    }
   }
 
   return true
