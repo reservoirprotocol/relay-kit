@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.13
+
+### Patch Changes
+
+- d264b99: Fix capabilities check when coinbase wallet connected
+- 5184197: Improve post transaction polling to increase speed
+- Updated dependencies [5184197]
+  - @reservoir0x/relay-sdk@1.0.6
+  - @reservoir0x/relay-kit-hooks@1.0.9
+
 ## 1.0.12
 
 ### Patch Changes

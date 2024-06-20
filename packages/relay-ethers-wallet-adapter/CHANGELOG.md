@@ -1,5 +1,12 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies [5184197]
+  - @reservoir0x/relay-sdk@1.0.6
+
 ## 9.0.5
 
 ### Patch Changes
