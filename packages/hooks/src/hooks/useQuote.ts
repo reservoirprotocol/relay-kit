@@ -89,11 +89,17 @@ export default function (
         throw 'Missing a quote'
       }
 
-      return client?.actions?.execute({
+      const promise = client?.actions?.execute({
         wallet,
         quote: response.data as Execute,
         onProgress
       })
+
+      promise?.then(() => {
+        response.refetch()
+      })
+
+      return promise
     },
     [response.data, wallet, client]
   )
