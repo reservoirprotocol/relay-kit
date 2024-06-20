@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.6
+
+### Patch Changes
+
+- 5184197: Improve post transaction polling to increase speed
+
 ## 1.0.5
 
 ### Patch Changes
