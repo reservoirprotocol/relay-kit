@@ -1,16 +1,15 @@
 export const routes = [
   "/chains",
-  "/chains/add",
-  "/chains/update",
-  "/chains/status",
   "/config",
   "/config/v2",
   "/execute/bridge",
   "/execute/bridge/v2",
   "/execute/call",
   "/execute/call/v2",
-  "/execute/permits",
   "/execute/swap",
+  "/execute/magic-spend/deposit",
+  "/execute/magic-spend/request",
+  "/execute/permits",
   "/lives",
   "/intents/status",
   "/intents/quote",
@@ -20,7 +19,5 @@ export const routes = [
   "/conduit/install",
   "/prices/rates",
   "/currencies/v1",
-  "/currencies/token/price",
-  "/currencies/add",
-  "/currencies/update"
+  "/currencies/token/price"
 ];
