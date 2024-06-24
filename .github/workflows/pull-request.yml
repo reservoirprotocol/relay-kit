@@ -1,11 +1,11 @@
-name: Release
-
+---
+name: Pull Requests
 on:
   pull_request:
-    types: [opened, synchronize]
-
+    types:
+      - opened
+      - synchronize
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   lint:
     name: Lint
@@ -19,21 +19,15 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-
       - name: Setup pnpm
         run: sudo npm i -g pnpm@8.15.1
-
       - name: Install Dependencies
         run: pnpm install
-
-      -name: Build
+      - name: Build
         run: pnpm build
-      
-      -name: Vitest
+      - name: Vitest
         run: pnpm run -C packages/sdk test
-
