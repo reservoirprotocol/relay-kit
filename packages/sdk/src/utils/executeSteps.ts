@@ -211,6 +211,7 @@ export async function executeSteps(
                     breakdown: json?.breakdown,
                     details: json?.details
                   })
+
                   await sendTransactionSafely(
                     transactionChainId,
                     stepItem as TransactionStepItem,

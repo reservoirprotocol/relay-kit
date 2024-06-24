@@ -86,6 +86,7 @@ export async function sendTransactionSafely(
       ['Execute Steps: Polling for confirmation', res],
       LogLevel.Verbose
     )
+
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
     }
