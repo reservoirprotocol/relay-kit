@@ -80,12 +80,12 @@ export async function execute(data: ExecuteActionParameters) {
             }
           }
         : undefined
-          ? {
-              deposit: {
-                gasLimit: depositGasLimit
-              }
+        ? {
+            deposit: {
+              gasLimit: depositGasLimit
             }
-          : undefined
+          }
+        : undefined
     )
     return data
   } catch (err: any) {
