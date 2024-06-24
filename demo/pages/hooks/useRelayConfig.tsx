@@ -18,6 +18,7 @@ const UseRelayConfigPage: NextPage = () => {
     user: address,
     currency: currency as any
   })
+  console.log('dummy')
 
   return (
     <div
