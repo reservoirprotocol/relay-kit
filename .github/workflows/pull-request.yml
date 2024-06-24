@@ -1,19 +1,12 @@
 ---
-name: Pull Requests
+name: Pull Request
 on:
   pull_request:
     types:
       - opened
       - synchronize
-concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: ESLINT
-        run: pnpm lint
-  build:
+  test:
     name: Pull Request
     runs-on: ubuntu-latest
     steps:
@@ -29,5 +22,7 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
+       - name: ESLINT
+        run: pnpm lint
       - name: Vitest
         run: pnpm run -C packages/sdk test
