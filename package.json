@@ -27,20 +27,15 @@
     "sdk": "pnpm run -C packages/sdk dev",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "lint": "pnpm run -C packages/ui lint && pnpm run -C packages/hooks lint",
-    "test": "vitest",
-    "test:update": "vitest --update",
-    "test:ui": "vitest --ui"
+    "lint": "pnpm run -C packages/ui lint && pnpm run -C packages/hooks lint"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@vitest/ui": "^1.6.0",
     "concurrently": "^8.2.2",
     "husky": "^9.0.11",
     "openapi-typescript": "^6.7.3",
     "tslib": "^2.6.2",
-    "typescript": "5.4.5",
-    "vitest": "^1.6.0"
+    "typescript": "5.4.5"
   },
   "prettier": {
     "semi": false,
