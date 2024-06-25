@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.0.14
+
+### Patch Changes
+
+- f7f014b: Pass source in widget
+
 ## 1.0.13
 
 ### Patch Changes
