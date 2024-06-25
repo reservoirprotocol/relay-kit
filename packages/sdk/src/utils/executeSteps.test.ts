@@ -9,10 +9,6 @@ import { mainnet } from 'viem/chains'
 
 let bridgeData = JSON.parse(JSON.stringify(executeBridge))
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 let wallet = {
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
@@ -21,12 +17,11 @@ let wallet = {
   handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
 }
 
-const client = createClient({
+let client = createClient({
   baseApiUrl: MAINNET_RELAY_API
 })
 
 vi.spyOn(axios, 'request').mockImplementation((config) => {
-  console.log(config)
   if (
     config.url?.includes('/intents/status') ||
     config.url?.includes('transactions/index')
@@ -63,6 +58,7 @@ vi.spyOn(axios, 'post').mockImplementation((url, data, config) => {
 describe('Should test the executeSteps method.', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.resetAllMocks()
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     wallet = {
       getChainId: () => Promise.resolve(1),
@@ -71,15 +67,18 @@ describe('Should test the executeSteps method.', () => {
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
     }
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
   })
 
-  it('Should throw an unable to find chain error.', async () => {
+  it('Should throw: Unable to find chain error.', async () => {
     await expect(executeSteps(12345, {}, wallet, () => {})).rejects.toThrow(
       'Unable to find chain'
     )
   })
 
-  it('Should throw current chain id does not match expected', async () => {
+  it('Should throw: Current chain id does not match expected', async () => {
     wallet.getChainId = () => Promise.resolve(8453)
 
     await expect(
@@ -125,30 +124,34 @@ describe('Should test the executeSteps method.', () => {
     )
   })
 
-  it('Should execute sendTransaction with a delay', async () => {
+  it('Should handle onProgress states correctly', async () => {
     const onProgress = vi.fn()
-    // wallet.handleSignMessageStep = vi.fn().mockImplementation(async () => {
-    //   await delay(1000) // Add 1-second delay
-    //   return '0x'
-    // })
 
     await executeSteps(
       1,
       {},
       wallet,
       ({ steps }) => {
-        onProgress(steps[0]?.items?.[0].progressState)
+        onProgress(
+          steps[0]?.items?.[0].progressState,
+          steps[0]?.items?.[0].txHashes,
+          steps[0]?.items?.[0].internalTxHashes
+        )
       },
       bridgeData,
       undefined
     )
 
-    const statusUpdates = onProgress.mock.calls.flatMap((call) => call)
-
-    console.log('statusUpdates: ', statusUpdates)
+    const statusUpdates = onProgress.mock.calls.flatMap((call) => call[0])
+    const txHashes = onProgress.mock.calls.flatMap((call) => call[1])
 
     expect(statusUpdates).toContain('confirming')
     expect(statusUpdates).toContain('complete')
+
+    expect(txHashes).toContainEqual({ txHash: '0x', chainId: 1 })
+
+    // Check if the last status update is 'complete'
+    expect(statusUpdates[statusUpdates.length - 1]).toBe('complete')
   })
 
   it('Should pass in gas as 100.', async () => {
@@ -181,5 +184,88 @@ describe('Should test the executeSteps method.', () => {
       }),
       expect.any(Object)
     )
+  })
+
+  it('Should throw: Transaction hash not returned from sendTransaction method', async () => {
+    wallet.handleSendTransactionStep = vi.fn().mockResolvedValue(null)
+
+    await expect(
+      executeSteps(1, {}, wallet, ({ steps }) => {}, bridgeData, undefined)
+    ).rejects.toThrow(
+      'Transaction hash not returned from sendTransaction method'
+    )
+  })
+
+  it('Should throw: Failed to receive a successful response', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      pollingInterval: 1,
+      maxPollingAttemptsBeforeTimeout: 0
+    })
+
+    await expect(
+      executeSteps(
+        1,
+        {},
+        wallet,
+        ({ steps, fees, breakdown, details }) => {},
+        bridgeData,
+        undefined
+      )
+    ).rejects.toThrow(
+      `Failed to receive a successful response for solver status check with hash '0x' after 0 attempt(s).`
+    )
+  })
+
+  it('Should post to solver', async () => {
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      bridgeData,
+      undefined
+    )
+
+    expect(axios.request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('transactions/index')
+      })
+    )
+  })
+
+  it('Should handle request failure to transactions/index and still process transaction', async () => {
+    const axiosRequestSpy = vi
+      .spyOn(axios, 'request')
+      .mockImplementation((config) => {
+        if (config.url?.includes('transactions/index')) {
+          return Promise.resolve({
+            data: { status: 'failure' },
+            status: 200
+          })
+        }
+
+        return Promise.resolve({
+          data: { status: 'success' },
+          status: 200
+        })
+      })
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      executeBridge,
+      undefined
+    )
+
+    expect(axiosRequestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('transactions/index')
+      })
+    )
+
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
   })
 })
