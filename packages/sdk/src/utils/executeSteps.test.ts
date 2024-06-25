@@ -9,7 +9,11 @@ import { mainnet } from 'viem/chains'
 
 let bridgeData = JSON.parse(JSON.stringify(executeBridge))
 
-const wallet = {
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+let wallet = {
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve('0x'),
@@ -60,10 +64,40 @@ describe('Should test the executeSteps method.', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    wallet = {
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+    }
   })
 
-  it('Should execute sendTransaction method correctly.', async () => {
-    await executeSteps(
+  it('Should throw an unable to find chain error.', async () => {
+    await expect(executeSteps(12345, {}, wallet, () => {})).rejects.toThrow(
+      'Unable to find chain'
+    )
+  })
+
+  it('Should throw current chain id does not match expected', async () => {
+    wallet.getChainId = () => Promise.resolve(8453)
+
+    await expect(
+      executeSteps(
+        8453,
+        {},
+        wallet,
+        ({ steps, fees, breakdown, details }) => {},
+        bridgeData,
+        undefined
+      )
+    ).rejects.toThrow(
+      'Current chain id: 8453 does not match expected chain id: 1'
+    )
+  })
+
+  it('Should execute sendTransaction method with correct parameters.', async () => {
+    const execute = await executeSteps(
       1,
       {},
       wallet,
@@ -89,6 +123,32 @@ describe('Should test the executeSteps method.', () => {
       }),
       expect.any(Object)
     )
+  })
+
+  it('Should execute sendTransaction with a delay', async () => {
+    const onProgress = vi.fn()
+    // wallet.handleSignMessageStep = vi.fn().mockImplementation(async () => {
+    //   await delay(1000) // Add 1-second delay
+    //   return '0x'
+    // })
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        onProgress(steps[0]?.items?.[0].progressState)
+      },
+      bridgeData,
+      undefined
+    )
+
+    const statusUpdates = onProgress.mock.calls.flatMap((call) => call)
+
+    console.log('statusUpdates: ', statusUpdates)
+
+    expect(statusUpdates).toContain('confirming')
+    expect(statusUpdates).toContain('complete')
   })
 
   it('Should pass in gas as 100.', async () => {
