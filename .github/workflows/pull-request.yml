@@ -7,7 +7,7 @@ on:
       - synchronize
 jobs:
   test:
-    name: Pull Request
+    name: Unit tests and linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
