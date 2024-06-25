@@ -6,6 +6,7 @@ import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { swapWithApproval } from '../../tests/data/swapWithApproval'
 
 let bridgeData = JSON.parse(JSON.stringify(executeBridge))
 
@@ -267,5 +268,16 @@ describe('Should test the executeSteps method.', () => {
     )
 
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
+  })
+
+  it('Should handle approve transactions', async () => {
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      swapWithApproval,
+      undefined
+    )
   })
 })
