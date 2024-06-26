@@ -9,6 +9,8 @@
 </br>
 </br>
 
+[![Unit Tests](https://github.com/reservoirprotocol/relay-kit/actions/workflows/main-tests.yml/badge.svg)](https://github.com/reservoirprotocol/relay-kit/actions/workflows/main-tests.yml)
+
 ## Contributing
 
 Your contributions are what make the community great. We encourage you to be a part of it. Here are some important notes for contributors:
