@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.10
+
+### Patch Changes
+
+- ec5e68e: Fix useQuote hook source
+
 ## 1.0.9
 
 ### Patch Changes
