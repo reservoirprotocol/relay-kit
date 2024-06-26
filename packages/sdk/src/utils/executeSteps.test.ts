@@ -11,6 +11,7 @@ import type { Execute } from '../types'
 
 vi.mock('viem', async () => {
   const viem = await vi.importActual('viem')
+
   return {
     ...viem,
     createPublicClient: (args: any) => {
@@ -59,21 +60,19 @@ let client = createClient({
   baseApiUrl: MAINNET_RELAY_API
 })
 
-const axiosRequestMock = vi
-  .spyOn(axios, 'request')
-  .mockImplementation((config) => {
-    if (
-      config.url?.includes('/intents/status') ||
-      config.url?.includes('transactions/index') ||
-      config.url?.includes('/execute/permits')
-    ) {
-      return Promise.resolve({
-        data: { status: 'success' },
-        status: 200
-      })
-    }
-    return Promise.reject(new Error('Unexpected URL'))
-  })
+vi.spyOn(axios, 'request').mockImplementation((config) => {
+  if (
+    config.url?.includes('/intents/status') ||
+    config.url?.includes('transactions/index') ||
+    config.url?.includes('/execute/permits')
+  ) {
+    return Promise.resolve({
+      data: { status: 'success' },
+      status: 200
+    })
+  }
+  return Promise.reject(new Error('Unexpected URL'))
+})
 
 vi.spyOn(axios, 'post').mockImplementation((url, data, config) => {
   return Promise.resolve({
