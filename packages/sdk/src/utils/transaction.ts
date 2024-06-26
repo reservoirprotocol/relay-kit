@@ -12,7 +12,7 @@ import type {
   TransactionStepItem,
   paths
 } from '../types/index.js'
-import axios from 'axios'
+import { axios } from '../utils/axios.js'
 import type {
   AxiosRequestConfig,
   AxiosRequestHeaders,

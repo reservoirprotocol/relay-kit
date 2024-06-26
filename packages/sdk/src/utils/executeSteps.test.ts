@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import axios from 'axios'
+import { axios } from './axios'
 import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
 import { executeSteps } from './executeSteps'
@@ -60,18 +60,21 @@ let client = createClient({
   baseApiUrl: MAINNET_RELAY_API
 })
 
-vi.spyOn(axios, 'request').mockImplementation((config) => {
-  if (
-    config.url?.includes('/intents/status') ||
-    config.url?.includes('transactions/index')
-  ) {
-    return Promise.resolve({
-      data: { status: 'success' },
-      status: 200
-    })
-  }
-  return Promise.reject(new Error('Unexpected URL'))
-})
+const axiosRequestMock = vi
+  .spyOn(axios, 'request')
+  .mockImplementation((config) => {
+    if (
+      config.url?.includes('/intents/status') ||
+      config.url?.includes('transactions/index') ||
+      config.url?.includes('/execute/permits')
+    ) {
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    }
+    return Promise.reject(new Error('Unexpected URL'))
+  })
 
 vi.spyOn(axios, 'post').mockImplementation((url, data, config) => {
   return Promise.resolve({
@@ -108,6 +111,7 @@ describe('Should test the executeSteps method.', () => {
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
+      // logLevel: 4
     })
   })
 
@@ -335,8 +339,7 @@ describe('Should test a signature step.', () => {
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
-      baseApiUrl: MAINNET_RELAY_API,
-      logLevel: 4
+      baseApiUrl: MAINNET_RELAY_API
     })
   })
 
@@ -375,10 +378,9 @@ describe('Should test a signature step.', () => {
   })
   it('Detects that handleSignMessageStep was called', async () => {
     wallet.handleSignMessageStep = vi.fn().mockImplementation((args) => {
-      console.log('args', args)
       return new Promise((resolve, reject) => {})
     })
-    executeSteps(1, {}, wallet, ({ steps }) => {}, bridgeData, undefined)
+    executeSteps(1, {}, wallet, () => {}, bridgeData, undefined)
     await vi.waitFor(
       () => {
         if (!wallet.handleSignMessageStep.mock.calls.length) {
@@ -394,15 +396,33 @@ describe('Should test a signature step.', () => {
     const step = bridgeData.steps.find((step) =>
       step.items?.find((item) => item.status === 'incomplete')
     )
-    console.log('STEP', step)
 
-    // expect(wallet.handleSignMessageStep).toBeCalledWith({
-    //   stepItem: step?.items?.[0],
-    //   step: step
-    // })
+    expect(wallet.handleSignMessageStep).toBeCalledWith(step?.items?.[0], step)
   })
-  // it('Handle wallet chain, function chain mismatch', async () => {})
-  // it("Detect progressState moved to 'posting'", async () => {})
+  it('Handle wallet chain, function chain mismatch', async () => {
+    await expect(
+      executeSteps(10, {}, wallet, () => {}, bridgeData, undefined)
+    ).rejects.toThrow(
+      'Current chain id: 1 does not match expected chain id: 10'
+    )
+  })
+  // it("Detect progressState moved to 'posting'", async () => {
+  //   let signingStep: Execute['steps']['0'] | undefined
+  //   const signatureStep = bridgeData.steps.find(
+  //     (step) => step.kind === 'signature'
+  //   )
+  //   const signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
+  //     signatureStep?.items?.[0] as any
+  //   const endpoint = signatureStepItem.data.post.endpoint
+  //   await executeSteps(1, {}, wallet, () => {}, bridgeData, undefined)
+  //   console.log(axiosRequestMock.mock.calls)
+  // expect(axios.request).toHaveBeenCalledWith(
+  //   expect.objectContaining({
+  //     url: expect.stringContaining(endpoint)
+  //   })
+  // )
+  // expect(signingStep?.items?.[0].progressState).toBe('posting')
+  // })
   // it('Spy on request to make sure a signature gets posted', async () => {})
   // it('If new steps returned in posted response, check if they were appended in the onProgress callback', async () => {})
   // it("Spy on check endpoint, progressState should be at 'validating', isValidatingSignature should be true", async () => {})
