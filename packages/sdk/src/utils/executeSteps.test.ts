@@ -9,6 +9,38 @@ import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { Execute } from '../types'
 import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
+import { swapWithApproval } from '../../tests/data/swapWithApproval'
+
+const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
+  blobGasPrice: 100n,
+  blobGasUsed: 50n,
+  blockHash: '0x123456789',
+  blockNumber: 123n,
+  contractAddress: '0x987654321',
+  cumulativeGasUsed: 500n,
+  effectiveGasPrice: 200n,
+  from: '0x111111111',
+  gasUsed: 300n,
+  logs: [],
+  logsBloom: '0xabcdef',
+  root: '0x987654321',
+  status: 'success',
+  to: '0x222222222',
+  transactionHash: '0x333333333',
+  transactionIndex: 1,
+  type: 'eip1559'
+})
+
+const waitForTransactionReceipt = (args: any) => {
+  return new Promise((resolve, reject) => {
+    const receiptData = waitForTransactionReceiptMock(args)
+    resolve(receiptData)
+  })
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 vi.mock('viem', async () => {
   const viem = await vi.importActual('viem')
@@ -18,36 +50,14 @@ vi.mock('viem', async () => {
     createPublicClient: (args: any) => {
       //@ts-ignore
       const client = viem.createPublicClient(args)
-      client.waitForTransactionReceipt = (args: any) => {
-        return new Promise((resolve, reject) => {
-          const mockTransactionReceipt: any = {
-            blobGasPrice: 100n,
-            blobGasUsed: 50n,
-            blockHash: '0x123456789',
-            blockNumber: 123n,
-            contractAddress: '0x987654321',
-            cumulativeGasUsed: 500n,
-            effectiveGasPrice: 200n,
-            from: '0x111111111',
-            gasUsed: 300n,
-            logs: [],
-            logsBloom: '0xabcdef',
-            root: '0x987654321',
-            status: 'success',
-            to: '0x222222222',
-            transactionHash: '0x333333333',
-            transactionIndex: 1,
-            type: 'eip1559'
-          }
-          resolve(mockTransactionReceipt)
-        })
-      }
+      client.waitForTransactionReceipt = waitForTransactionReceipt
       return client
     }
   }
 })
 
 let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
+let swapData: Execute = JSON.parse(JSON.stringify(swapWithApproval))
 
 let wallet = {
   getChainId: () => Promise.resolve(1),
@@ -115,6 +125,7 @@ describe('Should test the executeSteps method.', () => {
     axiosRequestSpy = mockAxiosRequest()
     axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
@@ -151,7 +162,7 @@ describe('Should test the executeSteps method.', () => {
   })
 
   it('Should execute sendTransaction method with correct parameters.', async () => {
-    const execute = await executeSteps(
+    await executeSteps(
       1,
       {},
       wallet,
@@ -311,7 +322,7 @@ describe('Should test the executeSteps method.', () => {
       {},
       wallet,
       ({ steps, fees, breakdown, details }) => {},
-      executeBridge,
+      bridgeData,
       undefined
     )
 
@@ -322,6 +333,61 @@ describe('Should test the executeSteps method.', () => {
     )
 
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
+  })
+
+  it('Should handle step with id of "approve" by waiting on receipt before polling for confirmation', async () => {
+    const axiosRequestSpy = vi.spyOn(axios, 'request')
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      swapData,
+      undefined
+    )
+
+    const waitForTransactionReceiptCallIndex =
+      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+    const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
+      .filter((call) => call[0].url?.includes('/intents/status'))
+      .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
+
+    expect(waitForTransactionReceiptCallIndex).toBeLessThan(
+      Math.min(...pollForConfirmationCallIndices)
+    )
+    expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('Should await tx and poll in series', async () => {
+    const axiosRequestSpy = vi
+      .spyOn(axios, 'request')
+      .mockImplementation(async (config) => {
+        await delay(100)
+        return Promise.resolve({
+          data: { status: 'success' },
+          status: 200
+        })
+      })
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      bridgeData,
+      undefined
+    )
+
+    const waitForTransactionReceiptCallIndex =
+      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+    const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
+      .filter((call) => call[0].url?.includes('/intents/status'))
+      .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
+
+    expect(Math.min(...pollForConfirmationCallIndices)).toBeLessThan(
+      waitForTransactionReceiptCallIndex
+    )
   })
 })
 
