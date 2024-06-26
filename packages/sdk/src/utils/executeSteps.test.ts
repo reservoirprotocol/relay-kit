@@ -604,10 +604,8 @@ describe('Should test a signature step.', () => {
 
     await vi.waitFor(() => {
       if (!signatureStepItemOrderData) {
-        console.log('No signature orderData')
         throw 'Waiting for orderData'
       }
-      console.log('Signature orderdata found!')
       return true
     })
 
@@ -658,10 +656,8 @@ describe('Should test a signature step.', () => {
 
     await vi.waitFor(() => {
       if (!signatureStepItemOrderData) {
-        console.log('No signature orderData')
         throw 'Waiting for orderData'
       }
-      console.log('Signature orderdata found!')
       return true
     })
 
@@ -777,7 +773,7 @@ describe('Should test a signature step.', () => {
     let signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
       signatureStep?.items?.[0] as any
     const checkEndpoint = signatureStepItem.check?.endpoint ?? ''
-    let error: Error | undefined
+    let errorMessage: string | undefined
     vi.spyOn(axios, 'request').mockImplementation((config) => {
       if (config.url?.includes(checkEndpoint)) {
         return Promise.resolve({
@@ -791,14 +787,14 @@ describe('Should test a signature step.', () => {
       })
     })
     executeSteps(1, {}, wallet, () => {}, bridgeData, undefined).catch((e) => {
-      error = e
+      errorMessage = e.message ? ''
     })
     await vi.waitFor(() => {
-      if (!error) {
+      if (!errorMessage) {
         throw 'Waiting for check to error'
       }
     })
-    expect(error?.message).toBe('Failed to check')
+    expect(errorMessage).toBe('Failed to check')
   })
   it('Should mark the signature as complete when complete', async () => {
     const { steps } = await executeSteps(
