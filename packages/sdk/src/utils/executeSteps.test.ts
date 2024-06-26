@@ -787,7 +787,7 @@ describe('Should test a signature step.', () => {
       })
     })
     executeSteps(1, {}, wallet, () => {}, bridgeData, undefined).catch((e) => {
-      errorMessage = e.message ? ''
+      errorMessage = e.message ?? ''
     })
     await vi.waitFor(() => {
       if (!errorMessage) {
