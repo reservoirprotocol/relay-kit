@@ -1,10 +1,8 @@
 ---
-name: Pull Request
+name: Main Tests
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches: [ "main" ]
 jobs:
   test:
     name: Unit tests and linting
