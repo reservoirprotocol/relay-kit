@@ -8,6 +8,7 @@ import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { Execute } from '../types'
+import { swapWithApproval } from '../../tests/data/swapWithApproval'
 
 vi.mock('viem', async () => {
   const viem = await vi.importActual('viem')
@@ -307,16 +308,18 @@ describe('Should test the executeSteps method.', () => {
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
   })
 
-  // it('Should handle request failure to transactions/index and still process transaction', async () => {
-  //   await executeSteps(
-  //     1,
-  //     {},
-  //     wallet,
-  //     ({ steps, fees, breakdown, details }) => {},
-  //     swapWithApproval,
-  //     undefined
-  //   )
-  // })
+  it('Should handle step with id of "approve" ', async () => {
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      swapWithApproval,
+      undefined
+    )
+
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
+  })
 })
 
 describe('Should test a signature step.', () => {
