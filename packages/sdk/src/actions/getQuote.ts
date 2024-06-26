@@ -1,4 +1,5 @@
-import axios, { type AxiosRequestConfig } from 'axios'
+import { type AxiosRequestConfig } from 'axios'
+import { axios } from '../utils/axios.js'
 import { zeroAddress, type Address, type WalletClient } from 'viem'
 import prepareCallTransaction from '../utils/prepareCallTransaction.js'
 import {
