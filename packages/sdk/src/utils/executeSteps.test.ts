@@ -4,10 +4,11 @@ import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
 import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
-import { PublicClient, http } from 'viem'
+import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { Execute } from '../types'
+import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
 import { swapWithApproval } from '../../tests/data/swapWithApproval'
 
 const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
@@ -30,7 +31,7 @@ const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
   type: 'eip1559'
 })
 
-const waitForTransactionReceipt = (args) => {
+const waitForTransactionReceipt = (args: any) => {
   return new Promise((resolve, reject) => {
     const receiptData = waitForTransactionReceiptMock(args)
     resolve(receiptData)
@@ -70,45 +71,59 @@ let client = createClient({
   baseApiUrl: MAINNET_RELAY_API
 })
 
-vi.spyOn(axios, 'request').mockImplementation((config) => {
-  if (
-    config.url?.includes('/intents/status') ||
-    config.url?.includes('transactions/index') ||
-    config.url?.includes('/execute/permits')
-  ) {
-    return Promise.resolve({
-      data: { status: 'success' },
-      status: 200
-    })
-  }
-  return Promise.reject(new Error('Unexpected URL'))
-})
+let axiosRequestSpy: ReturnType<typeof mockAxiosRequest>
+let axiosPostSpy: ReturnType<typeof mockAxiosPost>
 
-vi.spyOn(axios, 'post').mockImplementation((url, data, config) => {
-  return Promise.resolve({
-    data: {
-      results: [
-        {
-          message: 'string',
-          orderId: 'string',
-          orderIndex: 0,
-          crossPostingOrderId: 'string',
-          crossPostingOrderStatus: 'string'
-        }
-      ]
-    },
-    status: 200,
-    statusText: '200',
-    headers: {},
-    config: {},
-    request: null
+const mockAxiosRequest = () => {
+  return vi.spyOn(axios, 'request').mockImplementation((config) => {
+    if (config.url?.includes('/intents/status')) {
+      return Promise.resolve({
+        data: { status: 'success', txHashes: ['0x'] },
+        status: 200
+      })
+    }
+    if (
+      config.url?.includes('transactions/index') ||
+      config.url?.includes('/execute/permits')
+    ) {
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    }
+    return Promise.reject(new Error('Unexpected URL'))
   })
-})
+}
+
+const mockAxiosPost = () => {
+  return vi.spyOn(axios, 'post').mockImplementation((url, data, config) => {
+    return Promise.resolve({
+      data: {
+        results: [
+          {
+            message: 'string',
+            orderId: 'string',
+            orderIndex: 0,
+            crossPostingOrderId: 'string',
+            crossPostingOrderStatus: 'string'
+          }
+        ]
+      },
+      status: 200,
+      statusText: '200',
+      headers: {},
+      config: {},
+      request: null
+    })
+  })
+}
 
 describe('Should test the executeSteps method.', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
@@ -120,7 +135,6 @@ describe('Should test the executeSteps method.', () => {
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
-      // logLevel: 4
     })
   })
 
@@ -289,7 +303,7 @@ describe('Should test the executeSteps method.', () => {
   it('Should handle request failure to transactions/index and still process transaction', async () => {
     const axiosRequestSpy = vi
       .spyOn(axios, 'request')
-      .mockImplementation((config) => {
+      .mockImplementationOnce((config) => {
         if (config.url?.includes('transactions/index')) {
           return Promise.resolve({
             data: { status: 'failure' },
@@ -381,6 +395,8 @@ describe('Should test a signature step.', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridgeAuthorize))
     wallet = {
       getChainId: () => Promise.resolve(1),
@@ -457,31 +473,349 @@ describe('Should test a signature step.', () => {
       'Current chain id: 1 does not match expected chain id: 10'
     )
   })
-  // it("Detect progressState moved to 'posting'", async () => {
-  //   let signingStep: Execute['steps']['0'] | undefined
-  //   const signatureStep = bridgeData.steps.find(
-  //     (step) => step.kind === 'signature'
-  //   )
-  //   const signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
-  //     signatureStep?.items?.[0] as any
-  //   const endpoint = signatureStepItem.data.post.endpoint
-  //   await executeSteps(1, {}, wallet, () => {}, bridgeData, undefined)
-  //   console.log(axiosRequestMock.mock.calls)
-  // expect(axios.request).toHaveBeenCalledWith(
-  //   expect.objectContaining({
-  //     url: expect.stringContaining(endpoint)
-  //   })
-  // )
-  // expect(signingStep?.items?.[0].progressState).toBe('posting')
-  // })
-  // it('Spy on request to make sure a signature gets posted', async () => {})
-  // it('If new steps returned in posted response, check if they were appended in the onProgress callback', async () => {})
-  // it("Spy on check endpoint, progressState should be at 'validating', isValidatingSignature should be true", async () => {})
-  // it('Setting txHashes, internalTxHashes', async () => {})
-  // it('If check fails and error is returned', async () => {})
-  // it('orderData gets set to expected value', async () => {})
-  // it('Status, progressState is set to complete at the end', async () => {})
-  // it('isValidatingSignature turned back off', async () => {})
-  // it('HandleSignMessage function with eip191', async () => {})
-  // it('HandleSignMessage function with eip712', async () => {})
+  it('Should post a signature', async () => {
+    const signatureStep = bridgeData.steps.find(
+      (step) => step.kind === 'signature'
+    )
+    const signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
+      signatureStep?.items?.[0] as any
+    const endpoint = signatureStepItem.data.post.endpoint
+    const body = signatureStepItem.data.post.body
+
+    let progressStateSetToPosting = false
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        const signatureStep = steps.find((step) => step.kind === 'signature')
+        const signatureStepItem = signatureStep?.items?.[0]
+        if (signatureStepItem?.progressState === 'posting') {
+          progressStateSetToPosting = true
+        }
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      const postingDataRequest = axiosRequestSpy.mock.calls.find((call) =>
+        call[0].url?.includes(endpoint)
+      )
+      if (!postingDataRequest || !progressStateSetToPosting) {
+        throw 'Waiting for signature post request'
+      }
+    })
+
+    expect(axios.request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining(endpoint),
+        data: expect.stringMatching(JSON.stringify(body))
+      })
+    )
+    expect(progressStateSetToPosting).toBeTruthy()
+  })
+  it('Should append new steps returned in posted response', async () => {
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('/execute/permits')) {
+        return Promise.resolve({
+          data: { status: 'success', steps: postSignatureExtraSteps },
+          status: 200
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    let progressSteps: Execute['steps']
+    let extraStep: Execute['steps'][0] | undefined
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        progressSteps = steps
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(
+      () => {
+        extraStep = progressSteps.find(
+          (step) => step.action === postSignatureExtraSteps[0].action
+        )
+        if (!extraStep) {
+          throw 'Waiting for extra step to be appended'
+        }
+      },
+      { interval: 100, timeout: 5000 }
+    )
+
+    expect(extraStep?.action).toBe(postSignatureExtraSteps[0].action)
+  })
+  it('Should append orderData returned in posted response', async () => {
+    const results = [
+      {
+        crossPostingOrderId: '0xabc',
+        orderId: '0x123',
+        orderIndex: 1
+      }
+    ]
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('/execute/permits')) {
+        return Promise.resolve({
+          data: { status: 'success', results },
+          status: 200
+        })
+      }
+      if (config.url?.includes('/intents/status')) {
+        return Promise.resolve({
+          data: { status: 'success', txHashes: ['0x'] },
+          status: 200
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    let signatureStepItemOrderData:
+      | NonNullable<Execute['steps']['0']['items']>['0']['orderData']
+      | undefined
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        if (!signatureStepItemOrderData) {
+          signatureStepItemOrderData = steps.find(
+            (step) => step.kind === 'signature'
+          )?.items?.[0].orderData
+        }
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      if (!signatureStepItemOrderData) {
+        throw 'Waiting for orderData'
+      }
+      return true
+    })
+
+    expect(signatureStepItemOrderData).toStrictEqual(results)
+  })
+  it('Should append orderData returned in posted response', async () => {
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('/execute/permits')) {
+        return Promise.resolve({
+          data: {
+            status: 'success',
+            orderId: '0x123',
+            crossPostingOrderId: '0xabc',
+            orderIndex: 1
+          },
+          status: 200
+        })
+      }
+      if (config.url?.includes('/intents/status')) {
+        return Promise.resolve({
+          data: { status: 'success', txHashes: ['0x'] },
+          status: 200
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    let signatureStepItemOrderData:
+      | NonNullable<Execute['steps']['0']['items']>['0']['orderData']
+      | undefined
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        if (!signatureStepItemOrderData) {
+          signatureStepItemOrderData = steps.find(
+            (step) => step.kind === 'signature'
+          )?.items?.[0].orderData
+        }
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      if (!signatureStepItemOrderData) {
+        throw 'Waiting for orderData'
+      }
+      return true
+    })
+
+    expect(signatureStepItemOrderData).toStrictEqual([
+      {
+        orderId: '0x123',
+        crossPostingOrderId: '0xabc',
+        orderIndex: 1
+      }
+    ])
+  })
+  it('Should validate a signature step item', async () => {
+    let progressState = ''
+    let isValidating = false
+
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('/intents/status')) {
+        return Promise.resolve({
+          data: { status: 'pending' },
+          status: 200
+        })
+      }
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        const signatureStep = steps.find((step) => step.kind === 'signature')
+        const signatureStepItem = signatureStep?.items?.[0]
+        progressState = signatureStepItem?.progressState ?? ''
+        isValidating = signatureStepItem?.isValidatingSignature ? true : false
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      if (progressState !== 'validating' || !isValidating) {
+        throw 'Waiting for signature validation'
+      }
+    })
+    expect(progressState).toBe('validating')
+    expect(isValidating).toBeTruthy()
+  })
+  it('Should set txHashes returned by check request', async () => {
+    let signatureStep = bridgeData.steps.find(
+      (step) => step.kind === 'signature'
+    )
+    let signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
+      signatureStep?.items?.[0] as any
+    const checkEndpoint = signatureStepItem.check?.endpoint ?? ''
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes(checkEndpoint)) {
+        return Promise.resolve({
+          data: {
+            status: 'success',
+            txHashes: ['0x123'],
+            destinationChainId: 10,
+            originChainId: 1,
+            inTxHashes: ['0xabc']
+          },
+          status: 200
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    let progressSteps: Execute['steps'] | undefined
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        progressSteps = steps
+      },
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      const signatureStep = progressSteps?.find(
+        (step) => step.kind === 'signature'
+      )
+      const stepItem = signatureStep?.items?.[0]
+
+      if (!stepItem?.txHashes?.length || !stepItem?.internalTxHashes?.length) {
+        throw 'Waiting to txHashes to be set'
+      }
+    })
+    signatureStep = progressSteps?.find((step) => step.kind === 'signature')
+    signatureStepItem = signatureStep?.items?.[0] as any
+    expect(signatureStepItem.txHashes).toStrictEqual(
+      expect.arrayContaining([{ txHash: '0x123', chainId: 10 }])
+    )
+    expect(signatureStepItem.internalTxHashes).toStrictEqual(
+      expect.arrayContaining([{ txHash: '0xabc', chainId: 1 }])
+    )
+  })
+  it('Should throw an error if check fails', async () => {
+    let signatureStep = bridgeData.steps.find(
+      (step) => step.kind === 'signature'
+    )
+    let signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
+      signatureStep?.items?.[0] as any
+    const checkEndpoint = signatureStepItem.check?.endpoint ?? ''
+    let errorMessage: string | undefined
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes(checkEndpoint)) {
+        return Promise.resolve({
+          data: { status: 'failure', details: 'Failed to check' },
+          status: 400
+        })
+      }
+
+      return Promise.resolve({
+        status: 200
+      })
+    })
+    executeSteps(1, {}, wallet, () => {}, bridgeData, undefined).catch((e) => {
+      errorMessage = e.message ?? ''
+    })
+    await vi.waitFor(() => {
+      if (!errorMessage) {
+        throw 'Waiting for check to error'
+      }
+    })
+    expect(errorMessage).toBe('Failed to check')
+  })
+  it('Should mark the signature as complete when complete', async () => {
+    const { steps } = await executeSteps(
+      1,
+      {},
+      wallet,
+      () => {},
+      bridgeData,
+      undefined
+    )
+    const signatureStep = steps.find((item) => item.kind === 'signature')
+    const allComplete = signatureStep?.items?.every(
+      (item) => item.status === 'complete' && item.progressState === 'complete'
+    )
+    const isValidatingSignatureDisabled = signatureStep?.items?.every(
+      (item) => !item.isValidatingSignature
+    )
+    expect(allComplete).toBeTruthy()
+    expect(
+      signatureStep && signatureStep.items ? signatureStep.items.length : 0
+    ).toBeGreaterThan(0)
+    expect(isValidatingSignatureDisabled).toBeTruthy()
+  })
 })
