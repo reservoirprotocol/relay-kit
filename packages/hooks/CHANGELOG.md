@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.11
+
+### Patch Changes
+
+- 5c1a210: Fix source getting overriden in useQuote hook
+
 ## 1.0.10
 
 ### Patch Changes
