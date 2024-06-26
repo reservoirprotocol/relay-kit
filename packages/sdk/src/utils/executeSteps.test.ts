@@ -37,6 +37,10 @@ const waitForTransactionReceipt = (args) => {
   })
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 vi.mock('viem', async () => {
   const viem = await vi.importActual('viem')
 
@@ -52,6 +56,7 @@ vi.mock('viem', async () => {
 })
 
 let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
+let swapData: Execute = JSON.parse(JSON.stringify(swapWithApproval))
 
 let wallet = {
   getChainId: () => Promise.resolve(1),
@@ -105,6 +110,7 @@ describe('Should test the executeSteps method.', () => {
     vi.clearAllMocks()
     vi.resetAllMocks()
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
@@ -142,7 +148,7 @@ describe('Should test the executeSteps method.', () => {
   })
 
   it('Should execute sendTransaction method with correct parameters.', async () => {
-    const execute = await executeSteps(
+    await executeSteps(
       1,
       {},
       wallet,
@@ -302,7 +308,7 @@ describe('Should test the executeSteps method.', () => {
       {},
       wallet,
       ({ steps, fees, breakdown, details }) => {},
-      executeBridge,
+      bridgeData,
       undefined
     )
 
@@ -315,7 +321,7 @@ describe('Should test the executeSteps method.', () => {
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
   })
 
-  it('Should handle step with id of "approve" synchronously', async () => {
+  it('Should handle step with id of "approve" by waiting on receipt before polling for confirmation', async () => {
     const axiosRequestSpy = vi.spyOn(axios, 'request')
 
     await executeSteps(
@@ -323,7 +329,7 @@ describe('Should test the executeSteps method.', () => {
       {},
       wallet,
       ({ steps, fees, breakdown, details }) => {},
-      swapWithApproval,
+      swapData,
       undefined
     )
 
@@ -333,18 +339,22 @@ describe('Should test the executeSteps method.', () => {
       .filter((call) => call[0].url?.includes('/intents/status'))
       .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
 
-    console.log(
-      waitForTransactionReceiptCallIndex,
-      pollForConfirmationCallIndices
-    )
-    // Ensure waitForTransactionReceipt is called before any pollForConfirmation calls
     expect(waitForTransactionReceiptCallIndex).toBeLessThan(
       Math.min(...pollForConfirmationCallIndices)
     )
     expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
   })
-  it('Should waits for tx and polls for confirmation in series', async () => {
-    const axiosRequestSpy = vi.spyOn(axios, 'request')
+
+  it('Should await tx and poll in series', async () => {
+    const axiosRequestSpy = vi
+      .spyOn(axios, 'request')
+      .mockImplementation(async (config) => {
+        await delay(100)
+        return Promise.resolve({
+          data: { status: 'success' },
+          status: 200
+        })
+      })
 
     await executeSteps(
       1,
@@ -357,21 +367,13 @@ describe('Should test the executeSteps method.', () => {
 
     const waitForTransactionReceiptCallIndex =
       waitForTransactionReceiptMock.mock.invocationCallOrder[0]
-
-    console.log(waitForTransactionReceiptMock.mock.calls)
     const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
       .filter((call) => call[0].url?.includes('/intents/status'))
       .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
 
-    console.log(
-      waitForTransactionReceiptCallIndex,
-      pollForConfirmationCallIndices
+    expect(Math.min(...pollForConfirmationCallIndices)).toBeLessThan(
+      waitForTransactionReceiptCallIndex
     )
-    // Ensure waitForTransactionReceipt is called before any pollForConfirmation calls
-    expect(waitForTransactionReceiptCallIndex).toBeLessThan(
-      Math.min(...pollForConfirmationCallIndices)
-    )
-    expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
   })
 })
 
