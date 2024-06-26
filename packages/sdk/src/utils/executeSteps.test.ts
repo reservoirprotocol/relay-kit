@@ -798,7 +798,6 @@ describe('Should test a signature step.', () => {
         throw 'Waiting for check to error'
       }
     })
-    console.log('ERR_', error)
     expect(error?.message).toBe('Failed to check')
   })
   it('Should mark the signature as complete when complete', async () => {
