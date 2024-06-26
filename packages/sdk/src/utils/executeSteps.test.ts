@@ -316,7 +316,9 @@ describe('Should test the executeSteps method.', () => {
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
   })
 
-  it('Should handle step with id of "approve" ', async () => {
+  it('Should handle step with id of "approve" synchronously', async () => {
+    const axiosRequestSpy = vi.spyOn(axios, 'request')
+
     await executeSteps(
       1,
       {},
@@ -326,12 +328,51 @@ describe('Should test the executeSteps method.', () => {
       undefined
     )
 
+    const waitForTransactionReceiptCallIndex =
+      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+    const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
+      .filter((call) => call[0].url?.includes('/intents/status'))
+      .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
+
     console.log(
-      'waitForTransactionReceiptMock: ',
-      waitForTransactionReceiptMock.mock.calls
+      waitForTransactionReceiptCallIndex,
+      pollForConfirmationCallIndices
+    )
+    // Ensure waitForTransactionReceipt is called before any pollForConfirmation calls
+    expect(waitForTransactionReceiptCallIndex).toBeLessThan(
+      Math.min(...pollForConfirmationCallIndices)
+    )
+    expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
+  })
+  it('Should waits for tx and polls for confirmation in series', async () => {
+    const axiosRequestSpy = vi.spyOn(axios, 'request')
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      bridgeData,
+      undefined
     )
 
-    expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
+    const waitForTransactionReceiptCallIndex =
+      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+
+    console.log(waitForTransactionReceiptMock.mock.calls)
+    const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
+      .filter((call) => call[0].url?.includes('/intents/status'))
+      .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
+
+    console.log(
+      waitForTransactionReceiptCallIndex,
+      pollForConfirmationCallIndices
+    )
+    // Ensure waitForTransactionReceipt is called before any pollForConfirmation calls
+    expect(waitForTransactionReceiptCallIndex).toBeLessThan(
+      Math.min(...pollForConfirmationCallIndices)
+    )
+    expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
   })
 })
 
