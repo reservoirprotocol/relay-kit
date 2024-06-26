@@ -4,11 +4,38 @@ import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
 import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
-import { http } from 'viem'
+import { PublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { Execute } from '../types'
 import { swapWithApproval } from '../../tests/data/swapWithApproval'
+
+const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
+  blobGasPrice: 100n,
+  blobGasUsed: 50n,
+  blockHash: '0x123456789',
+  blockNumber: 123n,
+  contractAddress: '0x987654321',
+  cumulativeGasUsed: 500n,
+  effectiveGasPrice: 200n,
+  from: '0x111111111',
+  gasUsed: 300n,
+  logs: [],
+  logsBloom: '0xabcdef',
+  root: '0x987654321',
+  status: 'success',
+  to: '0x222222222',
+  transactionHash: '0x333333333',
+  transactionIndex: 1,
+  type: 'eip1559'
+})
+
+const waitForTransactionReceipt = (args) => {
+  return new Promise((resolve, reject) => {
+    const receiptData = waitForTransactionReceiptMock(args)
+    resolve(receiptData)
+  })
+}
 
 vi.mock('viem', async () => {
   const viem = await vi.importActual('viem')
@@ -17,30 +44,7 @@ vi.mock('viem', async () => {
     createPublicClient: (args: any) => {
       //@ts-ignore
       const client = viem.createPublicClient(args)
-      client.waitForTransactionReceipt = (args: any) => {
-        return new Promise((resolve, reject) => {
-          const mockTransactionReceipt: any = {
-            blobGasPrice: 100n,
-            blobGasUsed: 50n,
-            blockHash: '0x123456789',
-            blockNumber: 123n,
-            contractAddress: '0x987654321',
-            cumulativeGasUsed: 500n,
-            effectiveGasPrice: 200n,
-            from: '0x111111111',
-            gasUsed: 300n,
-            logs: [],
-            logsBloom: '0xabcdef',
-            root: '0x987654321',
-            status: 'success',
-            to: '0x222222222',
-            transactionHash: '0x333333333',
-            transactionIndex: 1,
-            type: 'eip1559'
-          }
-          resolve(mockTransactionReceipt)
-        })
-      }
+      client.waitForTransactionReceipt = waitForTransactionReceipt
       return client
     }
   }
@@ -320,6 +324,11 @@ describe('Should test the executeSteps method.', () => {
       ({ steps, fees, breakdown, details }) => {},
       swapWithApproval,
       undefined
+    )
+
+    console.log(
+      'waitForTransactionReceiptMock: ',
+      waitForTransactionReceiptMock.mock.calls
     )
 
     expect(wallet.handleSendTransactionStep).toHaveBeenCalled()
