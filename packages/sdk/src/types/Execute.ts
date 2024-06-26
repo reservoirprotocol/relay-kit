@@ -36,6 +36,7 @@ export type Execute = {
     description: string
     kind: 'transaction' | 'signature'
     id: string
+    requestId?: string
     items?: {
       status: 'complete' | 'incomplete'
       progressState?: TransactionStepState | SignatureStepState
