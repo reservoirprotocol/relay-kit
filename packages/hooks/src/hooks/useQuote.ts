@@ -68,6 +68,9 @@ export default function (
     queryKey: ['useQuote', options],
     queryFn: () => {
       onRequest?.()
+      if (options && client?.source) {
+        options.source = client.source
+      }
       const promise = queryQuote(client?.baseApiUrl, options)
       promise.then((response: any) => {
         onResponse?.(response)
