@@ -1,4 +1,4 @@
-import { Execute } from "../../src/types";
+import { type Execute } from "../../src/types";
 
 export const executeBridge: Execute = {
     "steps": [

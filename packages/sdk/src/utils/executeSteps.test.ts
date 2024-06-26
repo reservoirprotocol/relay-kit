@@ -6,8 +6,46 @@ import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
+import type { Execute } from '../types'
 
-let bridgeData = JSON.parse(JSON.stringify(executeBridge))
+vi.mock('viem', async () => {
+  const viem = await vi.importActual('viem')
+  return {
+    ...viem,
+    createPublicClient: (args: any) => {
+      //@ts-ignore
+      const client = viem.createPublicClient(args)
+      client.waitForTransactionReceipt = (args: any) => {
+        return new Promise((resolve, reject) => {
+          const mockTransactionReceipt: any = {
+            blobGasPrice: 100n,
+            blobGasUsed: 50n,
+            blockHash: '0x123456789',
+            blockNumber: 123n,
+            contractAddress: '0x987654321',
+            cumulativeGasUsed: 500n,
+            effectiveGasPrice: 200n,
+            from: '0x111111111',
+            gasUsed: 300n,
+            logs: [],
+            logsBloom: '0xabcdef',
+            root: '0x987654321',
+            status: 'success',
+            to: '0x222222222',
+            transactionHash: '0x333333333',
+            transactionIndex: 1,
+            type: 'eip1559'
+          }
+          resolve(mockTransactionReceipt)
+        })
+      }
+      return client
+    }
+  }
+})
+
+let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
 
 let wallet = {
   getChainId: () => Promise.resolve(1),
@@ -279,4 +317,97 @@ describe('Should test the executeSteps method.', () => {
   //     undefined
   //   )
   // })
+})
+
+describe('Should test a signature step.', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    bridgeData = JSON.parse(JSON.stringify(executeBridgeAuthorize))
+    wallet = {
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+    }
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      logLevel: 4
+    })
+  })
+
+  it("Detect progressState moved to 'signing'", async () => {
+    wallet.handleSignMessageStep = vi.fn().mockImplementation(() => {
+      return new Promise((resolve, reject) => {})
+    })
+    let signingStep: Execute['steps']['0'] | undefined
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        signingStep = steps.find((step) =>
+          step.items?.find(
+            (item) =>
+              item.status == 'incomplete' && item.progressState == 'signing'
+          )
+        )
+      },
+      bridgeData,
+      undefined
+    )
+    await vi.waitFor(
+      () => {
+        if (!signingStep) {
+          throw 'Waiting on signingStep'
+        }
+      },
+      {
+        timeout: 5000,
+        interval: 100
+      }
+    )
+    expect(signingStep?.items?.[0].progressState).toBe('signing')
+  })
+  it('Detects that handleSignMessageStep was called', async () => {
+    wallet.handleSignMessageStep = vi.fn().mockImplementation((args) => {
+      console.log('args', args)
+      return new Promise((resolve, reject) => {})
+    })
+    executeSteps(1, {}, wallet, ({ steps }) => {}, bridgeData, undefined)
+    await vi.waitFor(
+      () => {
+        if (!wallet.handleSignMessageStep.mock.calls.length) {
+          throw 'Waiting for handleSignMessageStep to be called'
+        }
+      },
+      {
+        timeout: 5000,
+        interval: 100
+      }
+    )
+
+    const step = bridgeData.steps.find((step) =>
+      step.items?.find((item) => item.status === 'incomplete')
+    )
+    console.log('STEP', step)
+
+    // expect(wallet.handleSignMessageStep).toBeCalledWith({
+    //   stepItem: step?.items?.[0],
+    //   step: step
+    // })
+  })
+  // it('Handle wallet chain, function chain mismatch', async () => {})
+  // it("Detect progressState moved to 'posting'", async () => {})
+  // it('Spy on request to make sure a signature gets posted', async () => {})
+  // it('If new steps returned in posted response, check if they were appended in the onProgress callback', async () => {})
+  // it("Spy on check endpoint, progressState should be at 'validating', isValidatingSignature should be true", async () => {})
+  // it('Setting txHashes, internalTxHashes', async () => {})
+  // it('If check fails and error is returned', async () => {})
+  // it('orderData gets set to expected value', async () => {})
+  // it('Status, progressState is set to complete at the end', async () => {})
+  // it('isValidatingSignature turned back off', async () => {})
+  // it('HandleSignMessage function with eip191', async () => {})
+  // it('HandleSignMessage function with eip712', async () => {})
 })
