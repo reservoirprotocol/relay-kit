@@ -1,8 +1,8 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import type { FC } from 'react'
-import { useMounted } from '../../../hooks/index.js'
+import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits } from 'viem'
+import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector.js'
 import type { Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
@@ -13,7 +13,7 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { WidgetErrorWell } from '../../common/WidgetErrorWell.js'
+import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
 import Tooltip from '../../primitives/Tooltip.js'
@@ -23,6 +23,7 @@ import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
+import { mainnet } from 'viem/chains'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -55,15 +56,25 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onSwapSuccess,
   onSwapError
 }) => {
+  const relayClient = useRelayClient()
   const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
+  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
+  const initialFromToken = defaultFromToken ?? {
+    chainId: defaultChainId,
+    address: zeroAddress,
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+    logoURI: 'https://assets.relay.link/icons/1/light.png'
+  }
 
   return (
     <SwapWidgetRender
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={defaultFromToken}
+      defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}

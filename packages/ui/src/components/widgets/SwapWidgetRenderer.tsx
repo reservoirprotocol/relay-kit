@@ -143,17 +143,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const [swapError, setSwapError] = useState<Error | null>(null)
-  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
-
   const [fromToken, setFromToken] = useState<Token | undefined>(
-    defaultFromToken ?? {
-      chainId: defaultChainId,
-      address: zeroAddress,
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18,
-      logoURI: 'https://assets.relay.link/icons/1/light.png'
-    }
+    defaultFromToken
   )
   const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
 

@@ -41,6 +41,7 @@ const fuseSearchOptions = {
 
 type TokenSelectorProps = {
   token?: Token
+  chainIdsFilter?: number[]
   locked: boolean
   context: 'from' | 'to'
   setToken: (token: Token) => void
@@ -59,6 +60,7 @@ enum TokenSelectorStep {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
+  chainIdsFilter,
   locked,
   context,
   setToken,
@@ -94,10 +96,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .sort((a, b) => a.name.localeCompare(b.name)) ?? []
     )
   }, [relayClient?.chains])
-  const configuredChainIds = useMemo(
-    () => configuredChains.map((chain) => chain.id),
-    [configuredChains]
-  )
+  const configuredChainIds = useMemo(() => {
+    if (chainIdsFilter) {
+      return chainIdsFilter
+    }
+    return configuredChains.map((chain) => chain.id)
+  }, [configuredChains])
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' && chainFilter.id === undefined

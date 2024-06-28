@@ -11,4 +11,4 @@ export { default as useRelayClient } from './hooks/useRelayClient.js'
 
 //widgets
 export { default as SwapWidget } from './components/widgets/SwapWidget/index.js'
-export { default as BridgeWidget } from './components/widgets/BridgeWidget/index.js'
+export { default as ChainWidget } from './components/widgets/ChainWidget/index.js'

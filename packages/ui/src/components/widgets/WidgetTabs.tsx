@@ -12,10 +12,7 @@ type WidgetTabsSelectorProps = {
   setTabId: (tabId: WidgetTabId) => void
 }
 
-export const WidgetTabs: FC<WidgetTabsSelectorProps> = ({
-  tabId,
-  setTabId
-}) => {
+const WidgetTabs: FC<WidgetTabsSelectorProps> = ({ tabId, setTabId }) => {
   const tabs = [
     {
       value: 'deposit',
@@ -85,3 +82,5 @@ export const WidgetTabs: FC<WidgetTabsSelectorProps> = ({
     </Tabs.Root>
   )
 }
+
+export default WidgetTabs

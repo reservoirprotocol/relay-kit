@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import type { FC } from 'react'
+import { useEffect, useState, type FC } from 'react'
 import { useMounted } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -13,7 +13,7 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { WidgetErrorWell } from '../../common/WidgetErrorWell.js'
+import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
 import Tooltip from '../../primitives/Tooltip.js'
@@ -23,15 +23,15 @@ import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
+import WidgetTabs, { type WidgetTabId } from '../../widgets/WidgetTabs.js'
 
-type BridgeWidgetProps = {
-  defaultFromToken?: Token
-  defaultToToken?: Token
+type ChainWidgetProps = {
+  chainId: number
+  defaultToken: Token
+  tokens?: Token[]
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
-  lockToToken?: boolean
-  lockFromToken?: boolean
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -40,14 +40,13 @@ type BridgeWidgetProps = {
   onSwapError?: (error: string, data?: Execute) => void
 }
 
-const BridgeWidget: FC<BridgeWidgetProps> = ({
-  defaultFromToken,
-  defaultToToken,
+const ChainWidget: FC<ChainWidgetProps> = ({
+  chainId,
+  tokens,
+  defaultToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
-  lockToToken = false,
-  lockFromToken = false,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
@@ -56,15 +55,22 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
   onSwapError
 }) => {
   const isMounted = useMounted()
-  const hasLockedToken = lockFromToken || lockToToken
+  const [tabId, setTabId] = useState<WidgetTabId>('deposit')
+  const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
+  const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
+
+  useEffect(() => {
+    if (chainId !== defaultToken.chainId) {
+      console.error('Default token chainId must match ChainWidget chainId')
+    }
+  }, [chainId, defaultToken])
 
   return (
     <SwapWidgetRender
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={defaultFromToken}
-      defaultToToken={defaultToToken}
+      defaultToToken={defaultToken}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
     >
@@ -144,6 +150,22 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
             {({ setAddressModalOpen }) => {
               return (
                 <>
+                  <WidgetTabs
+                    tabId={tabId}
+                    setTabId={(newTabId) => {
+                      switch (newTabId) {
+                        case 'deposit':
+                          handleSetFromToken(undefined)
+                          handleSetToToken(defaultToken)
+                          break
+                        case 'withdraw':
+                          handleSetFromToken(defaultToken)
+                          handleSetToToken(undefined)
+                          break
+                      }
+                      setTabId(newTabId)
+                    }}
+                  />
                   <TokenSelectorContainer>
                     <Text style="subtitle1">From</Text>
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
@@ -151,6 +173,7 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
                         token={fromToken}
                         locked={lockFromToken}
                         onAnalyticEvent={onAnalyticEvent}
+                        chainIdsFilter={lockFromToken ? [chainId] : undefined}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
@@ -254,54 +277,6 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
                       ) : null}
                     </Flex>
                   </TokenSelectorContainer>
-                  <Box
-                    css={{
-                      position: 'relative',
-                      my: -10,
-                      mx: 'auto',
-                      height: hasLockedToken ? 30 : 40
-                    }}
-                  >
-                    {hasLockedToken ? null : (
-                      <Button
-                        size="small"
-                        color="white"
-                        css={{
-                          color: 'gray9',
-                          alignSelf: 'center',
-                          px: '2',
-                          py: '2',
-                          borderWidth: '2px !important',
-                          minHeight: 30,
-                          zIndex: 10
-                        }}
-                        onClick={() => {
-                          if (fromToken || toToken) {
-                            if (tradeType === 'EXACT_INPUT') {
-                              setTradeType('EXACT_OUTPUT')
-                              setAmountInputValue('')
-                              setAmountOutputValue(amountInputValue)
-                            } else {
-                              setTradeType('EXACT_INPUT')
-                              setAmountOutputValue('')
-                              setAmountInputValue(amountOutputValue)
-                            }
-
-                            handleSetFromToken(toToken)
-                            handleSetToToken(fromToken)
-                            debouncedAmountInputControls.flush()
-                            debouncedAmountOutputControls.flush()
-                          }
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faArrowDown}
-                          width={16}
-                          height={16}
-                        />
-                      </Button>
-                    )}
-                  </Box>
                   <TokenSelectorContainer>
                     <Flex css={{ width: '100%' }} justify="between">
                       <Text style="subtitle1">To</Text>
@@ -330,6 +305,7 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
                       <TokenSelector
                         token={toToken}
                         locked={lockToToken}
+                        chainIdsFilter={lockFromToken ? [chainId] : undefined}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
@@ -547,4 +523,4 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
   )
 }
 
-export default BridgeWidget
+export default ChainWidget
