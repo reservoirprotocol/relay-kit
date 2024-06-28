@@ -21,6 +21,7 @@ const Index: NextPage = () => {
         </h2>
         <nav style={{ display: 'flex', gap: 15 }}>
           <Link href="/ui/swap">SwapWidget</Link>
+          <Link href="/ui/bridge">BridgeWidget</Link>
         </nav>
         <h2>
           <b>SDK Write Actions</b>

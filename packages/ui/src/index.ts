@@ -9,5 +9,6 @@ export { RelayClientProvider } from './providers/RelayClientProvider.js'
 //hooks
 export { default as useRelayClient } from './hooks/useRelayClient.js'
 
-//components
-export { default as SwapWidget } from './components/widget/index.js'
+//widgets
+export { default as SwapWidget } from './components/widgets/SwapWidget/index.js'
+export { default as BridgeWidget } from './components/widgets/BridgeWidget/index.js'
