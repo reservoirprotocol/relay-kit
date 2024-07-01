@@ -17,7 +17,7 @@ import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
 import Tooltip from '../../primitives/Tooltip.js'
-import SwapWidgetRender from '../SwapWidgetRenderer.js'
+import SwapWidgetRenderer from '../SwapWidgetRenderer.js'
 import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
@@ -66,7 +66,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   }, [chainId, defaultToken])
 
   return (
-    <SwapWidgetRender
+    <SwapWidgetRenderer
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
@@ -529,7 +529,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           </WidgetContainer>
         )
       }}
-    </SwapWidgetRender>
+    </SwapWidgetRenderer>
   )
 }
 
