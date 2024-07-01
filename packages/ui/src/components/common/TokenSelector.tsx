@@ -41,6 +41,8 @@ const fuseSearchOptions = {
 
 type TokenSelectorProps = {
   token?: Token
+  restrictedTokensList?: Token[]
+  chainIdsFilter?: number[]
   locked: boolean
   context: 'from' | 'to'
   setToken: (token: Token) => void
@@ -59,6 +61,8 @@ enum TokenSelectorStep {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
+  restrictedTokensList,
+  chainIdsFilter,
   locked,
   context,
   setToken,
@@ -94,13 +98,25 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .sort((a, b) => a.name.localeCompare(b.name)) ?? []
     )
   }, [relayClient?.chains])
-  const configuredChainIds = useMemo(
-    () => configuredChains.map((chain) => chain.id),
-    [configuredChains]
-  )
+  const configuredChainIds = useMemo(() => {
+    if (chainIdsFilter) {
+      return chainIdsFilter
+    }
+    return configuredChains.map((chain) => chain.id)
+  }, [configuredChains, chainIdsFilter])
 
   const useDefaultTokenList =
-    debouncedTokenSearchValue === '' && chainFilter.id === undefined
+    debouncedTokenSearchValue === '' &&
+    chainFilter.id === undefined &&
+    (!restrictedTokensList || !restrictedTokensList.length)
+
+  let tokenListQuery: string[] | undefined
+
+  if (restrictedTokensList && restrictedTokensList.length > 0) {
+    tokenListQuery = restrictedTokensList.map(
+      (token) => `${token.chainId}:${token.address}`
+    )
+  }
 
   const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
@@ -113,7 +129,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         ? debouncedTokenSearchValue
         : undefined,
       defaultList: useDefaultTokenList,
-      limit: 20
+      limit: 20,
+      ...(tokenListQuery ? { tokens: tokenListQuery } : {})
     }
   )
 
@@ -123,19 +140,39 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     isLoading: isLoadingDuneBalances
   } = useDuneBalances(address && address !== zeroAddress ? address : undefined)
 
-  const duneTokenBalances = duneTokens?.balances.filter((balance) =>
-    configuredChainIds.includes(balance.chain_id)
+  const restrictedTokenAddresses = restrictedTokensList?.map((token) =>
+    token.address.toLowerCase()
   )
+
+  const duneTokenBalances = duneTokens?.balances.filter((balance) => {
+    if (restrictedTokenAddresses) {
+      return (
+        restrictedTokenAddresses.includes(balance.address.toLowerCase()) &&
+        configuredChainIds.includes(balance.chain_id)
+      )
+    } else {
+      return configuredChainIds.includes(balance.chain_id)
+    }
+  })
+
+  let suggestedTokenQuery: string[] | undefined
+
+  if (restrictedTokensList && restrictedTokensList.length > 0) {
+    suggestedTokenQuery = restrictedTokensList.map(
+      (token) => `${token.chainId}:${token.address}`
+    )
+  } else if (duneTokenBalances) {
+    suggestedTokenQuery = duneTokenBalances.map(
+      (balance) => `${balance.chain_id}:${balance.address}`
+    )
+  }
 
   const { data: suggestedTokens, isLoading: isLoadingSuggestedTokens } =
     useTokenList(
       relayClient?.baseApiUrl,
-      duneTokenBalances
+      suggestedTokenQuery
         ? {
-            //@ts-ignore
-            tokens: duneTokenBalances.map(
-              (balance) => `${balance.chain_id}:${balance.address}`
-            ),
+            tokens: suggestedTokenQuery,
             limit: 20
           }
         : undefined,
