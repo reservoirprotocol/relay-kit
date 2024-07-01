@@ -7,6 +7,7 @@ import { EventNames } from '../../constants/events.js'
 type SwapButtonProps = {
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  context: 'Swap' | 'Deposit' | 'Withdraw'
 } & Pick<
   ChildrenProps,
   | 'quote'
@@ -23,6 +24,7 @@ type SwapButtonProps = {
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
+  context,
   onConnectWallet,
   quote,
   address,
@@ -38,12 +40,11 @@ const SwapButton: FC<SwapButtonProps> = ({
   onAnalyticEvent
 }) => {
   const isMounted = useMounted()
-
-  if (!isMounted || !address) {
+  if (isMounted && address) {
     return (
       <Button
         css={{ justifyContent: 'center' }}
-        aria-label="Swap"
+        aria-label={context}
         disabled={
           !quote ||
           hasInsufficientBalance ||
@@ -71,7 +72,7 @@ const SwapButton: FC<SwapButtonProps> = ({
         }
         onConnectWallet()
         onAnalyticEvent?.(EventNames.CONNECT_WALLET_CLICKED, {
-          context: 'bridge'
+          context
         })
       }}
     >

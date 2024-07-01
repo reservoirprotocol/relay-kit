@@ -73,6 +73,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultToToken={defaultToken}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
+      context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
     >
       {({
         quote,
@@ -507,6 +508,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     context="swap"
                   />
                   <SwapButton
+                    context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
                     quote={quote}

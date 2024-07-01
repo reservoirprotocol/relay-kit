@@ -38,6 +38,7 @@ type SwapWidgetRendererProps = {
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
+  context: 'Swap' | 'Deposit' | 'Withdraw'
 }
 
 export type ChildrenProps = {
@@ -99,6 +100,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  context,
   children,
   onAnalyticEvent,
   onSwapError
@@ -328,12 +330,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
 
-  let ctaCopy = 'Swap'
+  let ctaCopy: string = context || 'Swap'
 
-  if (isWrap) {
-    ctaCopy = 'Wrap'
-  } else if (isUnwrap) {
-    ctaCopy = 'Unwrap'
+  if (context === 'Swap') {
+    if (isWrap) {
+      ctaCopy = 'Wrap'
+    } else if (isUnwrap) {
+      ctaCopy = 'Unwrap'
+    }
   }
 
   if (!fromToken || !toToken) {
@@ -347,11 +351,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
   } else if (steps !== null) {
-    ctaCopy = 'Swapping'
-    if (isWrap) {
-      ctaCopy = 'Wrapping'
-    } else if (isUnwrap) {
-      ctaCopy = 'Unwrapping'
+    if (context === 'Swap') {
+      ctaCopy = 'Swapping'
+      if (isWrap) {
+        ctaCopy = 'Wrapping'
+      } else if (isUnwrap) {
+        ctaCopy = 'Unwrapping'
+      }
+    } else {
+      ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
     }
   }
 

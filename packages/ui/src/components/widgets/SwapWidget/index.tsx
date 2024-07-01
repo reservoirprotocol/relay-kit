@@ -71,6 +71,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
   return (
     <SwapWidgetRenderer
+      context="Swap"
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
@@ -532,6 +533,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     context="swap"
                   />
                   <SwapButton
+                    context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
                     quote={quote}
