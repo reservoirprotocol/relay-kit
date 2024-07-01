@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.12
+
+### Patch Changes
+
+- 4335c35: Add tests and fix global axios instance
+- Updated dependencies [4335c35]
+  - @reservoir0x/relay-sdk@1.0.7
+
 ## 1.0.11
 
 ### Patch Changes

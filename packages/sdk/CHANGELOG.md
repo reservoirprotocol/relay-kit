@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.7
+
+### Patch Changes
+
+- 4335c35: Add tests and fix global axios instance
+
 ## 1.0.6
 
 ### Patch Changes
