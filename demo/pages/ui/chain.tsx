@@ -19,9 +19,27 @@ const ChainWidgetPage: NextPage = () => {
       >
         <ChainWidget
           chainId={8453}
+          tokens={[
+            {
+              chainId: 8453,
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+              decimals: 6,
+              name: 'USDC',
+              symbol: 'USDC',
+              logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
+            },
+            {
+              chainId: 8453,
+              address: '0x0000000000000000000000000000000000000000',
+              decimals: 18,
+              name: 'ETH',
+              symbol: 'ETH',
+              logoURI: 'https://assets.relay.link/icons/1/light.png'
+            }
+          ]}
           defaultToken={{
             chainId: 8453,
-            address: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+            address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
             decimals: 6,
             name: 'USDC',
             symbol: 'USDC',

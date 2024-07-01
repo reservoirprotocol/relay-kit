@@ -7,11 +7,10 @@ import {
   useDebounceState
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, parseUnits, zeroAddress } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useAccount, useConfig, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
-import { mainnet } from 'viem/chains'
 import { useQueryClient } from '@tanstack/react-query'
 import { deadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'

@@ -171,9 +171,14 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <TokenSelector
                         token={fromToken}
+                        restrictedTokensList={
+                          tabId === 'withdraw' ? tokens : undefined
+                        }
                         locked={lockFromToken}
                         onAnalyticEvent={onAnalyticEvent}
-                        chainIdsFilter={lockFromToken ? [chainId] : undefined}
+                        chainIdsFilter={
+                          tabId === 'withdraw' ? [chainId] : undefined
+                        }
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
@@ -304,8 +309,13 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <TokenSelector
                         token={toToken}
+                        restrictedTokensList={
+                          tabId === 'deposit' ? tokens : undefined
+                        }
                         locked={lockToToken}
-                        chainIdsFilter={lockFromToken ? [chainId] : undefined}
+                        chainIdsFilter={
+                          tabId === 'deposit' ? [chainId] : undefined
+                        }
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
