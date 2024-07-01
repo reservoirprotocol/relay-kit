@@ -1,4 +1,3 @@
-//@ts-ignore
 import {
   cva,
   css as designCss,
