@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.0
+
+### Minor Changes
+
+- 0384db0: Refactor SwapWidget and add new ChainWidget for deposit/withdraw ux
+
+### Patch Changes
+
+- 4335c35: Add tests and fix global axios instance
+- Updated dependencies [4335c35]
+  - @reservoir0x/relay-kit-hooks@1.0.12
+  - @reservoir0x/relay-sdk@1.0.7
+
 ## 1.0.16
 
 ### Patch Changes
