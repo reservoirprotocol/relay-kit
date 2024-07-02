@@ -48,7 +48,7 @@ const WidgetTabs: FC<WidgetTabsSelectorProps> = ({ tabId, setTabId }) => {
       }}
       style={{ width: '100%' }}
     >
-      <TabsList>
+      <TabsList css={{ mb: '3' }}>
         {tabs.map((tab) => {
           const isActiveTab = tabId === tab.value
           console.log(tabId, tab.value, 'isActive', isActiveTab)

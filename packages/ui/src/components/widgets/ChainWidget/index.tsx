@@ -1,6 +1,6 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
-import { useMounted } from '../../../hooks/index.js'
+import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
 import TokenSelector from '../../common/TokenSelector.js'
@@ -24,6 +24,7 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import WidgetTabs, { type WidgetTabId } from '../../widgets/WidgetTabs.js'
+import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type ChainWidgetProps = {
   chainId: number
@@ -58,6 +59,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const [tabId, setTabId] = useState<WidgetTabId>('deposit')
   const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
+  const client = useRelayClient()
+  const chain = client?.chains.find((chain) => chain.id === chainId)
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
@@ -115,6 +118,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         isInsufficientLiquidityError,
         ctaCopy,
         isFromETH,
+        useExternalLiquidity,
+        supportsExternalLiquidity,
+        setUseExternalLiquidity,
         setSteps,
         setDetails,
         setSwapError
@@ -167,7 +173,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       setTabId(newTabId)
                     }}
                   />
-                  <TokenSelectorContainer>
+                  <TokenSelectorContainer css={{ mb: '3' }}>
                     <Text style="subtitle1">From</Text>
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <TokenSelector
@@ -490,6 +496,15 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     </Flex>
                   </TokenSelectorContainer>
                   <FetchingQuoteLoader isLoading={isFetchingQuote} />
+                  <SwapRouteSelector
+                    chainId={chainId}
+                    chainName={chain?.displayName ?? ''}
+                    supportsExternalLiquidity={supportsExternalLiquidity}
+                    externalLiquidtySelected={useExternalLiquidity}
+                    onExternalLiquidityChange={(selected) => {
+                      setUseExternalLiquidity(selected)
+                    }}
+                  />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingQuote={isFetchingQuote}
