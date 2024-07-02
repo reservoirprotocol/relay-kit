@@ -51,7 +51,6 @@ const WidgetTabs: FC<WidgetTabsSelectorProps> = ({ tabId, setTabId }) => {
       <TabsList>
         {tabs.map((tab) => {
           const isActiveTab = tabId === tab.value
-          console.log(tabId, tab.value, 'isActive', isActiveTab)
           return (
             <TabsTrigger
               key={tab.value}
