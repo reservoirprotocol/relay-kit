@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.1
+
+### Patch Changes
+
+- 3f2bd68: Remove log
+
 ## 1.1.0
 
 ### Minor Changes
