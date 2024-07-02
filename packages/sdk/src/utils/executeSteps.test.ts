@@ -773,15 +773,19 @@ describe('Should test a signature step.', () => {
     let signatureStepItem: NonNullable<Execute['steps']['0']['items']>['0'] =
       signatureStep?.items?.[0] as any
     const checkEndpoint = signatureStepItem.check?.endpoint ?? ''
+    console.log('checkEndpoint: ', checkEndpoint)
     let errorMessage: string | undefined
     vi.spyOn(axios, 'request').mockImplementation((config) => {
+      console.log('config: ', config)
       if (config.url?.includes(checkEndpoint)) {
+        console.log('returning failure')
         return Promise.resolve({
           data: { status: 'failure', details: 'Failed to check' },
           status: 400
         })
       }
 
+      console.log('returning success')
       return Promise.resolve({
         status: 200
       })
@@ -789,6 +793,8 @@ describe('Should test a signature step.', () => {
     executeSteps(1, {}, wallet, () => {}, bridgeData, undefined).catch((e) => {
       errorMessage = e.message ?? ''
     })
+
+    console.log('waiting for error message')
     await vi.waitFor(() => {
       if (!errorMessage) {
         throw 'Waiting for check to error'
