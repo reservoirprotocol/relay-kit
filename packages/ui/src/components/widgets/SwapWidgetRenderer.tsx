@@ -21,7 +21,7 @@ import {
   parseFees
 } from '../../utils/quote.js'
 import { switchChain } from 'wagmi/actions'
-import { useQuote } from '@reservoir0x/relay-kit-hooks'
+import { useQuote, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
@@ -35,6 +35,7 @@ type SwapWidgetRendererProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: TradeType
+  fetchSolverConfig?: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -89,6 +90,9 @@ export type ChildrenProps = {
   isInsufficientLiquidityError?: boolean
   ctaCopy: string
   isFromETH: boolean
+  useExternalLiquidity: boolean
+  supportsExternalLiquidity: boolean
+  setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
@@ -101,6 +105,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   defaultAmount,
   defaultTradeType,
   context,
+  fetchSolverConfig,
   children,
   onAnalyticEvent,
   onSwapError
@@ -113,6 +118,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
     defaultToAddress
   )
+  const [useExternalLiquidity, setUseExternalLiquidity] =
+    useState<boolean>(false)
   const recipient = customToAddress ?? address
   const { displayName: toDisplayName } = useENSResolver(recipient)
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
@@ -148,7 +155,33 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultFromToken
   )
   const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
-
+  const canonicalCurrencies: string[] = [
+    'degen',
+    'eth',
+    'usdc',
+    'xai',
+    'sipher'
+  ]
+  const tokenPairIsCanonical =
+    fromToken?.chainId !== undefined &&
+    toToken?.chainId !== undefined &&
+    fromToken.symbol === toToken.symbol &&
+    canonicalCurrencies.includes(fromToken.symbol.toLowerCase())
+  const config = useRelayConfig(
+    relayClient?.baseApiUrl,
+    {
+      currency: ((fromToken?.symbol as any) ?? '').toLowerCase(),
+      originChainId: `${fromToken?.chainId}`,
+      destinationChainId: `${toToken?.chainId}`
+    },
+    {
+      enabled: tokenPairIsCanonical && fetchSolverConfig
+    }
+  )
+  const supportsExternalLiquidity =
+    tokenPairIsCanonical && config.data?.supportsExternalLiquidity
+      ? true
+      : false
   const {
     value: fromBalance,
     queryKey: fromBalanceQueryKey,
@@ -218,7 +251,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                   debouncedOutputAmountValue,
                   toToken.decimals
                 ).toString(),
-          source: relayClient?.source ?? undefined
+          source: relayClient?.source ?? undefined,
+          useExternalLiquidity
         }
       : undefined,
     () => {},
@@ -409,7 +443,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             chain_id_in: fromToken?.chainId,
             amount_out: parseFloat(`${debouncedOutputAmountValue}`),
             currency_out: toToken?.symbol,
-            chain_id_out: toToken?.chainId
+            chain_id_out: toToken?.chainId,
+            is_canonical: useExternalLiquidity
           })
           setSwapError(errorMessage)
           onSwapError?.(errorMessage, quote as Execute)
@@ -429,7 +464,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         chain_id_in: fromToken?.chainId,
         amount_out: parseFloat(`${debouncedOutputAmountValue}`),
         currency_out: toToken?.symbol,
-        chain_id_out: toToken?.chainId
+        chain_id_out: toToken?.chainId,
+        is_canonical: useExternalLiquidity
       })
       onSwapError?.(e as any, quote as Execute)
     }
@@ -447,6 +483,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     tradeType,
+    useExternalLiquidity,
     executeSwap,
     setSteps,
     setDetails,
@@ -495,6 +532,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isInsufficientLiquidityError,
         ctaCopy,
         isFromETH,
+        useExternalLiquidity,
+        supportsExternalLiquidity,
+        setUseExternalLiquidity,
         setSteps,
         setDetails,
         setSwapError

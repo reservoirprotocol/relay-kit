@@ -420,16 +420,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   setTokenSearchInput((e.target as HTMLInputElement).value)
                 }
               />
-              <ChainFilter
-                options={[
-                  { id: undefined, name: 'All Chains' },
-                  ...configuredChains
-                ]}
-                value={chainFilter}
-                onSelect={(value) => {
-                  setChainFilter(value)
-                }}
-              />
+              {!chainIdsFilter || chainIdsFilter.length > 1 ? (
+                <ChainFilter
+                  options={[
+                    { id: undefined, name: 'All Chains' },
+                    ...configuredChains
+                  ]}
+                  value={chainFilter}
+                  onSelect={(value) => {
+                    setChainFilter(value)
+                  }}
+                />
+              ) : null}
             </Flex>
             <Flex
               css={{
