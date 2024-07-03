@@ -45,6 +45,9 @@ const Index: NextPage = () => {
         </h2>
         <nav style={{ display: 'flex', gap: 15 }}>
           <Link href="/hooks/useRelayConfig">useRelayConfig</Link>
+          <Link href="/hooks/useRelayChains">useRelayChains</Link>
+          <Link href="/hooks/useRequests">useRequests</Link>
+          <Link href="/hooks/useTokenList">useTokenList</Link>
         </nav>
       </div>
     </Layout>
