@@ -2,7 +2,7 @@ import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits } from 'viem'
+import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector.js'
 import type { Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
@@ -74,6 +74,19 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
       defaultToToken={defaultToken}
+      defaultFromToken={
+        chainId !== 1
+          ? {
+              chainId: 1,
+              address: zeroAddress,
+              symbol: 'ETH',
+              name: 'ETH',
+              decimals: 18,
+              logoURI: 'https://assets.relay.link/icons/square/1/light.png'
+            }
+          : undefined
+      }
+      fetchSolverConfig={true}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
@@ -160,17 +173,23 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   <WidgetTabs
                     tabId={tabId}
                     setTabId={(newTabId) => {
-                      switch (newTabId) {
-                        case 'deposit':
-                          handleSetFromToken(undefined)
-                          handleSetToToken(defaultToken)
-                          break
-                        case 'withdraw':
-                          handleSetFromToken(defaultToken)
-                          handleSetToToken(undefined)
-                          break
+                      if (newTabId !== tabId) {
+                        if (tradeType === 'EXACT_INPUT') {
+                          setTradeType('EXACT_OUTPUT')
+                          setAmountInputValue('')
+                          setAmountOutputValue(amountInputValue)
+                        } else {
+                          setTradeType('EXACT_INPUT')
+                          setAmountOutputValue('')
+                          setAmountInputValue(amountOutputValue)
+                        }
+
+                        handleSetFromToken(toToken)
+                        handleSetToToken(fromToken)
+                        debouncedAmountInputControls.flush()
+                        debouncedAmountOutputControls.flush()
+                        setTabId(newTabId)
                       }
-                      setTabId(newTabId)
                     }}
                   />
                   <TokenSelectorContainer css={{ mb: '3' }}>

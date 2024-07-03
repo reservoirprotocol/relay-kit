@@ -163,19 +163,19 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     'sipher'
   ]
   const tokenPairIsCanonical =
-    fromToken &&
-    toToken &&
+    fromToken?.chainId !== undefined &&
+    toToken?.chainId !== undefined &&
     fromToken.symbol === toToken.symbol &&
     canonicalCurrencies.includes(fromToken.symbol.toLowerCase())
   const config = useRelayConfig(
     relayClient?.baseApiUrl,
     {
-      currency: 'degen',
+      currency: ((fromToken?.symbol as any) ?? '').toLowerCase(),
       originChainId: `${fromToken?.chainId}`,
       destinationChainId: `${toToken?.chainId}`
     },
     {
-      enabled: fetchSolverConfig && tokenPairIsCanonical
+      enabled: tokenPairIsCanonical && fetchSolverConfig
     }
   )
   const supportsExternalLiquidity =
