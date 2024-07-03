@@ -10,7 +10,7 @@ import {
   TESTNET_RELAY_API,
   convertViemChainToRelayChain
 } from './index.js'
-import { base, mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 
 let client: RelayClient
 
@@ -19,9 +19,6 @@ describe('Should test the client.', () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
-
-    vi.clearAllMocks()
-    vi.resetAllMocks()
   })
 
   it('Should confirm client is configured properly.', async () => {
