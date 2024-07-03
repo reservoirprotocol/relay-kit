@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.2
+
+### Patch Changes
+
+- eae9b4d: ChainWidget Canonical functionality
+
 ## 1.1.1
 
 ### Patch Changes
