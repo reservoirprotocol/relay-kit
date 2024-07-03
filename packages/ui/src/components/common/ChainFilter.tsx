@@ -1,4 +1,4 @@
-import React, { type FC, useState } from 'react'
+import { type FC, useState } from 'react'
 import { type Chain } from 'viem/chains'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { Button, Flex, Text } from '../primitives/index.js'

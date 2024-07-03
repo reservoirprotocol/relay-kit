@@ -1,8 +1,8 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
-import { useMounted } from '../../../hooks/index.js'
+import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits } from 'viem'
+import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector.js'
 import type { Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
@@ -24,6 +24,7 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import WidgetTabs, { type WidgetTabId } from '../../widgets/WidgetTabs.js'
+import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type ChainWidgetProps = {
   chainId: number
@@ -58,6 +59,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const [tabId, setTabId] = useState<WidgetTabId>('deposit')
   const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
+  const client = useRelayClient()
+  const chain = client?.chains.find((chain) => chain.id === chainId)
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
@@ -71,6 +74,19 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
       defaultToToken={defaultToken}
+      defaultFromToken={
+        chainId !== 1
+          ? {
+              chainId: 1,
+              address: zeroAddress,
+              symbol: 'ETH',
+              name: 'ETH',
+              decimals: 18,
+              logoURI: 'https://assets.relay.link/icons/square/1/light.png'
+            }
+          : undefined
+      }
+      fetchSolverConfig={true}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
@@ -115,6 +131,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         isInsufficientLiquidityError,
         ctaCopy,
         isFromETH,
+        useExternalLiquidity,
+        supportsExternalLiquidity,
+        setUseExternalLiquidity,
         setSteps,
         setDetails,
         setSwapError
@@ -154,20 +173,26 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   <WidgetTabs
                     tabId={tabId}
                     setTabId={(newTabId) => {
-                      switch (newTabId) {
-                        case 'deposit':
-                          handleSetFromToken(undefined)
-                          handleSetToToken(defaultToken)
-                          break
-                        case 'withdraw':
-                          handleSetFromToken(defaultToken)
-                          handleSetToToken(undefined)
-                          break
+                      if (newTabId !== tabId) {
+                        if (tradeType === 'EXACT_INPUT') {
+                          setTradeType('EXACT_OUTPUT')
+                          setAmountInputValue('')
+                          setAmountOutputValue(amountInputValue)
+                        } else {
+                          setTradeType('EXACT_INPUT')
+                          setAmountOutputValue('')
+                          setAmountInputValue(amountOutputValue)
+                        }
+
+                        handleSetFromToken(toToken)
+                        handleSetToToken(fromToken)
+                        debouncedAmountInputControls.flush()
+                        debouncedAmountOutputControls.flush()
+                        setTabId(newTabId)
                       }
-                      setTabId(newTabId)
                     }}
                   />
-                  <TokenSelectorContainer>
+                  <TokenSelectorContainer css={{ mb: '3' }}>
                     <Text style="subtitle1">From</Text>
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <TokenSelector
@@ -490,6 +515,15 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     </Flex>
                   </TokenSelectorContainer>
                   <FetchingQuoteLoader isLoading={isFetchingQuote} />
+                  <SwapRouteSelector
+                    chainId={chainId}
+                    chainName={chain?.displayName ?? ''}
+                    supportsExternalLiquidity={supportsExternalLiquidity}
+                    externalLiquidtySelected={useExternalLiquidity}
+                    onExternalLiquidityChange={(selected) => {
+                      setUseExternalLiquidity(selected)
+                    }}
+                  />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingQuote={isFetchingQuote}
