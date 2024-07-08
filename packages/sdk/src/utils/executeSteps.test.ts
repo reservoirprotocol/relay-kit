@@ -789,8 +789,8 @@ describe('Should test a signature step.', () => {
       }
 
       return Promise.resolve({
-        data: { status: 'failure', details: 'Failed to check' },
-        status: 400
+        data: { status: 'success' },
+        status: 200
       })
     })
     executeSteps(1, {}, wallet, () => {}, bridgeData, undefined).catch((e) => {
@@ -825,5 +825,161 @@ describe('Should test a signature step.', () => {
       signatureStep && signatureStep.items ? signatureStep.items.length : 0
     ).toBeGreaterThan(0)
     expect(isValidatingSignatureDisabled).toBeTruthy()
+  })
+})
+
+describe('Base tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
+    bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    swapData = JSON.parse(JSON.stringify(swapWithApproval))
+    wallet = {
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+    }
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
+  })
+
+  it('Should throw an error when supplied chain is not configured', async () => {
+    let errorMessage: string | undefined
+    executeSteps(1337, {}, wallet, () => {}, bridgeData, undefined).catch(
+      (e) => {
+        errorMessage = e
+      }
+    )
+    await vi.waitFor(() => {
+      if (!errorMessage) {
+        throw 'Waiting for error message'
+      }
+    })
+    expect(errorMessage).toBe('Unable to find chain: Chain id 1337')
+  })
+  it('Should fetch json if missing and fail if error returned', async () => {
+    let fetchedJson = false
+    let errorMessage: string | undefined
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url === 'https://api.relay.link/get/quote') {
+        fetchedJson = true
+        return Promise.resolve({
+          data: { status: 'failure', details: 'Failed to check' },
+          status: 400
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    executeSteps(
+      1,
+      {
+        method: 'GET',
+        url: 'https://api.relay.link/get/quote'
+      },
+      wallet,
+      () => {},
+      undefined,
+      undefined
+    ).catch((e) => {
+      errorMessage = e
+    })
+
+    await vi.waitFor(() => {
+      if (!errorMessage) {
+        throw 'Waiting for error message'
+      }
+    })
+
+    expect(errorMessage).toBeDefined()
+    expect(fetchedJson).toBeTruthy()
+  })
+  it('Should throw an error when steps are missing', async () => {
+    let errorMessage: string | undefined
+    executeSteps(1, {}, wallet, () => {}, {} as any, undefined).catch((e) => {
+      errorMessage = e
+    })
+
+    await vi.waitFor(() => {
+      if (!errorMessage) {
+        throw 'Waiting for error message'
+      }
+    })
+    expect(errorMessage).toBeDefined()
+  })
+  it('Should poll if step item data is missing', async () => {
+    let fetchedStepItem = false
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url === 'https://api.relay.link/get/quote') {
+        fetchedStepItem = true
+        return Promise.resolve({
+          ...bridgeData,
+          status: 200
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    const _bridgeData: Execute = JSON.parse(JSON.stringify(bridgeData))
+    _bridgeData.steps.forEach((step) => {
+      step.items?.forEach((item) => {
+        delete item.data
+      })
+    })
+    executeSteps(
+      1,
+      {
+        url: 'https://api.relay.link/get/quote',
+        method: 'GET'
+      },
+      wallet,
+      () => {},
+      _bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      if (!fetchedStepItem) {
+        throw 'Waiting to fetch step item'
+      }
+    })
+    expect(fetchedStepItem).toBeTruthy()
+  })
+
+  it('Should return the final results in the execute response', async () => {
+    const result = await executeSteps(
+      1,
+      {
+        url: 'https://api.relay.link/get/quote',
+        method: 'GET'
+      },
+      wallet,
+      () => {},
+      bridgeData,
+      undefined
+    )
+
+    await vi.waitFor(() => {
+      if (!result) {
+        throw 'Waiting for the result'
+      }
+    })
+    expect(result).toBeDefined()
+    expect(
+      result.steps.every((step) =>
+        step.items?.every((item) => item.status === 'complete')
+      )
+    ).toBeTruthy()
   })
 })
