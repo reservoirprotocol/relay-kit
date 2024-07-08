@@ -60,7 +60,6 @@ export async function executeSteps(
     (2.5 * 60 * 1000) / pollingInterval
 
   const chain = client.chains.find((chain) => chain.id === chainId)
-
   if (!chain) {
     throw `Unable to find chain: Chain id ${chainId}`
   }
@@ -533,7 +532,7 @@ export async function executeSteps(
     if (json) {
       json.error = err && err?.response?.data ? err.response.data : err
       setState({
-        steps: [...json?.steps],
+        steps: json.steps ? [...json.steps] : ([{}] as any),
         fees: { ...json?.fees },
         breakdown: json?.breakdown,
         details: json?.details
@@ -544,7 +543,6 @@ export async function executeSteps(
         steps: []
       }
     }
-
     throw err
   }
 }
