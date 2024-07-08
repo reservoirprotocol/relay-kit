@@ -5,11 +5,15 @@ import { formatNumber } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
-import { calculateTimeEstimate } from '../../utils/quote.js'
 
 type Props = Pick<
   ChildrenProps,
-  'feeBreakdown' | 'isFetchingQuote' | 'quote' | 'toToken' | 'fromToken'
+  | 'feeBreakdown'
+  | 'isFetchingQuote'
+  | 'quote'
+  | 'toToken'
+  | 'fromToken'
+  | 'timeEstimate'
 >
 
 const FeeBreakdown: FC<Props> = ({
@@ -17,9 +21,9 @@ const FeeBreakdown: FC<Props> = ({
   isFetchingQuote,
   quote,
   toToken,
-  fromToken
+  fromToken,
+  timeEstimate
 }) => {
-  const timeEstimate = calculateTimeEstimate(quote?.breakdown)
   const swapRate = quote?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
@@ -76,12 +80,14 @@ const FeeBreakdown: FC<Props> = ({
           css={{
             gap: '2',
             color:
-              timeEstimate.time <= 30 ? '{colors.green.9}' : '{colors.amber.9}'
+              timeEstimate && timeEstimate.time <= 30
+                ? '{colors.green.9}'
+                : '{colors.amber.9}'
           }}
           align="center"
         >
           <FontAwesomeIcon icon={faClock} width={16} />
-          <Text style="subtitle2">~ {timeEstimate.formattedTime}</Text>
+          <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
           <Box css={{ width: 1, background: 'gray6', height: 20 }} />
           <FontAwesomeIcon
             icon={faGasPump}

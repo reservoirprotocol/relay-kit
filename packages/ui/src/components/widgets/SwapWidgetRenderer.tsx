@@ -16,6 +16,7 @@ import { deadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculateRelayerFeeProportionUsd,
+  calculateTimeEstimate,
   extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
@@ -92,6 +93,7 @@ export type ChildrenProps = {
   isFromETH: boolean
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
+  timeEstimate?: { time: number; formattedTime: string }
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -347,6 +349,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
   const highRelayerServiceFee = isHighRelayerServiceFeeUsd(quote)
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(quote)
+  const timeEstimate = calculateTimeEstimate(quote?.breakdown)
 
   const isFromETH = fromToken?.symbol === 'ETH'
 
@@ -534,6 +537,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isFromETH,
         useExternalLiquidity,
         supportsExternalLiquidity,
+        timeEstimate,
         setUseExternalLiquidity,
         setSteps,
         setDetails,
