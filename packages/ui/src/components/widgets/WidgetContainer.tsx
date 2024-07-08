@@ -22,6 +22,7 @@ export type WidgetContainerProps = {
   | 'quote'
   | 'address'
   | 'setCustomToAddress'
+  | 'useExternalLiquidity'
 >
 
 export type WidgetChildProps = {
@@ -38,6 +39,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   quote,
   details,
   address,
+  useExternalLiquidity,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -78,6 +80,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             details={details}
             fees={quote?.fees}
             address={address}
+            isCanonical={useExternalLiquidity}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
           />

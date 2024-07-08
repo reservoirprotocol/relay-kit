@@ -26,6 +26,8 @@ type SwapModalProps = {
   steps?: Execute['steps'] | null
   details?: Execute['details'] | null
   error?: Error | null
+  timeEstimate?: { time: number; formattedTime: string }
+  isCanonical?: boolean
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onSuccess?: (data: Execute) => void
@@ -40,6 +42,8 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     details,
     fromToken,
     toToken,
+    timeEstimate,
+    isCanonical,
     onAnalyticEvent,
     onSuccess
   } = swapModalProps
@@ -89,6 +93,8 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
             address={address}
             details={details}
             onAnalyticEvent={onAnalyticEvent}
+            timeEstimate={timeEstimate}
+            isCanonical={isCanonical}
             {...swapModalProps}
             {...rendererProps}
           />
@@ -120,7 +126,9 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   executionTime,
   executionTimeSeconds,
   setStartTimestamp,
-  onAnalyticEvent
+  onAnalyticEvent,
+  timeEstimate,
+  isCanonical
 }) => {
   useEffect(() => {
     if (!open) {
@@ -194,6 +202,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             fillTime={executionTime ?? ''}
             seconds={executionTimeSeconds ?? 0}
             onOpenChange={onOpenChange}
+            timeEstimate={timeEstimate?.formattedTime}
+            isCanonical={isCanonical}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

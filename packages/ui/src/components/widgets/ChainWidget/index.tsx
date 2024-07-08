@@ -9,7 +9,6 @@ import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
 import type { Execute } from '@reservoir0x/relay-sdk'
@@ -133,6 +132,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         isFromETH,
         useExternalLiquidity,
         supportsExternalLiquidity,
+        timeEstimate,
         setUseExternalLiquidity,
         setSteps,
         setDetails,
@@ -163,6 +163,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                 setSwapError(null)
               }
             }}
+            useExternalLiquidity={useExternalLiquidity}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             setCustomToAddress={setCustomToAddress}
@@ -530,6 +531,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     toToken={toToken}
                     fromToken={fromToken}
                     quote={quote}
+                    timeEstimate={timeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}

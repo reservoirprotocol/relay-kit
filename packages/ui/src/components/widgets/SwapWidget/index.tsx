@@ -120,6 +120,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isInsufficientLiquidityError,
         ctaCopy,
         isFromETH,
+        timeEstimate,
         setSteps,
         setDetails,
         setSwapError
@@ -149,6 +150,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 setSwapError(null)
               }
             }}
+            useExternalLiquidity={false}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             setCustomToAddress={setCustomToAddress}
@@ -521,6 +523,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     toToken={toToken}
                     fromToken={fromToken}
                     quote={quote}
+                    timeEstimate={timeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
