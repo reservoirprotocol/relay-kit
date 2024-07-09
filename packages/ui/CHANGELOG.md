@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.3
+
+### Patch Changes
+
+- 643c6a6: Add success screen for canonical
+- Updated dependencies [1e83361]
+  - @reservoir0x/relay-sdk@1.0.8
+  - @reservoir0x/relay-kit-hooks@1.0.13
+
 ## 1.1.2
 
 ### Patch Changes
