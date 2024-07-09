@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.8
+
+### Patch Changes
+
+- 1e83361: Fix json error spreading throwing error in executeSteps
+
 ## 1.0.7
 
 ### Patch Changes
