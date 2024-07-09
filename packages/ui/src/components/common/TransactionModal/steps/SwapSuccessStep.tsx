@@ -128,7 +128,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           {fromChain ? (
             <Pill color="gray" css={{ alignItems: 'center', py: '2', px: '3' }}>
               <ChainIcon chainId={fromChain.id} height={20} width={20} />
-              <Text style="subtitle1">{fromChain.id}</Text>
+              <Text style="subtitle1">{fromChain.displayName}</Text>
             </Pill>
           ) : (
             <Text style="subtitle1">?</Text>

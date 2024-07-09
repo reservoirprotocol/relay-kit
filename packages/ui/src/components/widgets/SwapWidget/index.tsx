@@ -154,6 +154,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             setCustomToAddress={setCustomToAddress}
+            timeEstimate={timeEstimate}
           >
             {({ setAddressModalOpen }) => {
               return (
