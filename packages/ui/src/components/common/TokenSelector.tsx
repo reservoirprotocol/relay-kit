@@ -381,9 +381,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             }}
           >
             <Flex align="center" css={{ gap: '2' }}>
-              <ChainTokenIcon
-                chainId={token.chainId}
-                tokenlogoURI={token.logoURI}
+              <img
+                alt={token.name}
+                src={token.logoURI}
+                width={30}
+                height={30}
+                style={{
+                  borderRadius: 9999
+                }}
               />
               <Text style="subtitle1" ellipsify>
                 {token.symbol}

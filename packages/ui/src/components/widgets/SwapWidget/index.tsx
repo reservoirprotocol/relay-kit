@@ -1,4 +1,4 @@
-import { Flex, Button, Text, Box } from '../../primitives/index.js'
+import { Flex, Button, Text, Box, ChainIcon } from '../../primitives/index.js'
 import type { FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -134,6 +134,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onToTokenChange?.(token)
         }
 
+        const fromChain = relayClient?.chains?.find(
+          (chain) => chain.id === fromToken?.chainId
+        )
+
+        const toChain = relayClient?.chains?.find(
+          (chain) => chain.id === toToken?.chainId
+        )
+
         return (
           <WidgetContainer
             steps={steps}
@@ -160,7 +168,21 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               return (
                 <>
                   <TokenSelectorContainer>
-                    <Text style="subtitle1">From</Text>
+                    <Flex align="center" css={{ gap: '2' }}>
+                      <Text style="subtitle1">From</Text>
+                      {fromChain ? (
+                        <Flex align="center" css={{ gap: '1' }}>
+                          <ChainIcon
+                            chainId={fromToken?.chainId}
+                            width={16}
+                            height={16}
+                          />
+                          <Text style="subtitle2" color="subtle">
+                            {fromChain?.displayName}
+                          </Text>
+                        </Flex>
+                      ) : null}
+                    </Flex>
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <TokenSelector
                         token={fromToken}
@@ -189,8 +211,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -319,7 +341,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   </Box>
                   <TokenSelectorContainer>
                     <Flex css={{ width: '100%' }} justify="between">
-                      <Text style="subtitle1">To</Text>
+                      <Flex align="center" css={{ gap: '2' }}>
+                        <Text style="subtitle1">To</Text>
+                        {toChain ? (
+                          <Flex align="center" css={{ gap: '1' }}>
+                            <ChainIcon
+                              chainId={toToken?.chainId}
+                              width={16}
+                              height={16}
+                            />
+                            <Text style="subtitle2" color="subtle">
+                              {toChain?.displayName}
+                            </Text>
+                          </Flex>
+                        ) : null}
+                      </Flex>
+
                       {isMounted && (address || customToAddress) ? (
                         <AnchorButton
                           css={{
@@ -369,8 +406,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
