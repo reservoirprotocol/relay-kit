@@ -447,7 +447,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             amount_out: parseFloat(`${debouncedOutputAmountValue}`),
             currency_out: toToken?.symbol,
             chain_id_out: toToken?.chainId,
-            is_canonical: useExternalLiquidity
+            is_canonical: useExternalLiquidity,
+            txHashes: steps
+              ?.map((step) => {
+                let txHashes: { chainId: number; txHash: Address }[] = []
+                step.items?.forEach((item) => {
+                  if (item.txHashes) {
+                    txHashes = txHashes.concat([
+                      ...(item.txHashes ?? []),
+                      ...(item.internalTxHashes ?? [])
+                    ])
+                  }
+                })
+                return txHashes
+              })
+              .flat()
           })
           setSwapError(errorMessage)
           onSwapError?.(errorMessage, quote as Execute)
@@ -468,7 +482,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         amount_out: parseFloat(`${debouncedOutputAmountValue}`),
         currency_out: toToken?.symbol,
         chain_id_out: toToken?.chainId,
-        is_canonical: useExternalLiquidity
+        is_canonical: useExternalLiquidity,
+        txHashes: steps
+          ?.map((step) => {
+            let txHashes: { chainId: number; txHash: Address }[] = []
+            step.items?.forEach((item) => {
+              if (item.txHashes) {
+                txHashes = txHashes.concat([
+                  ...(item.txHashes ?? []),
+                  ...(item.internalTxHashes ?? [])
+                ])
+              }
+            })
+            return txHashes
+          })
+          .flat()
       })
       onSwapError?.(e as any, quote as Execute)
     }

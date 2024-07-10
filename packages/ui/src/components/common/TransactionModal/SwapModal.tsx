@@ -52,6 +52,11 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       steps={steps}
       error={error}
       address={address}
+      onValidating={() => {
+        onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
+          quote_id: steps ? extractQuoteId(steps) : undefined
+        })
+      }}
       onSuccess={() => {
         const extraData: {
           gas_fee?: number
@@ -75,7 +80,21 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
           currency_in: fromToken?.symbol,
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
-          quote_id: quoteId
+          quote_id: quoteId,
+          txHashes: steps
+            ?.map((step) => {
+              let txHashes: { chainId: number; txHash: Address }[] = []
+              step.items?.forEach((item) => {
+                if (item.txHashes) {
+                  txHashes = txHashes.concat([
+                    ...(item.txHashes ?? []),
+                    ...(item.internalTxHashes ?? [])
+                  ])
+                }
+              })
+              return txHashes
+            })
+            .flat()
         })
         onSuccess?.({
           steps: swapModalProps.steps as Execute['steps'],

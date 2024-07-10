@@ -57,6 +57,7 @@ type Props = {
   steps?: Execute['steps'] | null
   error?: Error | null
   onSuccess?: () => void
+  onValidating?: () => void
 }
 
 export const TransactionModalRenderer: FC<Props> = ({
@@ -64,7 +65,8 @@ export const TransactionModalRenderer: FC<Props> = ({
   address,
   steps,
   error,
-  onSuccess
+  onSuccess,
+  onValidating
 }) => {
   const [progressStep, setProgressStep] = useState(
     TransactionProgressStep.WalletConfirmation
@@ -122,9 +124,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
       progressStep === TransactionProgressStep.WalletConfirmation
     ) {
-      // posthog.capture(EventNames.TRANSACTION_VALIDATING, {
-      //   quote_id: extractQuoteId(steps)
-      // })
+      onValidating?.()
       setProgressStep(TransactionProgressStep.Validating)
       setStartTimestamp(new Date().getTime())
     }
