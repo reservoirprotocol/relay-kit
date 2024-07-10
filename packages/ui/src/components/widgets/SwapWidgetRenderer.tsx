@@ -94,6 +94,7 @@ export type ChildrenProps = {
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
+  fetchingSolverConfig: boolean
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -566,6 +567,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
+        fetchingSolverConfig: config.isFetching,
         setUseExternalLiquidity,
         setSteps,
         setDetails,
