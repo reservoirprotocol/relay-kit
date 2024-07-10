@@ -19,9 +19,8 @@ export type ExecuteActionParameters = {
 /**
  * Execute crosschain using Relay
  * @param data.quote A Relay quote retrieved using {@link getQuote}
- * @param data.chainId destination chain id
+ * @param data.depositGasLimit A gas limit to use in base units (wei, etc)
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
- * @param data.options - {@link ExecuteActionParameters}
  * @param data.onProgress Callback to update UI state as execution progresses
  */
 export async function execute(data: ExecuteActionParameters) {
@@ -80,12 +79,12 @@ export async function execute(data: ExecuteActionParameters) {
             }
           }
         : undefined
-        ? {
-            deposit: {
-              gasLimit: depositGasLimit
+          ? {
+              deposit: {
+                gasLimit: depositGasLimit
+              }
             }
-          }
-        : undefined
+          : undefined
     )
     return data
   } catch (err: any) {
