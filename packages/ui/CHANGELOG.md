@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.7
+
+### Patch Changes
+
+- 7445bbf: Reset canonical selection on ChainWidget unless supported
+
 ## 1.1.6
 
 ### Patch Changes
