@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.5
+
+### Patch Changes
+
+- 4cf2285: Update chain display in token select ui
+
 ## 1.1.4
 
 ### Patch Changes
