@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.4
+
+### Patch Changes
+
+- 02c5ea0: Sort token selector by total value usd and balance
+
 ## 1.1.3
 
 ### Patch Changes
