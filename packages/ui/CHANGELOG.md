@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.6
+
+### Patch Changes
+
+- 433ca57: Add txHashes to success and error events
+- 7c8fb89: Add transaction validating event
+
 ## 1.1.5
 
 ### Patch Changes
