@@ -264,8 +264,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     tokenBalances
   ])
 
-  console.log('enhancedCurrencyList: ', enhancedCurrencyList)
-
   const isLoading =
     isLoadingDuneBalances || isLoadingSuggestedTokens || isLoadingTokenList
 
@@ -291,9 +289,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             return a.relayChain.name.localeCompare(b.relayChain.name)
           }
         })
-      // return selectedCurrencyList?.sort((a, b) =>
-      //   a.relayChain.name.localeCompare(b.relayChain.name)
-      // )
     }
   }, [chainSearchInput, chainFuse, selectedCurrencyList])
 
@@ -686,9 +681,6 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
   setCurrencyList,
   selectToken
 }) => {
-  // const balance = currencyList.reduce((total, currency) => {
-  //   return (total += BigInt(currency.balance?.amount ?? 0))
-  // }, 0n)
   const balance = currencyList.totalBalance
   const decimals =
     currencyList?.chains?.length > 0
