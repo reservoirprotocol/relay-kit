@@ -52,6 +52,11 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       steps={steps}
       error={error}
       address={address}
+      onValidating={() => {
+        onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
+          quote_id: steps ? extractQuoteId(steps) : undefined
+        })
+      }}
       onSuccess={() => {
         const extraData: {
           gas_fee?: number
