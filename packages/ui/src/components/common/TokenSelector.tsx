@@ -49,10 +49,14 @@ type TokenSelectorProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
-type EnhancedCurrencyList = (CurrencyList[number] & {
-  relayChain: Chain
-  balance?: DuneBalanceResponse['balances'][0]
-})[]
+type EnhancedCurrencyList = {
+  chains: (CurrencyList[number] & {
+    relayChain: Chain
+    balance?: DuneBalanceResponse['balances'][0]
+  })[]
+  totalValueUsd?: number
+  totalBalance?: bigint
+}
 
 enum TokenSelectorStep {
   SetCurrency,
@@ -208,30 +212,49 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       )
       list = [ethTokens ?? [], usdcTokens ?? []].concat(list)
     }
-    return list
-      ?.map((currencyList) => {
-        const filteredList = currencyList
-          .map((currency) => {
-            const relayChain = configuredChains.find(
-              (chain) => chain.id === currency.chainId
-            )
+    const mappedList = list?.map((currencyList) => {
+      const filteredList = currencyList
+        .map((currency) => {
+          const relayChain = configuredChains.find(
+            (chain) => chain.id === currency.chainId
+          )
 
-            if (relayChain) {
-              return {
-                ...currency,
-                relayChain,
-                balance: tokenBalances
-                  ? tokenBalances[`${relayChain.id}:${currency.address}`]
-                  : undefined
-              }
+          if (relayChain) {
+            return {
+              ...currency,
+              relayChain,
+              balance: tokenBalances
+                ? tokenBalances[`${relayChain.id}:${currency.address}`]
+                : undefined
             }
-            return undefined
-          })
-          .filter((currency) => currency !== undefined)
+          }
+          return undefined
+        })
+        .filter((currency) => currency !== undefined)
 
-        return filteredList.length > 0 ? filteredList : undefined
+      return filteredList.length > 0 ? filteredList : undefined
+    })
+
+    return mappedList
+      ?.map((list) => {
+        if (!list) return undefined
+
+        const { totalBalance, totalValueUsd } = list.reduce(
+          (totals, currency) => {
+            totals.totalBalance += BigInt(currency?.balance?.amount ?? 0)
+            totals.totalValueUsd += currency?.balance?.value_usd ?? 0
+            return totals
+          },
+          { totalBalance: 0n, totalValueUsd: 0 }
+        )
+        return {
+          chains: list,
+          totalBalance,
+          totalValueUsd
+        }
       })
-      .filter((list) => list !== undefined) // Filter out any undefined lists to ensure no empty arrays are included
+      .filter((list) => list !== undefined)
+      .sort((a, b) => (b?.totalValueUsd ?? 0) - (a?.totalValueUsd ?? 0))
   }, [
     context,
     tokenList,
@@ -245,15 +268,27 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     isLoadingDuneBalances || isLoadingSuggestedTokens || isLoadingTokenList
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const chainFuse = new Fuse(selectedCurrencyList || [], fuseSearchOptions)
+  const chainFuse = new Fuse(
+    selectedCurrencyList?.chains || [],
+    fuseSearchOptions
+  )
 
   const filteredChains = useMemo(() => {
     if (chainSearchInput.trim() !== '') {
       return chainFuse.search(chainSearchInput).map((result) => result.item)
     } else {
-      return selectedCurrencyList?.sort((a, b) =>
-        a.relayChain.name.localeCompare(b.relayChain.name)
-      )
+      return selectedCurrencyList?.chains
+        ?.map((currency) => ({
+          ...currency,
+          totalBalance: BigInt(currency.balance?.amount ?? 0n)
+        }))
+        .sort((a, b) => {
+          if (a.totalBalance !== 0n || b.totalBalance !== 0n) {
+            return b.totalBalance > a.totalBalance ? 1 : -1
+          } else {
+            return a.relayChain.name.localeCompare(b.relayChain.name)
+          }
+        })
     }
   }, [chainSearchInput, chainFuse, selectedCurrencyList])
 
@@ -519,7 +554,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               <FontAwesomeIcon icon={faChevronLeft} width={10} />
             </Button>
             <Text style="h6">
-              Select Chain for {selectedCurrencyList?.[0].symbol}
+              Select Chain for {selectedCurrencyList?.chains?.[0]?.symbol}
             </Text>
             <Input
               inputRef={(element) => {
@@ -646,11 +681,11 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
   setCurrencyList,
   selectToken
 }) => {
-  const balance = currencyList.reduce((total, currency) => {
-    return (total += BigInt(currency.balance?.amount ?? 0))
-  }, 0n)
+  const balance = currencyList.totalBalance
   const decimals =
-    currencyList.find((currency) => currency.decimals)?.decimals ?? 18
+    currencyList?.chains?.length > 0
+      ? currencyList?.chains?.[0].decimals ?? 18
+      : 18
   const compactBalance = Boolean(
     balance && decimals && balance.toString().length - decimals > 4
   )
@@ -659,10 +694,13 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
     <Button
       color="ghost"
       onClick={() => {
-        if (currencyList.length > 1) {
+        if (currencyList.chains.length > 1) {
           setCurrencyList(currencyList)
         } else {
-          selectToken(currencyList[0], currencyList[0].chainId)
+          selectToken(
+            currencyList?.chains?.[0],
+            currencyList?.chains?.[0].chainId
+          )
         }
       }}
       css={{
@@ -681,22 +719,22 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
       }}
     >
       <img
-        alt={currencyList[0].name ?? ''}
-        src={currencyList[0].metadata?.logoURI ?? ''}
+        alt={currencyList?.chains?.[0]?.name ?? ''}
+        src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
         width={32}
         height={32}
         style={{ borderRadius: 9999 }}
       />
       <Flex direction="column" align="start">
-        <Text style="subtitle2">{currencyList[0].symbol}</Text>
-        {currencyList.length === 1 ? (
+        <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
+        {currencyList?.chains?.length === 1 ? (
           <Text style="subtitle3" color="subtle">
-            {truncateAddress(currencyList[0].address)}
+            {truncateAddress(currencyList?.chains?.[0].address)}
           </Text>
         ) : null}
       </Flex>
       <Flex align="center" css={{ position: 'relative' }}>
-        {currencyList.slice(0, 6).map((currency, index) => (
+        {currencyList?.chains?.slice(0, 6).map((currency, index) => (
           <ChainIcon
             chainId={Number(currency.chainId)}
             key={index}
@@ -712,7 +750,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
             }}
           />
         ))}
-        {currencyList.length > 6 ? (
+        {currencyList?.chains?.length > 6 ? (
           <Text style="tiny" css={{ ml: '1' }}>
             + more
           </Text>
