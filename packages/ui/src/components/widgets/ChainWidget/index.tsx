@@ -133,6 +133,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
+        fetchingSolverConfig,
         setUseExternalLiquidity,
         setSteps,
         setDetails,
@@ -154,6 +155,20 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         const toChain = client?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
+
+        useEffect(() => {
+          if (
+            !supportsExternalLiquidity &&
+            useExternalLiquidity &&
+            !fetchingSolverConfig
+          ) {
+            setUseExternalLiquidity(false)
+          }
+        }, [
+          supportsExternalLiquidity,
+          useExternalLiquidity,
+          fetchingSolverConfig
+        ])
 
         return (
           <WidgetContainer
@@ -252,8 +267,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -404,8 +419,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
