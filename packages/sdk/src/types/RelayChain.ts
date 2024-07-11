@@ -25,6 +25,7 @@ export type RelayChain = {
     decimals?: number
   }
   depositEnabled?: boolean
+  blockProductionLagging?: boolean
   erc20Currencies?: Erc20Currencies
   viemChain: Chain
 }
