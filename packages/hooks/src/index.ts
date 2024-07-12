@@ -1,6 +1,7 @@
 //hooks
 export { default as useRequests, queryRequests } from './hooks/useRequests.js'
 export { default as useQuote, queryQuote } from './hooks/useQuote.js'
+export { default as usePrice, queryPrice } from './hooks/usePrice.js'
 export {
   default as useTokenList,
   queryTokenList

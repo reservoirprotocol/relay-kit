@@ -113,10 +113,10 @@ export default function (
         ...response,
         data: response.error ? undefined : response.data,
         executeQuote
-      }) as Omit<ReturnType<QueryType>, 'data'> & {
+      } as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
         executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
-      },
+      }),
     [response.data, response.error, response.isLoading, executeQuote]
   )
 }
