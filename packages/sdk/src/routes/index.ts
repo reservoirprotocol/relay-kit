@@ -10,6 +10,8 @@ export const routes = [
   "/execute/magic-spend/deposit",
   "/execute/magic-spend/request",
   "/execute/permits",
+  "/quote",
+  "/price",
   "/lives",
   "/intents/status",
   "/intents/quote",
