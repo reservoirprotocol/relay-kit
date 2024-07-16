@@ -485,7 +485,10 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                   <Text style="subtitle3" css={{ mr: 'auto' }}>
                                     Total Price Impact
                                   </Text>
-                                  <Text style="subtitle3" css={{ mr: '1' }}>
+                                  <Text
+                                    style="subtitle3"
+                                    css={{ mr: '1', ml: '3' }}
+                                  >
                                     {feeBreakdown?.totalFees.priceImpact}
                                   </Text>
                                   <Text style="subtitle3" color="subtle">

@@ -211,8 +211,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -406,8 +406,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -472,7 +472,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   <Text style="subtitle3" css={{ mr: 'auto' }}>
                                     Total Price Impact
                                   </Text>
-                                  <Text style="subtitle3" css={{ mr: '1' }}>
+                                  <Text
+                                    style="subtitle3"
+                                    css={{ mr: '1', ml: '3' }}
+                                  >
                                     {feeBreakdown?.totalFees.priceImpact}
                                   </Text>
                                   <Text style="subtitle3" color="subtle">
