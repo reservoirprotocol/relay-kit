@@ -137,7 +137,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                   color="subtle"
                   css={{
                     color:
-                      Number(quote?.details?.totalImpact?.percent) < -5
+                      Number(quote?.details?.totalImpact?.percent) < -3
                         ? 'red9'
                         : undefined
                   }}

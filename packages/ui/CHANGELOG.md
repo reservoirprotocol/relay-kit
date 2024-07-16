@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.8
+
+### Patch Changes
+
+- 3648ec3: Better contextualize actions based on operation
+- ea3e6c5: Only show fill time on success page if sub 10s
+- d5b3f82: Export TokenSelector component
+- Updated dependencies [3648ec3]
+- Updated dependencies [be74a6a]
+  - @reservoir0x/relay-sdk@1.0.9
+  - @reservoir0x/relay-kit-hooks@1.0.14
+
 ## 1.1.7
 
 ### Patch Changes

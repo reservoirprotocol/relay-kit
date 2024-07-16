@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.9
+
+### Patch Changes
+
+- 3648ec3: Better contextualize actions based on operation
+- be74a6a: Add blockProductionLagging to RelayChain
+
 ## 1.0.8
 
 ### Patch Changes

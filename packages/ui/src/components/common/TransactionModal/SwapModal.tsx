@@ -274,6 +274,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             onOpenChange={onOpenChange}
             timeEstimate={timeEstimate?.formattedTime}
             isCanonical={isCanonical}
+            details={details}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

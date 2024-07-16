@@ -28,10 +28,12 @@ export interface paths {
                   explorerName?: string;
                   /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
-                  /** @description If the chain is disabled */
+                  /** @description If relaying to and from this chain is disabled */
                   disabled?: boolean;
                   /** @description The value limit at which the chain is partially disabled, if 0, the chain is not partially disabled. i.e, 1000000000000000000 to designate 1 ETH max withdrawal/deposit */
                   partialDisableLimit?: number;
+                  /** @description If the chain is experiencing issues where blocks are lagging behind or not being produced */
+                  blockProductionLagging?: boolean;
                   currency?: {
                     id?: string;
                     symbol?: string;
@@ -1499,6 +1501,8 @@ export interface paths {
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
               details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
                 /** @description The address that deposited the funds */
                 sender?: string;
                 /** @description The address that will be receiving the swap output */
@@ -2101,6 +2105,8 @@ export interface paths {
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
               details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
                 /** @description The address that deposited the funds */
                 sender?: string;
                 /** @description The address that will be receiving the swap output */
@@ -2482,6 +2488,8 @@ export interface paths {
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
               details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
                 /** @description The address that deposited the funds */
                 sender?: string;
                 /** @description The address that will be receiving the swap output */

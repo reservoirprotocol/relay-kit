@@ -360,14 +360,31 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
+  const operation = quote?.details?.operation || 'swap'
 
   let ctaCopy: string = context || 'Swap'
 
-  if (context === 'Swap') {
-    if (isWrap) {
+  switch (operation) {
+    case 'wrap': {
       ctaCopy = 'Wrap'
-    } else if (isUnwrap) {
+      break
+    }
+    case 'unwrap': {
       ctaCopy = 'Unwrap'
+      break
+    }
+    case 'send': {
+      ctaCopy = 'Send'
+      break
+    }
+    case 'swap':
+    default: {
+      if (context === 'Swap') {
+        ctaCopy = 'Swap'
+      } else {
+        ctaCopy = context === 'Deposit' ? 'Deposit' : 'Withdraw'
+      }
+      break
     }
   }
 
@@ -382,15 +399,28 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
   } else if (steps !== null) {
-    if (context === 'Swap') {
-      ctaCopy = 'Swapping'
-      if (isWrap) {
+    switch (operation) {
+      case 'wrap': {
         ctaCopy = 'Wrapping'
-      } else if (isUnwrap) {
-        ctaCopy = 'Unwrapping'
+        break
       }
-    } else {
-      ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
+      case 'unwrap': {
+        ctaCopy = 'Unwrapping'
+        break
+      }
+      case 'send': {
+        ctaCopy = 'Sending'
+        break
+      }
+      case 'swap':
+      default: {
+        if (context === 'Swap') {
+          ctaCopy = 'Swap'
+        } else {
+          ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
+        }
+        break
+      }
     }
   }
 
