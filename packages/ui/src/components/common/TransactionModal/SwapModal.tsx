@@ -12,22 +12,30 @@ import { ErrorStep } from './steps/ErrorStep.js'
 import { ValidatingStep } from './steps/ValidatingStep.js'
 import { EventNames } from '../../../constants/events.js'
 import { SwapConfirmationStep } from './steps/SwapConfirmationStep.js'
+import { ReviewQuoteStep } from './steps/ReviewQuoteStep.js'
 import { type Token } from '../../../types/index.js'
 import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
+import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 
 type SwapModalProps = {
   open: boolean
   fromToken?: Token
   toToken?: Token
-  fees?: CallFees
   address?: Address
-  steps?: Execute['steps'] | null
-  details?: Execute['details'] | null
-  error?: Error | null
   timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
+  debouncedOutputAmountValue: string
+  debouncedInputAmountValue: string
+  amountInputValue: string
+  amountOutputValue: string
+  toDisplayName?: string
+  recipient?: Address
+  customToAddress?: Address
+  tradeType: TradeType
+  useExternalLiquidity: boolean
+  invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onSuccess?: (data: Execute) => void
@@ -35,29 +43,47 @@ type SwapModalProps = {
 
 export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   const {
-    steps,
-    fees,
-    error,
+    open,
     address,
-    details,
     fromToken,
     toToken,
+    tradeType,
+    recipient,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    amountInputValue,
+    amountOutputValue,
+    useExternalLiquidity,
     timeEstimate,
     isCanonical,
+    invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess
   } = swapModalProps
   return (
     <TransactionModalRenderer
-      steps={steps}
-      error={error}
+      open={open}
+      fromToken={fromToken}
+      toToken={toToken}
+      amountInputValue={amountInputValue}
+      amountOutputValue={amountOutputValue}
+      debouncedInputAmountValue={debouncedInputAmountValue}
+      debouncedOutputAmountValue={debouncedOutputAmountValue}
+      tradeType={tradeType}
+      useExternalLiquidity={useExternalLiquidity}
       address={address}
-      onValidating={() => {
+      recipient={recipient}
+      invalidateBalanceQueries={invalidateBalanceQueries}
+      onValidating={(quote) => {
+        const steps = quote?.steps
         onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
           quote_id: steps ? extractQuoteId(steps) : undefined
         })
       }}
-      onSuccess={() => {
+      onSuccess={(quote, steps) => {
+        const details = quote?.details
+        const fees = quote?.fees
+
         const extraData: {
           gas_fee?: number
           relayer_fee?: number
@@ -97,20 +123,16 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
             .flat()
         })
         onSuccess?.({
-          steps: swapModalProps.steps as Execute['steps'],
-          fees: swapModalProps.fees,
-          details: swapModalProps.details as Execute['details']
+          steps: steps,
+          fees: fees,
+          details: details
         })
       }}
     >
       {(rendererProps) => {
         return (
           <InnerSwapModal
-            steps={steps}
-            fees={fees}
-            error={error}
             address={address}
-            details={details}
             onAnalyticEvent={onAnalyticEvent}
             timeEstimate={timeEstimate}
             isCanonical={isCanonical}
@@ -130,9 +152,14 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   onOpenChange,
   fromToken,
   toToken,
-  details,
+  quote,
+  isFetchingQuote,
+  isRefetchingQuote,
+  quoteError,
+  swap,
+  swapError,
+  setSwapError,
   address,
-  error,
   progressStep,
   setProgressStep,
   currentStep,
@@ -147,30 +174,37 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   setStartTimestamp,
   onAnalyticEvent,
   timeEstimate,
-  isCanonical
+  isCanonical,
+  feeBreakdown,
+  quoteUpdatedAt
 }) => {
   useEffect(() => {
     if (!open) {
       if (currentStep) {
         onAnalyticEvent?.(EventNames.SWAP_MODAL_CLOSED)
       }
-      setProgressStep(TransactionProgressStep.WalletConfirmation)
+      setProgressStep(TransactionProgressStep.ReviewQuote)
       setCurrentStep(null)
       setCurrentStepItem(null)
       setAllTxHashes([])
       setStartTimestamp(0)
+      setSwapError(null)
     } else {
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
+  const details = quote?.details
+
   const fromAmountFormatted = details?.currencyIn?.amount
-    ? formatBN(details?.currencyIn?.amount, 6, fromToken?.decimals)
+    ? formatBN(details?.currencyIn?.amount, 5, fromToken?.decimals)
     : ''
   const toAmountFormatted = details?.currencyOut?.amount
-    ? formatBN(details?.currencyOut.amount, 6, toToken?.decimals)
+    ? formatBN(details?.currencyOut.amount, 5, toToken?.decimals)
     : ''
+
+  const isReviewQuoteStep = progressStep === TransactionProgressStep.ReviewQuote
 
   return (
     <Modal
@@ -178,23 +212,40 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       open={open}
       onOpenChange={onOpenChange}
       contentCss={{
-        overflow: 'hidden'
+        overflow: 'hidden',
+        p: isReviewQuoteStep ? '4' : '5'
       }}
+      showCloseButton={isReviewQuoteStep}
     >
       <Flex
         direction="column"
         css={{
           width: '100%',
           height: '100%',
-          gap: '4',
+          gap: isReviewQuoteStep ? '3' : '4',
           bp600Down: {
             width: 370
           }
         }}
       >
         <Text style="h5" css={{ mb: 8 }}>
-          Swap Details
+          {isReviewQuoteStep ? 'Review Quote' : 'Swap Details'}
         </Text>
+
+        {progressStep === TransactionProgressStep.ReviewQuote ? (
+          <ReviewQuoteStep
+            fromToken={fromToken}
+            toToken={toToken}
+            fromAmountFormatted={fromAmountFormatted}
+            toAmountFormatted={toAmountFormatted}
+            feeBreakdown={feeBreakdown}
+            isFetchingQuote={isFetchingQuote}
+            isRefetchingQuote={isRefetchingQuote}
+            quoteUpdatedAt={quoteUpdatedAt}
+            quote={quote}
+            swap={swap}
+          />
+        ) : null}
 
         {progressStep === TransactionProgressStep.WalletConfirmation ? (
           <SwapConfirmationStep
@@ -228,7 +279,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (
           <ErrorStep
-            error={error}
+            error={swapError || quoteError}
             allTxHashes={allTxHashes}
             address={address}
             onOpenChange={onOpenChange}

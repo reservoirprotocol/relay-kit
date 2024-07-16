@@ -8,18 +8,26 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import { Flex } from '../primitives/index.js'
 
 export type WidgetContainerProps = {
+  transactionModalOpen: boolean
+  setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: (props: WidgetChildProps) => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
+  invalidateBalanceQueries: () => void
 } & Pick<
   ChildrenProps,
-  | 'steps'
   | 'fromToken'
   | 'toToken'
+  | 'amountInputValue'
+  | 'amountOutputValue'
+  | 'debouncedInputAmountValue'
+  | 'debouncedOutputAmountValue'
+  | 'recipient'
+  | 'customToAddress'
+  | 'tradeType'
   | 'swapError'
-  | 'details'
-  | 'quote'
+  | 'price'
   | 'address'
   | 'setCustomToAddress'
   | 'useExternalLiquidity'
@@ -32,19 +40,27 @@ export type WidgetChildProps = {
 }
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
+  transactionModalOpen,
+  setTransactionModalOpen,
   children,
-  steps,
   fromToken,
   toToken,
+  debouncedInputAmountValue,
+  debouncedOutputAmountValue,
+  amountInputValue,
+  amountOutputValue,
+  tradeType,
+  customToAddress,
   swapError,
-  quote,
-  details,
+  price,
   address,
   useExternalLiquidity,
   timeEstimate,
+  recipient,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
+  invalidateBalanceQueries,
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
@@ -71,21 +87,26 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
         })}
         {isMounted ? (
           <SwapModal
-            open={steps !== null}
+            open={transactionModalOpen}
             onOpenChange={(open) => {
               onSwapModalOpenChange(open)
+              setTransactionModalOpen(open)
             }}
             fromToken={fromToken}
             toToken={toToken}
-            error={swapError}
-            steps={steps}
-            details={details}
-            fees={quote?.fees}
+            amountInputValue={amountInputValue}
+            amountOutputValue={amountOutputValue}
+            debouncedInputAmountValue={debouncedInputAmountValue}
+            debouncedOutputAmountValue={debouncedOutputAmountValue}
+            tradeType={tradeType}
+            useExternalLiquidity={useExternalLiquidity}
             address={address}
+            recipient={recipient}
             isCanonical={useExternalLiquidity}
             timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
+            invalidateBalanceQueries={invalidateBalanceQueries}
           />
         ) : null}
         <CustomAddressModal

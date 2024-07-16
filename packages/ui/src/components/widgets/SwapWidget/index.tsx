@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box, ChainIcon } from '../../primitives/index.js'
-import type { FC } from 'react'
+import { useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
@@ -24,6 +24,7 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
+import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -57,6 +58,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onSwapError
 }) => {
   const relayClient = useRelayClient()
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
@@ -72,6 +74,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   return (
     <SwapWidgetRenderer
       context="Swap"
+      transactionModalOpen={transactionModalOpen}
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
@@ -81,8 +84,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       onAnalyticEvent={onAnalyticEvent}
     >
       {({
-        quote,
-        steps,
+        price,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -95,7 +97,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         recipient,
         customToAddress,
         setCustomToAddress,
-        swap,
         tradeType,
         setTradeType,
         details,
@@ -111,7 +112,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         setAmountOutputValue,
         toBalance,
         isLoadingToBalance,
-        isFetchingQuote,
+        isFetchingPrice,
         isLoadingFromBalance,
         fromBalance,
         highRelayerServiceFee,
@@ -123,7 +124,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         timeEstimate,
         setSteps,
         setDetails,
-        setSwapError
+        setSwapError,
+        invalidateBalanceQueries
       }) => {
         const handleSetFromToken = (token?: Token) => {
           setFromToken(token)
@@ -144,23 +146,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         return (
           <WidgetContainer
-            steps={steps}
+            transactionModalOpen={transactionModalOpen}
+            setTransactionModalOpen={setTransactionModalOpen}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
-            quote={quote}
-            details={details}
+            price={price}
             address={address}
+            recipient={recipient}
+            amountInputValue={amountInputValue}
+            amountOutputValue={amountOutputValue}
+            debouncedInputAmountValue={debouncedInputAmountValue}
+            debouncedOutputAmountValue={debouncedOutputAmountValue}
+            tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
               if (!open) {
                 setSteps(null)
-                setDetails(null)
                 setSwapError(null)
               }
             }}
             useExternalLiquidity={false}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
+            invalidateBalanceQueries={invalidateBalanceQueries}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
@@ -228,12 +236,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         css={{
                           textAlign: 'right',
                           color:
-                            isFetchingQuote && tradeType === 'EXACT_OUTPUT'
+                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
                               ? 'text-subtle'
                               : 'input-color',
                           _placeholder: {
                             color:
-                              isFetchingQuote && tradeType === 'EXACT_OUTPUT'
+                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
                                 ? 'text-subtle'
                                 : 'input-color'
                           }
@@ -281,11 +289,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </AnchorButton>
                         ) : null}
                       </Flex>
-                      {quote?.details?.currencyIn?.amountUsd &&
-                      Number(quote.details.currencyIn.amountUsd) > 0 ? (
+                      {price?.details?.currencyIn?.amountUsd &&
+                      Number(price.details.currencyIn.amountUsd) > 0 ? (
                         <Text style="subtitle3" color="subtle">
                           {formatDollar(
-                            Number(quote.details.currencyIn.amountUsd)
+                            Number(price.details.currencyIn.amountUsd)
                           )}
                         </Text>
                       ) : null}
@@ -423,12 +431,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                         css={{
                           color:
-                            isFetchingQuote && tradeType === 'EXACT_INPUT'
+                            isFetchingPrice && tradeType === 'EXACT_INPUT'
                               ? 'gray11'
                               : 'gray12',
                           _placeholder: {
                             color:
-                              isFetchingQuote && tradeType === 'EXACT_INPUT'
+                              isFetchingPrice && tradeType === 'EXACT_INPUT'
                                 ? 'gray11'
                                 : 'gray12'
                           },
@@ -457,81 +465,25 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       ) : (
                         <Flex css={{ height: 18 }} />
                       )}
-                      {quote?.details?.currencyOut?.amountUsd &&
-                      Number(quote.details.currencyOut.amountUsd) > 0 ? (
+                      {price?.details?.currencyOut?.amountUsd &&
+                      Number(price.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
                           <Text style="subtitle3" color="subtle">
                             {formatDollar(
-                              Number(quote.details.currencyOut.amountUsd)
+                              Number(price.details.currencyOut.amountUsd)
                             )}
                           </Text>
-                          <Tooltip
-                            content={
-                              <Flex css={{ minWidth: 200 }} direction="column">
-                                <Flex align="center" css={{ width: '100%' }}>
-                                  <Text style="subtitle3" css={{ mr: 'auto' }}>
-                                    Total Price Impact
-                                  </Text>
-                                  <Text style="subtitle3" css={{ mr: '1' }}>
-                                    {feeBreakdown?.totalFees.priceImpact}
-                                  </Text>
-                                  <Text style="subtitle3" color="subtle">
-                                    (
-                                    {
-                                      feeBreakdown?.totalFees
-                                        .priceImpactPercentage
-                                    }
-                                    )
-                                  </Text>
-                                </Flex>
-                                <Box
+                          <PriceImpactTooltip feeBreakdown={feeBreakdown}>
+                            {
+                              <div>
+                                <Text
+                                  style="subtitle3"
+                                  color="subtle"
                                   css={{
-                                    width: '100%',
-                                    height: 1,
-                                    backgroundColor: 'slate.6',
-                                    marginTop: '2',
-                                    marginBottom: '2'
+                                    display: 'flex',
+                                    alignItems: 'center'
                                   }}
-                                />
-                                <Flex align="center" css={{ width: '100%' }}>
-                                  <Text
-                                    style="subtitle3"
-                                    color="subtle"
-                                    css={{ mr: 'auto' }}
-                                  >
-                                    Swap Impact
-                                  </Text>
-                                  <Text style="subtitle3">
-                                    {feeBreakdown?.totalFees.swapImpact}
-                                  </Text>
-                                </Flex>
-                                {feeBreakdown?.breakdown.map((fee) => {
-                                  if (fee.id === 'origin-gas') {
-                                    return null
-                                  }
-                                  return (
-                                    <Flex
-                                      key={fee.id}
-                                      align="center"
-                                      css={{ width: '100%' }}
-                                    >
-                                      <Text
-                                        style="subtitle3"
-                                        color="subtle"
-                                        css={{ mr: 'auto' }}
-                                      >
-                                        {fee.name}
-                                      </Text>
-                                      <Text style="subtitle3">{fee.usd}</Text>
-                                    </Flex>
-                                  )
-                                })}
-                              </Flex>
-                            }
-                          >
-                            <div>
-                              <Flex align="center">
-                                <Text style="subtitle3" color="subtle">
+                                >
                                   (
                                   {
                                     feeBreakdown?.totalFees
@@ -547,48 +499,48 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     }}
                                   />
                                 </Text>
-                              </Flex>
-                            </div>
-                          </Tooltip>
+                              </div>
+                            }
+                          </PriceImpactTooltip>
                         </Flex>
                       ) : null}
                     </Flex>
                   </TokenSelectorContainer>
-                  <FetchingQuoteLoader isLoading={isFetchingQuote} />
+                  <FetchingQuoteLoader isLoading={isFetchingPrice} />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
-                    isFetchingQuote={isFetchingQuote}
+                    isFetchingPrice={isFetchingPrice}
                     toToken={toToken}
                     fromToken={fromToken}
-                    quote={quote}
+                    price={price}
                     timeEstimate={timeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     hasInsufficientSafeBalance={false}
                     error={error}
-                    quote={quote as Execute}
+                    quote={price}
                     currency={fromToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     relayerFeeProportion={relayerFeeProportion}
                     context="swap"
                   />
                   <SwapButton
+                    transactionModalOpen={transactionModalOpen}
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
-                    quote={quote}
+                    price={price}
                     address={address}
                     hasInsufficientBalance={hasInsufficientBalance}
                     isInsufficientLiquidityError={isInsufficientLiquidityError}
-                    steps={steps}
                     waitingForSteps={waitingForSteps}
                     debouncedInputAmountValue={debouncedInputAmountValue}
                     debouncedOutputAmountValue={debouncedOutputAmountValue}
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    swap={swap}
+                    onClick={() => setTransactionModalOpen(true)}
                     ctaCopy={ctaCopy}
                   />
                 </>
