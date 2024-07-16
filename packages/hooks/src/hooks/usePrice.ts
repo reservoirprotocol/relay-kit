@@ -59,8 +59,8 @@ export default function usePrice(
   const response = (useQuery as QueryType)({
     queryKey: ['usePrice', options],
     queryFn: () => {
-      if (options && client?.source && !options.source) {
-        options.source = client.source
+      if (options && client?.source && !options.referrer) {
+        options.referrer = client.source
       }
       const promise = queryPrice(client?.baseApiUrl, options)
       promise.then((response: any) => {
