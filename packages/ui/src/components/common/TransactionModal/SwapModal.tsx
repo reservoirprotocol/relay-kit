@@ -158,6 +158,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   quoteError,
   swap,
   swapError,
+  setSwapError,
   address,
   progressStep,
   setProgressStep,
@@ -187,6 +188,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       setCurrentStepItem(null)
       setAllTxHashes([])
       setStartTimestamp(0)
+      setSwapError(null)
     } else {
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }

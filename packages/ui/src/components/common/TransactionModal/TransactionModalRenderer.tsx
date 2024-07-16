@@ -56,6 +56,7 @@ export type ChildrenProps = {
   swap: () => void
   quoteError: Error | null
   swapError: Error | null
+  setSwapError: Dispatch<SetStateAction<Error | null>>
   steps: Execute['steps'] | null
   waitingForSteps: boolean
   allTxHashes: TxHashes
@@ -344,7 +345,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   ])
 
   useEffect(() => {
-    if (quoteError || swapError) {
+    if (swapError || (quoteError && !isRefetchingQuote)) {
       setProgressStep(TransactionProgressStep.Error)
       return
     }
@@ -461,6 +462,7 @@ export const TransactionModalRenderer: FC<Props> = ({
         waitingForSteps,
         quoteError,
         swapError,
+        setSwapError,
         allTxHashes,
         setAllTxHashes,
         transaction,
