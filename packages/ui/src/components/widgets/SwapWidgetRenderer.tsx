@@ -347,20 +347,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const isFromETH = fromToken?.symbol === 'ETH'
 
-  const isWrap =
-    isFromETH &&
-    toToken?.symbol === 'WETH' &&
-    fromToken.chainId === toToken.chainId
-  const isUnwrap =
-    fromToken?.symbol === 'WETH' &&
-    toToken?.symbol === 'ETH' &&
-    fromToken.chainId === toToken.chainId
-
   const isSameCurrencySameRecipientSwap =
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-  const operation = quote?.details?.operation || 'swap'
+  // @ts-ignore @TODO: remove when fixed
+  const operation = price?.details?.operation || 'swap'
 
   let ctaCopy: string = context || 'Swap'
 
