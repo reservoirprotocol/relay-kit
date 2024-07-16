@@ -75,14 +75,12 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       recipient={recipient}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onValidating={(quote) => {
-        console.log('onValidating: ', quote)
         const steps = quote?.steps
         onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
           quote_id: steps ? extractQuoteId(steps) : undefined
         })
       }}
       onSuccess={(quote, steps) => {
-        console.log('onSuccess: ', quote, steps)
         const details = quote?.details
         const fees = quote?.fees
 
