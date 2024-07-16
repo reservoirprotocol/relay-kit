@@ -24,7 +24,7 @@ const UsePrice: NextPage = () => {
   const [appFees, setAppFees] = useState<{ recipient: string; fee: string }[]>()
   const [amount, setAmount] = useState<string>('10000000000000000')
   const [data, setData] = useState<any>(undefined)
-  const { data: response } = usePrice(client ?? undefined, data, {
+  const { data: response } = usePrice(client ?? undefined, data, () => {}, {
     enabled: data !== undefined && client !== undefined
   })
 

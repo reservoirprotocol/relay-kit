@@ -152,7 +152,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             toToken={toToken}
             swapError={swapError}
             price={price}
-            details={details}
             address={address}
             recipient={recipient}
             amountInputValue={amountInputValue}
@@ -162,8 +161,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
               if (!open) {
-                // setSteps(null)
-                // setDetails(null)
+                setSteps(null)
                 setSwapError(null)
               }
             }}

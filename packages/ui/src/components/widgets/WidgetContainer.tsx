@@ -27,7 +27,6 @@ export type WidgetContainerProps = {
   | 'customToAddress'
   | 'tradeType'
   | 'swapError'
-  | 'details'
   | 'price'
   | 'address'
   | 'setCustomToAddress'
@@ -54,7 +53,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   customToAddress,
   swapError,
   price,
-  details,
   address,
   useExternalLiquidity,
   timeEstimate,

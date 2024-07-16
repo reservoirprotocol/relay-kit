@@ -179,7 +179,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             toToken={toToken}
             swapError={swapError}
             price={price}
-            details={details}
             address={address}
             recipient={recipient}
             amountInputValue={amountInputValue}
@@ -190,7 +189,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             onSwapModalOpenChange={(open) => {
               if (!open) {
                 setSteps(null)
-                setDetails(null)
                 setSwapError(null)
               }
             }}
