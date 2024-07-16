@@ -360,7 +360,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-  const operation = quote?.details?.operation || 'swap'
+  // @ts-ignore @TODO: remove when fixed
+  const operation = price?.details?.operation || 'swap'
 
   let ctaCopy: string = context || 'Swap'
 
