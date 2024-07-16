@@ -132,7 +132,16 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           {
             <div>
               <Flex align="center" css={{ gap: '1', color: 'gray8' }}>
-                <Text style="subtitle2" color="subtle">
+                <Text
+                  style="subtitle2"
+                  color="subtle"
+                  css={{
+                    color:
+                      Number(quote?.details?.totalImpact?.percent) < -5
+                        ? 'red9'
+                        : undefined
+                  }}
+                >
                   {feeBreakdown?.totalFees?.priceImpactPercentage}
                 </Text>
                 <FontAwesomeIcon

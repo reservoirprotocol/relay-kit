@@ -20,7 +20,7 @@ export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
         <Flex css={{ minWidth: 200 }} direction="column">
           <Flex align="center" css={{ width: '100%' }}>
             <Text style="subtitle3" css={{ mr: 'auto' }}>
-              Total Price Impact
+              Total Price Impact{' '}
             </Text>
             <Text style="subtitle3" css={{ mr: '1' }}>
               {feeBreakdown?.totalFees.priceImpact}
