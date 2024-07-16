@@ -9,8 +9,8 @@ import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
 type Props = Pick<
   ChildrenProps,
   | 'feeBreakdown'
-  | 'isFetchingQuote'
-  | 'quote'
+  | 'isFetchingPrice'
+  | 'price'
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
@@ -18,20 +18,20 @@ type Props = Pick<
 
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
-  isFetchingQuote,
-  quote,
+  isFetchingPrice,
+  price,
   toToken,
   fromToken,
   timeEstimate
 }) => {
-  const swapRate = quote?.details?.rate
+  const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
   )
   const compactSwapRate = Boolean(swapRate && swapRate.length > 8)
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
-  if (!feeBreakdown || isFetchingQuote) {
+  if (!feeBreakdown || isFetchingPrice) {
     return null
   }
 

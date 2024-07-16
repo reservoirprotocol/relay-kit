@@ -1,4 +1,4 @@
-import { Flex, Button, Text, Box, ChainIcon } from '../../primitives/index.js'
+import { Flex, Text, ChainIcon } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -15,7 +15,6 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
-import Tooltip from '../../primitives/Tooltip.js'
 import SwapWidgetRenderer from '../SwapWidgetRenderer.js'
 import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
@@ -24,6 +23,7 @@ import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import WidgetTabs, { type WidgetTabId } from '../../widgets/WidgetTabs.js'
 import SwapRouteSelector from '../SwapRouteSelector.js'
+import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 
 type ChainWidgetProps = {
   chainId: number
@@ -55,6 +55,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   onSwapError
 }) => {
   const isMounted = useMounted()
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [tabId, setTabId] = useState<WidgetTabId>('deposit')
   const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
@@ -69,6 +70,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
 
   return (
     <SwapWidgetRenderer
+      transactionModalOpen={transactionModalOpen}
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
@@ -91,8 +93,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
     >
       {({
-        quote,
-        steps,
+        price,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -105,7 +106,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         recipient,
         customToAddress,
         setCustomToAddress,
-        swap,
         tradeType,
         setTradeType,
         details,
@@ -121,7 +121,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         setAmountOutputValue,
         toBalance,
         isLoadingToBalance,
-        isFetchingQuote,
+        isFetchingPrice,
         isLoadingFromBalance,
         fromBalance,
         highRelayerServiceFee,
@@ -134,6 +134,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig,
+        invalidateBalanceQueries,
         setUseExternalLiquidity,
         setSteps,
         setDetails,
@@ -172,13 +173,20 @@ const ChainWidget: FC<ChainWidgetProps> = ({
 
         return (
           <WidgetContainer
-            steps={steps}
+            transactionModalOpen={transactionModalOpen}
+            setTransactionModalOpen={setTransactionModalOpen}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
-            quote={quote}
+            price={price}
             details={details}
             address={address}
+            recipient={recipient}
+            amountInputValue={amountInputValue}
+            amountOutputValue={amountOutputValue}
+            debouncedInputAmountValue={debouncedInputAmountValue}
+            debouncedOutputAmountValue={debouncedOutputAmountValue}
+            tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
               if (!open) {
                 setSteps(null)
@@ -187,6 +195,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
+            invalidateBalanceQueries={invalidateBalanceQueries}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             setCustomToAddress={setCustomToAddress}
@@ -267,8 +276,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -284,12 +293,12 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         css={{
                           textAlign: 'right',
                           color:
-                            isFetchingQuote && tradeType === 'EXACT_OUTPUT'
+                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
                               ? 'text-subtle'
                               : 'input-color',
                           _placeholder: {
                             color:
-                              isFetchingQuote && tradeType === 'EXACT_OUTPUT'
+                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
                                 ? 'text-subtle'
                                 : 'input-color'
                           }
@@ -337,11 +346,11 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           </AnchorButton>
                         ) : null}
                       </Flex>
-                      {quote?.details?.currencyIn?.amountUsd &&
-                      Number(quote.details.currencyIn.amountUsd) > 0 ? (
+                      {price?.details?.currencyIn?.amountUsd &&
+                      Number(price.details.currencyIn.amountUsd) > 0 ? (
                         <Text style="subtitle3" color="subtle">
                           {formatDollar(
-                            Number(quote.details.currencyIn.amountUsd)
+                            Number(price.details.currencyIn.amountUsd)
                           )}
                         </Text>
                       ) : null}
@@ -419,8 +428,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -436,12 +445,12 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         }}
                         css={{
                           color:
-                            isFetchingQuote && tradeType === 'EXACT_INPUT'
+                            isFetchingPrice && tradeType === 'EXACT_INPUT'
                               ? 'gray11'
                               : 'gray12',
                           _placeholder: {
                             color:
-                              isFetchingQuote && tradeType === 'EXACT_INPUT'
+                              isFetchingPrice && tradeType === 'EXACT_INPUT'
                                 ? 'gray11'
                                 : 'gray12'
                           },
@@ -470,104 +479,42 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       ) : (
                         <Flex css={{ height: 18 }} />
                       )}
-                      {quote?.details?.currencyOut?.amountUsd &&
-                      Number(quote.details.currencyOut.amountUsd) > 0 ? (
+                      {price?.details?.currencyOut?.amountUsd &&
+                      Number(price.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
                           <Text style="subtitle3" color="subtle">
                             {formatDollar(
-                              Number(quote.details.currencyOut.amountUsd)
+                              Number(price.details.currencyOut.amountUsd)
                             )}
                           </Text>
-                          <Tooltip
-                            content={
-                              <Flex css={{ minWidth: 200 }} direction="column">
-                                <Flex align="center" css={{ width: '100%' }}>
-                                  <Text style="subtitle3" css={{ mr: 'auto' }}>
-                                    Total Price Impact
-                                  </Text>
-                                  <Text style="subtitle3" css={{ mr: '1' }}>
-                                    {feeBreakdown?.totalFees.priceImpact}
-                                  </Text>
-                                  <Text style="subtitle3" color="subtle">
-                                    (
-                                    {
-                                      feeBreakdown?.totalFees
-                                        .priceImpactPercentage
-                                    }
-                                    )
-                                  </Text>
-                                </Flex>
-                                <Box
-                                  css={{
-                                    width: '100%',
-                                    height: 1,
-                                    backgroundColor: 'slate.6',
-                                    marginTop: '2',
-                                    marginBottom: '2'
+                          <PriceImpactTooltip feeBreakdown={feeBreakdown}>
+                            <div>
+                              <Text
+                                style="subtitle3"
+                                color="subtle"
+                                css={{
+                                  display: 'flex',
+                                  alignItems: 'center'
+                                }}
+                              >
+                                ({feeBreakdown?.totalFees.priceImpactPercentage}
+                                )
+                                <FontAwesomeIcon
+                                  icon={faInfoCircle}
+                                  width={16}
+                                  style={{
+                                    display: 'inline-block',
+                                    marginLeft: 4
                                   }}
                                 />
-                                <Flex align="center" css={{ width: '100%' }}>
-                                  <Text
-                                    style="subtitle3"
-                                    color="subtle"
-                                    css={{ mr: 'auto' }}
-                                  >
-                                    Swap Impact
-                                  </Text>
-                                  <Text style="subtitle3">
-                                    {feeBreakdown?.totalFees.swapImpact}
-                                  </Text>
-                                </Flex>
-                                {feeBreakdown?.breakdown.map((fee) => {
-                                  if (fee.id === 'origin-gas') {
-                                    return null
-                                  }
-                                  return (
-                                    <Flex
-                                      key={fee.id}
-                                      align="center"
-                                      css={{ width: '100%' }}
-                                    >
-                                      <Text
-                                        style="subtitle3"
-                                        color="subtle"
-                                        css={{ mr: 'auto' }}
-                                      >
-                                        {fee.name}
-                                      </Text>
-                                      <Text style="subtitle3">{fee.usd}</Text>
-                                    </Flex>
-                                  )
-                                })}
-                              </Flex>
-                            }
-                          >
-                            <div>
-                              <Flex align="center">
-                                <Text style="subtitle3" color="subtle">
-                                  (
-                                  {
-                                    feeBreakdown?.totalFees
-                                      .priceImpactPercentage
-                                  }
-                                  )
-                                  <FontAwesomeIcon
-                                    icon={faInfoCircle}
-                                    width={16}
-                                    style={{
-                                      display: 'inline-block',
-                                      marginLeft: 4
-                                    }}
-                                  />
-                                </Text>
-                              </Flex>
+                              </Text>
                             </div>
-                          </Tooltip>
+                          </PriceImpactTooltip>
                         </Flex>
                       ) : null}
                     </Flex>
                   </TokenSelectorContainer>
-                  <FetchingQuoteLoader isLoading={isFetchingQuote} />
+                  <FetchingQuoteLoader isLoading={isFetchingPrice} />
                   <SwapRouteSelector
                     chainId={chainId}
                     chainName={chain?.displayName ?? ''}
@@ -579,38 +526,38 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
-                    isFetchingQuote={isFetchingQuote}
+                    isFetchingPrice={isFetchingPrice}
                     toToken={toToken}
                     fromToken={fromToken}
-                    quote={quote}
+                    price={price}
                     timeEstimate={timeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     hasInsufficientSafeBalance={false}
                     error={error}
-                    quote={quote as Execute}
+                    quote={price}
                     currency={fromToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     relayerFeeProportion={relayerFeeProportion}
                     context="swap"
                   />
                   <SwapButton
+                    transactionModalOpen={transactionModalOpen}
                     context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
-                    quote={quote}
+                    price={price}
                     address={address}
                     hasInsufficientBalance={hasInsufficientBalance}
                     isInsufficientLiquidityError={isInsufficientLiquidityError}
-                    steps={steps}
                     waitingForSteps={waitingForSteps}
                     debouncedInputAmountValue={debouncedInputAmountValue}
                     debouncedOutputAmountValue={debouncedOutputAmountValue}
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    swap={swap}
+                    onClick={() => setTransactionModalOpen(true)}
                     ctaCopy={ctaCopy}
                   />
                 </>

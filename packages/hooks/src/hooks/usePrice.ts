@@ -1,6 +1,7 @@
 import {
   MAINNET_RELAY_API,
   RelayClient,
+  type Execute,
   type paths
 } from '@reservoir0x/relay-sdk'
 import { axiosPostFetcher } from '../fetcher.js'
@@ -14,7 +15,7 @@ import type { AxiosRequestConfig } from 'axios'
 type PriceRequestBody =
   paths['/price']['post']['requestBody']['content']['application/json']
 
-type PriceResponse =
+export type PriceResponse =
   paths['/price']['post']['responses']['200']['content']['application/json']
 
 type QueryType = typeof useQuery<
@@ -52,6 +53,7 @@ export const queryPrice = function (
 export default function usePrice(
   client?: RelayClient,
   options?: PriceRequestBody,
+  onResponse?: (data: Execute) => void,
   queryOptions?: Partial<QueryOptions>
 ) {
   const response = (useQuery as QueryType)({
@@ -61,6 +63,9 @@ export default function usePrice(
         options.source = client.source
       }
       const promise = queryPrice(client?.baseApiUrl, options)
+      promise.then((response: any) => {
+        onResponse?.(response)
+      })
       return promise
     },
     enabled: client !== undefined && options !== undefined,

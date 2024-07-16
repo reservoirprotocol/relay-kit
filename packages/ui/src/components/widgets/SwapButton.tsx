@@ -5,37 +5,37 @@ import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import { EventNames } from '../../constants/events.js'
 
 type SwapButtonProps = {
+  transactionModalOpen: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onClick: () => void
   context: 'Swap' | 'Deposit' | 'Withdraw'
 } & Pick<
   ChildrenProps,
-  | 'quote'
+  | 'price'
   | 'address'
   | 'hasInsufficientBalance'
   | 'isInsufficientLiquidityError'
-  | 'steps'
   | 'waitingForSteps'
   | 'debouncedInputAmountValue'
   | 'debouncedOutputAmountValue'
   | 'isSameCurrencySameRecipientSwap'
-  | 'swap'
   | 'ctaCopy'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
+  transactionModalOpen,
   context,
   onConnectWallet,
-  quote,
+  price,
   address,
   hasInsufficientBalance,
   isInsufficientLiquidityError,
-  steps,
   waitingForSteps,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
-  swap,
+  onClick,
   ctaCopy,
   onAnalyticEvent
 }) => {
@@ -46,16 +46,16 @@ const SwapButton: FC<SwapButtonProps> = ({
         css={{ justifyContent: 'center' }}
         aria-label={context}
         disabled={
-          !quote ||
+          !price ||
           hasInsufficientBalance ||
           isInsufficientLiquidityError ||
-          steps !== null ||
+          transactionModalOpen ||
           waitingForSteps ||
           Number(debouncedInputAmountValue) === 0 ||
           Number(debouncedOutputAmountValue) === 0 ||
           isSameCurrencySameRecipientSwap
         }
-        onClick={swap}
+        onClick={onClick}
       >
         {ctaCopy}
       </Button>
