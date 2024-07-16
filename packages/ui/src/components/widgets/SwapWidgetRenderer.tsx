@@ -249,7 +249,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                   debouncedOutputAmountValue,
                   toToken.decimals
                 ).toString(),
-          source: relayClient?.source ?? undefined,
+          referrer: relayClient?.source ?? undefined,
           useExternalLiquidity
         }
       : undefined,
@@ -351,7 +351,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-  // @ts-ignore @TODO: remove when fixed
   const operation = price?.details?.operation || 'swap'
 
   let ctaCopy: string = context || 'Swap'
