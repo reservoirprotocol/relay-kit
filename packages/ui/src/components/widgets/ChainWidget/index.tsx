@@ -109,7 +109,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         tradeType,
         setTradeType,
         details,
-        waitingForSteps,
         isSameCurrencySameRecipientSwap,
         debouncedInputAmountValue,
         debouncedAmountInputControls,
@@ -136,7 +135,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         fetchingSolverConfig,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
-        setSteps,
         setDetails,
         setSwapError
       }) => {
@@ -188,7 +186,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
               if (!open) {
-                setSteps(null)
                 setSwapError(null)
               }
             }}
@@ -549,7 +546,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     address={address}
                     hasInsufficientBalance={hasInsufficientBalance}
                     isInsufficientLiquidityError={isInsufficientLiquidityError}
-                    waitingForSteps={waitingForSteps}
                     debouncedInputAmountValue={debouncedInputAmountValue}
                     debouncedOutputAmountValue={debouncedOutputAmountValue}
                     isSameCurrencySameRecipientSwap={
