@@ -100,7 +100,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         tradeType,
         setTradeType,
         details,
-        waitingForSteps,
         isSameCurrencySameRecipientSwap,
         debouncedInputAmountValue,
         debouncedAmountInputControls,
@@ -122,7 +121,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ctaCopy,
         isFromETH,
         timeEstimate,
-        setSteps,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -161,7 +159,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
               if (!open) {
-                setSteps(null)
                 setSwapError(null)
               }
             }}
@@ -534,7 +531,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     address={address}
                     hasInsufficientBalance={hasInsufficientBalance}
                     isInsufficientLiquidityError={isInsufficientLiquidityError}
-                    waitingForSteps={waitingForSteps}
                     debouncedInputAmountValue={debouncedInputAmountValue}
                     debouncedOutputAmountValue={debouncedOutputAmountValue}
                     isSameCurrencySameRecipientSwap={

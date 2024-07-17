@@ -162,6 +162,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   address,
   progressStep,
   setProgressStep,
+  setSteps,
   currentStep,
   setCurrentStep,
   currentStepItem,
@@ -183,13 +184,14 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       if (currentStep) {
         onAnalyticEvent?.(EventNames.SWAP_MODAL_CLOSED)
       }
-      setProgressStep(TransactionProgressStep.ReviewQuote)
       setCurrentStep(null)
       setCurrentStepItem(null)
       setAllTxHashes([])
       setStartTimestamp(0)
       setSwapError(null)
     } else {
+      setSteps(null)
+      setProgressStep(TransactionProgressStep.ReviewQuote)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,10 +224,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         css={{
           width: '100%',
           height: '100%',
-          gap: isReviewQuoteStep ? '3' : '4',
-          bp600Down: {
-            width: 370
-          }
+          gap: isReviewQuoteStep ? '3' : '4'
         }}
       >
         <Text style="h5" css={{ mb: 8 }}>

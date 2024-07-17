@@ -58,6 +58,7 @@ export type ChildrenProps = {
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   steps: Execute['steps'] | null
+  setSteps: Dispatch<SetStateAction<Execute['steps'] | null>>
   waitingForSteps: boolean
   allTxHashes: TxHashes
   setAllTxHashes: Dispatch<SetStateAction<TxHashes>>
@@ -160,7 +161,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   } = useQuote(
     relayClient ? relayClient : undefined,
     walletClient.data,
-    open && fromToken && toToken
+    fromToken && toToken
       ? {
           user: address ?? deadAddress,
           originChainId: fromToken.chainId,
@@ -198,22 +199,21 @@ export const TransactionModalRenderer: FC<Props> = ({
       })
     },
     {
-      enabled:
-        Boolean(
-          open &&
-            progressStep === TransactionProgressStep.ReviewQuote &&
-            relayClient &&
-            ((tradeType === 'EXACT_INPUT' &&
-              debouncedInputAmountValue &&
-              debouncedInputAmountValue.length > 0 &&
-              Number(debouncedInputAmountValue) !== 0) ||
-              (tradeType === 'EXACT_OUTPUT' &&
-                debouncedOutputAmountValue &&
-                debouncedOutputAmountValue.length > 0 &&
-                Number(debouncedOutputAmountValue) !== 0))
-        ) &&
-        fromToken !== undefined &&
-        toToken !== undefined,
+      enabled: Boolean(
+        open &&
+          progressStep === TransactionProgressStep.ReviewQuote &&
+          relayClient &&
+          ((tradeType === 'EXACT_INPUT' &&
+            debouncedInputAmountValue &&
+            debouncedInputAmountValue.length > 0 &&
+            Number(debouncedInputAmountValue) !== 0) ||
+            (tradeType === 'EXACT_OUTPUT' &&
+              debouncedOutputAmountValue &&
+              debouncedOutputAmountValue.length > 0 &&
+              Number(debouncedOutputAmountValue) !== 0)) &&
+          fromToken !== undefined &&
+          toToken !== undefined
+      ),
       refetchInterval:
         open &&
         progressStep === TransactionProgressStep.ReviewQuote &&
@@ -459,6 +459,7 @@ export const TransactionModalRenderer: FC<Props> = ({
         isRefetchingQuote,
         swap,
         steps,
+        setSteps,
         waitingForSteps,
         quoteError,
         swapError,

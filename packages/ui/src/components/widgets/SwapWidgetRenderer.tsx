@@ -68,7 +68,6 @@ export type ChildrenProps = {
   setCustomToAddress: Dispatch<React.SetStateAction<Address | undefined>>
   tradeType: TradeType
   setTradeType: Dispatch<React.SetStateAction<TradeType>>
-  waitingForSteps: boolean
   isSameCurrencySameRecipientSwap: boolean
   amountInputValue: string
   debouncedInputAmountValue: string
@@ -95,7 +94,6 @@ export type ChildrenProps = {
   fetchingSolverConfig: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
-  setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
 }
@@ -126,9 +124,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
-  const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [details, setDetails] = useState<null | Execute['details']>(null)
-  const [waitingForSteps, setWaitingForSteps] = useState(false)
+
   const {
     value: amountInputValue,
     debouncedValue: debouncedInputAmountValue,
@@ -399,7 +396,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
-  } else if (steps !== null) {
+  } else {
     switch (operation) {
       case 'wrap': {
         ctaCopy = 'Wrapping'
@@ -445,7 +442,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         tradeType,
         setTradeType,
         details,
-        waitingForSteps,
         isSameCurrencySameRecipientSwap,
         debouncedInputAmountValue,
         debouncedAmountInputControls,
@@ -472,7 +468,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         fetchingSolverConfig: config.isFetching,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
-        setSteps,
         setDetails,
         setSwapError
       })}

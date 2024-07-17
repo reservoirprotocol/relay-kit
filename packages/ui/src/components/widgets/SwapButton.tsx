@@ -16,7 +16,6 @@ type SwapButtonProps = {
   | 'address'
   | 'hasInsufficientBalance'
   | 'isInsufficientLiquidityError'
-  | 'waitingForSteps'
   | 'debouncedInputAmountValue'
   | 'debouncedOutputAmountValue'
   | 'isSameCurrencySameRecipientSwap'
@@ -31,7 +30,6 @@ const SwapButton: FC<SwapButtonProps> = ({
   address,
   hasInsufficientBalance,
   isInsufficientLiquidityError,
-  waitingForSteps,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
@@ -50,7 +48,6 @@ const SwapButton: FC<SwapButtonProps> = ({
           hasInsufficientBalance ||
           isInsufficientLiquidityError ||
           transactionModalOpen ||
-          waitingForSteps ||
           Number(debouncedInputAmountValue) === 0 ||
           Number(debouncedOutputAmountValue) === 0 ||
           isSameCurrencySameRecipientSwap
