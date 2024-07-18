@@ -52,10 +52,12 @@ const DropdownMenuItemCss = cva({
     cursor: 'pointer',
     transition: 'backdrop-filter 250ms linear',
     _hover: {
-      backdropFilter: 'brightness(95%)'
+      backdropFilter: 'brightness(95%)',
+      backgroundColor: 'gray/10'
     },
     '&:focus': {
-      backgroundColor: 'focus-color'
+      backdropFilter: 'brightness(95%)',
+      backgroundColor: 'gray/10'
     }
   }
 })
