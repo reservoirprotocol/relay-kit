@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.9
+
+### Patch Changes
+
+- b3432f4: Fix dropdown item hover color
+
 ## 1.1.8
 
 ### Patch Changes
