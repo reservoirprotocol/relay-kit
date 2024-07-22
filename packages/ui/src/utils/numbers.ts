@@ -10,7 +10,7 @@ function formatDollar(price?: number | null) {
   const formatted =
     price !== undefined && price !== null ? formatUsdCurrency(price) : '-'
   if (formatted === '$0.00' && price && price > 0) {
-    return '< $0.00'
+    return '< $0.01'
   }
   return formatted
 }

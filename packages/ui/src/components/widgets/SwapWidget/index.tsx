@@ -487,6 +487,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       .priceImpactPercentage
                                   }
                                   )
+                                </Text>
+                                <Text color="subtle">
                                   <FontAwesomeIcon
                                     icon={faInfoCircle}
                                     width={16}

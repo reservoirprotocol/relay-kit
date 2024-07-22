@@ -1,4 +1,4 @@
-import type { Dispatch, FC, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, Dispatch, FC, ReactNode } from 'react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   useCurrencyBalance,
@@ -24,6 +24,7 @@ import { usePrice, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
+import type Text from '../../components/primitives/Text.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -52,6 +53,7 @@ export type ChildrenProps = {
       usd?: string
       priceImpactPercentage?: string
       priceImpact?: string
+      priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
       swapImpact?: string
     }
   } | null
