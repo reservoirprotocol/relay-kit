@@ -475,7 +475,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               <div>
                                 <Text
                                   style="subtitle3"
-                                  color="subtle"
+                                  color={
+                                    feeBreakdown?.totalFees.priceImpactColor
+                                  }
                                   css={{
                                     display: 'flex',
                                     alignItems: 'center'

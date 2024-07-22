@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react'
 import { Flex, Text, Box } from '../primitives/index.js'
 import Tooltip from '../primitives/Tooltip.js'
-import type { ChildrenProps } from '../common/TransactionModal/TransactionModalRenderer.js'
+import type { ChildrenProps } from '../widgets/SwapWidgetRenderer.js'
 
 type PriceImpactTooltipProps = {
   feeBreakdown: ChildrenProps['feeBreakdown']
@@ -25,7 +25,10 @@ export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
             <Text style="subtitle3" css={{ mr: '1' }}>
               {feeBreakdown?.totalFees.priceImpact}
             </Text>
-            <Text style="subtitle3" color="subtle">
+            <Text
+              style="subtitle3"
+              color={feeBreakdown?.totalFees?.priceImpactColor}
+            >
               ({feeBreakdown?.totalFees.priceImpactPercentage})
             </Text>
           </Flex>
