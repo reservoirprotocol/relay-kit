@@ -2828,6 +2828,7 @@ export interface paths {
                         timestamp?: number;
                       }[];
                     currency?: string;
+                    feeCurrency?: string;
                     appFees?: {
                         recipient?: string;
                         amount?: string;
@@ -3065,6 +3066,7 @@ export interface paths {
               USDC?: number;
               XAI?: number;
               SIPHER?: number;
+              TG7?: number;
             };
           };
         };
