@@ -491,7 +491,12 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                   >
                                     {feeBreakdown?.totalFees.priceImpact}
                                   </Text>
-                                  <Text style="subtitle3" color="subtle">
+                                  <Text
+                                    style="subtitle3"
+                                    color={
+                                      feeBreakdown?.totalFees.priceImpactColor
+                                    }
+                                  >
                                     (
                                     {
                                       feeBreakdown?.totalFees
@@ -547,13 +552,20 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           >
                             <div>
                               <Flex align="center">
-                                <Text style="subtitle3" color="subtle">
+                                <Text
+                                  style="subtitle3"
+                                  color={
+                                    feeBreakdown?.totalFees.priceImpactColor
+                                  }
+                                >
                                   (
                                   {
                                     feeBreakdown?.totalFees
                                       .priceImpactPercentage
                                   }
                                   )
+                                </Text>
+                                <Text color="subtle">
                                   <FontAwesomeIcon
                                     icon={faInfoCircle}
                                     width={16}

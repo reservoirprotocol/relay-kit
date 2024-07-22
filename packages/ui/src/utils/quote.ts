@@ -3,6 +3,8 @@ import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
+import type { ComponentPropsWithoutRef } from 'react'
+import type Text from '../components/primitives/Text.js'
 
 type ExecuteSwapResponse = ReturnType<typeof useQuote>['data']
 
@@ -16,6 +18,7 @@ export const parseFees = (
     usd?: string
     priceImpactPercentage?: string
     priceImpact?: string
+    priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
     swapImpact?: string
   }
 } => {
@@ -107,6 +110,18 @@ export const parseFees = (
       currency: fees?.app?.currency
     })
   }
+
+  let priceImpactColor: ComponentPropsWithoutRef<typeof Text>['color'] =
+    'subtle'
+
+  if (quote?.details?.totalImpact?.percent) {
+    const percent = Number(quote.details.totalImpact.percent)
+    if (percent <= -3) {
+      priceImpactColor = 'red'
+    } else if (percent >= 10) {
+      priceImpactColor = 'success'
+    }
+  }
   return {
     breakdown,
     totalFees: {
@@ -119,6 +134,7 @@ export const parseFees = (
             Math.abs(parseFloat(quote?.details?.totalImpact?.usd ?? 0))
           )
         : undefined,
+      priceImpactColor,
       swapImpact: quote?.details?.swapImpact?.usd
         ? formatDollar(
             Math.abs(parseFloat(quote?.details?.swapImpact?.usd ?? 0))
