@@ -2,7 +2,7 @@ import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
-import type { useQuote } from '@reservoir0x/relay-kit-hooks'
+import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 
@@ -218,6 +218,18 @@ export const calculateTimeEstimate = (breakdown?: Execute['breakdown']) => {
     breakdown?.reduce((total, breakdown) => {
       return total + (breakdown.timeEstimate ?? 0)
     }, 0) ?? 0
+  const formattedTime = formatSeconds(time)
+
+  return {
+    time,
+    formattedTime
+  }
+}
+
+export const calculatePriceTimeEstimate = (
+  details?: PriceResponse['details']
+) => {
+  const time = details?.timeEstimate ?? 0
   const formattedTime = formatSeconds(time)
 
   return {

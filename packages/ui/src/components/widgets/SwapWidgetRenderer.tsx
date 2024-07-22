@@ -8,29 +8,28 @@ import {
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
-import { useAccount, useConfig, useWalletClient } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
 import { deadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
+  calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
-  calculateTimeEstimate,
-  extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { switchChain } from 'wagmi/actions'
-import { useQuote, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
+import { usePrice, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
 
-type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
+export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
 type SwapWidgetRendererProps = {
+  transactionModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   defaultFromToken?: Token
   defaultToToken?: Token
@@ -45,8 +44,8 @@ type SwapWidgetRendererProps = {
 }
 
 export type ChildrenProps = {
-  quote?: ReturnType<typeof useQuote>['data']
-  steps: null | Execute['steps']
+  price?: ReturnType<typeof usePrice>['data']
+  transactionModalOpen: boolean
   details: null | Execute['details']
   feeBreakdown: {
     breakdown: BridgeFee[]
@@ -69,10 +68,8 @@ export type ChildrenProps = {
   recipient?: Address
   customToAddress?: Address
   setCustomToAddress: Dispatch<React.SetStateAction<Address | undefined>>
-  swap: () => void
   tradeType: TradeType
   setTradeType: Dispatch<React.SetStateAction<TradeType>>
-  waitingForSteps: boolean
   isSameCurrencySameRecipientSwap: boolean
   amountInputValue: string
   debouncedInputAmountValue: string
@@ -84,7 +81,7 @@ export type ChildrenProps = {
   debouncedAmountOutputControls: DebouncedState<(value: string) => void>
   toBalance?: bigint
   fromBalance?: bigint
-  isFetchingQuote: boolean
+  isFetchingPrice: boolean
   isLoadingToBalance: boolean
   isLoadingFromBalance: boolean
   highRelayerServiceFee: boolean
@@ -97,13 +94,14 @@ export type ChildrenProps = {
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
   fetchingSolverConfig: boolean
+  invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
-  setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
 }
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
+  transactionModalOpen,
   defaultFromToken,
   defaultToToken,
   defaultToAddress,
@@ -112,14 +110,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   context,
   fetchSolverConfig,
   children,
-  onAnalyticEvent,
-  onSwapError
+  onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
-  const wagmiConfig = useConfig()
   const relayClient = useRelayClient()
-  const walletClient = useWalletClient()
-  const { address, chainId: activeWalletChainId, connector } = useAccount()
+  const { address, connector } = useAccount()
   const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
     defaultToAddress
   )
@@ -131,9 +126,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
-  const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [details, setDetails] = useState<null | Execute['details']>(null)
-  const [waitingForSteps, setWaitingForSteps] = useState(false)
+
   const {
     value: amountInputValue,
     debouncedValue: debouncedInputAmountValue,
@@ -229,13 +223,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const {
-    data: quote,
-    isLoading: isFetchingQuote,
-    executeQuote: executeSwap,
+    data: price,
+    isLoading: isFetchingPrice,
     error
-  } = useQuote(
+  } = usePrice(
     relayClient ? relayClient : undefined,
-    walletClient.data,
     fromToken && toToken
       ? {
           user: address ?? deadAddress,
@@ -256,15 +248,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                   debouncedOutputAmountValue,
                   toToken.decimals
                 ).toString(),
-          source: relayClient?.source ?? undefined,
+          referrer: relayClient?.source ?? undefined,
           useExternalLiquidity
         }
       : undefined,
-    () => {},
-    ({ steps, details }) => {
+    ({ details }) => {
       onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
         wallet_connector: connector?.name,
-        quote_id: steps ? extractQuoteId(steps) : undefined,
         amount_in: details?.currencyIn?.amountFormatted,
         currency_in: details?.currencyIn?.currency?.symbol,
         chain_id_in: details?.currencyIn?.currency?.chainId,
@@ -289,7 +279,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         fromToken !== undefined &&
         toToken !== undefined,
       refetchInterval:
-        steps === null &&
+        !transactionModalOpen &&
         debouncedInputAmountValue === amountInputValue &&
         debouncedOutputAmountValue === amountOutputValue
           ? 12000
@@ -299,40 +289,40 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
-      const amountOut = quote?.details?.currencyOut?.amount ?? ''
+      const amountOut = price?.details?.currencyOut?.amount ?? ''
       setAmountOutputValue(
         amountOut !== ''
           ? formatUnits(
               BigInt(amountOut),
-              Number(quote?.details?.currencyOut?.currency?.decimals ?? 18)
+              Number(price?.details?.currencyOut?.currency?.decimals ?? 18)
             )
           : ''
       )
     } else if (tradeType === 'EXACT_OUTPUT') {
-      const amountIn = quote?.details?.currencyIn?.amount ?? ''
+      const amountIn = price?.details?.currencyIn?.amount ?? ''
       setAmountInputValue(
         amountIn !== ''
           ? formatUnits(
               BigInt(amountIn),
-              Number(quote?.details?.currencyIn?.currency?.decimals ?? 18)
+              Number(price?.details?.currencyIn?.currency?.decimals ?? 18)
             )
           : ''
       )
     }
     debouncedAmountInputControls.flush()
     debouncedAmountOutputControls.flush()
-  }, [quote, tradeType])
+  }, [price, tradeType])
 
   const feeBreakdown = useMemo(() => {
     const chains = relayClient?.chains
     const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
     const toChain = chains?.find((chain) => chain.id === toToken?.chainId)
-    return fromToken && toToken && fromChain && toChain && quote
-      ? parseFees(toChain, fromChain, quote)
+    return fromToken && toToken && fromChain && toChain && price
+      ? parseFees(toChain, fromChain, price)
       : null
-  }, [quote, fromToken, toToken, relayClient])
+  }, [price, fromToken, toToken, relayClient])
 
-  const totalAmount = BigInt(quote?.details?.currencyIn?.amount ?? 0n)
+  const totalAmount = BigInt(price?.details?.currencyIn?.amount ?? 0n)
 
   const hasInsufficientBalance = Boolean(
     !fromBalanceErrorFetching &&
@@ -350,9 +340,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
     'No quotes available'
   )
-  const highRelayerServiceFee = isHighRelayerServiceFeeUsd(quote)
-  const relayerFeeProportion = calculateRelayerFeeProportionUsd(quote)
-  const timeEstimate = calculateTimeEstimate(quote?.breakdown)
+  const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
+  const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
+  const timeEstimate = calculatePriceTimeEstimate(price?.details)
 
   const isFromETH = fromToken?.symbol === 'ETH'
 
@@ -369,7 +359,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-  const operation = quote?.details?.operation || 'swap'
+
+  const operation = price?.details?.operation || 'swap'
 
   let ctaCopy: string = context || 'Swap'
 
@@ -407,7 +398,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
-  } else if (steps !== null) {
+  } else {
     switch (operation) {
       case 'wrap': {
         ctaCopy = 'Wrapping'
@@ -433,132 +424,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   }
 
-  const swap = useCallback(async () => {
-    try {
-      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
-      setWaitingForSteps(true)
-
-      if (!executeSwap) {
-        throw 'Missing a quote'
-      }
-
-      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
-        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
-        await switchChain(wagmiConfig, {
-          chainId: fromToken.chainId
-        })
-      }
-
-      executeSwap(({ steps, details }) => {
-        setSteps(steps)
-        setDetails(details)
-      })
-        ?.catch((error: any) => {
-          if (
-            error &&
-            ((typeof error.message === 'string' &&
-              error.message.includes('rejected')) ||
-              (typeof error === 'string' && error.includes('rejected')))
-          ) {
-            onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
-            setSteps(null)
-            setDetails(null)
-            return
-          }
-
-          const errorMessage = error?.response?.data?.message
-            ? new Error(error?.response?.data?.message)
-            : error
-
-          onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-            error_message: errorMessage,
-            wallet_connector: connector?.name,
-            quote_id: steps ? extractQuoteId(steps) : undefined,
-            amount_in: parseFloat(`${debouncedInputAmountValue}`),
-            currency_in: fromToken?.symbol,
-            chain_id_in: fromToken?.chainId,
-            amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-            currency_out: toToken?.symbol,
-            chain_id_out: toToken?.chainId,
-            is_canonical: useExternalLiquidity,
-            txHashes: steps
-              ?.map((step) => {
-                let txHashes: { chainId: number; txHash: Address }[] = []
-                step.items?.forEach((item) => {
-                  if (item.txHashes) {
-                    txHashes = txHashes.concat([
-                      ...(item.txHashes ?? []),
-                      ...(item.internalTxHashes ?? [])
-                    ])
-                  }
-                })
-                return txHashes
-              })
-              .flat()
-          })
-          setSwapError(errorMessage)
-          onSwapError?.(errorMessage, quote as Execute)
-        })
-        .finally(() => {
-          setWaitingForSteps(false)
-          invalidateBalanceQueries()
-        })
-    } catch (e) {
-      setWaitingForSteps(false)
-      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-        error_message: e,
-        wallet_connector: connector?.name,
-        quote_id: steps ? extractQuoteId(steps) : undefined,
-        amount_in: parseFloat(`${debouncedInputAmountValue}`),
-        currency_in: fromToken?.symbol,
-        chain_id_in: fromToken?.chainId,
-        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-        currency_out: toToken?.symbol,
-        chain_id_out: toToken?.chainId,
-        is_canonical: useExternalLiquidity,
-        txHashes: steps
-          ?.map((step) => {
-            let txHashes: { chainId: number; txHash: Address }[] = []
-            step.items?.forEach((item) => {
-              if (item.txHashes) {
-                txHashes = txHashes.concat([
-                  ...(item.txHashes ?? []),
-                  ...(item.internalTxHashes ?? [])
-                ])
-              }
-            })
-            return txHashes
-          })
-          .flat()
-      })
-      onSwapError?.(e as any, quote as Execute)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    relayClient,
-    activeWalletChainId,
-    wagmiConfig,
-    address,
-    connector,
-    fromToken,
-    toToken,
-    customToAddress,
-    recipient,
-    debouncedInputAmountValue,
-    debouncedOutputAmountValue,
-    tradeType,
-    useExternalLiquidity,
-    executeSwap,
-    setSteps,
-    setDetails,
-    invalidateBalanceQueries
-  ])
-
   return (
     <>
       {children({
-        quote,
-        steps,
+        price,
+        transactionModalOpen,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -571,11 +441,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         recipient,
         customToAddress,
         setCustomToAddress,
-        swap,
         tradeType,
         setTradeType,
         details,
-        waitingForSteps,
         isSameCurrencySameRecipientSwap,
         debouncedInputAmountValue,
         debouncedAmountInputControls,
@@ -587,7 +455,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         setAmountOutputValue,
         toBalance,
         isLoadingToBalance,
-        isFetchingQuote,
+        isFetchingPrice,
         isLoadingFromBalance,
         fromBalance,
         highRelayerServiceFee,
@@ -600,8 +468,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig: config.isFetching,
+        invalidateBalanceQueries,
         setUseExternalLiquidity,
-        setSteps,
         setDetails,
         setSwapError
       })}

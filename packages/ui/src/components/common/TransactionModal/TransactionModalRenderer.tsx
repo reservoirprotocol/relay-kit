@@ -5,9 +5,11 @@ import {
   useEffect,
   type ReactNode,
   type SetStateAction,
-  type Dispatch
+  type Dispatch,
+  useContext,
+  useCallback
 } from 'react'
-import type { Address } from 'viem'
+import { parseUnits, type Address } from 'viem'
 import type {
   Execute,
   ExecuteStep,
@@ -18,10 +20,19 @@ import {
   calculateFillTime,
   extractDepositRequestId
 } from '../../../utils/relayTransaction.js'
-import { useRequests } from '@reservoir0x/relay-kit-hooks'
+import type { BridgeFee, Token } from '../../../types/index.js'
+import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
+import { deadAddress } from '../../../constants/address.js'
+import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
+import { EventNames } from '../../../constants/events.js'
+import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
+import { useAccount, useConfig, useWalletClient } from 'wagmi'
+import { extractQuoteId, parseFees } from '../../../utils/quote.js'
+import { switchChain } from 'wagmi/actions'
 
 export enum TransactionProgressStep {
+  ReviewQuote,
   WalletConfirmation,
   Validating,
   Success,
@@ -39,6 +50,16 @@ export type ChildrenProps = {
   setCurrentStepItem: Dispatch<
     SetStateAction<ExecuteStepItem | null | undefined>
   >
+  quote: ReturnType<typeof useQuote>['data']
+  isFetchingQuote: boolean
+  isRefetchingQuote: boolean
+  swap: () => void
+  quoteError: Error | null
+  swapError: Error | null
+  setSwapError: Dispatch<SetStateAction<Error | null>>
+  steps: Execute['steps'] | null
+  setSteps: Dispatch<SetStateAction<Execute['steps'] | null>>
+  waitingForSteps: boolean
   allTxHashes: TxHashes
   setAllTxHashes: Dispatch<SetStateAction<TxHashes>>
   transaction: ReturnType<typeof useRequests>['data']['0']
@@ -49,39 +70,282 @@ export type ChildrenProps = {
   startTimestamp: number
   setStartTimestamp: Dispatch<SetStateAction<number>>
   requestId: string | null
+  quoteUpdatedAt: number
+  feeBreakdown: {
+    breakdown: BridgeFee[]
+    totalFees: {
+      usd?: string
+      priceImpactPercentage?: string
+      priceImpact?: string
+      swapImpact?: string
+    }
+  } | null
 }
 
 type Props = {
-  children: (props: ChildrenProps) => ReactNode
+  open: boolean
   address?: Address
-  steps?: Execute['steps'] | null
-  error?: Error | null
-  onSuccess?: () => void
-  onValidating?: () => void
+  fromToken?: Token
+  toToken?: Token
+  debouncedOutputAmountValue: string
+  debouncedInputAmountValue: string
+  amountInputValue: string
+  amountOutputValue: string
+  toDisplayName?: string
+  recipient?: Address
+  customToAddress?: Address
+  tradeType: TradeType
+  useExternalLiquidity: boolean
+  invalidateBalanceQueries: () => void
+  children: (props: ChildrenProps) => ReactNode
+  onSuccess?: (
+    quote: ReturnType<typeof useQuote>['data'],
+    steps: Execute['steps']
+  ) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
+  onSwapError?: (error: string, data?: Execute) => void
+  onValidating?: (quote: Execute) => void
 }
 
 export const TransactionModalRenderer: FC<Props> = ({
-  children,
+  open,
   address,
-  steps,
-  error,
+  fromToken,
+  toToken,
+  debouncedInputAmountValue,
+  debouncedOutputAmountValue,
+  amountInputValue,
+  amountOutputValue,
+  toDisplayName,
+  recipient,
+  customToAddress,
+  tradeType,
+  useExternalLiquidity,
+  invalidateBalanceQueries,
+  children,
   onSuccess,
+  onAnalyticEvent,
+  onSwapError,
   onValidating
 }) => {
+  const [steps, setSteps] = useState<null | Execute['steps']>(null)
+
   const [progressStep, setProgressStep] = useState(
-    TransactionProgressStep.WalletConfirmation
+    TransactionProgressStep.ReviewQuote
   )
   const [currentStep, setCurrentStep] = useState<
-    null | NonNullable<Props['steps']>['0']
+    null | NonNullable<Execute['steps']>['0']
   >()
   const [currentStepItem, setCurrentStepItem] = useState<
-    null | NonNullable<NonNullable<Props['steps']>['0']['items']>['0']
+    null | NonNullable<NonNullable<Execute['steps']>['0']['items']>['0']
   >()
   const [allTxHashes, setAllTxHashes] = useState<TxHashes>([])
   const [startTimestamp, setStartTimestamp] = useState(0)
+  const [waitingForSteps, setWaitingForSteps] = useState(false)
+
+  const [swapError, setSwapError] = useState<Error | null>(null)
+
+  const relayClient = useRelayClient()
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const wagmiConfig = useConfig()
+  const walletClient = useWalletClient()
+  const { chainId: activeWalletChainId, connector } = useAccount()
+
+  const {
+    data: quote,
+    isLoading: isFetchingQuote,
+    isRefetching: isRefetchingQuote,
+    executeQuote: executeSwap,
+    error: quoteError,
+    dataUpdatedAt: quoteUpdatedAt
+  } = useQuote(
+    relayClient ? relayClient : undefined,
+    walletClient.data,
+    fromToken && toToken
+      ? {
+          user: address ?? deadAddress,
+          originChainId: fromToken.chainId,
+          destinationChainId: toToken.chainId,
+          originCurrency: fromToken.address,
+          destinationCurrency: toToken.address,
+          recipient: recipient as string,
+          tradeType,
+          appFees: providerOptionsContext.appFees,
+          amount:
+            tradeType === 'EXACT_INPUT'
+              ? parseUnits(
+                  debouncedInputAmountValue,
+                  fromToken.decimals
+                ).toString()
+              : parseUnits(
+                  debouncedOutputAmountValue,
+                  toToken.decimals
+                ).toString(),
+          source: relayClient?.source ?? undefined,
+          useExternalLiquidity
+        }
+      : undefined,
+    () => {},
+    ({ steps, details }) => {
+      onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+        wallet_connector: connector?.name,
+        quote_id: steps ? extractQuoteId(steps) : undefined,
+        amount_in: details?.currencyIn?.amountFormatted,
+        currency_in: details?.currencyIn?.currency?.symbol,
+        chain_id_in: details?.currencyIn?.currency?.chainId,
+        amount_out: details?.currencyOut?.amountFormatted,
+        currency_out: details?.currencyOut?.currency?.symbol,
+        chain_id_out: details?.currencyOut?.currency?.chainId
+      })
+    },
+    {
+      enabled: Boolean(
+        open &&
+          progressStep === TransactionProgressStep.ReviewQuote &&
+          relayClient &&
+          ((tradeType === 'EXACT_INPUT' &&
+            debouncedInputAmountValue &&
+            debouncedInputAmountValue.length > 0 &&
+            Number(debouncedInputAmountValue) !== 0) ||
+            (tradeType === 'EXACT_OUTPUT' &&
+              debouncedOutputAmountValue &&
+              debouncedOutputAmountValue.length > 0 &&
+              Number(debouncedOutputAmountValue) !== 0)) &&
+          fromToken !== undefined &&
+          toToken !== undefined
+      ),
+      refetchInterval:
+        open &&
+        progressStep === TransactionProgressStep.ReviewQuote &&
+        debouncedInputAmountValue === amountInputValue &&
+        debouncedOutputAmountValue === amountOutputValue
+          ? 30000
+          : undefined
+    }
+  )
+
+  const swap = useCallback(async () => {
+    try {
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
+      setWaitingForSteps(true)
+
+      if (!executeSwap) {
+        throw 'Missing a quote'
+      }
+
+      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
+        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
+        await switchChain(wagmiConfig, {
+          chainId: fromToken.chainId
+        })
+      }
+
+      setProgressStep(TransactionProgressStep.WalletConfirmation)
+
+      executeSwap(({ steps: currentSteps, details }) => {
+        setSteps(currentSteps)
+      })
+        ?.catch((error: any) => {
+          if (
+            error &&
+            ((typeof error.message === 'string' &&
+              error.message.includes('rejected')) ||
+              (typeof error === 'string' && error.includes('rejected')))
+          ) {
+            onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
+            setProgressStep(TransactionProgressStep.ReviewQuote)
+            return
+          }
+
+          const errorMessage = error?.response?.data?.message
+            ? new Error(error?.response?.data?.message)
+            : error
+
+          onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+            error_message: errorMessage,
+            wallet_connector: connector?.name,
+            quote_id: steps ? extractQuoteId(steps) : undefined,
+            amount_in: parseFloat(`${debouncedInputAmountValue}`),
+            currency_in: fromToken?.symbol,
+            chain_id_in: fromToken?.chainId,
+            amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+            currency_out: toToken?.symbol,
+            chain_id_out: toToken?.chainId,
+            is_canonical: useExternalLiquidity,
+            txHashes: steps
+              ?.map((step) => {
+                let txHashes: { chainId: number; txHash: Address }[] = []
+                step.items?.forEach((item) => {
+                  if (item.txHashes) {
+                    txHashes = txHashes.concat([
+                      ...(item.txHashes ?? []),
+                      ...(item.internalTxHashes ?? [])
+                    ])
+                  }
+                })
+                return txHashes
+              })
+              .flat()
+          })
+          setSwapError(errorMessage)
+          onSwapError?.(errorMessage, quote as Execute)
+        })
+        .finally(() => {
+          setWaitingForSteps(false)
+          invalidateBalanceQueries()
+        })
+    } catch (e) {
+      setWaitingForSteps(false)
+      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+        error_message: e,
+        wallet_connector: connector?.name,
+        quote_id: steps ? extractQuoteId(steps) : undefined,
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        is_canonical: useExternalLiquidity,
+        txHashes: steps
+          ?.map((step) => {
+            let txHashes: { chainId: number; txHash: Address }[] = []
+            step.items?.forEach((item) => {
+              if (item.txHashes) {
+                txHashes = txHashes.concat([
+                  ...(item.txHashes ?? []),
+                  ...(item.internalTxHashes ?? [])
+                ])
+              }
+            })
+            return txHashes
+          })
+          .flat()
+      })
+      onSwapError?.(e as any, quote as Execute)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    relayClient,
+    activeWalletChainId,
+    wagmiConfig,
+    address,
+    connector,
+    fromToken,
+    toToken,
+    customToAddress,
+    recipient,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    tradeType,
+    useExternalLiquidity,
+    executeSwap,
+    setSteps,
+    invalidateBalanceQueries
+  ])
 
   useEffect(() => {
-    if (error) {
+    if (swapError || (quoteError && !isRefetchingQuote)) {
       setProgressStep(TransactionProgressStep.Error)
       return
     }
@@ -124,7 +388,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
       progressStep === TransactionProgressStep.WalletConfirmation
     ) {
-      onValidating?.()
+      onValidating?.(quote as Execute)
       setProgressStep(TransactionProgressStep.Validating)
       setStartTimestamp(new Date().getTime())
     }
@@ -145,11 +409,9 @@ export const TransactionModalRenderer: FC<Props> = ({
       progressStep !== TransactionProgressStep.Success
     ) {
       setProgressStep(TransactionProgressStep.Success)
-      onSuccess?.()
+      onSuccess?.(quote, steps)
     }
-  }, [steps, error])
-
-  const client = useRelayClient()
+  }, [steps, quoteError, swapError])
 
   // Fetch Success Tx
   const { data: transactions } = useRequests(
@@ -159,7 +421,7 @@ export const TransactionModalRenderer: FC<Props> = ({
           hash: allTxHashes[0]?.txHash
         }
       : undefined,
-    client?.baseApiUrl,
+    relayClient?.baseApiUrl,
     {
       enabled:
         progressStep === TransactionProgressStep.Success && allTxHashes[0]
@@ -174,6 +436,15 @@ export const TransactionModalRenderer: FC<Props> = ({
 
   const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
 
+  const feeBreakdown = useMemo(() => {
+    const chains = relayClient?.chains
+    const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
+    const toChain = chains?.find((chain) => chain.id === toToken?.chainId)
+    return fromToken && toToken && fromChain && toChain && quote
+      ? parseFees(toChain, fromChain, quote)
+      : null
+  }, [quote, fromToken, toToken, relayClient])
+
   return (
     <>
       {children({
@@ -183,6 +454,16 @@ export const TransactionModalRenderer: FC<Props> = ({
         setCurrentStep,
         currentStepItem,
         setCurrentStepItem,
+        quote,
+        isFetchingQuote,
+        isRefetchingQuote,
+        swap,
+        steps,
+        setSteps,
+        waitingForSteps,
+        quoteError,
+        swapError,
+        setSwapError,
         allTxHashes,
         setAllTxHashes,
         transaction,
@@ -192,7 +473,9 @@ export const TransactionModalRenderer: FC<Props> = ({
         executionTimeSeconds,
         startTimestamp,
         setStartTimestamp,
-        requestId
+        quoteUpdatedAt,
+        requestId,
+        feeBreakdown
       })}
     </>
   )

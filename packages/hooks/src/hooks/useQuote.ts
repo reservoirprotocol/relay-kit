@@ -54,7 +54,7 @@ export const queryQuote = function (
   })
 }
 
-type onProgress = (data: ProgressData) => void
+export type onProgress = (data: ProgressData) => void
 
 export default function (
   client?: RelayClient,
@@ -113,10 +113,18 @@ export default function (
         ...response,
         data: response.error ? undefined : response.data,
         executeQuote
-      }) as Omit<ReturnType<QueryType>, 'data'> & {
+      } as Omit<ReturnType<QueryType>, 'data'> & {
         data?: ExecuteSwapResponse
         executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
-      },
-    [response.data, response.error, response.isLoading, executeQuote]
+      }),
+    [
+      response.data,
+      response.error,
+      response.isLoading,
+      response.isFetching,
+      response.isRefetching,
+      response.dataUpdatedAt,
+      executeQuote
+    ]
   )
 }

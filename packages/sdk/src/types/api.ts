@@ -117,7 +117,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
         };
       };
       responses: {
@@ -170,7 +170,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -269,7 +269,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -280,10 +280,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -345,7 +345,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -769,7 +769,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -780,10 +780,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
               };
               /**
                * @example {
@@ -1503,6 +1503,10 @@ export interface paths {
               details?: {
                 /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
                 operation?: string;
+                /** @description Estimated swap time in seconds */
+                timeEstimate?: number;
+                /** @description The user's balance in the given currency on the origin chain */
+                userBalance?: string;
                 /** @description The address that deposited the funds */
                 sender?: string;
                 /** @description The address that will be receiving the swap output */
@@ -1644,7 +1648,7 @@ export interface paths {
             user: string;
             originChainId: number;
             /** @enum {string} */
-            currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher";
+            currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
             amount: string;
             useForwarder?: boolean;
           };
@@ -1710,7 +1714,7 @@ export interface paths {
             };
             assets: ({
                 /** @enum {string} */
-                currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
                 amount: string;
               })[];
           };
@@ -1831,16 +1835,16 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
-            source?: string;
+            referrer?: string;
             /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
             refundTo?: string;
             /** @description Always refund on the origin chain in case of any issues */
             refundOnOrigin?: boolean;
             /**
-             * @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @description Enable this to route payments via a receiver contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
              * @default true
              */
-            useForwarder?: boolean;
+            useReceiver?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
@@ -2269,16 +2273,16 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
-            source?: string;
+            referrer?: string;
             /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
             refundTo?: string;
             /** @description Always refund on the origin chain in case of any issues */
             refundOnOrigin?: boolean;
             /**
-             * @description Enable this to route payments via a forwarder contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @description Enable this to route payments via a receiver contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
              * @default true
              */
-            useForwarder?: boolean;
+            useReceiver?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
@@ -2726,6 +2730,8 @@ export interface paths {
           destinationChainId?: string;
           privateChainsToInclude?: string;
           id?: string;
+          startTimestamp?: number;
+          endTimestamp?: number;
         };
       };
       responses: {
@@ -2822,6 +2828,7 @@ export interface paths {
                         timestamp?: number;
                       }[];
                     currency?: string;
+                    feeCurrency?: string;
                     appFees?: {
                         recipient?: string;
                         amount?: string;
@@ -3059,6 +3066,7 @@ export interface paths {
               USDC?: number;
               XAI?: number;
               SIPHER?: number;
+              TG7?: number;
             };
           };
         };

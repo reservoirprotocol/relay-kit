@@ -12,7 +12,10 @@ const FetchingQuoteLoader: FC<Props> = ({ isLoading }) => {
   }
 
   return (
-    <Flex align="center" css={{ gap: 14, mb: '3', p: '3 0', m: '0 auto' }}>
+    <Flex
+      align="center"
+      css={{ gap: 14, mb: '3', mt: '1', p: '3 0', m: '0 auto' }}
+    >
       <LoadingSpinner css={{ height: 16, width: 16 }} />
       <Text style="subtitle2">Fetching the best price</Text>
     </Flex>

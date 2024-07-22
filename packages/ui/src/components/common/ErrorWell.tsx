@@ -1,12 +1,16 @@
 import * as React from 'react'
 import { Text } from '../primitives/index.js'
+import type { AxiosError } from 'axios'
 
 interface Props {
-  error?: Error | null
+  error?: Error | null | AxiosError
 }
 
 const ErrorWell: React.FC<Props> = ({ error }) => {
   const renderedErrorMessage = React.useMemo((): React.ReactNode => {
+    if (error && ((error as AxiosError).response?.data as any)?.message) {
+      return (error as any).response?.data?.message
+    }
     if (
       error?.message?.includes('An internal error was received.') ||
       !error?.message
