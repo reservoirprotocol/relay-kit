@@ -1,4 +1,4 @@
-import { Flex, Text, ChainIcon } from '../../primitives/index.js'
+import { Flex, Text, ChainIcon, Box } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -484,25 +484,34 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           </Text>
                           <PriceImpactTooltip feeBreakdown={feeBreakdown}>
                             <div>
-                              <Text
-                                style="subtitle3"
-                                color={feeBreakdown?.totalFees.priceImpactColor}
-                                css={{
-                                  display: 'flex',
-                                  alignItems: 'center'
-                                }}
-                              >
-                                ({feeBreakdown?.totalFees.priceImpactPercentage}
-                                )
-                                <FontAwesomeIcon
-                                  icon={faInfoCircle}
-                                  width={16}
-                                  style={{
-                                    display: 'inline-block',
-                                    marginLeft: 4
+                              <Flex align="center" css={{ gap: '1' }}>
+                                <Text
+                                  style="subtitle3"
+                                  color={
+                                    feeBreakdown?.totalFees.priceImpactColor
+                                  }
+                                  css={{
+                                    display: 'flex',
+                                    alignItems: 'center'
                                   }}
-                                />
-                              </Text>
+                                >
+                                  (
+                                  {
+                                    feeBreakdown?.totalFees
+                                      .priceImpactPercentage
+                                  }
+                                  )
+                                </Text>
+                                <Flex css={{ color: 'gray9' }}>
+                                  <FontAwesomeIcon
+                                    icon={faInfoCircle}
+                                    width={16}
+                                    style={{
+                                      display: 'inline-block'
+                                    }}
+                                  />
+                                </Flex>
+                              </Flex>
                             </div>
                           </PriceImpactTooltip>
                         </Flex>
