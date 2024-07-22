@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- af694ab: Fix dollar formatting sub 0 and price impact spacing
+- e231382: Color coding price impact
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-kit-hooks@1.0.15
+  - @reservoir0x/relay-sdk@1.0.10
+
 ## 1.1.9
 
 ### Patch Changes
