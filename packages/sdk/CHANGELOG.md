@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- 2d22eec: Add usePrice hook
+
 ## 1.0.9
 
 ### Patch Changes
