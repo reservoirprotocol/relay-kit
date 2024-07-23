@@ -5,6 +5,7 @@ import {
   ChainIcon,
   Flex,
   Input,
+  Skeleton,
   Text
 } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -263,8 +264,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     tokenBalances
   ])
 
-  const isLoading =
-    isLoadingDuneBalances || isLoadingSuggestedTokens || isLoadingTokenList
+  const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const chainFuse = new Fuse(
@@ -530,6 +530,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                         currencyList={list as EnhancedCurrencyList}
                         setCurrencyList={setCurrencyList}
                         selectToken={selectToken}
+                        isLoadingDuneBalances={isLoadingDuneBalances}
                         key={idx}
                       />
                     ) : null
@@ -678,12 +679,14 @@ type CurrencyRowProps = {
   currencyList: EnhancedCurrencyList
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
   selectToken: (currency: Currency, chainId?: number) => void
+  isLoadingDuneBalances: boolean
 }
 
 const CurrencyRow: FC<CurrencyRowProps> = ({
   currencyList,
   setCurrencyList,
-  selectToken
+  selectToken,
+  isLoadingDuneBalances
 }) => {
   const balance = currencyList.totalBalance
   const decimals =
@@ -760,6 +763,9 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
           </Text>
         ) : null}
       </Flex>
+      {isLoadingDuneBalances && !balance ? (
+        <Skeleton css={{ ml: 'auto', width: 60 }} />
+      ) : null}
       {balance ? (
         <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
           {formatBN(balance, 5, decimals, compactBalance)}
