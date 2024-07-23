@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.11
+
+### Patch Changes
+
+- 00da309: Decouple dune balance loading from token selector
+
 ## 1.1.10
 
 ### Patch Changes
