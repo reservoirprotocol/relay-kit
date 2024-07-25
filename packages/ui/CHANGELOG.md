@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.13
+
+### Patch Changes
+
+- 5acf10e: Fix swap widget cta bug
+
 ## 1.1.12
 
 ### Patch Changes
