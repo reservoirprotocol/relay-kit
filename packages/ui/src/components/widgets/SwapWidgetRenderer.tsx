@@ -398,7 +398,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
-  } else {
+  } else if (transactionModalOpen) {
     switch (operation) {
       case 'wrap': {
         ctaCopy = 'Wrapping'
