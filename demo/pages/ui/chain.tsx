@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import { ChainWidget } from '@reservoir0x/relay-kit-ui'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { Layout } from 'components/Layout'
+import { zeroAddress } from 'viem'
 
 const ChainWidgetPage: NextPage = () => {
   const { openConnectModal } = useConnectModal()

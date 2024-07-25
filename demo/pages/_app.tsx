@@ -33,13 +33,17 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     ReturnType<typeof getDefaultConfig> | undefined
   >()
   const router = useRouter()
-  const relayApi =
-    router.query.api === 'testnets' ? TESTNET_RELAY_API : MAINNET_RELAY_API
+  const [relayApi, setRelayApi] = useState(MAINNET_RELAY_API)
+
+  useEffect(() => {
+    const isTestnet = router.query.api === 'testnets'
+    setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
+  }, [router.query.api])
 
   const { chains, viemChains } = useRelayChains(relayApi)
 
   useEffect(() => {
-    if (!wagmiConfig && chains && viemChains) {
+    if (chains && viemChains) {
       setWagmiConfig(
         getDefaultConfig({
           appName: 'Relay SDK Demo',
@@ -50,7 +54,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         })
       )
     }
-  }, [chains, relayApi])
+  }, [chains, relayApi, viemChains])
 
   if (!wagmiConfig || !chains) {
     return null
@@ -65,6 +69,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     >
       <RelayKitProvider
         options={{
+          baseApiUrl: relayApi,
           source: 'relay-demo',
           logLevel: LogLevel.Verbose,
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
