@@ -441,6 +441,12 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
         useExternalLiquidity,
         setUseExternalLiquidity,
         usePermit,
+        fromBalance,
+        fromBalanceIsLoading,
+        toBalance,
+        toBalanceIsLoading,
+        hasInsufficientBalance,
+        maxAmount,
         timeEstimate,
         ctaCopy
       })}

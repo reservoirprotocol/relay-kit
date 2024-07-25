@@ -120,6 +120,66 @@ const BridgeWidget: FC<BridgeWidgetProps> = ({
                 loadingBalance={fromBalanceIsLoading}
                 hasInsufficientBalance={hasInsufficientBalance}
               />
+              {selectedFrom.depositEnabled ? (
+                <Button
+                  color="ghost"
+                  size="none"
+                  aria-label="Swap"
+                  css={{
+                    p: 2,
+                    borderRadius: 2,
+                    _disabled: {
+                      cursor: 'not-allowed',
+                      backgroundColor: 'transparent'
+                    }
+                  }}
+                  onClick={() => {
+                    const newSelectedFrom = toChain
+                    const newSelectedTo = fromChain
+                    setFromChain(toChain)
+                    setToChain(fromChain)
+
+                    if (router.asPath?.includes('superchain')) {
+                      const newQuery = {
+                        ...router.query,
+                        fromChainId: newSelectedFrom.id.toString(),
+                        toChainId: newSelectedTo.id.toString()
+                      }
+                      router.push(
+                        {
+                          pathname: router.pathname,
+                          query: newQuery
+                        },
+                        undefined,
+                        { shallow: true }
+                      )
+                    }
+                  }}
+                  disabled={lockToChain}
+                >
+                  <Text
+                    style="body1"
+                    css={{
+                      color: 'gray9',
+                      bp400Down: { transform: 'rotate(90deg)' },
+                      width: 12
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faArrowRight} />
+                  </Text>
+                </Button>
+              ) : (
+                <Text
+                  style="body1"
+                  css={{
+                    color: 'gray9',
+                    bp400Down: { transform: 'rotate(90deg)' },
+                    p: 10
+                  }}
+                >
+                  <FontAwesomeIcon icon={faArrowRight} width={12} />
+                </Text>
+              )}
             </Flex>
           </Flex>
         )
