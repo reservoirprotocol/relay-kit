@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.12
+
+### Patch Changes
+
+- 23b528c: Remove compact formatting from review quote
+
 ## 1.1.11
 
 ### Patch Changes
