@@ -61,6 +61,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
   const client = useRelayClient()
   const chain = client?.chains.find((chain) => chain.id === chainId)
+  const isTestnet = client?.baseApiUrl?.includes?.('testnets')
+  const defaultChainId = isTestnet ? 11155111 : 1
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
@@ -76,9 +78,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultToToken={defaultToken}
       defaultFromToken={
-        chainId !== 1
+        chainId !== defaultChainId
           ? {
-              chainId: 1,
+              chainId: defaultChainId,
               address: zeroAddress,
               symbol: 'ETH',
               name: 'ETH',

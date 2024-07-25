@@ -42,7 +42,7 @@ export default function (
   queryOptions?: Partial<QueryOptions>
 ) {
   const response = (useQuery as QueryType)({
-    queryKey: ['useRelayChains', options],
+    queryKey: ['useRelayChains', baseApiUrl, options],
     queryFn: () => queryRelayChains(baseApiUrl, options),
     retry: false,
     ...queryOptions
@@ -61,5 +61,5 @@ export default function (
       viemChains?: ConfiguredViemChain['viemChain'][]
       chains?: ConfiguredViemChain[]
     }
-  }, [response.data, response.error, response.isLoading])
+  }, [response.data, response.data?.chains, response.error, response.isLoading])
 }

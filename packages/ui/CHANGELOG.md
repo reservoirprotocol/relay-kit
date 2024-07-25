@@ -1,5 +1,19 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.14
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+- Updated dependencies [fac3415]
+  - @reservoir0x/relay-kit-hooks@1.0.16
+
+## 1.1.13
+
+### Patch Changes
+
+- 5acf10e: Fix swap widget cta bug
+
 ## 1.1.12
 
 ### Patch Changes
