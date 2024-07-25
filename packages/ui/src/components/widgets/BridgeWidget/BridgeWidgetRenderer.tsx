@@ -1,5 +1,11 @@
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import type { ComponentPropsWithoutRef, Dispatch, FC, ReactNode } from 'react'
+import type {
+  ComponentPropsWithoutRef,
+  Dispatch,
+  FC,
+  ReactNode,
+  ReactPropTypes
+} from 'react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { parseUnits, zeroAddress, type Address } from 'viem'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
@@ -11,7 +17,11 @@ import {
   useCurrencyConversion
 } from '../../../hooks/index.js'
 import { useAccount } from 'wagmi'
-import { usePrice, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
+import {
+  usePrice,
+  useRelayConfig,
+  type ConfigQuery
+} from '@reservoir0x/relay-kit-hooks'
 import { CurrenciesMap, type Currency } from '../../../constants/currencies.js'
 import { deadAddress } from '../../../constants/address.js'
 import { EventNames } from '../../../constants/events.js'
@@ -35,6 +45,7 @@ type BridgeWidgetRendererProps = {
   defaultToChain: RelayChain
   defaultToAddress?: Address
   defaultAmount?: string
+  defaultCurrency?: ConfigQuery['currency']
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onBridgeError?: (error: string, data?: Execute) => void
@@ -48,8 +59,26 @@ export type ChildrenProps = {
   price?: ReturnType<typeof usePrice>['data']
   isFetchingPrice: boolean
   error: Error | null
+  amountValue: string
+  debouncedAmountValue: string
+  setAmountValue: (value: string) => void
+  currency: Currency
+  setCurrency: Dispatch<React.SetStateAction<Currency>>
+  depositableChains: RelayChain[]
+  withdrawableChains: RelayChain[]
+  bridgeType: 'relay' | 'canonical'
+  setBridgeType: Dispatch<React.SetStateAction<'relay' | 'canonical'>>
+  useExternalLiquidity: boolean
+  setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   usePermit: boolean
+  fromBalance: bigint | undefined
+  fromBalanceIsLoading: boolean
+  toBalance: bigint | undefined
+  toBalanceIsLoading: boolean
+  hasInsufficientBalance: boolean
+  maxAmount: bigint | null
   timeEstimate?: { time: number; formattedTime: string }
+  ctaCopy: string
 }
 
 const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
@@ -59,6 +88,7 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
   defaultToChain,
   defaultToAddress,
   defaultAmount,
+  defaultCurrency,
   onConnectWallet,
   onAnalyticEvent,
   onBridgeError
@@ -81,8 +111,12 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
     value: amountValue,
     debouncedValue: debouncedAmountValue,
     setValue: setAmountValue
-  } = useDebounceState<string>('', 500)
-  const [currency, setCurrency] = useState<Currency>(CurrenciesMap['eth'])
+  } = useDebounceState<string>(defaultAmount ?? '', 500)
+  const [currency, setCurrency] = useState<Currency>(
+    defaultCurrency && defaultCurrency in CurrenciesMap
+      ? CurrenciesMap[defaultCurrency as keyof typeof CurrenciesMap]
+      : CurrenciesMap['eth']
+  )
   const isErc20Currency = currency.id !== 'eth'
   const [bridgeType, setBridgeType] = useState<'relay' | 'canonical'>('relay')
 
@@ -395,9 +429,23 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
         price,
         isFetchingPrice,
         error,
+        amountValue,
+        debouncedAmountValue,
+        setAmountValue,
+        currency,
+        setCurrency,
+        depositableChains,
+        withdrawableChains,
+        bridgeType,
+        setBridgeType,
+        useExternalLiquidity,
+        setUseExternalLiquidity,
         usePermit,
-        timeEstimate
+        timeEstimate,
+        ctaCopy
       })}
     </>
   )
 }
+
+export default BridgeWidgetRenderer

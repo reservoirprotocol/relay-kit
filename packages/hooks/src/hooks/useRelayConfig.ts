@@ -12,7 +12,7 @@ import {
 } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-type ConfigQuery = paths['/config/v2']['get']['parameters']['query']
+export type ConfigQuery = paths['/config/v2']['get']['parameters']['query']
 
 export type ConfigResponse =
   paths['/config/v2']['get']['responses']['200']['content']['application/json']
