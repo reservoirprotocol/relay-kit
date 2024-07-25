@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.16
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+
 ## 1.0.15
 
 ### Patch Changes
