@@ -167,7 +167,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken.symbol === toToken.symbol &&
     canonicalCurrencies.includes(fromToken.symbol.toLowerCase())
   const config = useRelayConfig(
-    relayClient?.baseApiUrl,
+    relayClient ? relayClient : undefined,
     {
       currency: ((fromToken?.symbol as any) ?? '').toLowerCase(),
       originChainId: `${fromToken?.chainId}`,

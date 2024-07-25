@@ -1,10 +1,12 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { CallFees, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
 import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
+import { formatUnits, parseUnits } from 'viem'
+import type { Currency } from '../constants/currencies.js'
 
 type ExecuteSwapResponse = ReturnType<typeof useQuote>['data']
 
@@ -144,6 +146,102 @@ export const parseFees = (
   }
 }
 
+export const calculateTransactionFee = (
+  fees: CallFees,
+  currency: Currency,
+  usePermit: boolean,
+  gasUsdConversion: number,
+  currencyUsdConversion: number,
+  amountUsd: number
+) => {
+  const gasFee = BigInt(fees?.gas?.amount ?? 0)
+  const relayerFee = BigInt(fees?.relayer?.amount?.replace('-', '') ?? 0)
+  const relayerFeeIsReward = fees?.relayer?.amount?.includes('-')
+  const gasCurrencyDecimals = usePermit ? currency.decimals : 18
+  const gasUsd =
+    gasUsdConversion * Number(formatUnits(gasFee, gasCurrencyDecimals))
+  const gasUsdFormatted = formatDollar(gasUsd)
+  const relayerUsd =
+    currencyUsdConversion * Number(formatUnits(relayerFee, currency.decimals))
+  const relayerUsdFormatted = formatDollar(relayerUsd)
+  const totalUsd = relayerFeeIsReward
+    ? gasUsd + -1 * relayerUsd
+    : gasUsd + relayerUsd
+  const totalUsdFormatted =
+    totalUsd > 0 ? formatDollar(totalUsd) : `+ ${formatDollar(totalUsd * -1)}`
+  const priceImpactFees = gasUsd + relayerUsd * (relayerFeeIsReward ? -1 : 1)
+  const priceImpact = (priceImpactFees / (amountUsd + priceImpactFees)) * 100
+  const priceImpactFormatted = `${priceImpact.toFixed(
+    Number.isInteger(priceImpact) ? 0 : 2
+  )}%`
+
+  return {
+    gasFee,
+    relayerFee,
+    gasCurrencyDecimals,
+    gasUsd,
+    gasUsdFormatted,
+    relayerUsd,
+    relayerUsdFormatted,
+    totalUsd,
+    totalUsdFormatted,
+    priceImpact,
+    priceImpactFormatted
+  }
+}
+
+export const calculateAvailableAmount = (
+  currency: Currency,
+  usePermit: boolean,
+  maxQuote?: ExecuteSwapResponse,
+  maxAmount?: bigint | null
+) => {
+  const gasWithBuffer = BigInt(
+    Math.ceil(Number(maxQuote?.fees?.gas?.amount ?? 0) * 2)
+  ) // add 100% buffer to gas price to account for gas fluctuation
+  const relayerFee = BigInt(maxQuote?.fees?.relayer?.amount ?? 0)
+  const relayerFeeWithBuffer = BigInt(
+    Math.ceil(Number(maxQuote?.fees?.relayer?.amount ?? 0) * 1.05)
+  ) // add 5% buffer to relayer fee price to account for gas fluctuation
+
+  if (currency.id === 'eth') {
+    return maxQuote ? (maxAmount ?? 0n) - gasWithBuffer - relayerFee : null
+  } else if (usePermit) {
+    return maxQuote ? (maxAmount ?? 0n) - relayerFeeWithBuffer : null
+  } else {
+    return maxQuote ? (maxAmount ?? 0n) - relayerFee : null
+  }
+}
+
+export const calculateTotalAmount = (
+  amount: string,
+  currency: Currency,
+  currencyUsdConversion: number,
+  transactionFees: ReturnType<typeof calculateTransactionFee>
+) => {
+  const raw =
+    parseUnits(amount != '' ? amount : '0', currency.decimals) +
+    transactionFees.gasFee +
+    transactionFees.relayerFee
+  const rawExcludingOriginGas = raw - transactionFees.gasFee
+  const formattedExcludingOriginGas = `${formatBN(
+    rawExcludingOriginGas,
+    5,
+    currency.decimals
+  )}`
+
+  const amountUsd = currencyUsdConversion * Number(amount)
+
+  return {
+    raw,
+    usd: formatDollar(
+      amountUsd + transactionFees.gasUsd + transactionFees.relayerUsd
+    ),
+    rawExcludingOriginGas,
+    formattedExcludingOriginGas
+  }
+}
+
 export const calculateRelayerFeeProportionUsd = (
   quote?: ExecuteSwapResponse
 ) => {
@@ -187,6 +285,22 @@ export const isHighRelayerServiceFeeUsd = (quote?: ExecuteSwapResponse) => {
 
   const fivePercentOfUsdIn = (usdIn * 5) / 100
   return relayerServiceFeeUsd >= fivePercentOfUsdIn
+}
+
+export const isHighRelayerServiceFee = (
+  amount: string,
+  currency: Currency,
+  quote?: ExecuteSwapResponse
+) => {
+  if (!amount) {
+    return false
+  }
+  const relayerServiceFee = BigInt(quote?.fees?.relayerService?.amount ?? 0)
+  const debouncedAmountBigInt = parseUnits(amount, currency.decimals)
+
+  const fivePercentOfDebouncedAmount =
+    (debouncedAmountBigInt * BigInt(5)) / BigInt(100)
+  return relayerServiceFee >= fivePercentOfDebouncedAmount
 }
 
 export const extractQuoteId = (steps?: Execute['steps']) => {

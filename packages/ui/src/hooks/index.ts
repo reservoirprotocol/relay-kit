@@ -4,6 +4,7 @@ import useCurrencyBalance from './useCurrencyBalance.js'
 import useRelayClient from './useRelayClient.js'
 import useDebounceState from './useDebounceState.js'
 import useDuneBalances from './useDuneBalances.js'
+import useCurrencyConversion from './useCurrencyConversion.js'
 
 export {
   useMounted,
@@ -11,5 +12,6 @@ export {
   useCurrencyBalance,
   useRelayClient,
   useDebounceState,
-  useDuneBalances
+  useDuneBalances,
+  useCurrencyConversion
 }

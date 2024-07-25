@@ -17,6 +17,18 @@ export const CurrenciesMap = {
     symbol: 'DEGEN',
     name: 'Degen',
     decimals: 18
+  },
+  sipher: {
+    id: 'sipher',
+    symbol: 'SIPHER',
+    name: 'Sipher',
+    decimals: 18
+  },
+  xai: {
+    id: 'xai',
+    symbol: 'XAI',
+    name: 'Xai',
+    decimals: 18
   }
 } as const
 

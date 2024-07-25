@@ -1,5 +1,6 @@
 import {
   MAINNET_RELAY_API,
+  RelayClient,
   setParams,
   type paths
 } from '@reservoir0x/relay-sdk'
@@ -34,14 +35,15 @@ export const queryRelayConfig = function (
 }
 
 export default function (
-  baseApiUrl?: string,
+  client?: RelayClient,
   options?: ConfigQuery,
   queryOptions?: Partial<QueryOptions>
 ) {
   const response = (useQuery as QueryType)({
     queryKey: ['useRelayConfig', options],
-    queryFn: () => queryRelayConfig(baseApiUrl, options),
+    queryFn: () => queryRelayConfig(client?.baseApiUrl, options),
     retry: false,
+    enabled: client !== undefined && options !== undefined,
     ...queryOptions
   })
 
