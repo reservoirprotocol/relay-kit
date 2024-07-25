@@ -200,10 +200,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   const details = quote?.details
 
   const fromAmountFormatted = details?.currencyIn?.amount
-    ? formatBN(details?.currencyIn?.amount, 5, fromToken?.decimals)
+    ? formatBN(details?.currencyIn?.amount, 6, fromToken?.decimals, false)
     : ''
   const toAmountFormatted = details?.currencyOut?.amount
-    ? formatBN(details?.currencyOut.amount, 5, toToken?.decimals)
+    ? formatBN(details?.currencyOut.amount, 6, toToken?.decimals, false)
     : ''
 
   const isReviewQuoteStep = progressStep === TransactionProgressStep.ReviewQuote
