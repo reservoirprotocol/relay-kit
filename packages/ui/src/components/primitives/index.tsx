@@ -4,8 +4,10 @@ import Button from './Button.js'
 import Text from './Text.js'
 import Skeleton from './Skeleton.js'
 import ChainIcon from './ChainIcon.js'
+import CurrencyIcon from './CurrencyIcon.js'
 import { ChainTokenIcon } from './ChainTokenIcon.js'
 import { Pill } from './Pill.js'
+
 import { default as Anchor } from './Anchor.js'
 import { default as Input } from './Input.js'
 
@@ -19,5 +21,6 @@ export {
   ChainTokenIcon,
   Pill,
   Anchor,
-  Input
+  Input,
+  CurrencyIcon
 }

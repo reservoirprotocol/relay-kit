@@ -75,9 +75,26 @@ export type ChildrenProps = {
   fromBalanceIsLoading: boolean
   toBalance: bigint | undefined
   toBalanceIsLoading: boolean
+  addressModalOpen: boolean
+  setAddressModalOpen: Dispatch<React.SetStateAction<boolean>>
+  address?: `0x${string}`
+  customToAddress?: `0x${string}`
+  recipient?: `0x${string}`
+  toDisplayName?: string
+  setCustomToAddress: Dispatch<React.SetStateAction<`0x${string}` | undefined>>
+  hiddenCurrencies: string[]
   hasInsufficientBalance: boolean
+  usdPrice: number
+  isAboveCapacity: boolean
+  availableAmount: bigint | null
   maxAmount: bigint | null
+  canonicalBridgeSupported?: boolean
+  feesOpen: boolean
+  setFeesOpen: Dispatch<React.SetStateAction<boolean>>
+  isReward: boolean
   timeEstimate?: { time: number; formattedTime: string }
+  transactionFee: ReturnType<typeof calculateTransactionFee>
+  feeBreakdown: ReturnType<typeof parseFees>
   ctaCopy: string
 }
 
@@ -96,9 +113,11 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const relayClient = useRelayClient()
   const { address, connector } = useAccount()
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
     defaultToAddress
   )
+  const [feesOpen, setFeesOpen] = useState(false)
   const [useExternalLiquidity, setUseExternalLiquidity] =
     useState<boolean>(false)
   const recipient = customToAddress ?? address
@@ -156,6 +175,12 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
       !fromChain.depositEnabled ? chain.id !== fromChain.id : true
     )
   }, [relayClient?.chains, fromChain.depositEnabled, toChain.id])
+
+  const hiddenCurrencies = relayClient?.chains.find(
+    (chain) => chain.id === 666666666
+  )
+    ? []
+    : ['degen']
 
   const {
     value: fromEthBalance,
@@ -445,9 +470,26 @@ const BridgeWidgetRenderer: FC<BridgeWidgetRendererProps> = ({
         fromBalanceIsLoading,
         toBalance,
         toBalanceIsLoading,
+        addressModalOpen,
+        setAddressModalOpen,
+        address,
+        customToAddress,
+        recipient,
+        toDisplayName,
+        setCustomToAddress,
         hasInsufficientBalance,
+        isAboveCapacity,
+        hiddenCurrencies,
+        usdPrice,
+        availableAmount,
+        canonicalBridgeSupported,
         maxAmount,
+        feesOpen,
+        setFeesOpen,
         timeEstimate,
+        isReward,
+        transactionFee,
+        feeBreakdown,
         ctaCopy
       })}
     </>
