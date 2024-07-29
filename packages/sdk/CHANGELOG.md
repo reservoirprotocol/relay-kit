@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.12
+
+### Patch Changes
+
+- ec9b20f: Add supportsBridging to Relay Chain
+
 ## 1.0.11
 
 ### Patch Changes
