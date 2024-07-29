@@ -39,6 +39,7 @@ export interface paths {
                     symbol?: string;
                     name?: string;
                     decimals?: number;
+                    supportsBridging?: boolean;
                   };
                   /** @description The fee in bps for withdrawing from this chain */
                   withdrawalFee?: number;
@@ -53,6 +54,8 @@ export interface paths {
                       name?: string;
                       address?: string;
                       decimals?: number;
+                      /** @description If the currency supports bridging */
+                      supportsBridging?: boolean;
                       /** @description If the erc20 currency supports permit via signature (EIP-2612) */
                       supportsPermit?: boolean;
                       /** @description The fee in bps for withdrawing from this chain */
