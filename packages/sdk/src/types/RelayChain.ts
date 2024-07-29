@@ -23,6 +23,7 @@ export type RelayChain = {
     symbol?: string
     name?: string
     decimals?: number
+    supportsBridging?: boolean
   }
   depositEnabled?: boolean
   blockProductionLagging?: boolean
