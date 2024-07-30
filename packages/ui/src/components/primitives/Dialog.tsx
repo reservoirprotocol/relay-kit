@@ -137,9 +137,6 @@ const AnimatedContent = forwardRef<
         key={isMobile + 'modal'}
         ref={forwardedRef}
         transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.3 }}
-        style={{
-          transition: 'opacity ease-in 0.2s'
-        }}
         {...animation}
       >
         {children}
