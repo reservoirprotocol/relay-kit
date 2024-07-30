@@ -181,7 +181,7 @@ export const TransactionModalRenderer: FC<Props> = ({
                   debouncedOutputAmountValue,
                   toToken.decimals
                 ).toString(),
-          source: relayClient?.source ?? undefined,
+          referrer: relayClient?.source ?? undefined,
           useExternalLiquidity
         }
       : undefined,

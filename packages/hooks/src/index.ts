@@ -18,4 +18,4 @@ export {
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'
 export type { PriceResponse } from './hooks/usePrice.js'
-export type { ExecuteSwapResponse } from './hooks/useQuote.js'
+export type { QuoteResponse } from './hooks/useQuote.js'

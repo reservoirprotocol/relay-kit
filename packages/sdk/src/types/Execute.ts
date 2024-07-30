@@ -11,8 +11,8 @@ export type CheckApi = NonNullable<
     paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['steps']
   >['0']['items']
 >[0]['check']
-export type ExecuteDetails = NonNullable<
-  paths['/execute/swap']['post']['responses']['200']['content']['application/json']['details']
+export type QuoteDetails = NonNullable<
+  paths['/quote']['post']['responses']['200']['content']['application/json']['details']
 >
 
 export type TransactionStepState = 'confirming' | 'validating' | 'complete'
@@ -26,7 +26,7 @@ export type Execute = {
   errors?: { message?: string; orderId?: string }[]
   fees?: CallFees
   breakdown?: CallBreakdown
-  details?: ExecuteDetails
+  details?: QuoteDetails
   error?: any // Manually added client error
 
   steps: {
