@@ -1,5 +1,77 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.16
+
+### Patch Changes
+
+- Updated dependencies [ec9b20f]
+  - @reservoir0x/relay-sdk@1.0.12
+  - @reservoir0x/relay-kit-hooks@1.0.18
+
+## 1.1.15
+
+### Patch Changes
+
+- Updated dependencies [92b9c71]
+  - @reservoir0x/relay-sdk@1.0.11
+  - @reservoir0x/relay-kit-hooks@1.0.17
+
+## 1.1.14
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+- Updated dependencies [fac3415]
+  - @reservoir0x/relay-kit-hooks@1.0.16
+
+## 1.1.13
+
+### Patch Changes
+
+- 5acf10e: Fix swap widget cta bug
+
+## 1.1.12
+
+### Patch Changes
+
+- 23b528c: Remove compact formatting from review quote
+
+## 1.1.11
+
+### Patch Changes
+
+- 00da309: Decouple dune balance loading from token selector
+
+## 1.1.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- af694ab: Fix dollar formatting sub 0 and price impact spacing
+- e231382: Color coding price impact
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-kit-hooks@1.0.15
+  - @reservoir0x/relay-sdk@1.0.10
+
+## 1.1.9
+
+### Patch Changes
+
+- b3432f4: Fix dropdown item hover color
+
+## 1.1.8
+
+### Patch Changes
+
+- 3648ec3: Better contextualize actions based on operation
+- ea3e6c5: Only show fill time on success page if sub 10s
+- d5b3f82: Export TokenSelector component
+- Updated dependencies [3648ec3]
+- Updated dependencies [be74a6a]
+  - @reservoir0x/relay-sdk@1.0.9
+  - @reservoir0x/relay-kit-hooks@1.0.14
+
 ## 1.1.7
 
 ### Patch Changes

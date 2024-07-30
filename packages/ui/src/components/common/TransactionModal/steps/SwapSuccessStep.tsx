@@ -20,6 +20,7 @@ import { type Token } from '../../../../types/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../../hooks/index.js'
 import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
+import type { Execute } from '@reservoir0x/relay-sdk'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -32,6 +33,7 @@ type SwapSuccessStepProps = {
   fillTime: string
   timeEstimate?: string
   isCanonical?: boolean
+  details?: Execute['details'] | null
   onOpenChange: (open: boolean) => void
 }
 
@@ -46,17 +48,12 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   seconds,
   timeEstimate,
   isCanonical,
+  details,
   onOpenChange
 }) => {
   const relayClient = useRelayClient()
-  const isWrap =
-    fromToken?.symbol === 'ETH' &&
-    toToken?.symbol === 'WETH' &&
-    fromToken.chainId === toToken.chainId
-  const isUnwrap =
-    fromToken?.symbol === 'WETH' &&
-    toToken?.symbol === 'ETH' &&
-    fromToken.chainId === toToken.chainId
+  const isWrap = details?.operation === 'wrap'
+  const isUnwrap = details?.operation === 'unwrap'
 
   const actionTitle = isWrap ? 'wrapped' : isUnwrap ? 'unwrapped' : 'swapped'
   const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')

@@ -28,12 +28,25 @@ export interface paths {
                   explorerName?: string;
                   /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
+                  /** @description If relaying to and from this chain is disabled */
+                  disabled?: boolean;
+                  /** @description The value limit at which the chain is partially disabled, if 0, the chain is not partially disabled. i.e, 1000000000000000000 to designate 1 ETH max withdrawal/deposit */
+                  partialDisableLimit?: number;
+                  /** @description If the chain is experiencing issues where blocks are lagging behind or not being produced */
+                  blockProductionLagging?: boolean;
                   currency?: {
                     id?: string;
                     symbol?: string;
                     name?: string;
                     decimals?: number;
+                    supportsBridging?: boolean;
                   };
+                  /** @description The fee in bps for withdrawing from this chain */
+                  withdrawalFee?: number;
+                  /** @description The fee in bps for depositing to this chain */
+                  depositFee?: number;
+                  /** @description If the chain has surge pricing enabled */
+                  surgeEnabled?: boolean;
                   /** @description An array of erc20 currencies that the chain supports */
                   erc20Currencies?: {
                       id?: string;
@@ -41,245 +54,18 @@ export interface paths {
                       name?: string;
                       address?: string;
                       decimals?: number;
+                      /** @description If the currency supports bridging */
+                      supportsBridging?: boolean;
                       /** @description If the erc20 currency supports permit via signature (EIP-2612) */
                       supportsPermit?: boolean;
+                      /** @description The fee in bps for withdrawing from this chain */
+                      withdrawalFee?: number;
+                      /** @description The fee in bps for depositing to this chain */
+                      depositFee?: number;
+                      /** @description If the chain has surge pricing enabled */
+                      surgeEnabled?: boolean;
                     }[];
                 }[];
-            };
-          };
-        };
-      };
-    };
-  };
-  "/admin/chains": {
-    get: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              chains?: ({
-                  id?: number;
-                  name?: string;
-                  httpRpcUrl?: string;
-                  wsRpcUrl?: string | null;
-                  targetBalance?: string;
-                  capacityPerRequest?: string;
-                  feeBpsPrice?: string | null;
-                  stack?: string | null;
-                  httpRpcUrlPublic?: string | null;
-                  wsRpcUrlPublic?: string | null;
-                  explorerUrl?: string | null;
-                  explorerName?: string | null;
-                  displayName?: string | null;
-                  depositAddress?: string | null;
-                  baseChainId?: number | null;
-                  enabled?: boolean;
-                  rebalancePercentage?: string | null;
-                  bufferPercentage?: string | null;
-                  private?: boolean | null;
-                  metadata?: {
-                    [key: string]: unknown;
-                  } | null;
-                })[];
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/chains/add": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            id: number;
-            name: string;
-            httpRpcUrl: string;
-            wsRpcUrl: string;
-            targetBalance: string;
-            capacityPerRequest: string;
-            partialCapacityPerRequestAmount: string;
-            feeBpsPrice?: string;
-            stack?: string;
-            httpRpcUrlPublic: string;
-            wsRpcUrlPublic: string;
-            explorerUrl: string;
-            explorerName: string;
-            displayName: string;
-            depositAddress?: string;
-            baseChainId: number;
-            rebalancePercentage?: string;
-            bufferPercentage?: string;
-            private?: boolean;
-            active?: boolean;
-            metadata?: Record<string, never>;
-            /** @enum {string} */
-            nativeCurrency: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        500: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/chains/update": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            id: number;
-            name?: string;
-            httpRpcUrl?: string;
-            wsRpcUrl?: string;
-            targetBalance?: string;
-            capacityPerRequest?: string;
-            partialCapacityPerRequestAmount?: string;
-            feeBpsPrice?: string;
-            stack?: string;
-            httpRpcUrlPublic?: string;
-            wsRpcUrlPublic?: string;
-            explorerUrl?: string;
-            explorerName?: string;
-            displayName?: string;
-            depositAddress?: string;
-            baseChainId?: number;
-            rebalancePercentage?: string;
-            bufferPercentage?: string;
-            private?: boolean;
-            active?: boolean;
-            metadata?: Record<string, never>;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        500: {
-          content: {
-            "application/json": {
-              message?: string;
-              code?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/chains/status": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody?: {
-        content: {
-          "application/json": {
-            chainId?: number;
-            enabled?: boolean;
-            partialDisable?: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
             };
           };
         };
@@ -334,7 +120,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
         };
       };
       responses: {
@@ -349,6 +135,8 @@ export interface paths {
                 /** @description Maximum amount that the user can bridge after fees in the native or supplied currency */
                 maxBridgeAmount?: string;
               };
+              /** @description Total fee in the native or supplied currency for the bridge operation */
+              fee?: string;
               solver?: {
                 address?: string;
                 /** @description Balance of the solver on the destination chain. Denoted in wei */
@@ -385,7 +173,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -484,7 +272,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -495,10 +283,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -560,7 +348,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher";
+            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -984,7 +772,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher";
+                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -995,10 +783,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher";
+                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
               };
               /**
                * @example {
@@ -1405,62 +1193,6 @@ export interface paths {
       };
     };
   };
-  "/execute/permits": {
-    post: {
-      parameters: {
-        query: {
-          signature: string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            kind: string;
-            requestId: string;
-            /** @enum {string} */
-            api?: "bridge" | "swap" | "user-swap";
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-              steps?: {
-                  id?: string;
-                  action?: string;
-                  description?: string;
-                  kind?: string;
-                  items?: {
-                      status?: string;
-                      data?: {
-                        to?: string;
-                        data?: string;
-                        value?: string;
-                        chainId?: number;
-                      };
-                      check?: {
-                        endpoint?: string;
-                        method?: string;
-                      };
-                    }[];
-                }[];
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-      };
-    };
-  };
   "/execute/swap": {
     post: {
       requestBody: {
@@ -1772,6 +1504,12 @@ export interface paths {
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
               details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
+                /** @description Estimated swap time in seconds */
+                timeEstimate?: number;
+                /** @description The user's balance in the given currency on the origin chain */
+                userBalance?: string;
                 /** @description The address that deposited the funds */
                 sender?: string;
                 /** @description The address that will be receiving the swap output */
@@ -1905,6 +1643,997 @@ export interface paths {
       };
     };
   };
+  "/execute/magic-spend/deposit": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            user: string;
+            originChainId: number;
+            /** @enum {string} */
+            currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
+            amount: string;
+            useForwarder?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              steps: {
+                  id: string;
+                  action: string;
+                  description: string;
+                  kind?: string;
+                  items: {
+                      status: string;
+                      data: unknown;
+                    }[];
+                }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/execute/magic-spend/request": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            version?: "v0.6";
+            chainId: number;
+            userOp: {
+              sender: string;
+              nonce: string;
+              initCode: string;
+              callData: string;
+              callGasLimit: number;
+              verificationGasLimit: number;
+              preVerificationGas: number;
+              maxFeePerGas: number;
+              maxPriorityFeePerGas: number;
+              paymasterAndData: string;
+              signature: string;
+            };
+            assets: ({
+                /** @enum {string} */
+                currencyId: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop";
+                amount: string;
+              })[];
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              withdrawRequests: {
+                  signature: string;
+                  asset: string;
+                  amount: string;
+                  nonce: string;
+                  expiry: number;
+                }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/execute/permits": {
+    post: {
+      parameters: {
+        query: {
+          signature: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            kind: string;
+            requestId: string;
+            /** @enum {string} */
+            api?: "bridge" | "swap" | "user-swap";
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+              steps?: {
+                  id?: string;
+                  action?: string;
+                  description?: string;
+                  kind?: string;
+                  items?: {
+                      status?: string;
+                      data?: {
+                        to?: string;
+                        data?: string;
+                        value?: string;
+                        chainId?: number;
+                      };
+                      check?: {
+                        endpoint?: string;
+                        method?: string;
+                      };
+                    }[];
+                }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/quote": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @description Address that is depositing funds on the origin chain and submitting transactions or signatures */
+            user: string;
+            /** @description Address that is receiving the funds on the destination chain, if not specified then this will default to the user address */
+            recipient?: string;
+            originChainId: number;
+            destinationChainId: number;
+            originCurrency: string;
+            destinationCurrency: string;
+            /** @description Amount to swap as the base amount (can be switched to exact input/output using the dedicated flag), denoted in the smallest unit of the specified currency (e.g., wei for ETH) */
+            amount: string;
+            /**
+             * @description Whether to use the amount as the output or the input for the basis of the swap
+             * @enum {string}
+             */
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            txs?: {
+                to?: string;
+                value?: string;
+                data?: string;
+              }[];
+            referrer?: string;
+            /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
+            refundTo?: string;
+            /** @description Always refund on the origin chain in case of any issues */
+            refundOnOrigin?: boolean;
+            /**
+             * @description Enable this to route payments via a receiver contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @default true
+             */
+            useReceiver?: boolean;
+            /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
+            useExternalLiquidity?: boolean;
+            /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
+            usePermit?: boolean;
+            /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
+            slippageTolerance?: string;
+            appFees?: {
+                /** @description Address that will receive the app fee, if not specified then the user address is used */
+                recipient?: string;
+                /** @description App fees to be charged for execution in basis points, e.g. 100 = 1% */
+                fee?: string;
+              }[];
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /**
+               * @description An array of steps detailing what needs to be done to bridge, steps includes multiple items of the same kind (signature, transaction, etc)
+               * @example [
+               *   {
+               *     "id": "deposit",
+               *     "action": "Confirm transaction in your wallet",
+               *     "description": "Depositing funds to the relayer to execute the swap for USDC",
+               *     "kind": "transaction",
+               *     "requestId": "0x92b99e6e1ee1deeb9531b5ad7f87091b3d71254b3176de9e8b5f6c6d0bd3a331",
+               *     "items": [
+               *       {
+               *         "status": "incomplete",
+               *         "data": {
+               *           "from": "0x0CccD55A5Ac261Ea29136831eeaA93bfE07f5Db6",
+               *           "to": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+               *           "data": "0x00fad611",
+               *           "value": "1000000000000000000",
+               *           "maxFeePerGas": "12205661344",
+               *           "maxPriorityFeePerGas": "2037863396",
+               *           "chainId": 1
+               *         },
+               *         "check": {
+               *           "endpoint": "/intents/status?requestId=0x92b99e6e1ee1deeb9531b5ad7f87091b3d71254b3176de9e8b5f6c6d0bd3a331",
+               *           "method": "GET"
+               *         }
+               *       }
+               *     ]
+               *   }
+               * ]
+               */
+              steps?: {
+                  /** @description Unique identifier tied to the step */
+                  id?: string;
+                  /** @description A call to action for the step */
+                  action?: string;
+                  /** @description A short description of the step and what it entails */
+                  description?: string;
+                  /** @description The kind of step, can either be a transaction or a signature. Transaction steps require submitting a transaction while signature steps require submitting a signature */
+                  kind?: string;
+                  /** @description A unique identifier for this step, tying all related transactions together */
+                  requestId?: string;
+                  /** @description While uncommon it is possible for steps to contain multiple items of the same kind (transaction/signature) grouped together that can be executed simultaneously. */
+                  items?: {
+                      /** @description Can either be complete or incomplete, this can be locally controlled once the step item is completed (depending on the kind) and the check object (if returned) has been verified. Once all step items are complete, the bridge is complete */
+                      status?: string;
+                      data?: unknown;
+                      /** @description Details an endpoint and a method you should poll to get confirmation, the endpoint should return a boolean success flag which can be used to determine if the step item is complete */
+                      check?: {
+                        /** @description The endpoint to confirm that the step item was successfully completed */
+                        endpoint?: string;
+                        /** @description The REST method to access the endpoint */
+                        method?: string;
+                      };
+                    }[];
+                }[];
+              fees?: {
+                /**
+                 * @description Origin chain gas fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                gas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Combination of the relayerGas and relayerService to give you the full relayer fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayer?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Destination chain gas fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayerGas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayerService?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                app?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+              };
+              /** @description A summary of the swap and what the user should expect to happen given an input */
+              details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
+                /** @description The address that deposited the funds */
+                sender?: string;
+                /** @description The address that will be receiving the swap output */
+                recipient?: string;
+                /**
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                currencyIn?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                currencyOut?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /** @description The difference between the input and output values, including fees */
+                totalImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The impact of the swap, not factoring in fees */
+                swapImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The swap rate which is equal to 1 input unit in the output unit, e.g. 1 USDC -> x ETH. This value can fluctuate based on gas and fees. */
+                rate?: string;
+                slippageTolerance?: {
+                  /** @description The slippage tolerance on the origin chain swap */
+                  origin?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                  /** @description The slippage tolerance on the destination chain swap */
+                  destination?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                };
+                /** @description Estimated swap time in seconds */
+                timeEstimate?: number;
+                /** @description The user's balance in the given currency on the origin chain */
+                userBalance?: string;
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/price": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @description Address that is depositing funds on the origin chain and submitting transactions or signatures */
+            user: string;
+            /** @description Address that is receiving the funds on the destination chain, if not specified then this will default to the user address */
+            recipient?: string;
+            originChainId: number;
+            destinationChainId: number;
+            originCurrency: string;
+            destinationCurrency: string;
+            /** @description Amount to swap as the base amount (can be switched to exact input/output using the dedicated flag), denoted in the smallest unit of the specified currency (e.g., wei for ETH) */
+            amount: string;
+            /**
+             * @description Whether to use the amount as the output or the input for the basis of the swap
+             * @enum {string}
+             */
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            txs?: {
+                to?: string;
+                value?: string;
+                data?: string;
+              }[];
+            referrer?: string;
+            /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
+            refundTo?: string;
+            /** @description Always refund on the origin chain in case of any issues */
+            refundOnOrigin?: boolean;
+            /**
+             * @description Enable this to route payments via a receiver contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
+             * @default true
+             */
+            useReceiver?: boolean;
+            /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
+            useExternalLiquidity?: boolean;
+            /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
+            usePermit?: boolean;
+            /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
+            slippageTolerance?: string;
+            appFees?: {
+                /** @description Address that will receive the app fee, if not specified then the user address is used */
+                recipient?: string;
+                /** @description App fees to be charged for execution in basis points, e.g. 100 = 1% */
+                fee?: string;
+              }[];
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              fees?: {
+                /**
+                 * @description Origin chain gas fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                gas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Combination of the relayerGas and relayerService to give you the full relayer fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayer?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Destination chain gas fee
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayerGas?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                relayerService?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                app?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+              };
+              /** @description A summary of the swap and what the user should expect to happen given an input */
+              details?: {
+                /** @description The operation that will be performed, possible options are send, swap, wrap, unwrap, bridge */
+                operation?: string;
+                /** @description The address that deposited the funds */
+                sender?: string;
+                /** @description The address that will be receiving the swap output */
+                recipient?: string;
+                /**
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                currencyIn?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /**
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612"
+                 * }
+                 */
+                currencyOut?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                };
+                /** @description The difference between the input and output values, including fees */
+                totalImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The impact of the swap, not factoring in fees */
+                swapImpact?: {
+                  usd?: string;
+                  percent?: string;
+                };
+                /** @description The swap rate which is equal to 1 input unit in the output unit, e.g. 1 USDC -> x ETH. This value can fluctuate based on gas and fees. */
+                rate?: string;
+                slippageTolerance?: {
+                  /** @description The slippage tolerance on the origin chain swap */
+                  origin?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                  /** @description The slippage tolerance on the destination chain swap */
+                  destination?: {
+                    usd?: string;
+                    value?: string;
+                    percent?: string;
+                  };
+                };
+                /** @description Estimated swap time in seconds */
+                timeEstimate?: number;
+                /** @description The user's balance in the given currency on the origin chain */
+                userBalance?: string;
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/lives": {
     get: {
       responses: {
@@ -2004,6 +2733,8 @@ export interface paths {
           destinationChainId?: string;
           privateChainsToInclude?: string;
           id?: string;
+          startTimestamp?: number;
+          endTimestamp?: number;
         };
       };
       responses: {
@@ -2092,12 +2823,7 @@ export interface paths {
                     inTxs?: {
                         /** @description Total fees in wei */
                         fee?: string;
-                        data?: {
-                          to?: string;
-                          data?: string;
-                          from?: string;
-                          value?: string;
-                        };
+                        data?: unknown;
                         hash?: string;
                         /** @description The type of transaction, always set to onchain */
                         type?: string;
@@ -2105,6 +2831,7 @@ export interface paths {
                         timestamp?: number;
                       }[];
                     currency?: string;
+                    feeCurrency?: string;
                     appFees?: {
                         recipient?: string;
                         amount?: string;
@@ -2192,12 +2919,7 @@ export interface paths {
                     outTxs?: {
                         /** @description Total fees in wei */
                         fee?: string;
-                        data?: {
-                          to?: string;
-                          data?: string;
-                          from?: string;
-                          value?: string;
-                        };
+                        data?: unknown;
                         hash?: string;
                         /** @description The type of transaction, always set to onchain */
                         type?: string;
@@ -2259,68 +2981,6 @@ export interface paths {
           content: {
             "application/json": {
               status?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/admin/rebalance": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/admin/tx-confirmation-delay": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody?: {
-        content: {
-          "application/json": {
-            delay?: number;
-            threshold?: number;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
             };
           };
         };
@@ -2409,6 +3069,7 @@ export interface paths {
               USDC?: number;
               XAI?: number;
               SIPHER?: number;
+              TG7?: number;
             };
           };
         };
@@ -2465,7 +3126,9 @@ export interface paths {
     get: {
       parameters: {
         query: {
+          /** @description Token address to get price for */
           address: string;
+          /** @description Chain ID of the token */
           chainId: number;
         };
       };
@@ -2474,6 +3137,7 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              /** @description Token price in USD */
               price?: number;
             };
           };
@@ -2482,123 +3146,8 @@ export interface paths {
         400: {
           content: {
             "application/json": {
+              /** @description Error message */
               error?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/currencies/add": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            chainId: number;
-            address: string;
-            symbol: string;
-            name: string;
-            decimals: number;
-            logoURI: string;
-            verified: boolean;
-            isNative: boolean;
-            groupID: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        500: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/currencies/update": {
-    post: {
-      parameters: {
-        header: {
-          "x-admin-api-key": string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            chainId: number;
-            address: string;
-            symbol?: string;
-            name?: string;
-            decimals?: number;
-            logoURI?: string;
-            verified?: boolean;
-            isNative?: boolean;
-            groupID?: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              message?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        500: {
-          content: {
-            "application/json": {
-              message?: string;
             };
           };
         };

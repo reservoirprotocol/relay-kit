@@ -1,5 +1,31 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.12
+
+### Patch Changes
+
+- ec9b20f: Add supportsBridging to Relay Chain
+
+## 1.0.11
+
+### Patch Changes
+
+- 92b9c71: Sync api types
+
+## 1.0.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- 2d22eec: Add usePrice hook
+
+## 1.0.9
+
+### Patch Changes
+
+- 3648ec3: Better contextualize actions based on operation
+- be74a6a: Add blockProductionLagging to RelayChain
+
 ## 1.0.8
 
 ### Patch Changes

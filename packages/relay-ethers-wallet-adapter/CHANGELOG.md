@@ -1,5 +1,36 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies [ec9b20f]
+  - @reservoir0x/relay-sdk@1.0.12
+
+## 9.0.11
+
+### Patch Changes
+
+- Updated dependencies [92b9c71]
+  - @reservoir0x/relay-sdk@1.0.11
+
+## 9.0.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-sdk@1.0.10
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies [3648ec3]
+- Updated dependencies [be74a6a]
+  - @reservoir0x/relay-sdk@1.0.9
+
 ## 9.0.8
 
 ### Patch Changes

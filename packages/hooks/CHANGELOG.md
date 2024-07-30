@@ -1,5 +1,43 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.0.18
+
+### Patch Changes
+
+- Updated dependencies [ec9b20f]
+  - @reservoir0x/relay-sdk@1.0.12
+
+## 1.0.17
+
+### Patch Changes
+
+- Updated dependencies [92b9c71]
+  - @reservoir0x/relay-sdk@1.0.11
+
+## 1.0.16
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+
+## 1.0.15
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- 2d22eec: Add usePrice hook
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-sdk@1.0.10
+
+## 1.0.14
+
+### Patch Changes
+
+- Updated dependencies [3648ec3]
+- Updated dependencies [be74a6a]
+  - @reservoir0x/relay-sdk@1.0.9
+
 ## 1.0.13
 
 ### Patch Changes
