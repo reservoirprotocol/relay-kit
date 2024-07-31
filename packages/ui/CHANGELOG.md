@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.17
+
+### Patch Changes
+
+- f66e0f5: Fix safari modal animation flickering bug
+- 87239fa: Add defaultExternalChainToken to Chain Widget
+
 ## 1.1.16
 
 ### Patch Changes
