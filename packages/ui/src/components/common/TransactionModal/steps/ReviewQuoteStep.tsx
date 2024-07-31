@@ -4,7 +4,8 @@ import {
   Flex,
   Text,
   ChainTokenIcon,
-  Skeleton
+  Skeleton,
+  Box
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
@@ -16,6 +17,7 @@ import { truncateAddress } from '../../../../utils/truncate.js'
 import { calculatePriceTimeEstimate } from '../../../../utils/quote.js'
 import {
   faClock,
+  faExclamationCircle,
   faGasPump,
   faInfoCircle,
   faTriangleExclamation
@@ -59,6 +61,10 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const connectedWalletIsNotRecipient =
     quote && address !== quote?.details?.recipient
+
+  const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
+  const totalImpactUsd = quote?.details?.totalImpact?.usd
+  const showHighPriceImpactError = isHighPriceImpact && totalImpactUsd
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
@@ -136,10 +142,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                   style="subtitle2"
                   color="subtle"
                   css={{
-                    color:
-                      Number(quote?.details?.totalImpact?.percent) < -3
-                        ? 'red9'
-                        : undefined
+                    color: isHighPriceImpact ? 'red9' : undefined
                   }}
                 >
                   {feeBreakdown?.totalFees?.priceImpactPercentage}
@@ -217,7 +220,12 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           {isFetchingQuote ? (
             <Skeleton css={{ height: 24, width: '100%' }} />
           ) : (
-            <Text style="h6">
+            <Text
+              style="h6"
+              css={{
+                color: showHighPriceImpactError ? 'red11' : undefined
+              }}
+            >
               {toAmountFormatted} {toToken?.symbol}
             </Text>
           )}
@@ -225,7 +233,13 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <Skeleton css={{ height: 18, width: '100%' }} />
           ) : details?.currencyOut?.amountUsd &&
             Number(details?.currencyOut?.amountUsd) > 0 ? (
-            <Text style="subtitle3" color="subtle">
+            <Text
+              style="subtitle3"
+              color="subtle"
+              css={{
+                color: showHighPriceImpactError ? 'red11' : undefined
+              }}
+            >
               {formatDollar(Number(details?.currencyOut?.amountUsd))}
             </Text>
           ) : null}
@@ -287,6 +301,26 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           </React.Fragment>
         ))}
       </Flex>
+      {showHighPriceImpactError ? (
+        <Flex
+          align="center"
+          css={{
+            gap: '2',
+            py: '2',
+            px: '3',
+            backgroundColor: 'red2',
+            borderRadius: 12
+          }}
+        >
+          <Box css={{ color: 'red9' }}>
+            <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+          </Box>
+          <Text style="subtitle3" css={{ color: 'amber12' }}>
+            Due to high price impact, you will lose{' '}
+            {`${formatDollar(Math.abs(Number(totalImpactUsd)))}`} on this trade.
+          </Text>
+        </Flex>
+      ) : null}
       {isFetchingQuote || isRefetchingQuote ? (
         <Text
           style="subtitle2"
@@ -317,6 +351,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
         css={{
           justifyContent: 'center'
         }}
+        color={showHighPriceImpactError ? 'error' : 'primary'}
         disabled={isFetchingQuote || isRefetchingQuote || waitingForSteps}
         onClick={() => swap?.()}
       >
