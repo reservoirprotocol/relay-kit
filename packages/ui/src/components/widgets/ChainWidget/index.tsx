@@ -28,6 +28,7 @@ import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 type ChainWidgetProps = {
   chainId: number
   defaultToken: Token
+  defaultExternalChainToken?: Token
   tokens?: Token[]
   defaultToAddress?: Address
   defaultAmount?: string
@@ -44,6 +45,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   chainId,
   tokens,
   defaultToken,
+  defaultExternalChainToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
@@ -70,6 +72,19 @@ const ChainWidget: FC<ChainWidgetProps> = ({
     }
   }, [chainId, defaultToken])
 
+  const defaultFromToken =
+    defaultExternalChainToken ??
+    (chainId !== defaultChainId
+      ? {
+          chainId: defaultChainId,
+          address: zeroAddress,
+          symbol: 'ETH',
+          name: 'ETH',
+          decimals: 18,
+          logoURI: 'https://assets.relay.link/icons/square/1/light.png'
+        }
+      : undefined)
+
   return (
     <SwapWidgetRenderer
       transactionModalOpen={transactionModalOpen}
@@ -77,18 +92,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
       defaultToToken={defaultToken}
-      defaultFromToken={
-        chainId !== defaultChainId
-          ? {
-              chainId: defaultChainId,
-              address: zeroAddress,
-              symbol: 'ETH',
-              name: 'ETH',
-              decimals: 18,
-              logoURI: 'https://assets.relay.link/icons/square/1/light.png'
-            }
-          : undefined
-      }
+      defaultFromToken={defaultFromToken}
       fetchSolverConfig={true}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
