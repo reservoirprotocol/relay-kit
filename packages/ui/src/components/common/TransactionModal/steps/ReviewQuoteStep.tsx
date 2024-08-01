@@ -5,7 +5,8 @@ import {
   Text,
   ChainTokenIcon,
   Skeleton,
-  Box
+  Box,
+  Anchor
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
@@ -18,6 +19,7 @@ import { calculatePriceTimeEstimate } from '../../../../utils/quote.js'
 import {
   faClock,
   faExclamationCircle,
+  faExternalLink,
   faGasPump,
   faInfoCircle,
   faTriangleExclamation
@@ -26,6 +28,7 @@ import type { ChildrenProps } from '../TransactionModalRenderer.js'
 import { useAccount } from 'wagmi'
 import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'
 import React from 'react'
+import { useRelayClient } from '../../../../hooks/index.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -56,6 +59,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   fromAmountFormatted,
   toAmountFormatted
 }) => {
+  const client = useRelayClient()
   const { address } = useAccount()
   const details = quote?.details
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
@@ -65,6 +69,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
   const showHighPriceImpactError = isHighPriceImpact && totalImpactUsd
+
+  const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
@@ -90,9 +96,14 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     {
       title: 'To address',
       value: (
-        <Text style="subtitle2">
+        <Anchor
+          target="_blank"
+          href={`${toChain?.explorerUrl}/address/${quote?.details?.recipient}`}
+          css={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
           {truncateAddress(quote?.details?.recipient)}
-        </Text>
+          <FontAwesomeIcon icon={faExternalLink} width={14} />
+        </Anchor>
       )
     },
     {
@@ -142,7 +153,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                   style="subtitle2"
                   color="subtle"
                   css={{
-                    color: isHighPriceImpact ? 'red9' : undefined
+                    color: isHighPriceImpact ? 'red11' : undefined
                   }}
                 >
                   {feeBreakdown?.totalFees?.priceImpactPercentage}
