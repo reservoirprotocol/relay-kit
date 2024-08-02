@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.0.13
+
+### Patch Changes
+
+- b342c8d: Add support for iconUrl chain icon override
+
 ## 1.0.12
 
 ### Patch Changes
