@@ -28,5 +28,8 @@ export type RelayChain = {
   depositEnabled?: boolean
   blockProductionLagging?: boolean
   erc20Currencies?: Erc20Currencies
+  iconUrl?: string | null
+  logoUrl?: string | null
+  brandColor?: string | null
   viemChain: Chain
 }
