@@ -68,6 +68,13 @@ const ButtonCss = cva({
           filter: 'brightness(97%)'
         },
         border: '1px solid var(--borderColor)'
+      },
+      error: {
+        backgroundColor: 'red9',
+        color: 'white',
+        '&:hover': {
+          backgroundColor: 'red10'
+        }
       }
     },
     corners: {
