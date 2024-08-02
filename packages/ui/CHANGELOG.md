@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.1.18
+
+### Patch Changes
+
+- efd44d6: Add price impact warning to review quote ux
+- b342c8d: Add support for iconUrl chain icon override
+- Updated dependencies [b342c8d]
+  - @reservoir0x/relay-sdk@1.0.13
+  - @reservoir0x/relay-kit-hooks@1.0.19
+
 ## 1.1.17
 
 ### Patch Changes
