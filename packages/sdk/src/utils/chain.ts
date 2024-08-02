@@ -60,10 +60,14 @@ export const configureViemChain = (
     ...chain,
     viemChain,
     icon: {
-      dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
-      light: `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
-      squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
-      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
+      dark: chain.iconUrl ?? `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
+      light: chain.iconUrl ?? `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
+      squaredDark:
+        chain.iconUrl ??
+        `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
+      squaredLight:
+        chain.iconUrl ??
+        `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
     }
   }
 }

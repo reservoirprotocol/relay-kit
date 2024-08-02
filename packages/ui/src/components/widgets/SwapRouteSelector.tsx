@@ -3,14 +3,14 @@ import { Box, Button, Flex, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-import { ASSETS_RELAY_API } from '@reservoir0x/relay-sdk'
+import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
 
 type Props = {
   supportsExternalLiquidity: boolean
   externalLiquidtySelected: boolean
   onExternalLiquidityChange: (externalLiquiditySelected: boolean) => void
   chainId: number
-  chainName: string
+  chain?: RelayChain
 }
 
 const SwapRouteSelector: FC<Props> = ({
@@ -18,10 +18,10 @@ const SwapRouteSelector: FC<Props> = ({
   externalLiquidtySelected,
   onExternalLiquidityChange,
   chainId,
-  chainName
+  chain
 }) => {
   const [open, setOpen] = useState(false)
-
+  const chainName = chain?.name ?? ''
   return (
     <Dropdown
       open={open}
@@ -77,7 +77,7 @@ const SwapRouteSelector: FC<Props> = ({
                 height="16"
                 src={
                   externalLiquidtySelected
-                    ? `${ASSETS_RELAY_API}/icons/square/${chainId}/light.png`
+                    ? chain?.icon?.squaredLight
                     : 'https://assets.relay.link/icons/square/1357/light.png'
                 }
                 style={{ borderRadius: 4, overflow: 'hidden' }}
@@ -150,7 +150,7 @@ const SwapRouteSelector: FC<Props> = ({
             <img
               width="16"
               height="16"
-              src={`${ASSETS_RELAY_API}/icons/square/${chainId}/light.png`}
+              src={chain?.icon?.squaredLight}
               style={{
                 borderRadius: 4,
                 overflow: 'hidden'
