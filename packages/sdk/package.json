@@ -32,7 +32,6 @@
     "test:ui": "vitest --ui"
   },
   "devDependencies": {
-    "@types/lodash-es": "^4.17.12",
     "@vitest/ui": "^1.6.0",
     "node-fetch": "^3.3.2",
     "rimraf": "^5.0.5",
