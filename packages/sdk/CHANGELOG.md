@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- 105d1b8: Switch from execute/swap to quote api
+
+### Patch Changes
+
+- c158099: Drop lodash cloneDeep in favor of native cloning
+
 ## 1.0.13
 
 ### Patch Changes
