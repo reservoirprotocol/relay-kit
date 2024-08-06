@@ -7,7 +7,6 @@ import {
 } from '../utils/index.js'
 import { type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import cloneDeep from 'lodash-es/cloneDeep.js'
 
 export type ExecuteActionParameters = {
   quote: Execute
@@ -49,9 +48,16 @@ export async function execute(data: ExecuteActionParameters) {
       throw new Error('Missing chainId from quote')
     }
 
-    const modifiableQuote = cloneDeep(quote)
+    function safeStructuredClone<T>(obj: T): T {
+      if (typeof structuredClone === 'function') {
+        return structuredClone(obj);
+      }
+      // Fallback implementation, for Chrome < 98 (before 2022)
+      return JSON.parse(JSON.stringify(obj));
+    }
 
-    const { request, ..._quote } = modifiableQuote
+    const { request, ...restOfQuote } = quote
+    const _quote = safeStructuredClone(restOfQuote)
 
     const data = await executeSteps(
       chainId,
