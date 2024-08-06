@@ -3,7 +3,8 @@ import { getClient } from '../client.js'
 import {
   executeSteps,
   adaptViemWallet,
-  getCurrentStepData
+  getCurrentStepData,
+  safeStructuredClone
 } from '../utils/index.js'
 import { type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
@@ -46,14 +47,6 @@ export async function execute(data: ExecuteActionParameters) {
 
     if (chainId === undefined) {
       throw new Error('Missing chainId from quote')
-    }
-
-    function safeStructuredClone<T>(obj: T): T {
-      if (typeof structuredClone === 'function') {
-        return structuredClone(obj);
-      }
-      // Fallback implementation, for Chrome < 98 (before 2022)
-      return JSON.parse(JSON.stringify(obj));
     }
 
     const { request, ...restOfQuote } = quote
