@@ -6,7 +6,7 @@ import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 
-type ExecuteSwapResponse = ReturnType<typeof useQuote>['data']
+type QuoteResponse = ReturnType<typeof useQuote>['data']
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -144,9 +144,7 @@ export const parseFees = (
   }
 }
 
-export const calculateRelayerFeeProportionUsd = (
-  quote?: ExecuteSwapResponse
-) => {
+export const calculateRelayerFeeProportionUsd = (quote?: QuoteResponse) => {
   const usdIn = quote?.details?.currencyIn?.amountUsd
     ? Number(quote.details.currencyIn.amountUsd)
     : null
@@ -173,7 +171,7 @@ export const calculateRelayerFeeProportion = (
   return 0n
 }
 
-export const isHighRelayerServiceFeeUsd = (quote?: ExecuteSwapResponse) => {
+export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
   const usdIn = quote?.details?.currencyIn?.amountUsd
     ? Number(quote.details.currencyIn.amountUsd)
     : null

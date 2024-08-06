@@ -66,7 +66,7 @@ describe('Should test the getQuote action.', () => {
 
     expect(axiosRequestSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: expect.stringContaining('execute/swap'),
+        url: expect.stringContaining('quote'),
         data: expect.objectContaining({
           user: '0x0000000000000000000000000000000000000000',
           destinationCurrency: '0x0000000000000000000000000000000000000000',
@@ -104,7 +104,7 @@ describe('Should test the getQuote action.', () => {
 
     expect(axiosRequestSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: expect.stringContaining('execute/swap'),
+        url: expect.stringContaining('quote'),
         data: expect.objectContaining({
           user: '0x0000000000000000000000000000000000000000',
           destinationCurrency: '0x0000000000000000000000000000000000000000',

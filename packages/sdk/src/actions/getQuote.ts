@@ -12,11 +12,11 @@ import { isViemWalletClient } from '../utils/viemWallet.js'
 import { getClient } from '../client.js'
 import type { AdaptedWallet, Execute, paths } from '../types/index.js'
 
-export type ExecuteBody = NonNullable<
-  paths['/execute/swap']['post']['requestBody']['content']['application/json']
+export type QuoteBody = NonNullable<
+  paths['/quote']['post']['requestBody']['content']['application/json']
 >
-export type ExecuteBodyOptions = Omit<
-  ExecuteBody,
+export type QuoteBodyOptions = Omit<
+  QuoteBody,
   | 'destinationChainId'
   | 'originChainId'
   | 'originCurrency'
@@ -30,12 +30,12 @@ export type GetQuoteParameters = {
   currency: string
   toChainId: number
   toCurrency: string
-  tradeType: ExecuteBodyOptions['tradeType']
+  tradeType: QuoteBodyOptions['tradeType']
   wallet?: AdaptedWallet | WalletClient
   amount?: string
   recipient?: Address
-  options?: Omit<ExecuteBodyOptions, 'user' | 'source' | 'txs' | 'tradeType'>
-  txs?: (NonNullable<ExecuteBody['txs']>[0] | SimulateContractRequest)[]
+  options?: Omit<QuoteBodyOptions, 'user' | 'source' | 'txs' | 'tradeType'>
+  txs?: (NonNullable<QuoteBody['txs']>[0] | SimulateContractRequest)[]
 }
 
 /**
@@ -73,7 +73,7 @@ export async function getQuote(
     caller = await adaptedWallet.address()
   }
 
-  let preparedTransactions: ExecuteBody['txs']
+  let preparedTransactions: QuoteBody['txs']
   if (txs && txs.length > 0) {
     preparedTransactions = txs.map((tx) => {
       if (isSimulateContractRequest(tx)) {
@@ -85,7 +85,7 @@ export async function getQuote(
     })
   }
 
-  const query: ExecuteBody = {
+  const query: QuoteBody = {
     user: caller || zeroAddress,
     destinationCurrency: toCurrency,
     destinationChainId: toChainId,
@@ -94,13 +94,13 @@ export async function getQuote(
     amount,
     recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
     tradeType,
-    source: client.source || undefined,
+    referrer: client.source || undefined,
     txs: preparedTransactions,
     ...options
   }
 
   const request: AxiosRequestConfig = {
-    url: `${client.baseApiUrl}/execute/swap`,
+    url: `${client.baseApiUrl}/quote`,
     method: 'post',
     data: query
   }

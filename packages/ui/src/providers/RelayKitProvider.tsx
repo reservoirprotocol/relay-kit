@@ -15,7 +15,7 @@ export type CoinGecko = {
 }
 
 export type AppFees =
-  paths['/execute/swap']['post']['requestBody']['content']['application/json']['appFees']
+  paths['/quote']['post']['requestBody']['content']['application/json']['appFees']
 
 type RelayKitProviderOptions = {
   appName?: string
