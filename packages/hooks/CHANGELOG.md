@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.1.0
+
+### Minor Changes
+
+- 105d1b8: Switch from execute/swap to quote api
+
+### Patch Changes
+
+- Updated dependencies [c158099]
+- Updated dependencies [105d1b8]
+  - @reservoir0x/relay-sdk@1.1.0
+
 ## 1.0.19
 
 ### Patch Changes
