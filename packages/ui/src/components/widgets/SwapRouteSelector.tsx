@@ -21,7 +21,7 @@ const SwapRouteSelector: FC<Props> = ({
   chain
 }) => {
   const [open, setOpen] = useState(false)
-  const chainName = chain?.name ?? ''
+  const chainName = chain?.displayName ?? ''
   return (
     <Dropdown
       open={open}
