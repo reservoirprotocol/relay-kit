@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.0
+
+### Minor Changes
+
+- b9db008: Upgrade /requests api to /requests/v2
+
+### Patch Changes
+
+- 4cd7401: ChainWidget: Fix copy in SwapRouteSelector
+- Updated dependencies [b9db008]
+  - @reservoir0x/relay-kit-hooks@1.2.0
+
 ## 1.2.0
 
 ### Minor Changes

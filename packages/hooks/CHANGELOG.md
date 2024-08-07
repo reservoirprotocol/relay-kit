@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.2.0
+
+### Minor Changes
+
+- b9db008: Upgrade /requests api to /requests/v2
+
 ## 1.1.0
 
 ### Minor Changes
