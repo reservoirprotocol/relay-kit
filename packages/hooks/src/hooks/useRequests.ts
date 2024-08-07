@@ -13,10 +13,10 @@ import {
 import fetcher from '../fetcher.js'
 
 export type UserTransactionQuery =
-  paths['/requests']['get']['parameters']['query'] & { id?: string }
+  paths['/requests/v2']['get']['parameters']['query'] & { id?: string }
 
 export type UserTransactionsResponse =
-  paths['/requests']['get']['responses']['200']['content']['application/json']
+  paths['/requests/v2']['get']['responses']['200']['content']['application/json']
 
 type InfiniteQueryType = typeof useInfiniteQuery<
   UserTransactionsResponse,
@@ -33,7 +33,7 @@ export const queryRequests = function (
   pageParam?: string | null
 ): Promise<UserTransactionsResponse> {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const url = new URL(`${baseApiUrl}/requests`, baseUrl)
+  const url = new URL(`${baseApiUrl}/requests/v2`, baseUrl)
 
   let query: UserTransactionQuery = { ...options }
 
