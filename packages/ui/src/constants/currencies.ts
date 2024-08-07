@@ -1,24 +1,17 @@
-// This will eventually be returned in an api, but need to hardcode for now
-export const CurrenciesMap = {
-  eth: {
-    id: 'eth',
-    symbol: 'ETH',
-    name: 'Ether',
-    decimals: 18
-  },
-  usdc: {
-    id: 'usdc',
-    symbol: 'USDC',
-    name: 'USD Coin',
-    decimals: 6
-  },
-  degen: {
-    id: 'degen',
-    symbol: 'DEGEN',
-    name: 'Degen',
-    decimals: 18
+export const SOL = {
+  groupID: 'SOL',
+  chainId: 792703809,
+  decimals: 9,
+  address: '11111111111111111111111111111111',
+  name: 'SOL',
+  symbol: 'SOL',
+  metadata: {
+    isNative: true,
+    logoURI:
+      'https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756',
+    verified: true
   }
-} as const
+}
 
 export type Currency = {
   id?: string

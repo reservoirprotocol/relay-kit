@@ -139,6 +139,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig,
+        isSolanaSwap,
+        isValidSolanaRecipient,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
@@ -179,6 +181,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            isSolanaSwap={isSolanaSwap}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
@@ -277,8 +280,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -389,7 +392,11 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle3" css={{ color: 'inherit' }}>
-                            {toDisplayName}
+                            <Text style="subtitle3" css={{ color: 'inherit' }}>
+                              {isSolanaSwap && !isValidSolanaRecipient
+                                ? 'Enter Solana Address'
+                                : toDisplayName}
+                            </Text>
                           </Text>
                           <FontAwesomeIcon icon={faChevronRight} width={8} />
                         </AnchorButton>
@@ -429,8 +436,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -554,6 +561,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
+                    invalidSolanaRecipient={
+                      isSolanaSwap && !isValidSolanaRecipient
+                    }
                     context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -566,7 +576,13 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    onClick={() => setTransactionModalOpen(true)}
+                    onClick={() => {
+                      if (isSolanaSwap && !isValidSolanaRecipient) {
+                        setAddressModalOpen(true)
+                      } else {
+                        setTransactionModalOpen(true)
+                      }
+                    }}
                     ctaCopy={ctaCopy}
                   />
                 </>

@@ -6,6 +6,7 @@ import { EventNames } from '../../constants/events.js'
 
 type SwapButtonProps = {
   transactionModalOpen: boolean
+  invalidSolanaRecipient: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onClick: () => void
@@ -24,6 +25,7 @@ type SwapButtonProps = {
 
 const SwapButton: FC<SwapButtonProps> = ({
   transactionModalOpen,
+  invalidSolanaRecipient,
   context,
   onConnectWallet,
   price,
@@ -35,6 +37,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   isSameCurrencySameRecipientSwap,
   onClick,
   ctaCopy,
+
   onAnalyticEvent
 }) => {
   const isMounted = useMounted()
@@ -44,13 +47,14 @@ const SwapButton: FC<SwapButtonProps> = ({
         css={{ justifyContent: 'center' }}
         aria-label={context}
         disabled={
-          !price ||
-          hasInsufficientBalance ||
-          isInsufficientLiquidityError ||
-          transactionModalOpen ||
-          Number(debouncedInputAmountValue) === 0 ||
-          Number(debouncedOutputAmountValue) === 0 ||
-          isSameCurrencySameRecipientSwap
+          (!price ||
+            hasInsufficientBalance ||
+            isInsufficientLiquidityError ||
+            transactionModalOpen ||
+            Number(debouncedInputAmountValue) === 0 ||
+            Number(debouncedOutputAmountValue) === 0 ||
+            isSameCurrencySameRecipientSwap) &&
+          !invalidSolanaRecipient
         }
         onClick={onClick}
       >

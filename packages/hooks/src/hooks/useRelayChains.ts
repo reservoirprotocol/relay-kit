@@ -33,7 +33,7 @@ export const queryRelayChains = function (
 ): Promise<ChainsResponse> {
   const url = new URL(`${baseApiUrl}/chains`)
   setParams(url, options ?? {})
-  return fetcher(`${baseApiUrl}/chains`)
+  return fetcher(url.href)
 }
 
 export default function (

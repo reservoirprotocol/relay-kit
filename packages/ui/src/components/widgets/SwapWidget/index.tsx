@@ -121,6 +121,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ctaCopy,
         isFromETH,
         timeEstimate,
+        isSolanaSwap,
+        isValidSolanaRecipient,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -146,6 +148,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            isSolanaSwap={isSolanaSwap}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
@@ -377,7 +380,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle3" css={{ color: 'inherit' }}>
-                            {toDisplayName}
+                            {isSolanaSwap && !isValidSolanaRecipient
+                              ? 'Enter Solana Address'
+                              : toDisplayName}
                           </Text>
                           <FontAwesomeIcon icon={faChevronRight} width={8} />
                         </AnchorButton>
@@ -529,6 +534,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
+                    invalidSolanaRecipient={
+                      isSolanaSwap && !isValidSolanaRecipient
+                    }
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -541,7 +549,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    onClick={() => setTransactionModalOpen(true)}
+                    onClick={() => {
+                      if (isSolanaSwap && !isValidSolanaRecipient) {
+                        setAddressModalOpen(true)
+                      } else {
+                        setTransactionModalOpen(true)
+                      }
+                    }}
                     ctaCopy={ctaCopy}
                   />
                 </>
