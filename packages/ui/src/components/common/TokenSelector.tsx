@@ -31,7 +31,7 @@ import {
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
-import { SOL } from '../../constants/currencies.js'
+import { SolanaCurrencies } from '../../constants/currencies.js'
 
 const fuseSearchOptions = {
   includeScore: true,
@@ -214,8 +214,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         searchValue.startsWith('so') ||
         searchValue.startsWith('sol'))
     ) {
-      const solToken = [SOL]
-      list = [...(list || []), [...solToken]]
+      list = [...(list || []), ...SolanaCurrencies]
     }
     const ethTokens = _tokenList?.find(
       (list) => list[0] && list[0].groupID === 'ETH'

@@ -225,9 +225,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : false
   )
 
-  const isSolanaSwap =
-    toToken?.chainId === 792703809 &&
-    toToken?.address === '11111111111111111111111111111111'
+  const isSolanaSwap = toToken?.chainId === 792703809
 
   const isValidSolanaRecipient = solanaAddressRegex.test(customToAddress ?? '')
 
