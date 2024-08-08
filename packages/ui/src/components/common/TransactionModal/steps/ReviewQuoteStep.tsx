@@ -64,7 +64,9 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const details = quote?.details
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const connectedWalletIsNotRecipient =
-    quote && address !== quote?.details?.recipient
+    quote &&
+    address !== quote?.details?.recipient &&
+    toToken?.chainId !== 792703809
 
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
