@@ -40,7 +40,9 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(relayApi)
+  const { chains, viemChains } = useRelayChains(relayApi, {
+    includeChains: relayApi === MAINNET_RELAY_API ? '792703809' : undefined
+  })
 
   useEffect(() => {
     if (chains && viemChains) {

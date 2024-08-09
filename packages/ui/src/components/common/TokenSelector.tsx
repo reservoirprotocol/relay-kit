@@ -31,6 +31,7 @@ import {
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
+import { SolanaCurrencies } from '../../constants/currencies.js'
 
 const fuseSearchOptions = {
   includeScore: true,
@@ -108,6 +109,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
     return configuredChains.map((chain) => chain.id)
   }, [configuredChains, chainIdsFilter])
+
+  const solanaIsSupported = Boolean(
+    configuredChainIds?.find((id) => id === 792703809)
+  )
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
@@ -197,6 +202,20 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       suggestedTokens.length > 0
         ? suggestedTokens
         : tokenList
+
+    // @TODO: Remove once the token list api supports SVM addresses
+    // Add the SOL token to the token list if the context is 'to' and the search value is empty or matches "s", "so", or "sol"
+    const searchValue = debouncedTokenSearchValue.toLowerCase()
+    if (
+      context === 'to' &&
+      solanaIsSupported &&
+      (searchValue === '' ||
+        searchValue.startsWith('s') ||
+        searchValue.startsWith('so') ||
+        searchValue.startsWith('sol'))
+    ) {
+      list = [...(list || []), ...SolanaCurrencies]
+    }
     const ethTokens = _tokenList?.find(
       (list) => list[0] && list[0].groupID === 'ETH'
     )

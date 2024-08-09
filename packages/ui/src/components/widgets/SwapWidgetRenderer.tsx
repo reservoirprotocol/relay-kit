@@ -25,6 +25,7 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
+import { solanaAddressRegex } from '../../utils/solana.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -94,6 +95,8 @@ export type ChildrenProps = {
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
   fetchingSolverConfig: boolean
+  isSolanaSwap: boolean
+  isValidSolanaRecipient: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -222,6 +225,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : false
   )
 
+  const isSolanaSwap = toToken?.chainId === 792703809
+
+  const isValidSolanaRecipient = solanaAddressRegex.test(customToAddress ?? '')
+
   const {
     data: price,
     isLoading: isFetchingPrice,
@@ -264,20 +271,20 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       })
     },
     {
-      enabled:
-        Boolean(
-          relayClient &&
-            ((tradeType === 'EXACT_INPUT' &&
-              debouncedInputAmountValue &&
-              debouncedInputAmountValue.length > 0 &&
-              Number(debouncedInputAmountValue) !== 0) ||
-              (tradeType === 'EXACT_OUTPUT' &&
-                debouncedOutputAmountValue &&
-                debouncedOutputAmountValue.length > 0 &&
-                Number(debouncedOutputAmountValue) !== 0))
-        ) &&
-        fromToken !== undefined &&
-        toToken !== undefined,
+      enabled: Boolean(
+        relayClient &&
+          ((tradeType === 'EXACT_INPUT' &&
+            debouncedInputAmountValue &&
+            debouncedInputAmountValue.length > 0 &&
+            Number(debouncedInputAmountValue) !== 0) ||
+            (tradeType === 'EXACT_OUTPUT' &&
+              debouncedOutputAmountValue &&
+              debouncedOutputAmountValue.length > 0 &&
+              Number(debouncedOutputAmountValue) !== 0)) &&
+          fromToken !== undefined &&
+          toToken !== undefined &&
+          (!isSolanaSwap || (isSolanaSwap && isValidSolanaRecipient))
+      ),
       refetchInterval:
         !transactionModalOpen &&
         debouncedInputAmountValue === amountInputValue &&
@@ -390,6 +397,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
+  } else if (isSolanaSwap && !isValidSolanaRecipient) {
+    ctaCopy = 'Enter Solana Address'
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
   } else if (!debouncedInputAmountValue || !debouncedOutputAmountValue) {
@@ -468,6 +477,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig: config.isFetching,
+        isSolanaSwap,
+        isValidSolanaRecipient,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
