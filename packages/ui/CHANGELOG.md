@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.1
+
+### Patch Changes
+
+- df71a3b: Support Solana deposits in Swap widget
+
 ## 1.3.0
 
 ### Minor Changes
