@@ -79,7 +79,10 @@ export const ErrorStep: FC<ErrorStepProps> = ({
         </>
       ) : (
         <>
-          <ErrorWell error={error} />
+          <ErrorWell
+            error={error}
+            hasTxHashes={allTxHashes && allTxHashes.length > 0}
+          />
           {allTxHashes.map(({ txHash }) => {
             return (
               <Anchor
@@ -92,18 +95,33 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             )
           })}
 
-          <Button
-            onClick={() => {
-              onOpenChange(false)
-            }}
-            css={{
-              mt: 12,
-              justifyContent: 'center',
-              width: '100%'
-            }}
-          >
-            Done
-          </Button>
+          {allTxHashes && allTxHashes.length > 0 ? (
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+              }}
+              css={{
+                mt: 12,
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              Done
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+              }}
+              css={{
+                mt: 12,
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              Retry
+            </Button>
+          )}
         </>
       )}
     </Flex>
