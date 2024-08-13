@@ -86,9 +86,13 @@ const FeeBreakdown: FC<Props> = ({
           }}
           align="center"
         >
-          <FontAwesomeIcon icon={faClock} width={16} />
-          <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
-          <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+          {timeEstimate && timeEstimate?.time !== 0 ? (
+            <>
+              <FontAwesomeIcon icon={faClock} width={16} />
+              <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
+              <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+            </>
+          ) : null}
           <FontAwesomeIcon
             icon={faGasPump}
             width={16}
