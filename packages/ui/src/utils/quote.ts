@@ -118,7 +118,7 @@ export const parseFees = (
     const percent = Number(quote.details.totalImpact.percent)
     if (percent <= -3) {
       priceImpactColor = 'red'
-    } else if (percent >= 10) {
+    } else if (percent > 0) {
       priceImpactColor = 'success'
     }
   }
