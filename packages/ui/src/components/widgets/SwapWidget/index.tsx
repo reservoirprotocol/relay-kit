@@ -132,6 +132,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
+          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+            setCustomToAddress(address ?? undefined)
+          }
           setToToken(token)
           onToTokenChange?.(token)
         }
