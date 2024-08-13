@@ -4,15 +4,17 @@ import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWallet } from '@fortawesome/free-solid-svg-icons/faWallet'
-import { useENSResolver } from '../../hooks/index.js'
+import { useENSResolver, useRelayClient } from '../../hooks/index.js'
 import { isENSName } from '../../utils/ens.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
 import { useAccount } from 'wagmi'
 import { EventNames } from '../../constants/events.js'
 import { solanaAddressRegex } from '../../utils/solana.js'
+import type { Token } from '../../types/index.js'
 
 type Props = {
   open: boolean
+  toToken?: Token
   isSolanaSwap: boolean
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -22,6 +24,7 @@ type Props = {
 
 export const CustomAddressModal: FC<Props> = ({
   open,
+  toToken,
   isSolanaSwap,
   onAnalyticEvent,
   onOpenChange,
@@ -31,6 +34,8 @@ export const CustomAddressModal: FC<Props> = ({
   const { isConnected } = useAccount()
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
+  const client = useRelayClient()
+  const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
 
   const isValidAddress = (input: string) => {
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
@@ -84,7 +89,7 @@ export const CustomAddressModal: FC<Props> = ({
           To Address
         </Text>
         <Flex direction="column" css={{ gap: '2', position: 'relative' }}>
-          {address && (
+          {address && toChain?.explorerUrl && (
             <Anchor
               css={{
                 right: 4,
@@ -92,7 +97,7 @@ export const CustomAddressModal: FC<Props> = ({
                 fontSize: 'small'
               }}
               target="_blank"
-              href={`https://etherscan.io/address/${address}`}
+              href={`${toChain?.explorerUrl}/address/${address}`}
             >
               (View On Explorer)
             </Anchor>
