@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.1.1
+
+### Patch Changes
+
+- 28ed450: Update sdk api types
+
 ## 1.1.0
 
 ### Minor Changes
