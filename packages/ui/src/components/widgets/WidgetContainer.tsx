@@ -113,7 +113,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
         ) : null}
         <CustomAddressModal
           open={addressModalOpen}
-          toAddress={customToAddress}
+          toAddress={customToAddress ?? address}
           isSolanaSwap={isSolanaSwap}
           onAnalyticEvent={onAnalyticEvent}
           onOpenChange={(open) => {

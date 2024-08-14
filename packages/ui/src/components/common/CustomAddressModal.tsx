@@ -1,10 +1,9 @@
 import { type FC, useState, useEffect } from 'react'
-import { Text, Flex, Button, Input, Anchor } from '../primitives/index.js'
+import { Text, Flex, Button, Input } from '../primitives/index.js'
 import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faWallet } from '@fortawesome/free-solid-svg-icons/faWallet'
-import { useENSResolver, useRelayClient } from '../../hooks/index.js'
+import { useENSResolver } from '../../hooks/index.js'
 import { isENSName } from '../../utils/ens.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
 import { useAccount } from 'wagmi'
@@ -30,7 +29,6 @@ type Props = {
 
 export const CustomAddressModal: FC<Props> = ({
   open,
-  toToken,
   isSolanaSwap,
   toAddress,
   onAnalyticEvent,
@@ -41,8 +39,6 @@ export const CustomAddressModal: FC<Props> = ({
   const { isConnected, address: connectedAddress } = useAccount()
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
-  const client = useRelayClient()
-  const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
 
   const isValidAddress = (input: string) => {
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
@@ -101,19 +97,6 @@ export const CustomAddressModal: FC<Props> = ({
           To Address
         </Text>
         <Flex direction="column" css={{ gap: '2', position: 'relative' }}>
-          {address && toChain?.explorerUrl && (
-            <Anchor
-              css={{
-                right: 4,
-                top: 1,
-                fontSize: 'small'
-              }}
-              target="_blank"
-              href={`${toChain?.explorerUrl}/address/${address}`}
-            >
-              (View On Explorer)
-            </Anchor>
-          )}
           <Flex
             css={{
               position: 'relative',
@@ -164,6 +147,7 @@ export const CustomAddressModal: FC<Props> = ({
                 color="#FFA01C"
                 width={16}
                 height={16}
+                style={{ flexShrink: 0 }}
               />
               <Text style="subtitle3" color="warning">
                 This isn't the connected wallet address. Please ensure that the
