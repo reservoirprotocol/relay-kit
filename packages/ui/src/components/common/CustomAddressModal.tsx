@@ -11,11 +11,17 @@ import { useAccount } from 'wagmi'
 import { EventNames } from '../../constants/events.js'
 import { solanaAddressRegex } from '../../utils/solana.js'
 import type { Token } from '../../types/index.js'
+import {
+  faCircleCheck,
+  faTriangleExclamation
+} from '@fortawesome/free-solid-svg-icons'
+import { AnchorButton } from '../primitives/Anchor.js'
 
 type Props = {
   open: boolean
   toToken?: Token
   isSolanaSwap: boolean
+  toAddress?: string
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onConfirmed: (address: Address) => void
@@ -26,12 +32,13 @@ export const CustomAddressModal: FC<Props> = ({
   open,
   toToken,
   isSolanaSwap,
+  toAddress,
   onAnalyticEvent,
   onOpenChange,
   onConfirmed,
   onClear
 }) => {
-  const { isConnected } = useAccount()
+  const { isConnected, address: connectedAddress } = useAccount()
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
   const client = useRelayClient()
@@ -41,12 +48,17 @@ export const CustomAddressModal: FC<Props> = ({
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
     return ethereumRegex.test(input) || solanaAddressRegex.test(input)
   }
+  const connectedAddressSet =
+    (!address && !toAddress) ||
+    (toAddress === connectedAddress && address === connectedAddress)
 
   useEffect(() => {
     if (!open) {
       setAddress('')
       setInput('')
     } else {
+      setAddress(toAddress ? toAddress : '')
+      setInput(toAddress ? toAddress : '')
       onAnalyticEvent?.(EventNames.ADDRESS_MODAL_OPEN)
     }
   }, [open])
@@ -142,27 +154,50 @@ export const CustomAddressModal: FC<Props> = ({
             </Text>
           ) : null}
 
-          {!isSolanaSwap ? (
-            <Button
-              color="secondary"
-              size="small"
-              css={{ minHeight: 36, mr: 'auto' }}
-              onClick={() => {
-                onClear()
-                onOpenChange(false)
-              }}
+          {!connectedAddressSet && isConnected && !isSolanaSwap ? (
+            <Flex
+              css={{ bg: 'amber2', p: '2', borderRadius: 8, gap: '2' }}
+              align="center"
             >
-              <FontAwesomeIcon icon={faWallet} width={14} />
-              <Text style="subtitle2" css={{ color: 'inherit' }}>
-                {isConnected ? 'Connected Wallet' : 'Remove selected address'}
+              <FontAwesomeIcon
+                icon={faTriangleExclamation}
+                color="#FFA01C"
+                width={16}
+                height={16}
+              />
+              <Text style="subtitle3" color="warning">
+                This isn't the connected wallet address. Please ensure that the
+                address provided is accurate.{' '}
               </Text>
-            </Button>
+            </Flex>
+          ) : null}
+
+          {!isSolanaSwap && isConnected ? (
+            connectedAddressSet ? (
+              <Flex
+                css={{ bg: 'green2', p: '2', borderRadius: 8, gap: '2' }}
+                align="center"
+              >
+                <FontAwesomeIcon
+                  icon={faCircleCheck}
+                  color="#30A46C"
+                  width={16}
+                  height={16}
+                />
+                <Text style="subtitle3">Connected Wallet</Text>
+              </Flex>
+            ) : (
+              <AnchorButton
+                onClick={() => {
+                  onClear()
+                  onOpenChange(false)
+                }}
+              >
+                Use connected wallet address
+              </AnchorButton>
+            )
           ) : null}
         </Flex>
-        <Text style="body1" color="subtle">
-          Please ensure that the address provided is accurate. Sending tokens to
-          an incorrect address may result in irreversible loss.
-        </Text>
         <Button
           disabled={!isValidAddress(address)}
           css={{ justifyContent: 'center' }}

@@ -77,6 +77,9 @@ const TextCss = cva({
       },
       success: {
         color: 'text-success'
+      },
+      warning: {
+        color: 'amber12'
       }
     },
     italic: {
