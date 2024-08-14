@@ -1,5 +1,20 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.2
+
+### Patch Changes
+
+- 98bf004: Reduce swap conversion rate from 5 decimals to 2 decimals
+- 4473144: Link out to to chain block explorer in review quote ux
+- 6363308: Handle 0s time estimate
+- 35d5e43: Improve custom wallet address modal ux
+- 2cd9327: Improve tx error messaging
+- b940e97: Reset custom address when switching to token from solana to evm chain
+- a42142d: Price Impact ui tweaks
+- Updated dependencies [28ed450]
+  - @reservoir0x/relay-sdk@1.1.1
+  - @reservoir0x/relay-kit-hooks@1.2.1
+
 ## 1.3.1
 
 ### Patch Changes
