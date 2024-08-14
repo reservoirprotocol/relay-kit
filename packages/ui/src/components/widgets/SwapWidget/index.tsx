@@ -172,6 +172,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}
+            customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
@@ -222,8 +223,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -419,8 +420,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
