@@ -64,13 +64,13 @@ const FeeBreakdown: FC<Props> = ({
           {rateMode === 'input' ? (
             <Text style="subtitle2">
               1 {fromToken?.symbol} ={' '}
-              {formatNumber(Number(swapRate) / 1, 5, compactSwapRate)}{' '}
+              {formatNumber(Number(swapRate) / 1, 2, compactSwapRate)}{' '}
               {toToken?.symbol}
             </Text>
           ) : (
             <Text style="subtitle2">
               1 {toToken?.symbol} ={' '}
-              {formatNumber(1 / Number(swapRate), 5, compactSwapRate)}{' '}
+              {formatNumber(1 / Number(swapRate), 2, compactSwapRate)}{' '}
               {fromToken?.symbol}
             </Text>
           )}
