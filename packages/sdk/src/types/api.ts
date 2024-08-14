@@ -3062,6 +3062,8 @@ export interface paths {
                   user?: string;
                   recipient?: string;
                   data?: {
+                    /** @enum {string} */
+                    failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "N/A";
                     fees?: {
                       /** @description Estimated gas cost required for execution, in wei */
                       gas?: string;
@@ -3086,7 +3088,31 @@ export interface paths {
                         timestamp?: number;
                       }[];
                     currency?: string;
+                    currencyObject?: {
+                      chainId?: number;
+                      address?: string;
+                      symbol?: string;
+                      name?: string;
+                      decimals?: number;
+                      metadata?: {
+                        logoURI?: string;
+                        verified?: boolean;
+                        isNative?: boolean;
+                      };
+                    };
                     feeCurrency?: string;
+                    feeCurrencyObject?: {
+                      chainId?: number;
+                      address?: string;
+                      symbol?: string;
+                      name?: string;
+                      decimals?: number;
+                      metadata?: {
+                        logoURI?: string;
+                        verified?: boolean;
+                        isNative?: boolean;
+                      };
+                    };
                     appFees?: {
                         recipient?: string;
                         amount?: string;
