@@ -242,7 +242,7 @@ export const TransactionModalRenderer: FC<Props> = ({
 
       setProgressStep(TransactionProgressStep.WalletConfirmation)
 
-      executeSwap(({ steps: currentSteps, details }) => {
+      executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
       })
         ?.catch((error: any) => {

@@ -248,8 +248,12 @@ export async function executeSteps(
                     request,
                     undefined,
                     crossChainIntentChainId,
-                    () => {
-                      stepItem.progressState = 'validating'
+                    (res) => {
+                      if (res && res.data.status === 'delayed') {
+                        stepItem.progressState = 'validating_delayed'
+                      } else {
+                        stepItem.progressState = 'validating'
+                      }
                       if (json) {
                         setState({
                           steps: [...json.steps],
@@ -387,6 +391,7 @@ export async function executeSteps(
                             ],
                             LogLevel.Verbose
                           )
+                          //set status
                           if (
                             res?.data?.status === 'success' &&
                             res?.data?.txHashes
@@ -423,6 +428,8 @@ export async function executeSteps(
                             throw Error(
                               res?.data?.details || 'Transaction failed'
                             )
+                          } else if (res?.data?.status === 'delayed') {
+                            stepItem.progressState = 'validating_delayed'
                           }
                           return false
                         },

@@ -15,11 +15,16 @@ export type QuoteDetails = NonNullable<
   paths['/quote']['post']['responses']['200']['content']['application/json']['details']
 >
 
-export type TransactionStepState = 'confirming' | 'validating' | 'complete'
+export type TransactionStepState =
+  | 'confirming'
+  | 'validating'
+  | 'validating_delayed'
+  | 'complete'
 export type SignatureStepState =
   | 'signing'
   | 'posting'
   | 'validating'
+  | 'validating_delayed'
   | 'complete'
 
 export type Execute = {
