@@ -282,6 +282,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             allTxHashes={allTxHashes}
             address={address}
             onOpenChange={onOpenChange}
+            transaction={transaction}
           />
         ) : null}
       </Flex>

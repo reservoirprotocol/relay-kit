@@ -33,6 +33,7 @@ export type Execute = {
   breakdown?: CallBreakdown
   details?: QuoteDetails
   error?: any // Manually added client error
+  refunded?: boolean
 
   steps: {
     error?: string

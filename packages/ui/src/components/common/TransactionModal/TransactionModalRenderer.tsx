@@ -415,7 +415,9 @@ export const TransactionModalRenderer: FC<Props> = ({
 
   // Fetch Success Tx
   const { data: transactions } = useRequests(
-    progressStep === TransactionProgressStep.Success && allTxHashes[0]
+    (progressStep === TransactionProgressStep.Success ||
+      progressStep === TransactionProgressStep.Error) &&
+      allTxHashes[0]
       ? {
           user: address,
           hash: allTxHashes[0]?.txHash
@@ -424,7 +426,9 @@ export const TransactionModalRenderer: FC<Props> = ({
     relayClient?.baseApiUrl,
     {
       enabled:
-        progressStep === TransactionProgressStep.Success && allTxHashes[0]
+        (progressStep === TransactionProgressStep.Success ||
+          progressStep === TransactionProgressStep.Error) &&
+        allTxHashes[0]
           ? true
           : false
     }

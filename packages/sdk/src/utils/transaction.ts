@@ -34,11 +34,13 @@ export async function sendTransactionSafely(
   setTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes']
   ) => void,
+  //@ts-ignore
   setInternalTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
+  //@ts-ignore
   crossChainIntentChainId?: number,
   isValidating?: (res?: AxiosResponse<any, any>) => void
 ) {
@@ -89,6 +91,9 @@ export async function sendTransactionSafely(
 
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
+    }
+    if (res.status === 200 && res.data && res.data.status === 'fallback') {
+      throw Error('Transaction failed: Refunded')
     }
     if (res.status === 200 && res.data && res.data.status === 'success') {
       if (txHash) {
