@@ -34,13 +34,11 @@ export async function sendTransactionSafely(
   setTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['txHashes']
   ) => void,
-  //@ts-ignore
   setInternalTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
-  //@ts-ignore
   crossChainIntentChainId?: number,
   isValidating?: (res?: AxiosResponse<any, any>) => void
 ) {
