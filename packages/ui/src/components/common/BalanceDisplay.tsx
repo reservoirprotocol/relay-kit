@@ -34,8 +34,11 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
               style="subtitle3"
               color={hasInsufficientBalance ? 'red' : 'subtle'}
             >
-              Balance: {formatBN(balance ?? 0n, 5, decimals, compactBalance)}{' '}
-              {symbol}
+              Balance:{' '}
+              {balance !== undefined
+                ? formatBN(balance ?? 0n, 5, decimals, compactBalance) +
+                  ` ${symbol}`
+                : '-'}{' '}
             </Text>
           )}
         </>
