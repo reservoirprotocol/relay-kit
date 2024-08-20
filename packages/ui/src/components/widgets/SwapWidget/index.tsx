@@ -223,8 +223,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -311,7 +311,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       height: hasLockedToken ? 30 : 40
                     }}
                   >
-                    {hasLockedToken ? null : (
+                    {hasLockedToken || isSolanaSwap ? null : (
                       <Button
                         size="small"
                         color="white"
@@ -420,8 +420,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
