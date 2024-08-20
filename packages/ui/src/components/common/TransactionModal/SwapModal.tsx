@@ -74,6 +74,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       address={address}
       recipient={recipient}
       invalidateBalanceQueries={invalidateBalanceQueries}
+      onAnalyticEvent={onAnalyticEvent}
       onValidating={(quote) => {
         const steps = quote?.steps
         onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
