@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.5
+
+### Patch Changes
+
+- 7d3f84d: Update balance display for solana
+
 ## 1.3.4
 
 ### Patch Changes
