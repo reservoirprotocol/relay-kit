@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.4
+
+### Patch Changes
+
+- 785b732: Update solana token selector logic
+
 ## 1.3.3
 
 ### Patch Changes
