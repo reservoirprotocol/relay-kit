@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.3
+
+### Patch Changes
+
+- 3ae5fee: Prevent switch token button in swap widget when swapping to solana token
+
 ## 1.3.2
 
 ### Patch Changes
