@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.6
+
+### Patch Changes
+
+- 7a1a4c7: Fix analytics in TransactionModal
+
 ## 1.3.5
 
 ### Patch Changes
