@@ -18,6 +18,7 @@ import { type TxHashes } from '../TransactionModalRenderer.js'
 import { useRelayClient } from '../../../../hooks/index.js'
 import {
   faArrowUpRightFromSquare,
+  faCircleXmark,
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
@@ -42,6 +43,8 @@ export const ErrorStep: FC<ErrorStepProps> = ({
   const isRefund =
     errorMessage?.toLowerCase()?.includes('refunded') ||
     transaction?.status === 'refund'
+  const hasTxHashes = allTxHashes && allTxHashes.length > 0
+  const isSolverStatusTimeout = error?.message?.includes('solver status check')
   const relayClient = useRelayClient()
   const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
     ? 'https://testnets.relay.link'
@@ -70,7 +73,9 @@ export const ErrorStep: FC<ErrorStepProps> = ({
     relayClient?.chains
   )
   const mergedError =
-    error && isAPIError(error) ? error : new Error(errorMessage)
+    error && (isAPIError(error) || isSolverStatusTimeout)
+      ? error
+      : new Error(errorMessage)
   const refundDetails = transaction?.data?.refundCurrencyData
   const refundChain = transaction?.data?.refundCurrencyData?.currency?.chainId
     ? relayClient?.chains.find(
@@ -99,14 +104,22 @@ export const ErrorStep: FC<ErrorStepProps> = ({
           <Box css={{ color: 'gray9', mr: '$2' }}>
             <FontAwesomeIcon icon={faRotateRight} style={{ height: 40 }} />
           </Box>
-        ) : (
-          <Box css={{ color: 'red9', mr: '$2' }}>
+        ) : null}
+
+        {!isRefund && isSolverStatusTimeout ? (
+          <Box css={{ color: 'amber9', mr: '$2' }}>
             <FontAwesomeIcon
               icon={faCircleExclamation}
               style={{ height: 40 }}
             />
           </Box>
-        )}
+        ) : null}
+
+        {!isRefund && !isSolverStatusTimeout ? (
+          <Box css={{ color: 'red9', mr: '$2' }}>
+            <FontAwesomeIcon icon={faCircleXmark} style={{ height: 40 }} />
+          </Box>
+        ) : null}
       </motion.div>
 
       {isRefund ? (
@@ -117,10 +130,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             : `It looks like an unknown issue occurred during the transaction. We apologize for the inconvenience, a refund has been sent to your wallet address.`}
         </Text>
       ) : (
-        <ErrorWell
-          error={mergedError}
-          hasTxHashes={allTxHashes && allTxHashes.length > 0}
-        />
+        <ErrorWell error={mergedError} hasTxHashes={hasTxHashes} />
       )}
 
       <Flex
