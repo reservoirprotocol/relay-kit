@@ -31,7 +31,6 @@ import {
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
-import { SolanaCurrencies } from '../../constants/currencies.js'
 
 const fuseSearchOptions = {
   includeScore: true,
@@ -103,16 +102,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .sort((a, b) => a.name.localeCompare(b.name)) ?? []
     )
   }, [relayClient?.chains])
+
+  const chainFilterOptions =
+    context === 'from'
+      ? configuredChains?.filter((chain) => chain.id !== 792703809)
+      : configuredChains
+
   const configuredChainIds = useMemo(() => {
     if (chainIdsFilter) {
       return chainIdsFilter
     }
     return configuredChains.map((chain) => chain.id)
   }, [configuredChains, chainIdsFilter])
-
-  const solanaIsSupported = Boolean(
-    configuredChainIds?.find((id) => id === 792703809)
-  )
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
@@ -203,19 +204,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         ? suggestedTokens
         : tokenList
 
-    // @TODO: Remove once the token list api supports SVM addresses
-    // Add the SOL token to the token list if the context is 'to' and the search value is empty or matches "s", "so", or "sol"
-    const searchValue = debouncedTokenSearchValue.toLowerCase()
-    if (
-      context === 'to' &&
-      solanaIsSupported &&
-      (searchValue === '' ||
-        searchValue.startsWith('s') ||
-        searchValue.startsWith('so') ||
-        searchValue.startsWith('sol'))
-    ) {
-      list = [...(list || []), ...SolanaCurrencies]
-    }
     const ethTokens = _tokenList?.find(
       (list) => list[0] && list[0].groupID === 'ETH'
     )
@@ -249,7 +237,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           }
           return undefined
         })
-        .filter((currency) => currency !== undefined)
+        .filter(
+          (currency) =>
+            currency !== undefined &&
+            (context !== 'from' || currency.chainId !== 792703809) // filter out solana currencies for from token
+        )
 
       return filteredList.length > 0 ? filteredList : undefined
     })
@@ -482,7 +474,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 <ChainFilter
                   options={[
                     { id: undefined, name: 'All Chains' },
-                    ...configuredChains
+                    ...chainFilterOptions
                   ]}
                   value={chainFilter}
                   onSelect={(value) => {
