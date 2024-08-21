@@ -1,0 +1,1 @@
+export const deadAddress = '0x000000000000000000000000000000000000dead' as const
