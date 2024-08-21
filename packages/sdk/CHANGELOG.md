@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.1.2
+
+### Patch Changes
+
+- 78c6ed0: Add getPrice action
+
 ## 1.1.1
 
 ### Patch Changes
