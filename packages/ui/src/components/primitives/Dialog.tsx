@@ -114,7 +114,7 @@ const AnimatedContent = forwardRef<
     : {
         initial: {
           opacity: 0,
-          top: '45%',
+          top: '55%',
           transform: 'translateX(-50%) translateY(-50%)'
         },
         animate: {
@@ -124,7 +124,7 @@ const AnimatedContent = forwardRef<
         },
         exit: {
           opacity: 0,
-          top: '45%',
+          top: '55%',
           transform: 'translateX(-50%) translateY(-50%)'
         }
       }

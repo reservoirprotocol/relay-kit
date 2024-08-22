@@ -1,4 +1,11 @@
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  type FC,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 import {
   Box,
   Button,
@@ -7,30 +14,30 @@ import {
   Input,
   Skeleton,
   Text
-} from '../primitives/index.js'
+} from '../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
-import { Modal } from '../common/Modal.js'
-import type { Token } from '../../types/index.js'
+import { Modal } from '../Modal.js'
+import type { Token } from '../../../types/index.js'
 import Fuse from 'fuse.js'
-import ChainFilter, { type ChainFilterValue } from '../common/ChainFilter.js'
-import useRelayClient from '../../hooks/useRelayClient.js'
+import ChainFilter, { type ChainFilterValue } from '../ChainFilter.js'
+import useRelayClient from '../../../hooks/useRelayClient.js'
 import { type Chain, isAddress, zeroAddress } from 'viem'
-import { useDebounceState, useDuneBalances } from '../../hooks/index.js'
+import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { LoadingSpinner } from '../common/LoadingSpinner.js'
-import { truncateAddress } from '../../utils/truncate.js'
+import { LoadingSpinner } from '../LoadingSpinner.js'
+import { truncateAddress } from '../../../utils/truncate.js'
 import { useAccount } from 'wagmi'
-import { type DuneBalanceResponse } from '../../hooks/useDuneBalances.js'
-import { formatBN } from '../../utils/numbers.js'
+import { type DuneBalanceResponse } from '../../../hooks/useDuneBalances.js'
+import { formatBN } from '../../../utils/numbers.js'
 import {
   type CurrencyList,
   type Currency,
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
-import { EventNames } from '../../constants/events.js'
+import { EventNames } from '../../../constants/events.js'
+import { ChainWidgetTrigger } from './ChainWidgetTrigger.js'
 
 const fuseSearchOptions = {
   includeScore: true,
@@ -41,10 +48,12 @@ const fuseSearchOptions = {
 
 type TokenSelectorProps = {
   token?: Token
+  trigger: ReactNode
   restrictedTokensList?: Token[]
   chainIdsFilter?: number[]
   locked: boolean
   context: 'from' | 'to'
+  type?: 'token' | 'chain'
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -65,10 +74,12 @@ enum TokenSelectorStep {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
+  trigger,
   restrictedTokensList,
   chainIdsFilter,
   locked,
   context,
+  type = 'token',
   setToken,
   onAnalyticEvent
 }) => {
@@ -302,6 +313,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   }, [chainSearchInput, chainFuse, selectedCurrencyList])
 
+  const selectedTokenCurrencyList = enhancedCurrencyList?.find((currencyList) =>
+    currencyList?.chains?.some(
+      (chain) =>
+        chain?.chainId === token?.chainId &&
+        chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+    )
+  )
+
   const setCurrencyList = useCallback((currencyList: EnhancedCurrencyList) => {
     setSelectedCurrencyList(currencyList)
     setTokenSelectorStep(TokenSelectorStep.SetChain)
@@ -361,78 +380,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         setOpen(openChange)
         if (!openChange) {
           resetState()
+        } else if (
+          type === 'chain' &&
+          selectedTokenCurrencyList !== undefined
+        ) {
+          setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
         }
       }}
       showCloseButton={true}
-      trigger={
-        token ? (
-          <Button
-            color="white"
-            corners="pill"
-            disabled={locked}
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              px: '3',
-              height: 46,
-              maxWidth: 162,
-              flexShrink: 0,
-              overflow: 'hidden',
-              _disabled: {
-                backgroundColor: 'transparent',
-                border: 'none',
-                px: 0,
-                _hover: {
-                  backgroundColor: 'transparent',
-                  filter: 'none'
-                }
-              }
-            }}
-          >
-            <Flex align="center" css={{ gap: '2' }}>
-              <img
-                alt={token.name}
-                src={token.logoURI}
-                width={30}
-                height={30}
-                style={{
-                  borderRadius: 9999
-                }}
-              />
-              <Text style="subtitle1" ellipsify>
-                {token.symbol}
-              </Text>
-            </Flex>
-            {locked ? null : (
-              <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-                <FontAwesomeIcon icon={faChevronDown} width={14} />
-              </Box>
-            )}
-          </Button>
-        ) : (
-          <Button
-            color="primary"
-            corners="pill"
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              color: 'white',
-              px: '3',
-              height: 46,
-              maxWidth: 162,
-              flexShrink: 0,
-              fontWeight: 500
-            }}
-          >
-            Select Token
-            <Box css={{ color: 'white', width: 14 }}>
-              <FontAwesomeIcon icon={faChevronDown} width={14} />
-            </Box>
-          </Button>
-        )
-      }
+      trigger={trigger}
       contentCss={{ py: 24, px: '3' }}
     >
       <Flex
