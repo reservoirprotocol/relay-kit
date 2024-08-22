@@ -5,6 +5,7 @@ import {
   Button,
   Flex,
   Pill,
+  Skeleton,
   Text
 } from '../../../primitives/index.js'
 import { motion } from 'framer-motion'
@@ -22,7 +23,6 @@ import {
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
-import { isAPIError } from '@reservoir0x/relay-sdk'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -72,10 +72,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
     fillTx?.chainId,
     relayClient?.chains
   )
-  const mergedError =
-    error && (isAPIError(error) || isSolverStatusTimeout)
-      ? error
-      : new Error(errorMessage)
+  const mergedError = isRefund && errorMessage ? new Error(errorMessage) : error
   const refundDetails = transaction?.data?.refundCurrencyData
   const refundChain = transaction?.data?.refundCurrencyData?.currency?.chainId
     ? relayClient?.chains.find(
@@ -132,95 +129,115 @@ export const ErrorStep: FC<ErrorStepProps> = ({
       ) : (
         <ErrorWell error={mergedError} hasTxHashes={hasTxHashes} />
       )}
+      {depositTx || fillTx ? (
+        <>
+          <Flex
+            direction="column"
+            css={{
+              px: '4',
+              py: '3',
+              gap: '3',
+              '--borderColor': 'colors.subtle-border-color',
+              border: '1px solid var(--borderColor)',
+              borderRadius: 12,
+              width: '100%',
+              mb: 24
+            }}
+          >
+            <Flex justify="between" align="center" css={{ gap: '3' }}>
+              <Text style="subtitle1">Deposit Tx</Text>
+              {depositTx ? (
+                <Anchor
+                  href={`${depositExplorer}/tx/${depositTx.txHash}`}
+                  target="_blank"
+                  css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+                >
+                  {truncateAddress(depositTx.txHash)}
+                  <FontAwesomeIcon
+                    icon={faArrowUpRightFromSquare}
+                    style={{ width: 16, height: 16 }}
+                  />
+                </Anchor>
+              ) : (
+                <Text color="red" style="subtitle2">
+                  Order has not been filled
+                </Text>
+              )}
+            </Flex>
+            <Flex justify="between" align="center" css={{ gap: '3' }}>
+              <Flex align="center" css={{ gap: '2' }}>
+                <Text style="subtitle1">Fill Tx</Text>
+                {isRefund ? (
+                  <Pill
+                    color="gray"
+                    css={{ p: '1', display: 'flex', alignItems: 'center' }}
+                  >
+                    <FontAwesomeIcon
+                      icon={faRotateRight}
+                      style={{ width: 16, height: 16, marginRight: 4 }}
+                      color="#889096"
+                    />{' '}
+                    <Text style="subtitle2">Refunded</Text>
+                  </Pill>
+                ) : null}
+              </Flex>
 
-      <Flex
-        direction="column"
-        css={{
-          px: '4',
-          py: '3',
-          gap: '3',
-          '--borderColor': 'colors.subtle-border-color',
-          border: '1px solid var(--borderColor)',
-          borderRadius: 12,
-          width: '100%',
-          mb: 24
-        }}
-      >
-        <Flex justify="between" align="center" css={{ gap: '3' }}>
-          <Text style="subtitle1">Deposit Tx</Text>
-          {depositTx ? (
-            <Anchor
-              href={`${depositExplorer}/tx/${depositTx.txHash}`}
-              target="_blank"
-              css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-            >
-              {truncateAddress(depositTx.txHash)}
-              <FontAwesomeIcon
-                icon={faArrowUpRightFromSquare}
-                style={{ width: 16, height: 16 }}
-              />
-            </Anchor>
-          ) : (
-            <Text color="red" style="subtitle2">
-              Order has not been filled
-            </Text>
-          )}
-        </Flex>
-        <Flex justify="between" align="center" css={{ gap: '3' }}>
-          <Flex align="center" css={{ gap: '2' }}>
-            <Text style="subtitle1">Fill Tx</Text>
-            {isRefund ? (
-              <Pill
-                color="gray"
-                css={{ p: '1', display: 'flex', alignItems: 'center' }}
-              >
-                <FontAwesomeIcon
-                  icon={faRotateRight}
-                  style={{ width: 16, height: 16, marginRight: 4 }}
-                  color="#889096"
-                />{' '}
-                <Text style="subtitle2">Refunded</Text>
-              </Pill>
-            ) : null}
+              {fillTx ? (
+                <Anchor
+                  href={`${fillExplorer}/tx/${fillTx.txHash}`}
+                  target="_blank"
+                  css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+                >
+                  {truncateAddress(fillTx.txHash)}
+                  <FontAwesomeIcon
+                    icon={faArrowUpRightFromSquare}
+                    style={{ width: 16, height: 16 }}
+                  />
+                </Anchor>
+              ) : null}
+
+              {!fillTx && !isSolverStatusTimeout ? (
+                <Text color="red" style="subtitle2">
+                  Order has not been filled
+                </Text>
+              ) : null}
+
+              {!fillTx && isSolverStatusTimeout ? <Skeleton /> : null}
+            </Flex>
           </Flex>
-          {fillTx ? (
-            <Anchor
-              href={`${fillExplorer}/tx/${fillTx.txHash}`}
-              target="_blank"
-              css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-            >
-              {truncateAddress(fillTx.txHash)}
-              <FontAwesomeIcon
-                icon={faArrowUpRightFromSquare}
-                style={{ width: 16, height: 16 }}
-              />
-            </Anchor>
-          ) : (
-            <Text color="red" style="subtitle2">
-              Order has not been filled
-            </Text>
-          )}
-        </Flex>
-      </Flex>
 
-      <Flex css={{ gap: '3', width: '100%' }}>
-        <Button
-          color="secondary"
-          onClick={() => {
-            window.open(
-              depositTx
-                ? `${baseTransactionUrl}/transaction/${depositTx.txHash}`
-                : `${baseTransactionUrl}/transactions?address=${address}`,
-              '_blank'
-            )
-          }}
-          css={{
-            justifyContent: 'center',
-            width: '100%'
-          }}
-        >
-          View Details
-        </Button>
+          <Flex css={{ gap: '3', width: '100%' }}>
+            <Button
+              color="secondary"
+              onClick={() => {
+                window.open(
+                  depositTx
+                    ? `${baseTransactionUrl}/transaction/${depositTx.txHash}`
+                    : `${baseTransactionUrl}/transactions?address=${address}`,
+                  '_blank'
+                )
+              }}
+              css={{
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              View Details
+            </Button>
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+              }}
+              css={{
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              Done
+            </Button>
+          </Flex>
+        </>
+      ) : (
         <Button
           onClick={() => {
             onOpenChange(false)
@@ -232,7 +249,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
         >
           Done
         </Button>
-      </Flex>
+      )}
     </Flex>
   )
 }

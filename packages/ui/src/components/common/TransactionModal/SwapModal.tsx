@@ -215,7 +215,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       onOpenChange={onOpenChange}
       contentCss={{
         overflow: 'hidden',
-        p: isReviewQuoteStep ? '4' : '5'
+        p: isReviewQuoteStep ? '4' : '5',
+        maxWidth: 400
       }}
       showCloseButton={isReviewQuoteStep}
     >
