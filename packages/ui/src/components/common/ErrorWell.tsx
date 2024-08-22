@@ -28,10 +28,9 @@ const ErrorWell: React.FC<Props> = ({ error, hasTxHashes }) => {
 
   return (
     <Text
-      style="subtitle2"
+      style="subtitle1"
       css={{
-        mt: '4',
-        mb: '2',
+        my: '4',
         textAlign: 'center',
         width: '100%',
         wordBreak: 'break-word'

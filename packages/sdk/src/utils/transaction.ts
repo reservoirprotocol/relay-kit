@@ -40,7 +40,7 @@ export async function sendTransactionSafely(
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
-  isValidating?: () => void
+  isValidating?: (res?: AxiosResponse<any, any>) => void
 ) {
   const client = getClient()
   const chain = client.chains.find((chain) => chain.id === chainId)
@@ -90,6 +90,9 @@ export async function sendTransactionSafely(
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
     }
+    if (res.status === 200 && res.data && res.data.status === 'fallback') {
+      throw Error('Transaction failed: Refunded')
+    }
     if (res.status === 200 && res.data && res.data.status === 'success') {
       if (txHash) {
         setInternalTxHashes([{ txHash: txHash, chainId: chainId }])
@@ -129,6 +132,7 @@ export async function sendTransactionSafely(
         waitingForConfirmation = false // transaction confirmed
       } else if (res) {
         if (res.data.status !== 'pending') {
+          isValidating?.(res)
           attemptCount++
         }
 
