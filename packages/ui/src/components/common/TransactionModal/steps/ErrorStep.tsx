@@ -170,7 +170,12 @@ export const ErrorStep: FC<ErrorStepProps> = ({
                 {isRefund ? (
                   <Pill
                     color="gray"
-                    css={{ p: '1', display: 'flex', alignItems: 'center' }}
+                    css={{
+                      py: '1',
+                      px: '6px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
                   >
                     <FontAwesomeIcon
                       icon={faRotateRight}
