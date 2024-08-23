@@ -14,14 +14,14 @@ import { AnimatePresence } from 'framer-motion'
 
 type ModalProps = {
   trigger?: ReactNode
-  contentCss?: SystemStyleObject
+  css?: SystemStyleObject
   showCloseButton?: boolean
   children: ReactNode
 }
 
 export const Modal: FC<
   ComponentPropsWithoutRef<typeof DialogRoot> & ModalProps
-> = ({ trigger, contentCss, showCloseButton = true, children, ...props }) => {
+> = ({ trigger, css, showCloseButton = true, children, ...props }) => {
   return (
     <DialogRoot modal={true} {...props}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -46,7 +46,7 @@ export const Modal: FC<
                   '--borderColor': 'colors.subtle-border-color',
                   border: '1px solid var(--borderColor)',
                   padding: '5',
-                  ...contentCss
+                  ...css
                 }}
               >
                 {showCloseButton ? (

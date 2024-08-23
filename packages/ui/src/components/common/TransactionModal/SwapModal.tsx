@@ -214,9 +214,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       trigger={null}
       open={open}
       onOpenChange={onOpenChange}
-      contentCss={{
+      css={{
         overflow: 'hidden',
-        p: isReviewQuoteStep ? '4' : '5'
+        p: isReviewQuoteStep ? '4' : '5',
+        maxWidth: '400px !important'
       }}
       showCloseButton={isReviewQuoteStep}
     >
@@ -283,6 +284,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             allTxHashes={allTxHashes}
             address={address}
             onOpenChange={onOpenChange}
+            transaction={transaction}
           />
         ) : null}
       </Flex>

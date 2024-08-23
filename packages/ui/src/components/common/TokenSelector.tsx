@@ -433,7 +433,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           </Button>
         )
       }
-      contentCss={{ py: 24, px: '3' }}
+      css={{ py: 24, px: '3' }}
     >
       <Flex
         direction="column"

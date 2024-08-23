@@ -78,7 +78,7 @@ export const CustomAddressModal: FC<Props> = ({
       trigger={null}
       open={open}
       onOpenChange={onOpenChange}
-      contentCss={{
+      css={{
         overflow: 'hidden'
       }}
     >
