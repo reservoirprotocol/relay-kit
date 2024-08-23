@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+
 ## 1.1.2
 
 ### Patch Changes

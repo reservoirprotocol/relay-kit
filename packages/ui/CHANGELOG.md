@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.8
+
+### Patch Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+- Updated dependencies [9e14a17]
+  - @reservoir0x/relay-sdk@1.2.0
+  - @reservoir0x/relay-kit-hooks@1.2.3
+
 ## 1.3.7
 
 ### Patch Changes
