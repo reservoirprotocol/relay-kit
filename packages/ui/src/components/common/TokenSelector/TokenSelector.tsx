@@ -6,59 +6,38 @@ import {
   useMemo,
   useState
 } from 'react'
-import {
-  Box,
-  Button,
-  ChainIcon,
-  Flex,
-  Input,
-  Skeleton,
-  Text
-} from '../../primitives/index.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass'
+import { Flex } from '../../primitives/index.js'
 import { Modal } from '../Modal.js'
 import type { Token } from '../../../types/index.js'
-import Fuse from 'fuse.js'
-import ChainFilter, { type ChainFilterValue } from '../ChainFilter.js'
+import { type ChainFilterValue } from '../ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
 import { type Chain, isAddress, zeroAddress } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { LoadingSpinner } from '../LoadingSpinner.js'
-import { truncateAddress } from '../../../utils/truncate.js'
 import { useAccount } from 'wagmi'
 import { type DuneBalanceResponse } from '../../../hooks/useDuneBalances.js'
-import { formatBN } from '../../../utils/numbers.js'
 import {
   type CurrencyList,
   type Currency,
   useTokenList
 } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../../constants/events.js'
-import { ChainWidgetTrigger } from './ChainWidgetTrigger.js'
+import { SetChainStep } from './steps/SetChainStep.js'
+import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 
-const fuseSearchOptions = {
-  includeScore: true,
-  includeMatches: true,
-  threshold: 0.2,
-  keys: ['relayChain.chainId', 'relayChain.name']
-}
-
-type TokenSelectorProps = {
+export type TokenSelectorProps = {
+  openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
   token?: Token
   trigger: ReactNode
   restrictedTokensList?: Token[]
   chainIdsFilter?: number[]
-  locked: boolean
   context: 'from' | 'to'
   type?: 'token' | 'chain'
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
-type EnhancedCurrencyList = {
+export type EnhancedCurrencyList = {
   chains: (CurrencyList[number] & {
     relayChain: Chain
     balance?: DuneBalanceResponse['balances'][0]
@@ -67,23 +46,26 @@ type EnhancedCurrencyList = {
   totalBalance?: bigint
 }
 
-enum TokenSelectorStep {
+export enum TokenSelectorStep {
   SetCurrency,
   SetChain
 }
 
 const TokenSelector: FC<TokenSelectorProps> = ({
+  openState,
   token,
   trigger,
   restrictedTokensList,
   chainIdsFilter,
-  locked,
   context,
   type = 'token',
   setToken,
   onAnalyticEvent
 }) => {
-  const [open, setOpen] = useState(false)
+  console.log('type: ', type)
+  // const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const [open, setOpen] = openState || [internalOpen, setInternalOpen]
   const { address } = useAccount()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const [tokenSelectorStep, setTokenSelectorStep] = useState<TokenSelectorStep>(
@@ -95,6 +77,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   })
   const [selectedCurrencyList, setSelectedCurrencyList] =
     useState<EnhancedCurrencyList>()
+
   const {
     value: tokenSearchInput,
     debouncedValue: debouncedTokenSearchValue,
@@ -288,38 +271,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const chainFuse = new Fuse(
-    selectedCurrencyList?.chains || [],
-    fuseSearchOptions
-  )
-
-  const filteredChains = useMemo(() => {
-    if (chainSearchInput.trim() !== '') {
-      return chainFuse.search(chainSearchInput).map((result) => result.item)
-    } else {
-      return selectedCurrencyList?.chains
-        ?.map((currency) => ({
-          ...currency,
-          totalBalance: BigInt(currency.balance?.amount ?? 0n)
-        }))
-        .sort((a, b) => {
-          if (a.totalBalance !== 0n || b.totalBalance !== 0n) {
-            return b.totalBalance > a.totalBalance ? 1 : -1
-          } else {
-            return a.relayChain.name.localeCompare(b.relayChain.name)
-          }
-        })
-    }
-  }, [chainSearchInput, chainFuse, selectedCurrencyList])
-
-  const selectedTokenCurrencyList = enhancedCurrencyList?.find((currencyList) =>
-    currencyList?.chains?.some(
-      (chain) =>
-        chain?.chainId === token?.chainId &&
-        chain?.address?.toLowerCase() === token?.address?.toLowerCase()
-    )
-  )
+  const selectedTokenCurrencyList =
+    enhancedCurrencyList?.find((currencyList) =>
+      currencyList?.chains?.some(
+        (chain) =>
+          chain?.chainId === token?.chainId &&
+          chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+      )
+    ) ?? selectedCurrencyList
 
   const setCurrencyList = useCallback((currencyList: EnhancedCurrencyList) => {
     setSelectedCurrencyList(currencyList)
@@ -368,24 +327,45 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, inputElement])
 
+  useEffect(() => {
+    onAnalyticEvent?.(
+      open
+        ? EventNames.SWAP_START_TOKEN_SELECT
+        : EventNames.SWAP_EXIT_TOKEN_SELECT
+    )
+
+    console.log('------------')
+    console.log('open type: ', type)
+    console.log('selectedTokenCurrencyList: ', selectedTokenCurrencyList)
+    if (!open) {
+      resetState()
+    } else if (type === 'chain' && selectedTokenCurrencyList !== undefined) {
+      setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
+    }
+  }, [open])
+
   return (
     <Modal
       open={open}
       onOpenChange={(openChange) => {
-        onAnalyticEvent?.(
-          openChange
-            ? EventNames.SWAP_START_TOKEN_SELECT
-            : EventNames.SWAP_EXIT_TOKEN_SELECT
-        )
+        // onAnalyticEvent?.(
+        //   openChange
+        //     ? EventNames.SWAP_START_TOKEN_SELECT
+        //     : EventNames.SWAP_EXIT_TOKEN_SELECT
+        // )
         setOpen(openChange)
-        if (!openChange) {
-          resetState()
-        } else if (
-          type === 'chain' &&
-          selectedTokenCurrencyList !== undefined
-        ) {
-          setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
-        }
+
+        // console.log('------------')
+        // console.log('open type: ', type)
+        // console.log('selectedTokenCurrencyList: ', selectedTokenCurrencyList)
+        // if (!openChange) {
+        //   resetState()
+        // } else if (
+        //   type === 'chain' &&
+        //   selectedTokenCurrencyList !== undefined
+        // ) {
+        //   setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
+        // }
       }}
       showCloseButton={true}
       trigger={trigger}
@@ -397,348 +377,40 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         css={{ width: '100%', height: '100%', gap: '3', position: 'relative' }}
       >
         {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
-          <>
-            <Text style="h6">Select Token</Text>
-            <Flex align="center" css={{ width: '100%', gap: '2' }}>
-              <Input
-                inputRef={(element) => {
-                  setInputElement(element)
-                }}
-                placeholder="Search for a token"
-                icon={
-                  <Box css={{ color: 'gray9' }}>
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      width={16}
-                      height={16}
-                    />
-                  </Box>
-                }
-                containerCss={{ width: '100%', height: 40 }}
-                css={{
-                  width: '100%',
-                  _placeholder_parent: {
-                    textOverflow: 'ellipsis'
-                  }
-                }}
-                value={tokenSearchInput}
-                onChange={(e) =>
-                  setTokenSearchInput((e.target as HTMLInputElement).value)
-                }
-              />
-              {!chainIdsFilter || chainIdsFilter.length > 1 ? (
-                <ChainFilter
-                  options={[
-                    { id: undefined, name: 'All Chains' },
-                    ...chainFilterOptions
-                  ]}
-                  value={chainFilter}
-                  onSelect={(value) => {
-                    setChainFilter(value)
-                  }}
-                />
-              ) : null}
-            </Flex>
-            <Flex
-              css={{
-                width: '100%',
-                '--borderColor': 'colors.subtle-border-color',
-                borderBottom: '1px solid var(--borderColor)',
-                pr: '4'
-              }}
-            >
-              <Text style="body3" color="subtle" css={{ pl: '2' }}>
-                {!isLoading
-                  ? useDefaultTokenList
-                    ? context === 'from' &&
-                      suggestedTokens &&
-                      (suggestedTokens as any).length &&
-                      (suggestedTokens as any).length > 0
-                      ? 'Suggested Tokens'
-                      : 'Popular Tokens'
-                    : 'Tokens'
-                  : null}
-              </Text>
-              {address ? (
-                <Text
-                  style="body3"
-                  color="subtle"
-                  css={{ pl: '2', ml: 'auto' }}
-                >
-                  Balance
-                </Text>
-              ) : undefined}
-            </Flex>
-            <Flex
-              direction="column"
-              css={{
-                height: 350,
-                overflowY: 'auto',
-                pb: '2',
-                gap: '2',
-                width: '100%'
-              }}
-            >
-              {/* Loading State*/}
-              {isLoading ? (
-                <Flex direction="column" align="center" css={{ py: '5' }}>
-                  <LoadingSpinner
-                    css={{ height: 40, width: 40, fill: 'primary-color' }}
-                  />
-                </Flex>
-              ) : null}
-              {/* Data State */}
-              {!isLoading &&
-              enhancedCurrencyList &&
-              enhancedCurrencyList.length > 0
-                ? enhancedCurrencyList?.map((list, idx) =>
-                    list ? (
-                      <CurrencyRow
-                        currencyList={list as EnhancedCurrencyList}
-                        setCurrencyList={setCurrencyList}
-                        selectToken={selectToken}
-                        isLoadingDuneBalances={isLoadingDuneBalances}
-                        key={idx}
-                      />
-                    ) : null
-                  )
-                : null}
-              {/* Empty State */}
-              {!isLoading &&
-              (!enhancedCurrencyList || enhancedCurrencyList?.length === 0) ? (
-                <Text css={{ textAlign: 'center', py: '5' }}>
-                  No results found.
-                </Text>
-              ) : null}
-            </Flex>
-          </>
+          <SetCurrencyStep
+            setInputElement={setInputElement}
+            tokenSearchInput={tokenSearchInput}
+            setTokenSearchInput={setTokenSearchInput}
+            chainIdsFilter={chainIdsFilter}
+            chainFilterOptions={chainFilterOptions} // @TODO: move to component?
+            chainFilter={chainFilter}
+            setChainFilter={setChainFilter}
+            isLoading={isLoading}
+            isLoadingDuneBalances={isLoadingDuneBalances}
+            useDefaultTokenList={useDefaultTokenList}
+            context={context}
+            suggestedTokens={suggestedTokens}
+            address={address}
+            enhancedCurrencyList={
+              enhancedCurrencyList as EnhancedCurrencyList[]
+            }
+            selectToken={selectToken}
+            setCurrencyList={setCurrencyList}
+          />
         ) : null}
         {tokenSelectorStep === TokenSelectorStep.SetChain ? (
-          <>
-            <Button
-              color="ghost"
-              size="xs"
-              css={{ position: 'absolute', top: -8, left: 0, color: 'gray9' }}
-              onClick={() =>
-                setTokenSelectorStep(TokenSelectorStep.SetCurrency)
-              }
-            >
-              <FontAwesomeIcon icon={faChevronLeft} width={10} />
-            </Button>
-            <Text style="h6">
-              Select Chain for {selectedCurrencyList?.chains?.[0]?.symbol}
-            </Text>
-            <Input
-              inputRef={(element) => {
-                setInputElement(element)
-              }}
-              placeholder="Search for a chain"
-              icon={
-                <Box css={{ color: 'gray9' }}>
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    width={16}
-                    height={16}
-                  />
-                </Box>
-              }
-              containerCss={{ width: '100%', height: 40 }}
-              css={{
-                width: '100%',
-                _placeholder_parent: {
-                  textOverflow: 'ellipsis'
-                }
-              }}
-              value={chainSearchInput}
-              onChange={(e) =>
-                setChainSearchInput((e.target as HTMLInputElement).value)
-              }
-            />
-
-            <Flex
-              css={{
-                width: '100%',
-                '--borderColor': 'colors.subtle-border-color',
-                borderBottom: '1px solid var(--borderColor)'
-              }}
-            >
-              <Text style="body3" color="subtle" css={{ pl: '2' }}>
-                Chains
-              </Text>
-            </Flex>
-            <Flex
-              direction="column"
-              css={{
-                height: 350,
-                overflowY: 'auto',
-                pb: '2',
-                gap: '2',
-                width: '100%'
-              }}
-            >
-              {filteredChains?.map((currency) => {
-                const decimals = currency?.balance?.decimals ?? 18
-                const compactBalance = Boolean(
-                  currency.balance?.amount &&
-                    decimals &&
-                    currency.balance.amount.toString().length - decimals > 4
-                )
-                return (
-                  <Button
-                    key={currency.chainId}
-                    color="ghost"
-                    onClick={() => {
-                      selectToken(currency, currency.chainId)
-                    }}
-                    css={{
-                      gap: '2',
-                      cursor: 'pointer',
-                      px: '4',
-                      py: '2',
-                      transition: 'backdrop-filter 250ms linear',
-                      _hover: {
-                        backgroundColor: 'gray/10'
-                      },
-                      flexShrink: 0,
-                      alignContent: 'center',
-                      display: 'flex',
-                      width: '100%'
-                    }}
-                  >
-                    <ChainIcon
-                      chainId={currency.chainId}
-                      width={24}
-                      height={24}
-                      css={{ borderRadius: 4, overflow: 'hidden' }}
-                    />
-                    <Flex direction="column" align="start">
-                      <Text style="subtitle1">{currency.relayChain.name}</Text>
-                      <Text style="subtitle3" color="subtle">
-                        {truncateAddress(currency.address)}
-                      </Text>
-                    </Flex>
-                    {currency?.balance?.amount ? (
-                      <Text
-                        css={{ ml: 'auto' }}
-                        style="subtitle3"
-                        color="subtle"
-                      >
-                        {formatBN(
-                          BigInt(currency.balance.amount),
-                          5,
-                          decimals,
-                          compactBalance
-                        )}
-                      </Text>
-                    ) : null}
-                  </Button>
-                )
-              })}
-            </Flex>
-          </>
+          <SetChainStep
+            setTokenSelectorStep={setTokenSelectorStep}
+            setInputElement={setInputElement}
+            chainSearchInput={chainSearchInput}
+            setChainSearchInput={setChainSearchInput}
+            selectToken={selectToken}
+            selectedCurrencyList={selectedCurrencyList}
+            type={type}
+          />
         ) : null}
       </Flex>
     </Modal>
-  )
-}
-
-type CurrencyRowProps = {
-  currencyList: EnhancedCurrencyList
-  setCurrencyList: (currencyList: EnhancedCurrencyList) => void
-  selectToken: (currency: Currency, chainId?: number) => void
-  isLoadingDuneBalances: boolean
-}
-
-const CurrencyRow: FC<CurrencyRowProps> = ({
-  currencyList,
-  setCurrencyList,
-  selectToken,
-  isLoadingDuneBalances
-}) => {
-  const balance = currencyList.totalBalance
-  const decimals =
-    currencyList?.chains?.length > 0
-      ? currencyList?.chains?.[0].decimals ?? 18
-      : 18
-  const compactBalance = Boolean(
-    balance && decimals && balance.toString().length - decimals > 4
-  )
-
-  return (
-    <Button
-      color="ghost"
-      onClick={() => {
-        if (currencyList.chains.length > 1) {
-          setCurrencyList(currencyList)
-        } else {
-          selectToken(
-            currencyList?.chains?.[0],
-            currencyList?.chains?.[0].chainId
-          )
-        }
-      }}
-      css={{
-        gap: '2',
-        cursor: 'pointer',
-        px: '4',
-        py: '2',
-        transition: 'backdrop-filter 250ms linear',
-        _hover: {
-          backgroundColor: 'gray/10'
-        },
-        flexShrink: 0,
-        alignContent: 'center',
-        display: 'flex',
-        width: '100%'
-      }}
-    >
-      <img
-        alt={currencyList?.chains?.[0]?.name ?? ''}
-        src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-        width={32}
-        height={32}
-        style={{ borderRadius: 9999 }}
-      />
-      <Flex direction="column" align="start">
-        <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
-        {currencyList?.chains?.length === 1 ? (
-          <Text style="subtitle3" color="subtle">
-            {truncateAddress(currencyList?.chains?.[0].address)}
-          </Text>
-        ) : null}
-      </Flex>
-      <Flex align="center" css={{ position: 'relative' }}>
-        {currencyList?.chains?.slice(0, 6).map((currency, index) => (
-          <ChainIcon
-            chainId={Number(currency.chainId)}
-            key={index}
-            width={18}
-            height={18}
-            css={{
-              ml: index > 0 ? '-4px' : 0,
-              '--borderColor': 'colors.modal-background',
-              border: '1px solid var(--borderColor)',
-              borderRadius: 4,
-              background: 'modal-background',
-              overflow: 'hidden'
-            }}
-          />
-        ))}
-        {currencyList?.chains?.length > 6 ? (
-          <Text style="tiny" css={{ ml: '1' }}>
-            + more
-          </Text>
-        ) : null}
-      </Flex>
-      {isLoadingDuneBalances && !balance ? (
-        <Skeleton css={{ ml: 'auto', width: 60 }} />
-      ) : null}
-      {balance ? (
-        <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
-          {formatBN(balance, 5, decimals, compactBalance)}
-        </Text>
-      ) : null}
-    </Button>
   )
 }
 

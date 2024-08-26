@@ -25,7 +25,7 @@ import WidgetTabs, { type WidgetTabId } from '../../widgets/WidgetTabs.js'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import WidgetFooter from '../WidgetFooter.js'
-import { ChainWidgetTrigger } from '../../../components/common/TokenSelector/ChainWidgetTrigger.js'
+import { ChainWidgetTrigger } from '../../common/TokenSelector/triggers/ChainWidgetTrigger.js'
 
 type ChainWidgetProps = {
   chainId: number
@@ -272,7 +272,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           restrictedTokensList={
                             tabId === 'withdraw' ? tokens : undefined
                           }
-                          locked={lockFromToken}
                           onAnalyticEvent={onAnalyticEvent}
                           chainIdsFilter={
                             tabId === 'withdraw' ? [chainId] : undefined
@@ -439,7 +438,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           restrictedTokensList={
                             tabId === 'deposit' ? tokens : undefined
                           }
-                          locked={lockToToken}
                           chainIdsFilter={
                             tabId === 'deposit' ? [chainId] : undefined
                           }

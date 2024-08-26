@@ -1,12 +1,12 @@
 import type { FC } from 'react'
-import type { Token } from '../../../types/index.js'
+import type { Token } from '../../../../types/index.js'
 import {
   Box,
   Button,
   ChainIcon,
   Flex,
   Text
-} from '../../../components/primitives/index.js'
+} from '../../../../components/primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
@@ -14,11 +14,17 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 type ChainTriggerProps = {
   token?: Token
   chain?: RelayChain
+  onClick?: () => void
 }
 
-export const ChainTrigger: FC<ChainTriggerProps> = ({ token, chain }) => {
+export const ChainTrigger: FC<ChainTriggerProps> = ({
+  token,
+  chain,
+  onClick
+}) => {
   return (
     <Button
+      onClick={onClick}
       css={{
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -33,7 +39,7 @@ export const ChainTrigger: FC<ChainTriggerProps> = ({ token, chain }) => {
       }}
     >
       <Flex align="center" css={{ gap: '2' }}>
-        <ChainIcon chainId={token?.chainId} />
+        <ChainIcon chainId={token?.chainId} width={24} height={24} />
         <Text style="h6">{chain?.displayName}</Text>
       </Flex>
       <Box css={{ color: 'gray9' }}>

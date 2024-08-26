@@ -1,20 +1,20 @@
 import type { FC } from 'react'
-import type { Token } from '../../../types/index.js'
+import type { Token } from '../../../../types/index.js'
 import {
   Button,
   Flex,
   Text,
   Box
-} from '../../../components/primitives/index.js'
+} from '../../../../components/primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
-type SwapWidgetTokenTriggerProps = {
+type ChainWidgetTriggerProps = {
   token?: Token
   locked?: boolean
 }
 
-export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
+export const ChainWidgetTrigger: FC<ChainWidgetTriggerProps> = ({
   token,
   locked
 }) => {
@@ -24,17 +24,23 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
       corners="pill"
       disabled={locked}
       css={{
-        height: 36,
-        minHeight: 36,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: '3',
+        height: 46,
         width: 'max-content',
+        maxWidth: 162,
         flexShrink: 0,
         overflow: 'hidden',
-        px: '3',
-        py: '2',
-        backgroundColor: 'gray2',
-        border: 'none',
-        _hover: {
-          backgroundColor: 'gray3'
+        _disabled: {
+          backgroundColor: 'transparent',
+          border: 'none',
+          px: 0,
+          _hover: {
+            backgroundColor: 'transparent',
+            filter: 'none'
+          }
         }
       }}
     >
@@ -42,8 +48,8 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
         <img
           alt={token.name}
           src={token.logoURI}
-          width={20}
-          height={20}
+          width={30}
+          height={30}
           style={{
             borderRadius: 9999
           }}
@@ -63,18 +69,16 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
       color="primary"
       corners="pill"
       css={{
-        height: 36,
-        minHeight: 36,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        color: 'white',
+        px: '3',
+        height: 46,
+        maxWidth: 162,
         width: 'max-content',
         flexShrink: 0,
-        overflow: 'hidden',
-        px: '3',
-        py: '2',
-        backgroundColor: 'gray2',
-        border: 'none',
-        _hover: {
-          backgroundColor: 'gray3'
-        }
+        fontWeight: 500
       }}
     >
       Select Token

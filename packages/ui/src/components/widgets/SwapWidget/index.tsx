@@ -25,8 +25,8 @@ import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../utils/truncate.js'
-import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/SwapWidgetTokenTrigger.js'
-import { ChainTrigger } from '../../common/TokenSelector/ChainTrigger.js'
+import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
+import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -153,6 +153,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         const truncatedAddress = truncateAddress(address)
 
+        const fromTokenSelectorOpenState = useState(false)
+        const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
+          'token' | 'chain'
+        >('token')
+
         return (
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
@@ -228,9 +233,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         </AnchorButton>
                       ) : null}
                     </Flex>
-                    <TokenSelector
+                    {/* <TokenSelector
                       token={fromToken}
-                      locked={lockFromToken}
                       setToken={(token) => {
                         // @TODO: new event?
                         onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -256,6 +260,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         </div>
                       }
                       onAnalyticEvent={onAnalyticEvent}
+                    /> */}
+                    <ChainTrigger
+                      token={fromToken}
+                      chain={fromChain}
+                      onClick={() => {
+                        setFromTokenSelectorType('chain')
+                        fromTokenSelectorOpenState[1](
+                          !fromTokenSelectorOpenState[0]
+                        )
+                      }}
                     />
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
@@ -295,8 +309,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                       />
                       <TokenSelector
+                        openState={fromTokenSelectorOpenState}
+                        type={fromTokenSelectorType}
                         token={fromToken}
-                        locked={lockFromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -316,7 +331,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                         context="from"
                         trigger={
-                          <div style={{ width: 'max-content' }}>
+                          <div
+                            style={{ width: 'max-content' }}
+                            onClick={() => setFromTokenSelectorType('token')}
+                          >
                             <SwapWidgetTokenTrigger
                               token={fromToken}
                               locked={lockFromToken}
@@ -473,9 +491,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         </AnchorButton>
                       ) : null}
                     </Flex>
-                    <TokenSelector
+                    {/* <TokenSelector
                       token={toToken}
-                      locked={lockToToken}
                       setToken={(token) => {
                         // @TODO: new event?
                         onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -501,7 +518,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         </div>
                       }
                       onAnalyticEvent={onAnalyticEvent}
-                    />
+                    /> */}
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
                         value={
@@ -544,9 +561,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                       />
-                      <TokenSelector
+                      {/* <TokenSelector
                         token={toToken}
-                        locked={lockToToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
@@ -573,7 +589,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </div>
                         }
                         onAnalyticEvent={onAnalyticEvent}
-                      />
+                      /> */}
                     </Flex>
                     <Flex
                       align="center"

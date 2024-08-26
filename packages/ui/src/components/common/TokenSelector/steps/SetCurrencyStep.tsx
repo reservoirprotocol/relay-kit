@@ -1,0 +1,271 @@
+import type { FC } from 'react'
+import {
+  Flex,
+  Text,
+  Box,
+  Input,
+  Skeleton,
+  ChainIcon,
+  Button
+} from '../../../primitives/index.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { formatBN } from '../../../../utils/numbers.js'
+import { truncateAddress } from '../../../../utils/truncate.js'
+import { LoadingSpinner } from '../../LoadingSpinner.js'
+import type { EnhancedCurrencyList } from '../TokenSelector.js'
+import type { Currency } from '@reservoir0x/relay-kit-hooks'
+import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
+import type { Address, Chain } from 'viem'
+import type { paths } from '@reservoir0x/relay-sdk'
+
+type SetCurrencyProps = {
+  setInputElement: (
+    value: React.SetStateAction<HTMLInputElement | null>
+  ) => void
+  tokenSearchInput: string
+  setTokenSearchInput: (value: string) => void
+  chainIdsFilter: number[] | undefined
+  chainFilterOptions: Chain[]
+  chainFilter: ChainFilterValue
+  setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
+  isLoading: boolean
+  isLoadingDuneBalances: boolean
+  useDefaultTokenList: boolean
+  context: 'from' | 'to'
+  suggestedTokens?: paths['/currencies/v1']['post']['responses']['200']['content']['application/json']
+  address?: Address
+  enhancedCurrencyList?: EnhancedCurrencyList[]
+  selectToken: (currency: Currency, chainId?: number) => void
+  setCurrencyList: (currencyList: EnhancedCurrencyList) => void
+}
+
+export const SetCurrencyStep: FC<SetCurrencyProps> = ({
+  setInputElement,
+  tokenSearchInput,
+  setTokenSearchInput,
+  chainIdsFilter,
+  chainFilterOptions,
+  chainFilter,
+  setChainFilter,
+  isLoading,
+  isLoadingDuneBalances,
+  useDefaultTokenList,
+  context,
+  suggestedTokens,
+  address,
+  enhancedCurrencyList,
+  selectToken,
+  setCurrencyList
+}) => {
+  return (
+    <>
+      <Text style="h6">Select Token</Text>
+      <Flex align="center" css={{ width: '100%', gap: '2' }}>
+        <Input
+          inputRef={(element) => {
+            setInputElement(element)
+          }}
+          placeholder="Search for a token"
+          icon={
+            <Box css={{ color: 'gray9' }}>
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                width={16}
+                height={16}
+              />
+            </Box>
+          }
+          containerCss={{ width: '100%', height: 40 }}
+          css={{
+            width: '100%',
+            _placeholder_parent: {
+              textOverflow: 'ellipsis'
+            }
+          }}
+          value={tokenSearchInput}
+          onChange={(e) =>
+            setTokenSearchInput((e.target as HTMLInputElement).value)
+          }
+        />
+        {!chainIdsFilter || chainIdsFilter.length > 1 ? (
+          <ChainFilter
+            options={[
+              { id: undefined, name: 'All Chains' },
+              ...chainFilterOptions
+            ]}
+            value={chainFilter}
+            onSelect={(value) => {
+              setChainFilter(value)
+            }}
+          />
+        ) : null}
+      </Flex>
+      <Flex
+        css={{
+          width: '100%',
+          '--borderColor': 'colors.subtle-border-color',
+          borderBottom: '1px solid var(--borderColor)',
+          pr: '4'
+        }}
+      >
+        <Text style="body3" color="subtle" css={{ pl: '2' }}>
+          {!isLoading
+            ? useDefaultTokenList
+              ? context === 'from' &&
+                suggestedTokens &&
+                (suggestedTokens as any).length &&
+                (suggestedTokens as any).length > 0
+                ? 'Suggested Tokens'
+                : 'Popular Tokens'
+              : 'Tokens'
+            : null}
+        </Text>
+        {address ? (
+          <Text style="body3" color="subtle" css={{ pl: '2', ml: 'auto' }}>
+            Balance
+          </Text>
+        ) : undefined}
+      </Flex>
+      <Flex
+        direction="column"
+        css={{
+          height: 350,
+          overflowY: 'auto',
+          pb: '2',
+          gap: '2',
+          width: '100%'
+        }}
+      >
+        {/* Loading State*/}
+        {isLoading ? (
+          <Flex direction="column" align="center" css={{ py: '5' }}>
+            <LoadingSpinner
+              css={{ height: 40, width: 40, fill: 'primary-color' }}
+            />
+          </Flex>
+        ) : null}
+        {/* Data State */}
+        {!isLoading && enhancedCurrencyList && enhancedCurrencyList?.length > 0
+          ? enhancedCurrencyList?.map((list, idx) =>
+              list ? (
+                <CurrencyRow
+                  currencyList={list as EnhancedCurrencyList}
+                  setCurrencyList={setCurrencyList}
+                  selectToken={selectToken}
+                  isLoadingDuneBalances={isLoadingDuneBalances}
+                  key={idx}
+                />
+              ) : null
+            )
+          : null}
+        {/* Empty State */}
+        {!isLoading &&
+        (!enhancedCurrencyList || enhancedCurrencyList?.length === 0) ? (
+          <Text css={{ textAlign: 'center', py: '5' }}>No results found.</Text>
+        ) : null}
+      </Flex>
+    </>
+  )
+}
+
+type CurrencyRowProps = {
+  currencyList: EnhancedCurrencyList
+  setCurrencyList: (currencyList: EnhancedCurrencyList) => void
+  selectToken: (currency: Currency, chainId?: number) => void
+  isLoadingDuneBalances: boolean
+}
+
+const CurrencyRow: FC<CurrencyRowProps> = ({
+  currencyList,
+  setCurrencyList,
+  selectToken,
+  isLoadingDuneBalances
+}) => {
+  const balance = currencyList.totalBalance
+  const decimals =
+    currencyList?.chains?.length > 0
+      ? currencyList?.chains?.[0].decimals ?? 18
+      : 18
+  const compactBalance = Boolean(
+    balance && decimals && balance.toString().length - decimals > 4
+  )
+
+  return (
+    <Button
+      color="ghost"
+      onClick={() => {
+        if (currencyList.chains.length > 1) {
+          setCurrencyList(currencyList)
+        } else {
+          selectToken(
+            currencyList?.chains?.[0],
+            currencyList?.chains?.[0].chainId
+          )
+          setCurrencyList(currencyList)
+        }
+      }}
+      css={{
+        gap: '2',
+        cursor: 'pointer',
+        px: '4',
+        py: '2',
+        transition: 'backdrop-filter 250ms linear',
+        _hover: {
+          backgroundColor: 'gray/10'
+        },
+        flexShrink: 0,
+        alignContent: 'center',
+        display: 'flex',
+        width: '100%'
+      }}
+    >
+      <img
+        alt={currencyList?.chains?.[0]?.name ?? ''}
+        src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+        width={32}
+        height={32}
+        style={{ borderRadius: 9999 }}
+      />
+      <Flex direction="column" align="start">
+        <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
+        {currencyList?.chains?.length === 1 ? (
+          <Text style="subtitle3" color="subtle">
+            {truncateAddress(currencyList?.chains?.[0].address)}
+          </Text>
+        ) : null}
+      </Flex>
+      <Flex align="center" css={{ position: 'relative' }}>
+        {currencyList?.chains?.slice(0, 6).map((currency, index) => (
+          <ChainIcon
+            chainId={Number(currency.chainId)}
+            key={index}
+            width={18}
+            height={18}
+            css={{
+              ml: index > 0 ? '-4px' : 0,
+              '--borderColor': 'colors.modal-background',
+              border: '1px solid var(--borderColor)',
+              borderRadius: 4,
+              background: 'modal-background',
+              overflow: 'hidden'
+            }}
+          />
+        ))}
+        {currencyList?.chains?.length > 6 ? (
+          <Text style="tiny" css={{ ml: '1' }}>
+            + more
+          </Text>
+        ) : null}
+      </Flex>
+      {isLoadingDuneBalances && !balance ? (
+        <Skeleton css={{ ml: 'auto', width: 60 }} />
+      ) : null}
+      {balance ? (
+        <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
+          {formatBN(balance, 5, decimals, compactBalance)}
+        </Text>
+      ) : null}
+    </Button>
+  )
+}
