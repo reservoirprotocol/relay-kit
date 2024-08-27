@@ -35,23 +35,23 @@ const SwapWidgetPage: NextPage = () => {
           }}
           // lockToToken={true}
           // lockFromToken={true}
-          // defaultFromToken={{
-          //   chainId: 8453,
-          //   address: '0x0000000000000000000000000000000000000000',
-          //   decimals: 18,
-          //   name: 'ETH',
-          //   symbol: 'ETH',
-          //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-          // }}
           defaultFromToken={{
-            chainId: 1,
-            address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
-            decimals: 8,
-            name: 'SOLVE',
-            symbol: 'SOLVE',
-            logoURI:
-              'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
+            chainId: 8453,
+            address: '0x0000000000000000000000000000000000000000',
+            decimals: 18,
+            name: 'ETH',
+            symbol: 'ETH',
+            logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
           }}
+          // defaultFromToken={{
+          //   chainId: 1,
+          //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
+          //   decimals: 8,
+          //   name: 'SOLVE',
+          //   symbol: 'SOLVE',
+          //   logoURI:
+          //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
+          // }}
           // defaultAmount={'5'}
           onConnectWallet={openConnectModal}
           onOpenAccountModal={openAccountModal}
