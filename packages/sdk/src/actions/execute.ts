@@ -56,7 +56,7 @@ export async function execute(data: ExecuteActionParameters) {
       chainId,
       request,
       adaptedWallet,
-      ({ steps, fees, breakdown, details }) => {
+      ({ steps, fees, breakdown, details, refunded, error }) => {
         const { currentStep, currentStepItem, txHashes } =
           getCurrentStepData(steps)
 
@@ -67,7 +67,9 @@ export async function execute(data: ExecuteActionParameters) {
           details,
           currentStep,
           currentStepItem,
-          txHashes
+          txHashes,
+          refunded,
+          error
         })
       },
       _quote,

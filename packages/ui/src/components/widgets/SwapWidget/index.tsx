@@ -246,6 +246,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         fromTokenSelectorOpenState[1](
                           !fromTokenSelectorOpenState[0]
                         )
+                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
+                          type: 'chain',
+                          direction: 'input'
+                        })
                       }}
                     />
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
@@ -307,6 +311,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="from"
+                        size={
+                          fromTokenSelectorType === 'chain'
+                            ? 'mobile'
+                            : 'desktop'
+                        }
                         trigger={
                           <div
                             style={{ width: 'max-content' }}
@@ -476,6 +485,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         toTokenSelectorOpenState[1](
                           !toTokenSelectorOpenState[0]
                         )
+                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
+                          type: 'chain',
+                          direction: 'output'
+                        })
                       }}
                     />
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
@@ -541,6 +554,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="to"
+                        size={
+                          toTokenSelectorType === 'chain' ? 'mobile' : 'desktop'
+                        }
                         trigger={
                           <div
                             style={{ width: 'max-content' }}

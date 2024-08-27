@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import { useMemo, useState, type FC } from 'react'
 import {
   Flex,
   Text,
@@ -18,8 +18,10 @@ import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
 import type { Address, Chain } from 'viem'
 import type { paths } from '@reservoir0x/relay-sdk'
+import Fuse from 'fuse.js'
 
 type SetCurrencyProps = {
+  size: 'mobile' | 'desktop'
   setInputElement: (
     value: React.SetStateAction<HTMLInputElement | null>
   ) => void
@@ -40,7 +42,15 @@ type SetCurrencyProps = {
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
 }
 
+const fuseSearchOptions = {
+  includeScore: true,
+  includeMatches: true,
+  threshold: 0.2,
+  keys: ['id', 'name']
+}
+
 export const SetCurrencyStep: FC<SetCurrencyProps> = ({
+  size,
   setInputElement,
   tokenSearchInput,
   setTokenSearchInput,
@@ -58,112 +68,204 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   selectToken,
   setCurrencyList
 }) => {
+  const isDesktop = size === 'desktop'
+  const allChains = [
+    { id: undefined, name: 'All Chains' },
+    ...chainFilterOptions
+  ]
+  const chainFuse = new Fuse(allChains, fuseSearchOptions)
+  const [chainSearchInput, setChainSearchInput] = useState('')
+
+  const filteredChains = useMemo(() => {
+    if (chainSearchInput.trim() !== '') {
+      return chainFuse.search(chainSearchInput).map((result) => result.item)
+    } else {
+      return allChains
+    }
+  }, [chainSearchInput, allChains, chainFuse])
+
   return (
     <>
-      <Text style="h6">Select Token</Text>
-      <Flex align="center" css={{ width: '100%', gap: '2' }}>
-        <Input
-          inputRef={(element) => {
-            setInputElement(element)
-          }}
-          placeholder="Search for a token"
-          icon={
-            <Box css={{ color: 'gray9' }}>
-              <FontAwesomeIcon
-                icon={faMagnifyingGlass}
-                width={16}
-                height={16}
-              />
-            </Box>
-          }
-          containerCss={{ width: '100%', height: 40 }}
-          css={{
-            width: '100%',
-            _placeholder_parent: {
-              textOverflow: 'ellipsis'
-            }
-          }}
-          value={tokenSearchInput}
-          onChange={(e) =>
-            setTokenSearchInput((e.target as HTMLInputElement).value)
-          }
-        />
-        {!chainIdsFilter || chainIdsFilter.length > 1 ? (
-          <ChainFilter
-            options={[
-              { id: undefined, name: 'All Chains' },
-              ...chainFilterOptions
-            ]}
-            value={chainFilter}
-            onSelect={(value) => {
-              setChainFilter(value)
-            }}
-          />
-        ) : null}
-      </Flex>
-      <Flex
+      <Text
+        style="h6"
         css={{
           width: '100%',
-          '--borderColor': 'colors.subtle-border-color',
-          borderBottom: '1px solid var(--borderColor)',
-          pr: '4'
+          textAlign: 'left'
         }}
       >
-        <Text style="body3" color="subtle" css={{ pl: '2' }}>
-          {!isLoading
-            ? useDefaultTokenList
-              ? context === 'from' &&
-                suggestedTokens &&
-                (suggestedTokens as any).length &&
-                (suggestedTokens as any).length > 0
-                ? 'Suggested Tokens'
-                : 'Popular Tokens'
-              : 'Tokens'
-            : null}
-        </Text>
-        {address ? (
-          <Text style="body3" color="subtle" css={{ pl: '2', ml: 'auto' }}>
-            Balance
-          </Text>
-        ) : undefined}
-      </Flex>
-      <Flex
-        direction="column"
-        css={{
-          height: 350,
-          overflowY: 'auto',
-          pb: '2',
-          gap: '2',
-          width: '100%'
-        }}
-      >
-        {/* Loading State*/}
-        {isLoading ? (
-          <Flex direction="column" align="center" css={{ py: '5' }}>
-            <LoadingSpinner
-              css={{ height: 40, width: 40, fill: 'primary-color' }}
+        Select Token
+      </Text>
+      <Flex css={{ width: '100%', gap: '3' }}>
+        {isDesktop ? (
+          <>
+            <Flex
+              direction="column"
+              css={{ maxWidth: 170, flexShrink: 0, gap: '1' }}
+            >
+              <Input
+                inputRef={(element) => {
+                  setInputElement(element)
+                }}
+                placeholder="Search chains"
+                icon={
+                  <Box css={{ color: 'gray9' }}>
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      width={16}
+                      height={16}
+                    />
+                  </Box>
+                }
+                containerCss={{ width: '100%', height: 40 }}
+                css={{
+                  width: '100%',
+                  _placeholder_parent: {
+                    textOverflow: 'ellipsis'
+                  }
+                }}
+                value={chainSearchInput}
+                onChange={(e) =>
+                  setChainSearchInput((e.target as HTMLInputElement).value)
+                }
+              />
+              <Flex
+                direction="column"
+                css={{
+                  width: '100%',
+                  gap: '1',
+                  height: 350,
+                  overflowY: 'auto'
+                }}
+              >
+                {filteredChains?.map((chain) => {
+                  const active = chainFilter.id === chain.id
+                  return (
+                    <Button
+                      key={chain.id}
+                      color="ghost"
+                      size="none"
+                      css={{
+                        p: '2',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2',
+                        backgroundColor: active ? 'gray5' : '',
+                        _hover: {
+                          backgroundColor: 'gray4'
+                        }
+                      }}
+                      onClick={() => setChainFilter(chain)}
+                    >
+                      <ChainIcon
+                        chainId={chain.id}
+                        square
+                        width={24}
+                        height={24}
+                      />
+                      <Text style="subtitle1" ellipsify>
+                        {chain.name}
+                      </Text>
+                    </Button>
+                  )
+                })}
+              </Flex>
+            </Flex>
+            <Box
+              css={{
+                width: '1px',
+                height: 'auto',
+                alignSelf: 'stretch',
+                '--borderColor': 'colors.subtle-border-color',
+                border: '1px solid var(--borderColor)'
+              }}
             />
+          </>
+        ) : null}
+        <Flex
+          direction="column"
+          align="center"
+          css={{ width: '100%', gap: '1' }}
+        >
+          <Flex align="center" css={{ width: '100%', gap: '2' }}>
+            <Input
+              inputRef={(element) => {
+                setInputElement(element)
+              }}
+              placeholder="Search for a token"
+              icon={
+                <Box css={{ color: 'gray9' }}>
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    width={16}
+                    height={16}
+                  />
+                </Box>
+              }
+              containerCss={{ width: '100%', height: 40 }}
+              css={{
+                width: '100%',
+                _placeholder_parent: {
+                  textOverflow: 'ellipsis'
+                }
+              }}
+              value={tokenSearchInput}
+              onChange={(e) =>
+                setTokenSearchInput((e.target as HTMLInputElement).value)
+              }
+            />
+            {!isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
+              <ChainFilter
+                options={allChains}
+                value={chainFilter}
+                onSelect={(value) => {
+                  setChainFilter(value)
+                }}
+              />
+            ) : null}
           </Flex>
-        ) : null}
-        {/* Data State */}
-        {!isLoading && enhancedCurrencyList && enhancedCurrencyList?.length > 0
-          ? enhancedCurrencyList?.map((list, idx) =>
-              list ? (
-                <CurrencyRow
-                  currencyList={list as EnhancedCurrencyList}
-                  setCurrencyList={setCurrencyList}
-                  selectToken={selectToken}
-                  isLoadingDuneBalances={isLoadingDuneBalances}
-                  key={idx}
+          <Flex
+            direction="column"
+            css={{
+              height: 350,
+              overflowY: 'auto',
+              pb: '2',
+              gap: '2',
+              width: '100%'
+            }}
+          >
+            {/* Loading State*/}
+            {isLoading ? (
+              <Flex direction="column" align="center" css={{ py: '5' }}>
+                <LoadingSpinner
+                  css={{ height: 40, width: 40, fill: 'primary-color' }}
                 />
-              ) : null
-            )
-          : null}
-        {/* Empty State */}
-        {!isLoading &&
-        (!enhancedCurrencyList || enhancedCurrencyList?.length === 0) ? (
-          <Text css={{ textAlign: 'center', py: '5' }}>No results found.</Text>
-        ) : null}
+              </Flex>
+            ) : null}
+            {/* Data State */}
+            {!isLoading &&
+            enhancedCurrencyList &&
+            enhancedCurrencyList?.length > 0
+              ? enhancedCurrencyList?.map((list, idx) =>
+                  list ? (
+                    <CurrencyRow
+                      currencyList={list as EnhancedCurrencyList}
+                      setCurrencyList={setCurrencyList}
+                      selectToken={selectToken}
+                      isLoadingDuneBalances={isLoadingDuneBalances}
+                      key={idx}
+                    />
+                  ) : null
+                )
+              : null}
+            {/* Empty State */}
+            {!isLoading &&
+            (!enhancedCurrencyList || enhancedCurrencyList?.length === 0) ? (
+              <Text css={{ textAlign: 'center', py: '5' }}>
+                No results found.
+              </Text>
+            ) : null}
+          </Flex>
+        </Flex>
       </Flex>
     </>
   )

@@ -25,6 +25,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
+  size: 'mobile' | 'desktop'
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
   chainSearchInput: string
@@ -42,6 +43,7 @@ const fuseSearchOptions = {
 
 export const SetChainStep: FC<SetChainStepProps> = ({
   type,
+  size,
   setTokenSelectorStep,
   setInputElement,
   chainSearchInput,
@@ -50,6 +52,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
+  const isDesktop = size === 'desktop'
 
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains = client?.chains || []
@@ -106,7 +109,14 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           <FontAwesomeIcon icon={faChevronLeft} width={10} />
         </Button>
       ) : null}
-      <Text style="h6">
+      <Text
+        style="h6"
+        css={{
+          width: '100%',
+          textAlign: 'left',
+          marginLeft: type === 'token' ? '80px' : '0'
+        }}
+      >
         Select Chain for {selectedCurrencyList?.chains?.[0]?.symbol}
       </Text>
       <Input
@@ -132,24 +142,17 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         }
       />
 
-      {/* <Flex
-        css={{
-          width: '100%',
-          '--borderColor': 'colors.subtle-border-color',
-          borderBottom: '1px solid var(--borderColor)'
-        }}
-      >
-        <Text style="body3" color="subtle" css={{ pl: '2' }}>
-          Chains
-        </Text>
-      </Flex> */}
       <Flex
-        direction="column"
+        direction={'column'}
         css={{
+          display: isDesktop ? 'grid' : 'flex',
+          gridTemplateColumns: isDesktop ? 'repeat(2, minmax(0, 1fr))' : 'none',
+          gridColumnGap: isDesktop ? '8px' : '0',
+          gridAutoRows: 'min-content',
           height: 350,
           overflowY: 'auto',
           pb: '2',
-          gap: '2',
+          gap: isDesktop ? '0' : '2',
           width: '100%'
         }}
       >
@@ -168,9 +171,10 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                 selectToken(currency, currency.chainId)
               }}
               css={{
+                minHeight: 'auto',
                 gap: '2',
                 cursor: 'pointer',
-                px: '4',
+                px: '2',
                 py: '2',
                 transition: 'backdrop-filter 250ms linear',
                 _hover: {
@@ -219,7 +223,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               }}
             >
               <Text style="subtitle2" color="subtle" css={{ pl: '2' }}>
-                Unsupported Chains
+                Other Chains
               </Text>
             </Flex>
             {filteredChains.unsupported.map((chain) => {

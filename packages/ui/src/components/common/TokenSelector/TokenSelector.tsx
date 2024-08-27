@@ -33,6 +33,7 @@ export type TokenSelectorProps = {
   chainIdsFilter?: number[]
   context: 'from' | 'to'
   type?: 'token' | 'chain'
+  size?: 'mobile' | 'desktop'
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -59,6 +60,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   chainIdsFilter,
   context,
   type = 'token',
+  size = 'mobile',
   setToken,
   onAnalyticEvent
 }) => {
@@ -380,12 +382,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   }, [open, inputElement])
 
   useEffect(() => {
-    onAnalyticEvent?.(
-      open
-        ? EventNames.SWAP_START_TOKEN_SELECT
-        : EventNames.SWAP_EXIT_TOKEN_SELECT
-    )
-
     if (!open) {
       resetState()
     } else if (type === 'chain') {
@@ -397,11 +393,23 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     <Modal
       open={open}
       onOpenChange={(openChange) => {
+        onAnalyticEvent?.(
+          openChange
+            ? EventNames.SWAP_START_TOKEN_SELECT
+            : EventNames.SWAP_EXIT_TOKEN_SELECT,
+          {
+            type,
+            direction: context === 'from' ? 'input' : 'output'
+          }
+        )
         setOpen(openChange)
       }}
       showCloseButton={true}
       trigger={trigger}
-      contentCss={{ py: 24, px: '3' }}
+      css={{
+        p: '4',
+        sm: { minWidth: size === 'desktop' ? 568 : 400, maxWidth: 568 }
+      }}
     >
       <Flex
         direction="column"
@@ -410,6 +418,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       >
         {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
           <SetCurrencyStep
+            size={size}
             setInputElement={setInputElement}
             tokenSearchInput={tokenSearchInput}
             setTokenSearchInput={setTokenSearchInput}
@@ -439,6 +448,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             selectToken={selectToken}
             selectedCurrencyList={selectedCurrencyList}
             type={type}
+            size={size}
           />
         ) : null}
       </Flex>

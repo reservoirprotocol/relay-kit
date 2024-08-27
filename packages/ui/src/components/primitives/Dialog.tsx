@@ -128,10 +128,9 @@ const AnimatedContent = forwardRef<
           transform: 'translateX(-50%) translateY(-50%)'
         }
       }
-
   return (
     <DialogPrimitive.DialogContent
-      className={designCss(ContentCss.raw(), designCss.raw(css))}
+      className={designCss(ContentCss.raw(props), designCss.raw(css))}
       forceMount
       asChild
       {...props}

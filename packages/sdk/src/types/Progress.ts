@@ -9,4 +9,6 @@ export type ProgressData = {
   currentStep?: ExecuteStep | null
   currentStepItem?: ExecuteStepItem
   txHashes?: { txHash: Address; chainId: number }[]
+  error?: Execute['error']
+  refunded?: Execute['refunded']
 }

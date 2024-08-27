@@ -312,6 +312,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             href={`${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
             style={{ width: '100%' }}
             target="_blank"
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
           >
             <Button
               color="secondary"
