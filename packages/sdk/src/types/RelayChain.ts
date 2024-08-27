@@ -22,6 +22,7 @@ export type RelayChain = {
     id?: string
     symbol?: string
     name?: string
+    address?: string
     decimals?: number
     supportsBridging?: boolean
   }

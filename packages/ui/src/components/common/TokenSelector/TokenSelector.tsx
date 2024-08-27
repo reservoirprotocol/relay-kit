@@ -62,8 +62,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   setToken,
   onAnalyticEvent
 }) => {
-  console.log('type: ', type)
-  // const [open, setOpen] = useState(false)
   const [internalOpen, setInternalOpen] = useState(false)
   const [open, setOpen] = openState || [internalOpen, setInternalOpen]
   const { address } = useAccount()
@@ -271,14 +269,68 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
 
-  const selectedTokenCurrencyList =
-    enhancedCurrencyList?.find((currencyList) =>
+  const selectedTokenCurrencyList = useMemo(() => {
+    const fromEnhancedList = enhancedCurrencyList?.find((currencyList) =>
       currencyList?.chains?.some(
         (chain) =>
           chain?.chainId === token?.chainId &&
           chain?.address?.toLowerCase() === token?.address?.toLowerCase()
       )
-    ) ?? selectedCurrencyList
+    )
+
+    const fromSelectedList =
+      selectedCurrencyList?.chains?.[0]?.chainId === token?.chainId &&
+      selectedCurrencyList?.chains?.[0].name?.toLowerCase() ===
+        token?.name?.toLowerCase()
+        ? selectedCurrencyList
+        : undefined
+
+    return fromEnhancedList || fromSelectedList
+  }, [enhancedCurrencyList, selectedCurrencyList, token])
+
+  // Fetch currency list if there is no selectedTokenCurrencyList
+  const { data: fetchedCurrencyList, isLoading: isLoadingFetchedCurrencyList } =
+    useTokenList(
+      relayClient?.baseApiUrl,
+      {
+        chainIds: token?.chainId ? [token.chainId] : [],
+        address: token?.address,
+        limit: 1
+      },
+      {
+        enabled:
+          !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
+      }
+    )
+
+  // Update selectedTokenCurrencyList when fetchedCurrencyList is returned
+  useEffect(() => {
+    if (
+      selectedCurrencyList === undefined &&
+      fetchedCurrencyList &&
+      fetchedCurrencyList.length > 0
+    ) {
+      const currencyList = fetchedCurrencyList[0]
+      const enhancedList: EnhancedCurrencyList = {
+        chains: currencyList.map((currency) => ({
+          ...currency,
+          relayChain: configuredChains.find(
+            (chain) => chain.id === currency.chainId
+          ) as Chain,
+          balance: tokenBalances
+            ? tokenBalances[`${currency.chainId}:${currency.address}`]
+            : undefined
+        }))
+      }
+
+      setSelectedCurrencyList(enhancedList)
+    }
+  }, [
+    selectedTokenCurrencyList,
+    fetchedCurrencyList,
+    configuredChains,
+    tokenBalances
+  ])
 
   const setCurrencyList = useCallback((currencyList: EnhancedCurrencyList) => {
     setSelectedCurrencyList(currencyList)
@@ -334,12 +386,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         : EventNames.SWAP_EXIT_TOKEN_SELECT
     )
 
-    console.log('------------')
-    console.log('open type: ', type)
-    console.log('selectedTokenCurrencyList: ', selectedTokenCurrencyList)
     if (!open) {
       resetState()
-    } else if (type === 'chain' && selectedTokenCurrencyList !== undefined) {
+    } else if (type === 'chain') {
       setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
     }
   }, [open])
@@ -348,24 +397,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     <Modal
       open={open}
       onOpenChange={(openChange) => {
-        // onAnalyticEvent?.(
-        //   openChange
-        //     ? EventNames.SWAP_START_TOKEN_SELECT
-        //     : EventNames.SWAP_EXIT_TOKEN_SELECT
-        // )
         setOpen(openChange)
-
-        // console.log('------------')
-        // console.log('open type: ', type)
-        // console.log('selectedTokenCurrencyList: ', selectedTokenCurrencyList)
-        // if (!openChange) {
-        //   resetState()
-        // } else if (
-        //   type === 'chain' &&
-        //   selectedTokenCurrencyList !== undefined
-        // ) {
-        //   setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
-        // }
       }}
       showCloseButton={true}
       trigger={trigger}

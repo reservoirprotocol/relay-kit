@@ -21,6 +21,7 @@ import {
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import Fuse from 'fuse.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -50,32 +51,48 @@ export const SetChainStep: FC<SetChainStepProps> = ({
 }) => {
   const client = useRelayClient()
 
-  const allChains =
-    type === 'chain' ? client?.chains : selectedCurrencyList?.chains
+  const supportedChains = selectedCurrencyList?.chains || []
+  const allChains = client?.chains || []
+  const combinedChains = [
+    ...supportedChains.map((chain) => ({ ...chain, isSupported: true })),
+    ...allChains
+      .filter((chain) => !supportedChains.some((sc) => sc.chainId === chain.id))
+      .map((chain) => ({ ...chain, isSupported: false }))
+  ]
 
-  const chainFuse = new Fuse(
-    selectedCurrencyList?.chains || [],
-    fuseSearchOptions
-  )
+  const chainFuse = new Fuse(combinedChains, fuseSearchOptions)
 
   const filteredChains = useMemo(() => {
-    if (chainSearchInput.trim() !== '') {
-      return chainFuse.search(chainSearchInput).map((result) => result.item)
-    } else {
-      return selectedCurrencyList?.chains
-        ?.map((currency) => ({
-          ...currency,
-          totalBalance: BigInt(currency.balance?.amount ?? 0n)
-        }))
-        .sort((a, b) => {
-          if (a.totalBalance !== 0n || b.totalBalance !== 0n) {
-            return b.totalBalance > a.totalBalance ? 1 : -1
-          } else {
-            return a.relayChain.name.localeCompare(b.relayChain.name)
-          }
-        })
-    }
-  }, [chainSearchInput, chainFuse, selectedCurrencyList])
+    const searchResults =
+      chainSearchInput.trim() !== ''
+        ? chainFuse.search(chainSearchInput).map((result) => result.item)
+        : combinedChains
+
+    const supported = searchResults
+      .filter((chain) => chain.isSupported)
+      .map((currency) => {
+        const enhancedCurrency =
+          currency as EnhancedCurrencyList['chains'][number]
+        return {
+          ...enhancedCurrency,
+          totalBalance: BigInt(enhancedCurrency?.balance?.amount ?? 0n)
+        }
+      })
+      .sort((a, b) => {
+        if (a.totalBalance !== 0n || b.totalBalance !== 0n) {
+          return b.totalBalance > a.totalBalance ? 1 : -1
+        } else {
+          return a.relayChain.name.localeCompare(b.relayChain.name)
+        }
+      })
+
+    const unsupported =
+      type === 'chain'
+        ? (searchResults.filter((chain) => !chain.isSupported) as RelayChain[])
+        : []
+
+    return { supported, unsupported }
+  }, [chainSearchInput, chainFuse, combinedChains, type])
 
   return (
     <>
@@ -115,7 +132,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         }
       />
 
-      <Flex
+      {/* <Flex
         css={{
           width: '100%',
           '--borderColor': 'colors.subtle-border-color',
@@ -125,7 +142,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         <Text style="body3" color="subtle" css={{ pl: '2' }}>
           Chains
         </Text>
-      </Flex>
+      </Flex> */}
       <Flex
         direction="column"
         css={{
@@ -136,7 +153,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           width: '100%'
         }}
       >
-        {filteredChains?.map((currency) => {
+        {filteredChains?.supported?.map((currency) => {
           const decimals = currency?.balance?.decimals ?? 18
           const compactBalance = Boolean(
             currency.balance?.amount &&
@@ -190,6 +207,68 @@ export const SetChainStep: FC<SetChainStepProps> = ({
             </Button>
           )
         })}
+
+        {filteredChains?.unsupported?.length > 0 && (
+          <>
+            <Flex
+              css={{
+                width: '100%',
+                '--borderColor': 'colors.subtle-border-color',
+                borderBottom: '1px solid var(--borderColor)',
+                mt: '2'
+              }}
+            >
+              <Text style="subtitle2" color="subtle" css={{ pl: '2' }}>
+                Unsupported Chains
+              </Text>
+            </Flex>
+            {filteredChains.unsupported.map((chain) => {
+              const nativeToken = {
+                ...chain.currency,
+                metadata: {
+                  logoURI: `https://assets.relay.link/icons/currencies/${chain?.currency?.id}.png`
+                }
+              }
+              return (
+                <Button
+                  key={chain.id}
+                  color="ghost"
+                  onClick={() => {
+                    selectToken(nativeToken, chain.id)
+                  }}
+                  css={{
+                    gap: '2',
+                    cursor: 'pointer',
+                    px: '4',
+                    py: '2',
+                    transition: 'backdrop-filter 250ms linear',
+                    _hover: {
+                      backgroundColor: 'gray/10'
+                    },
+                    flexShrink: 0,
+                    alignContent: 'center',
+                    display: 'flex',
+                    width: '100%'
+                  }}
+                >
+                  <ChainIcon
+                    chainId={chain.id}
+                    width={24}
+                    height={24}
+                    css={{ borderRadius: 4, overflow: 'hidden' }}
+                  />
+                  <Flex direction="column" align="start">
+                    <Text style="subtitle1">{chain.displayName}</Text>
+                    <Text style="subtitle3" color="subtle">
+                      {/* {truncateAddress(nativeToken?.address)} */}
+                      {nativeToken?.symbol}
+                    </Text>
+                  </Flex>
+                </Button>
+              )
+            })}
+          </>
+        )}
       </Flex>
     </>
   )
