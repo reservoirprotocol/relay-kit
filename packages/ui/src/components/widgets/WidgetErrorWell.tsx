@@ -7,6 +7,7 @@ import { type Currency } from '../../constants/currencies.js'
 import { formatBN, formatDollar } from '../../utils/numbers.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
+import type { Styles } from '@reservoir0x/relay-design-system/css'
 
 type Props = {
   error: any
@@ -19,6 +20,7 @@ type Props = {
   relayerFeeProportion?: bigint | 0
   isHighRelayerServiceFee?: boolean
   context: 'bridge' | 'swap'
+  containerCss?: Styles
 }
 
 export const WidgetErrorWell: FC<Props> = ({
@@ -31,7 +33,8 @@ export const WidgetErrorWell: FC<Props> = ({
   currency,
   relayerFeeProportion,
   isHighRelayerServiceFee,
-  context
+  context,
+  containerCss
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
@@ -64,7 +67,8 @@ export const WidgetErrorWell: FC<Props> = ({
           p: '3',
           backgroundColor: 'red2',
           borderRadius: 12,
-          mb: '3'
+          mb: '3',
+          ...containerCss
         }}
       >
         <Box css={{ color: 'red10' }}>
@@ -106,7 +110,8 @@ export const WidgetErrorWell: FC<Props> = ({
           px: '3',
           backgroundColor: 'red2',
           borderRadius: 12,
-          mb: '3'
+          mb: '3',
+          ...containerCss
         }}
       >
         <Box css={{ color: 'red9' }}>
@@ -146,7 +151,8 @@ export const WidgetErrorWell: FC<Props> = ({
             px: '3',
             backgroundColor: 'amber2',
             borderRadius: 12,
-            mb: '3'
+            mb: '3',
+            ...containerCss
           }}
         >
           <Box css={{ color: 'amber10' }}>
@@ -184,7 +190,8 @@ export const WidgetErrorWell: FC<Props> = ({
             px: '3',
             backgroundColor: 'amber2',
             borderRadius: 12,
-            mb: '3'
+            mb: '3',
+            ...containerCss
           }}
         >
           <Box css={{ color: 'amber10' }}>
@@ -208,7 +215,8 @@ export const WidgetErrorWell: FC<Props> = ({
           px: '3',
           backgroundColor: 'red2',
           borderRadius: 12,
-          mb: '3'
+          mb: '3',
+          ...containerCss
         }}
       >
         <Box css={{ color: 'red9' }}>
@@ -232,7 +240,8 @@ export const WidgetErrorWell: FC<Props> = ({
           px: '3',
           backgroundColor: 'amber2',
           borderRadius: 12,
-          mb: '3'
+          mb: '3',
+          ...containerCss
         }}
       >
         <Box css={{ color: 'amber10' }}>

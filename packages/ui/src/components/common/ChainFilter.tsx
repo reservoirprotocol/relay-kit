@@ -94,7 +94,6 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   _hover: {
                     backdropFilter: 'brightness(95%)'
                   },
-
                   flexShrink: 0,
                   alignContent: 'center',
 

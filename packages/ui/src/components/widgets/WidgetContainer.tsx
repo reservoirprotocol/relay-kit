@@ -69,65 +69,50 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   return (
     <div className="relay-kit-reset">
-      <Flex
-        direction="column"
-        css={{
-          width: '100%',
-          borderRadius: 'widget-border-radius',
-          overflow: 'hidden',
-          backgroundColor: 'widget-background',
-          boxShadow: 'widget-box-shadow',
-          border: 'widget-border',
-          p: '4',
-          minWidth: 300,
-          maxWidth: 440
-        }}
-      >
-        {children({
-          addressModalOpen,
-          setAddressModalOpen
-        })}
-        {isMounted ? (
-          <SwapModal
-            open={transactionModalOpen}
-            onOpenChange={(open) => {
-              onSwapModalOpenChange(open)
-              setTransactionModalOpen(open)
-            }}
-            fromToken={fromToken}
-            toToken={toToken}
-            amountInputValue={amountInputValue}
-            amountOutputValue={amountOutputValue}
-            debouncedInputAmountValue={debouncedInputAmountValue}
-            debouncedOutputAmountValue={debouncedOutputAmountValue}
-            tradeType={tradeType}
-            useExternalLiquidity={useExternalLiquidity}
-            address={address}
-            recipient={recipient}
-            isCanonical={useExternalLiquidity}
-            timeEstimate={timeEstimate}
-            onAnalyticEvent={onAnalyticEvent}
-            onSuccess={onSwapSuccess}
-            invalidateBalanceQueries={invalidateBalanceQueries}
-          />
-        ) : null}
-        <CustomAddressModal
-          open={addressModalOpen}
-          toAddress={customToAddress ?? address}
-          isSolanaSwap={isSolanaSwap}
-          onAnalyticEvent={onAnalyticEvent}
+      {children({
+        addressModalOpen,
+        setAddressModalOpen
+      })}
+      {isMounted ? (
+        <SwapModal
+          open={transactionModalOpen}
           onOpenChange={(open) => {
-            setAddressModalOpen(open)
+            onSwapModalOpenChange(open)
+            setTransactionModalOpen(open)
           }}
-          onConfirmed={(address) => {
-            setCustomToAddress(address)
-          }}
-          onClear={() => {
-            setCustomToAddress(undefined)
-          }}
+          fromToken={fromToken}
+          toToken={toToken}
+          amountInputValue={amountInputValue}
+          amountOutputValue={amountOutputValue}
+          debouncedInputAmountValue={debouncedInputAmountValue}
+          debouncedOutputAmountValue={debouncedOutputAmountValue}
+          tradeType={tradeType}
+          useExternalLiquidity={useExternalLiquidity}
+          address={address}
+          recipient={recipient}
+          isCanonical={useExternalLiquidity}
+          timeEstimate={timeEstimate}
+          onAnalyticEvent={onAnalyticEvent}
+          onSuccess={onSwapSuccess}
+          invalidateBalanceQueries={invalidateBalanceQueries}
         />
-        <WidgetFooter />
-      </Flex>
+      ) : null}
+      <CustomAddressModal
+        open={addressModalOpen}
+        toAddress={customToAddress ?? address}
+        isSolanaSwap={isSolanaSwap}
+        onAnalyticEvent={onAnalyticEvent}
+        onOpenChange={(open) => {
+          setAddressModalOpen(open)
+        }}
+        onConfirmed={(address) => {
+          setCustomToAddress(address)
+        }}
+        onClear={() => {
+          setCustomToAddress(undefined)
+        }}
+      />
+      {/* <WidgetFooter /> */}
     </div>
   )
 }

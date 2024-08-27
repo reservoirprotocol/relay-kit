@@ -5,6 +5,7 @@ import { formatNumber } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
+import type { Styles } from '@reservoir0x/relay-design-system/css'
 
 type Props = Pick<
   ChildrenProps,
@@ -14,7 +15,9 @@ type Props = Pick<
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
->
+> & {
+  containerCss?: Styles
+}
 
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
@@ -22,7 +25,8 @@ const FeeBreakdown: FC<Props> = ({
   price,
   toToken,
   fromToken,
-  timeEstimate
+  timeEstimate,
+  containerCss
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -43,7 +47,8 @@ const FeeBreakdown: FC<Props> = ({
         '--borderColor': 'colors.subtle-border-color',
         border: '1px solid var(--borderColor)',
         p: '3',
-        mb: '3'
+        mb: '3',
+        ...containerCss
       }}
     >
       <Flex
