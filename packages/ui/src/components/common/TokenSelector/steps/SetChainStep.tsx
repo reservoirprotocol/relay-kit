@@ -22,6 +22,7 @@ import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import Fuse from 'fuse.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { useMediaQuery } from 'usehooks-ts'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -52,7 +53,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
-  const isDesktop = size === 'desktop'
+  const isSmallDevice = useMediaQuery('(max-width: 600px)')
+  const isDesktop = size === 'desktop' && !isSmallDevice
 
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains = client?.chains || []

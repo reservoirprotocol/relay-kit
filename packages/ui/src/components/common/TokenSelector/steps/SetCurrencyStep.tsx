@@ -19,6 +19,7 @@ import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
 import type { Address, Chain } from 'viem'
 import type { paths } from '@reservoir0x/relay-sdk'
 import Fuse from 'fuse.js'
+import { useMediaQuery } from 'usehooks-ts'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
@@ -68,7 +69,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   selectToken,
   setCurrencyList
 }) => {
-  const isDesktop = size === 'desktop'
+  const isSmallDevice = useMediaQuery('(max-width: 600px)')
+  const isDesktop = size === 'desktop' && !isSmallDevice
   const allChains = [
     { id: undefined, name: 'All Chains' },
     ...chainFilterOptions
