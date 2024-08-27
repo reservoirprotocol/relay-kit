@@ -1,5 +1,58 @@
 # @reservoir0x/relay-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+
+## 1.1.2
+
+### Patch Changes
+
+- 78c6ed0: Add getPrice action
+
+## 1.1.1
+
+### Patch Changes
+
+- 28ed450: Update sdk api types
+
+## 1.1.0
+
+### Minor Changes
+
+- 105d1b8: Switch from execute/swap to quote api
+
+### Patch Changes
+
+- c158099: Drop lodash cloneDeep in favor of native cloning
+
+## 1.0.13
+
+### Patch Changes
+
+- b342c8d: Add support for iconUrl chain icon override
+
+## 1.0.12
+
+### Patch Changes
+
+- ec9b20f: Add supportsBridging to Relay Chain
+
+## 1.0.11
+
+### Patch Changes
+
+- 92b9c71: Sync api types
+
+## 1.0.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- 2d22eec: Add usePrice hook
+
 ## 1.0.9
 
 ### Patch Changes

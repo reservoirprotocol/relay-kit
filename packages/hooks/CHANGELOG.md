@@ -1,5 +1,81 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [9e14a17]
+  - @reservoir0x/relay-sdk@1.2.0
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [78c6ed0]
+  - @reservoir0x/relay-sdk@1.1.2
+
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [28ed450]
+  - @reservoir0x/relay-sdk@1.1.1
+
+## 1.2.0
+
+### Minor Changes
+
+- b9db008: Upgrade /requests api to /requests/v2
+
+## 1.1.0
+
+### Minor Changes
+
+- 105d1b8: Switch from execute/swap to quote api
+
+### Patch Changes
+
+- Updated dependencies [c158099]
+- Updated dependencies [105d1b8]
+  - @reservoir0x/relay-sdk@1.1.0
+
+## 1.0.19
+
+### Patch Changes
+
+- Updated dependencies [b342c8d]
+  - @reservoir0x/relay-sdk@1.0.13
+
+## 1.0.18
+
+### Patch Changes
+
+- Updated dependencies [ec9b20f]
+  - @reservoir0x/relay-sdk@1.0.12
+
+## 1.0.17
+
+### Patch Changes
+
+- Updated dependencies [92b9c71]
+  - @reservoir0x/relay-sdk@1.0.11
+
+## 1.0.16
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+
+## 1.0.15
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- 2d22eec: Add usePrice hook
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-sdk@1.0.10
+
 ## 1.0.14
 
 ### Patch Changes

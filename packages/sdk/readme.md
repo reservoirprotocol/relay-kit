@@ -11,7 +11,7 @@ Head over to the <a href="https://docs.relay.link/references/sdk/getting-started
 
 Your contributions are what make the community great. We encourage you to be a part of it. Here are some important notes for contributors:
 
-#### Preperaing Changes
+#### Preparing Changes
 
 **We use `changesets` to manage versioning and changelog generation.**
 

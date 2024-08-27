@@ -13,3 +13,4 @@ export {
   type SimulateContractRequest,
   isSimulateContractRequest
 } from './simulateContract.js'
+export { safeStructuredClone } from './structuredClone.js'

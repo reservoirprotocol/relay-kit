@@ -64,13 +64,13 @@ const FeeBreakdown: FC<Props> = ({
           {rateMode === 'input' ? (
             <Text style="subtitle2">
               1 {fromToken?.symbol} ={' '}
-              {formatNumber(Number(swapRate) / 1, 5, compactSwapRate)}{' '}
+              {formatNumber(Number(swapRate) / 1, 2, compactSwapRate)}{' '}
               {toToken?.symbol}
             </Text>
           ) : (
             <Text style="subtitle2">
               1 {toToken?.symbol} ={' '}
-              {formatNumber(1 / Number(swapRate), 5, compactSwapRate)}{' '}
+              {formatNumber(1 / Number(swapRate), 2, compactSwapRate)}{' '}
               {fromToken?.symbol}
             </Text>
           )}
@@ -86,9 +86,13 @@ const FeeBreakdown: FC<Props> = ({
           }}
           align="center"
         >
-          <FontAwesomeIcon icon={faClock} width={16} />
-          <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
-          <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+          {timeEstimate && timeEstimate?.time !== 0 ? (
+            <>
+              <FontAwesomeIcon icon={faClock} width={16} />
+              <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
+              <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+            </>
+          ) : null}
           <FontAwesomeIcon
             icon={faGasPump}
             width={16}

@@ -13,12 +13,10 @@ import { getClient } from '../client.js'
 import { LogLevel } from '../utils/logger.js'
 import { sendTransactionSafely } from './transaction.js'
 
-export type SetStateData = {
-  steps: Execute['steps']
-  fees?: Execute['fees']
-  breakdown?: Execute['breakdown']
-  details?: Execute['details']
-}
+export type SetStateData = Pick<
+  Execute,
+  'steps' | 'fees' | 'breakdown' | 'details' | 'error' | 'refunded'
+>
 
 // /**
 //  * When attempting to perform actions, such as, bridging or performing a cross chain action
@@ -248,8 +246,12 @@ export async function executeSteps(
                     request,
                     undefined,
                     crossChainIntentChainId,
-                    () => {
-                      stepItem.progressState = 'validating'
+                    (res) => {
+                      if (res && res.data.status === 'delayed') {
+                        stepItem.progressState = 'validating_delayed'
+                      } else {
+                        stepItem.progressState = 'validating'
+                      }
                       if (json) {
                         setState({
                           steps: [...json.steps],
@@ -387,6 +389,7 @@ export async function executeSteps(
                             ],
                             LogLevel.Verbose
                           )
+                          //set status
                           if (
                             res?.data?.status === 'success' &&
                             res?.data?.txHashes
@@ -423,6 +426,8 @@ export async function executeSteps(
                             throw Error(
                               res?.data?.details || 'Transaction failed'
                             )
+                          } else if (res?.data?.status === 'delayed') {
+                            stepItem.progressState = 'validating_delayed'
                           }
                           return false
                         },
@@ -528,20 +533,31 @@ export async function executeSteps(
       ['Execute Steps: An error occurred', err, 'Block Number:', blockNumber],
       LogLevel.Error
     )
+    const error = err && err?.response?.data ? err.response.data : err
+    let refunded = false
+    if (error && error.message) {
+      refunded = error.message.includes('Refunded')
+    } else if (error && error.includes) {
+      refunded = error.includes('Refunded')
+    }
 
     if (json) {
-      json.error = err && err?.response?.data ? err.response.data : err
+      json.error = error
       setState({
         steps: json.steps ? [...json.steps] : ([{}] as any),
         fees: { ...json?.fees },
         breakdown: json?.breakdown,
-        details: json?.details
+        details: json?.details,
+        refunded: refunded,
+        error
       })
     } else {
       json = {
-        error: err && err?.response?.data ? err.response.data : err,
-        steps: []
+        error,
+        steps: [],
+        refunded
       }
+      setState(json)
     }
     throw err
   }

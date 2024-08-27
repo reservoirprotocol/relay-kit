@@ -74,6 +74,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       address={address}
       recipient={recipient}
       invalidateBalanceQueries={invalidateBalanceQueries}
+      onAnalyticEvent={onAnalyticEvent}
       onValidating={(quote) => {
         const steps = quote?.steps
         onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
@@ -200,10 +201,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   const details = quote?.details
 
   const fromAmountFormatted = details?.currencyIn?.amount
-    ? formatBN(details?.currencyIn?.amount, 5, fromToken?.decimals)
+    ? formatBN(details?.currencyIn?.amount, 6, fromToken?.decimals, false)
     : ''
   const toAmountFormatted = details?.currencyOut?.amount
-    ? formatBN(details?.currencyOut.amount, 5, toToken?.decimals)
+    ? formatBN(details?.currencyOut.amount, 6, toToken?.decimals, false)
     : ''
 
   const isReviewQuoteStep = progressStep === TransactionProgressStep.ReviewQuote
@@ -213,9 +214,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       trigger={null}
       open={open}
       onOpenChange={onOpenChange}
-      contentCss={{
+      css={{
         overflow: 'hidden',
-        p: isReviewQuoteStep ? '4' : '5'
+        p: isReviewQuoteStep ? '4' : '5',
+        maxWidth: '400px !important'
       }}
       showCloseButton={isReviewQuoteStep}
     >
@@ -282,6 +284,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             allTxHashes={allTxHashes}
             address={address}
             onOpenChange={onOpenChange}
+            transaction={transaction}
           />
         ) : null}
       </Flex>

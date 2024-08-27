@@ -4,7 +4,7 @@ import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
 import { type Currency } from '../../constants/currencies.js'
-import { formatBN } from '../../utils/numbers.js'
+import { formatBN, formatDollar } from '../../utils/numbers.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 
@@ -44,6 +44,9 @@ export const WidgetErrorWell: FC<Props> = ({
     fetchQuoteErrorMessage?.includes(
       'Amount is higher than the available liquidity'
     )
+
+  const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
+  const totalImpactUsd = quote?.details?.totalImpact?.usd
 
   const isInsufficientLiquidityError =
     fetchQuoteErrorMessage?.includes('No quotes found')
@@ -192,6 +195,30 @@ export const WidgetErrorWell: FC<Props> = ({
           </Text>
         </Flex>
       </Tooltip>
+    )
+  }
+
+  if (isHighPriceImpact && totalImpactUsd) {
+    return (
+      <Flex
+        align="center"
+        css={{
+          gap: '2',
+          py: '2',
+          px: '3',
+          backgroundColor: 'red2',
+          borderRadius: 12,
+          mb: '3'
+        }}
+      >
+        <Box css={{ color: 'red9' }}>
+          <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+        </Box>
+        <Text style="subtitle3" css={{ color: 'amber12' }}>
+          Due to high price impact, you will lose{' '}
+          {formatDollar(Math.abs(Number(totalImpactUsd)))} on this trade.
+        </Text>
+      </Flex>
     )
   }
 

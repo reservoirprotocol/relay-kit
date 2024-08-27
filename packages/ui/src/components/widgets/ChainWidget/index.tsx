@@ -1,4 +1,4 @@
-import { Flex, Text, ChainIcon } from '../../primitives/index.js'
+import { Flex, Text, ChainIcon, Box } from '../../primitives/index.js'
 import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -28,6 +28,7 @@ import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 type ChainWidgetProps = {
   chainId: number
   defaultToken: Token
+  defaultExternalChainToken?: Token
   tokens?: Token[]
   defaultToAddress?: Address
   defaultAmount?: string
@@ -44,6 +45,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   chainId,
   tokens,
   defaultToken,
+  defaultExternalChainToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
@@ -61,12 +63,27 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
   const client = useRelayClient()
   const chain = client?.chains.find((chain) => chain.id === chainId)
+  const isTestnet = client?.baseApiUrl?.includes?.('testnets')
+  const defaultChainId = isTestnet ? 11155111 : 1
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
       console.error('Default token chainId must match ChainWidget chainId')
     }
   }, [chainId, defaultToken])
+
+  const defaultFromToken =
+    defaultExternalChainToken ??
+    (chainId !== defaultChainId
+      ? {
+          chainId: defaultChainId,
+          address: zeroAddress,
+          symbol: 'ETH',
+          name: 'ETH',
+          decimals: 18,
+          logoURI: 'https://assets.relay.link/icons/square/1/light.png'
+        }
+      : undefined)
 
   return (
     <SwapWidgetRenderer
@@ -75,18 +92,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
       defaultToToken={defaultToken}
-      defaultFromToken={
-        chainId !== 1
-          ? {
-              chainId: 1,
-              address: zeroAddress,
-              symbol: 'ETH',
-              name: 'ETH',
-              decimals: 18,
-              logoURI: 'https://assets.relay.link/icons/square/1/light.png'
-            }
-          : undefined
-      }
+      defaultFromToken={defaultFromToken}
       fetchSolverConfig={true}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
@@ -133,6 +139,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig,
+        isSolanaSwap,
+        isValidSolanaRecipient,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
@@ -143,6 +151,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
+          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+            setCustomToAddress(address ?? undefined)
+          }
           setToToken(token)
           onToTokenChange?.(token)
         }
@@ -173,6 +184,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            isSolanaSwap={isSolanaSwap}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
@@ -193,6 +205,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             invalidateBalanceQueries={invalidateBalanceQueries}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
+            customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
@@ -271,8 +284,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -383,7 +396,11 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle3" css={{ color: 'inherit' }}>
-                            {toDisplayName}
+                            <Text style="subtitle3" css={{ color: 'inherit' }}>
+                              {isSolanaSwap && !isValidSolanaRecipient
+                                ? 'Enter Solana Address'
+                                : toDisplayName}
+                            </Text>
                           </Text>
                           <FontAwesomeIcon icon={faChevronRight} width={8} />
                         </AnchorButton>
@@ -423,8 +440,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -484,25 +501,34 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                           </Text>
                           <PriceImpactTooltip feeBreakdown={feeBreakdown}>
                             <div>
-                              <Text
-                                style="subtitle3"
-                                color="subtle"
-                                css={{
-                                  display: 'flex',
-                                  alignItems: 'center'
-                                }}
-                              >
-                                ({feeBreakdown?.totalFees.priceImpactPercentage}
-                                )
-                                <FontAwesomeIcon
-                                  icon={faInfoCircle}
-                                  width={16}
-                                  style={{
-                                    display: 'inline-block',
-                                    marginLeft: 4
+                              <Flex align="center" css={{ gap: '1' }}>
+                                <Text
+                                  style="subtitle3"
+                                  color={
+                                    feeBreakdown?.totalFees.priceImpactColor
+                                  }
+                                  css={{
+                                    display: 'flex',
+                                    alignItems: 'center'
                                   }}
-                                />
-                              </Text>
+                                >
+                                  (
+                                  {
+                                    feeBreakdown?.totalFees
+                                      .priceImpactPercentage
+                                  }
+                                  )
+                                </Text>
+                                <Flex css={{ color: 'gray9' }}>
+                                  <FontAwesomeIcon
+                                    icon={faInfoCircle}
+                                    width={16}
+                                    style={{
+                                      display: 'inline-block'
+                                    }}
+                                  />
+                                </Flex>
+                              </Flex>
                             </div>
                           </PriceImpactTooltip>
                         </Flex>
@@ -512,7 +538,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   <FetchingQuoteLoader isLoading={isFetchingPrice} />
                   <SwapRouteSelector
                     chainId={chainId}
-                    chainName={chain?.displayName ?? ''}
+                    chain={chain}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     externalLiquidtySelected={useExternalLiquidity}
                     onExternalLiquidityChange={(selected) => {
@@ -539,6 +565,9 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
+                    invalidSolanaRecipient={
+                      isSolanaSwap && !isValidSolanaRecipient
+                    }
                     context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -551,7 +580,13 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    onClick={() => setTransactionModalOpen(true)}
+                    onClick={() => {
+                      if (isSolanaSwap && !isValidSolanaRecipient) {
+                        setAddressModalOpen(true)
+                      } else {
+                        setTransactionModalOpen(true)
+                      }
+                    }}
                     ctaCopy={ctaCopy}
                   />
                 </>

@@ -121,6 +121,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ctaCopy,
         isFromETH,
         timeEstimate,
+        isSolanaSwap,
+        isValidSolanaRecipient,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -130,6 +132,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
+          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+            setCustomToAddress(address ?? undefined)
+          }
           setToToken(token)
           onToTokenChange?.(token)
         }
@@ -146,6 +151,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            isSolanaSwap={isSolanaSwap}
             fromToken={fromToken}
             toToken={toToken}
             swapError={swapError}
@@ -166,6 +172,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}
+            customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
@@ -304,7 +311,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       height: hasLockedToken ? 30 : 40
                     }}
                   >
-                    {hasLockedToken ? null : (
+                    {hasLockedToken || isSolanaSwap ? null : (
                       <Button
                         size="small"
                         color="white"
@@ -377,7 +384,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle3" css={{ color: 'inherit' }}>
-                            {toDisplayName}
+                            {isSolanaSwap && !isValidSolanaRecipient
+                              ? 'Enter Solana Address'
+                              : toDisplayName}
                           </Text>
                           <FontAwesomeIcon icon={faChevronRight} width={8} />
                         </AnchorButton>
@@ -473,29 +482,34 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           <PriceImpactTooltip feeBreakdown={feeBreakdown}>
                             {
                               <div>
-                                <Text
-                                  style="subtitle3"
-                                  color="subtle"
-                                  css={{
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                  }}
-                                >
-                                  (
-                                  {
-                                    feeBreakdown?.totalFees
-                                      .priceImpactPercentage
-                                  }
-                                  )
-                                  <FontAwesomeIcon
-                                    icon={faInfoCircle}
-                                    width={16}
-                                    style={{
-                                      display: 'inline-block',
-                                      marginLeft: 4
+                                <Flex align="center" css={{ gap: '1' }}>
+                                  <Text
+                                    style="subtitle3"
+                                    color={
+                                      feeBreakdown?.totalFees.priceImpactColor
+                                    }
+                                    css={{
+                                      display: 'flex',
+                                      alignItems: 'center'
                                     }}
-                                  />
-                                </Text>
+                                  >
+                                    (
+                                    {
+                                      feeBreakdown?.totalFees
+                                        .priceImpactPercentage
+                                    }
+                                    )
+                                  </Text>
+                                  <Flex css={{ color: 'gray9' }}>
+                                    <FontAwesomeIcon
+                                      icon={faInfoCircle}
+                                      width={16}
+                                      style={{
+                                        display: 'inline-block'
+                                      }}
+                                    />
+                                  </Flex>
+                                </Flex>
                               </div>
                             }
                           </PriceImpactTooltip>
@@ -524,6 +538,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
+                    invalidSolanaRecipient={
+                      isSolanaSwap && !isValidSolanaRecipient
+                    }
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -536,7 +553,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isSameCurrencySameRecipientSwap={
                       isSameCurrencySameRecipientSwap
                     }
-                    onClick={() => setTransactionModalOpen(true)}
+                    onClick={() => {
+                      if (isSolanaSwap && !isValidSolanaRecipient) {
+                        setAddressModalOpen(true)
+                      } else {
+                        setTransactionModalOpen(true)
+                      }
+                    }}
                     ctaCopy={ctaCopy}
                   />
                 </>

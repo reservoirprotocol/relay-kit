@@ -1,6 +1,6 @@
 {
   "name": "@reservoir0x/relay-sdk",
-  "version": "1.0.9",
+  "version": "1.2.0",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",
@@ -32,7 +32,6 @@
     "test:ui": "vitest --ui"
   },
   "devDependencies": {
-    "@types/lodash-es": "^4.17.12",
     "@vitest/ui": "^1.6.0",
     "node-fetch": "^3.3.2",
     "rimraf": "^5.0.5",
@@ -43,8 +42,7 @@
     "viem": "^2.9.31"
   },
   "dependencies": {
-    "axios": "^1.6.5",
-    "lodash-es": "^4.17.21"
+    "axios": "^1.6.5"
   },
   "keywords": [
     "eth",

@@ -9,6 +9,7 @@ import { Flex } from '../primitives/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
+  isSolanaSwap: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: (props: WidgetChildProps) => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
@@ -57,6 +58,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   useExternalLiquidity,
   timeEstimate,
   recipient,
+  isSolanaSwap,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -111,6 +113,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
         ) : null}
         <CustomAddressModal
           open={addressModalOpen}
+          toAddress={customToAddress ?? address}
+          isSolanaSwap={isSolanaSwap}
           onAnalyticEvent={onAnalyticEvent}
           onOpenChange={(open) => {
             setAddressModalOpen(open)

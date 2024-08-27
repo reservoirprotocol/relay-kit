@@ -1,5 +1,169 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.8
+
+### Patch Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+- Updated dependencies [9e14a17]
+  - @reservoir0x/relay-sdk@1.2.0
+  - @reservoir0x/relay-kit-hooks@1.2.3
+
+## 1.3.7
+
+### Patch Changes
+
+- Updated dependencies [78c6ed0]
+  - @reservoir0x/relay-sdk@1.1.2
+  - @reservoir0x/relay-kit-hooks@1.2.2
+
+## 1.3.6
+
+### Patch Changes
+
+- 7a1a4c7: Fix analytics in TransactionModal
+
+## 1.3.5
+
+### Patch Changes
+
+- 7d3f84d: Update balance display for solana
+
+## 1.3.4
+
+### Patch Changes
+
+- 785b732: Update solana token selector logic
+
+## 1.3.3
+
+### Patch Changes
+
+- 3ae5fee: Prevent switch token button in swap widget when swapping to solana token
+
+## 1.3.2
+
+### Patch Changes
+
+- 98bf004: Reduce swap conversion rate from 5 decimals to 2 decimals
+- 4473144: Link out to to chain block explorer in review quote ux
+- 6363308: Handle 0s time estimate
+- 35d5e43: Improve custom wallet address modal ux
+- 2cd9327: Improve tx error messaging
+- b940e97: Reset custom address when switching to token from solana to evm chain
+- a42142d: Price Impact ui tweaks
+- Updated dependencies [28ed450]
+  - @reservoir0x/relay-sdk@1.1.1
+  - @reservoir0x/relay-kit-hooks@1.2.1
+
+## 1.3.1
+
+### Patch Changes
+
+- df71a3b: Support Solana deposits in Swap widget
+
+## 1.3.0
+
+### Minor Changes
+
+- b9db008: Upgrade /requests api to /requests/v2
+
+### Patch Changes
+
+- 4cd7401: ChainWidget: Fix copy in SwapRouteSelector
+- Updated dependencies [b9db008]
+  - @reservoir0x/relay-kit-hooks@1.2.0
+
+## 1.2.0
+
+### Minor Changes
+
+- 105d1b8: Switch from execute/swap to quote api
+
+### Patch Changes
+
+- Updated dependencies [c158099]
+- Updated dependencies [105d1b8]
+  - @reservoir0x/relay-sdk@1.1.0
+  - @reservoir0x/relay-kit-hooks@1.1.0
+
+## 1.1.18
+
+### Patch Changes
+
+- efd44d6: Add price impact warning to review quote ux
+- b342c8d: Add support for iconUrl chain icon override
+- Updated dependencies [b342c8d]
+  - @reservoir0x/relay-sdk@1.0.13
+  - @reservoir0x/relay-kit-hooks@1.0.19
+
+## 1.1.17
+
+### Patch Changes
+
+- f66e0f5: Fix safari modal animation flickering bug
+- 87239fa: Add defaultExternalChainToken to Chain Widget
+
+## 1.1.16
+
+### Patch Changes
+
+- Updated dependencies [ec9b20f]
+  - @reservoir0x/relay-sdk@1.0.12
+  - @reservoir0x/relay-kit-hooks@1.0.18
+
+## 1.1.15
+
+### Patch Changes
+
+- Updated dependencies [92b9c71]
+  - @reservoir0x/relay-sdk@1.0.11
+  - @reservoir0x/relay-kit-hooks@1.0.17
+
+## 1.1.14
+
+### Patch Changes
+
+- fac3415: Fix chain widget testnet configuration
+- Updated dependencies [fac3415]
+  - @reservoir0x/relay-kit-hooks@1.0.16
+
+## 1.1.13
+
+### Patch Changes
+
+- 5acf10e: Fix swap widget cta bug
+
+## 1.1.12
+
+### Patch Changes
+
+- 23b528c: Remove compact formatting from review quote
+
+## 1.1.11
+
+### Patch Changes
+
+- 00da309: Decouple dune balance loading from token selector
+
+## 1.1.10
+
+### Patch Changes
+
+- Add review quote step, refactor modal renderers
+- af694ab: Fix dollar formatting sub 0 and price impact spacing
+- e231382: Color coding price impact
+- Updated dependencies
+- Updated dependencies [2d22eec]
+  - @reservoir0x/relay-kit-hooks@1.0.15
+  - @reservoir0x/relay-sdk@1.0.10
+
+## 1.1.9
+
+### Patch Changes
+
+- b3432f4: Fix dropdown item hover color
+
 ## 1.1.8
 
 ### Patch Changes

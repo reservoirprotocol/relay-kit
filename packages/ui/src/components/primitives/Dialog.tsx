@@ -128,10 +128,9 @@ const AnimatedContent = forwardRef<
           transform: 'translateX(-50%) translateY(-50%)'
         }
       }
-
   return (
     <DialogPrimitive.DialogContent
-      className={designCss(ContentCss.raw(), designCss.raw(css))}
+      className={designCss(ContentCss.raw(props), designCss.raw(css))}
       forceMount
       asChild
       {...props}
@@ -140,9 +139,6 @@ const AnimatedContent = forwardRef<
         key={isMobile + 'modal'}
         ref={forwardedRef}
         transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.3 }}
-        style={{
-          transition: 'opacity ease-in 0.2s'
-        }}
         {...animation}
       >
         {children}

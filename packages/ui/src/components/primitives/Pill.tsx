@@ -47,15 +47,17 @@ export const PillStyle = cva({
   }
 })
 
+type PillProps = Parameters<typeof PillStyle>['0']
+
 export const Pill: FC<
   HTMLAttributes<HTMLDivElement> & {
     css?: Parameters<(typeof FlexCss)['raw']>[0] & Styles
-  }
+  } & PillProps
 > = ({ css, ...props }) => {
   return (
     <div
       {...props}
-      className={designCss(PillStyle.raw(), designCss.raw(css))}
+      className={designCss(PillStyle.raw(props), designCss.raw(css))}
     ></div>
   )
 }
