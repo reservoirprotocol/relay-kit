@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.9
+
+### Patch Changes
+
+- 7a084fa: New swap widget ui
+- Updated dependencies [7a084fa]
+  - @reservoir0x/relay-kit-hooks@1.2.4
+  - @reservoir0x/relay-sdk@1.2.1
+
 ## 1.3.8
 
 ### Patch Changes

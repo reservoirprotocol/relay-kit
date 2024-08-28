@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.2.1
+
+### Patch Changes
+
+- 7a084fa: New swap widget ui
+
 ## 1.2.0
 
 ### Minor Changes

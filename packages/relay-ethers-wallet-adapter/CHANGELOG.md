@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 11.0.1
+
+### Patch Changes
+
+- 7a084fa: New swap widget ui
+- Updated dependencies [7a084fa]
+  - @reservoir0x/relay-sdk@1.2.1
+
 ## 11.0.0
 
 ### Patch Changes
