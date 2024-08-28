@@ -55,7 +55,7 @@ export const Modal: FC<
                     style={{
                       position: 'absolute',
                       right: 20,
-                      top: 20,
+                      top: 5,
                       zIndex: 10
                     }}
                   >

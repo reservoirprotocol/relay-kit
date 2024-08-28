@@ -1,11 +1,12 @@
-import { FC, ReactNode } from 'react'
+import { CSSProperties, FC, ReactNode } from 'react'
 import { Navbar } from './navbar'
 
 type LayoutProps = {
   children: ReactNode
+  styles?: CSSProperties
 }
 
-export const Layout: FC<LayoutProps> = ({ children }) => {
+export const Layout: FC<LayoutProps> = ({ children, styles }) => {
   return (
     <div
       style={{
@@ -13,7 +14,8 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
         flexDirection: 'column',
         width: '100%',
         height: '100%',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        ...styles
       }}
     >
       <Navbar />
