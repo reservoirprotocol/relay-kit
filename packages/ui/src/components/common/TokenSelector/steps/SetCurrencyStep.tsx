@@ -1,4 +1,4 @@
-import { useMemo, useState, type FC } from 'react'
+import { useEffect, useMemo, useRef, useState, type FC } from 'react'
 import {
   Flex,
   Text,
@@ -21,6 +21,7 @@ import type { Address, Chain } from 'viem'
 import type { paths } from '@reservoir0x/relay-sdk'
 import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
+import type { Token } from '../../../../types/index.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
@@ -40,6 +41,7 @@ type SetCurrencyProps = {
   suggestedTokens?: paths['/currencies/v1']['post']['responses']['200']['content']['application/json']
   address?: Address
   enhancedCurrencyList?: EnhancedCurrencyList[]
+  token?: Token
   selectToken: (currency: Currency, chainId?: number) => void
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
 }
@@ -86,6 +88,17 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       return allChains
     }
   }, [chainSearchInput, allChains, chainFuse])
+
+  const activeChainRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    if (activeChainRef.current) {
+      activeChainRef.current.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest'
+      })
+    }
+  }, [filteredChains, chainFilter])
 
   return (
     <>
@@ -147,14 +160,30 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                       key={chain.id}
                       color="ghost"
                       size="none"
+                      ref={active ? activeChainRef : null}
                       css={{
                         p: '2',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '2',
-                        backgroundColor: active ? 'gray5' : '',
+                        position: 'relative',
+                        ...(active && {
+                          _before: {
+                            content: '""',
+                            position: 'absolute',
+                            borderRadius: 8,
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            opacity: 0.15,
+                            backgroundColor: 'primary-color',
+                            zIndex: -1
+                          }
+                        }),
+                        transition: 'backdrop-filter 250ms linear',
                         _hover: {
-                          backgroundColor: 'gray4'
+                          backgroundColor: active ? '' : 'gray/10'
                         }
                       }}
                       onClick={() => setChainFilter(chain)}
