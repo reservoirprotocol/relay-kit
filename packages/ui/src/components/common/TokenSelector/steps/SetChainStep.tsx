@@ -216,18 +216,10 @@ export const SetChainStep: FC<SetChainStepProps> = ({
 
         {filteredChains?.unsupported?.length > 0 && (
           <>
-            <Flex
-              css={{
-                width: '100%',
-                '--borderColor': 'colors.subtle-border-color',
-                borderBottom: '1px solid var(--borderColor)',
-                mt: '2'
-              }}
-            >
-              <Text style="subtitle2" color="subtle" css={{ pl: '2' }}>
-                Other Chains
-              </Text>
-            </Flex>
+            <Text style="subtitle2" color="subtle" css={{ pl: '2', mt: '2' }}>
+              Other Chains
+            </Text>
+
             {filteredChains.unsupported.map((chain) => {
               const nativeToken = {
                 ...chain.currency,
@@ -245,7 +237,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   css={{
                     gap: '2',
                     cursor: 'pointer',
-                    px: '4',
+                    px: '2',
                     py: '2',
                     transition: 'backdrop-filter 250ms linear',
                     _hover: {

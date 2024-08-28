@@ -19,8 +19,8 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
       <img
         alt={'Token'}
         src={tokenlogoURI}
-        width={30}
-        height={30}
+        width={32}
+        height={32}
         style={{
           borderRadius: 9999
         }}

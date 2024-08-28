@@ -6,7 +6,8 @@ import {
   Input,
   Skeleton,
   ChainIcon,
-  Button
+  Button,
+  ChainTokenIcon
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
@@ -178,7 +179,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 height: 'auto',
                 alignSelf: 'stretch',
                 '--borderColor': 'colors.subtle-border-color',
-                border: '1px solid var(--borderColor)'
+                borderRight: '1px solid var(--borderColor)'
               }}
             />
           </>
@@ -295,11 +296,13 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
     balance && decimals && balance.toString().length - decimals > 4
   )
 
+  const isSingleChainCurrency = currencyList?.chains?.length === 1
+
   return (
     <Button
       color="ghost"
       onClick={() => {
-        if (currencyList.chains.length > 1) {
+        if (!isSingleChainCurrency) {
           setCurrencyList(currencyList)
         } else {
           selectToken(
@@ -324,44 +327,58 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         width: '100%'
       }}
     >
-      <img
-        alt={currencyList?.chains?.[0]?.name ?? ''}
-        src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-        width={32}
-        height={32}
-        style={{ borderRadius: 9999 }}
-      />
+      {isSingleChainCurrency ? (
+        <ChainTokenIcon
+          chainId={currencyList?.chains?.[0]?.chainId}
+          tokenlogoURI={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+          css={{
+            width: 32,
+            height: 32
+          }}
+        />
+      ) : (
+        <img
+          alt={currencyList?.chains?.[0]?.name ?? ''}
+          src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+          width={32}
+          height={32}
+          style={{ borderRadius: 9999 }}
+        />
+      )}
       <Flex direction="column" align="start">
         <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
-        {currencyList?.chains?.length === 1 ? (
+        {isSingleChainCurrency ? (
           <Text style="subtitle3" color="subtle">
             {truncateAddress(currencyList?.chains?.[0].address)}
           </Text>
         ) : null}
       </Flex>
-      <Flex align="center" css={{ position: 'relative' }}>
-        {currencyList?.chains?.slice(0, 6).map((currency, index) => (
-          <ChainIcon
-            chainId={Number(currency.chainId)}
-            key={index}
-            width={18}
-            height={18}
-            css={{
-              ml: index > 0 ? '-4px' : 0,
-              '--borderColor': 'colors.modal-background',
-              border: '1px solid var(--borderColor)',
-              borderRadius: 4,
-              background: 'modal-background',
-              overflow: 'hidden'
-            }}
-          />
-        ))}
-        {currencyList?.chains?.length > 6 ? (
-          <Text style="tiny" css={{ ml: '1' }}>
-            + more
-          </Text>
-        ) : null}
-      </Flex>
+
+      {!isSingleChainCurrency ? (
+        <Flex align="center" css={{ position: 'relative' }}>
+          {currencyList?.chains?.slice(0, 6).map((currency, index) => (
+            <ChainIcon
+              chainId={Number(currency.chainId)}
+              key={index}
+              width={18}
+              height={18}
+              css={{
+                ml: index > 0 ? '-4px' : 0,
+                '--borderColor': 'colors.modal-background',
+                border: '1px solid var(--borderColor)',
+                borderRadius: 4,
+                background: 'modal-background',
+                overflow: 'hidden'
+              }}
+            />
+          ))}
+          {currencyList?.chains?.length > 6 ? (
+            <Text style="tiny" css={{ ml: '1' }}>
+              + more
+            </Text>
+          ) : null}
+        </Flex>
+      ) : null}
       {isLoadingDuneBalances && !balance ? (
         <Skeleton css={{ ml: 'auto', width: 60 }} />
       ) : null}
