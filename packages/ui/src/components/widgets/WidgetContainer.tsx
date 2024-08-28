@@ -112,7 +112,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           setCustomToAddress(undefined)
         }}
       />
-      {/* <WidgetFooter /> */}
     </div>
   )
 }
