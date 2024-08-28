@@ -384,9 +384,24 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   useEffect(() => {
     if (!open) {
       resetState()
-    } else if (type === 'chain') {
-      setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
+    } else {
+      const chain = relayClient?.chains?.find(
+        (chain) => chain.id === token?.chainId
+      )
+      setChainFilter(
+        chain ?? {
+          id: undefined,
+          name: 'All'
+        }
+      )
+      if (type === 'chain') {
+        setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
+      }
     }
+
+    // else if (type === 'chain') {
+    //   setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
+    // }
   }, [open])
 
   return (
@@ -435,6 +450,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             enhancedCurrencyList={
               enhancedCurrencyList as EnhancedCurrencyList[]
             }
+            token={token}
             selectToken={selectToken}
             setCurrencyList={setCurrencyList}
           />
