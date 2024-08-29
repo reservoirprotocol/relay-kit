@@ -23,10 +23,12 @@ import Fuse from 'fuse.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
+import type { Token } from '../../../../types/index.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
   size: 'mobile' | 'desktop'
+  token?: Token
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
   chainSearchInput: string
@@ -45,6 +47,7 @@ const fuseSearchOptions = {
 export const SetChainStep: FC<SetChainStepProps> = ({
   type,
   size,
+  token,
   setTokenSelectorStep,
   setInputElement,
   chainSearchInput,
@@ -55,6 +58,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const client = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
+  const tokenIsDefined = token !== undefined
 
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains = client?.chains || []
@@ -119,7 +123,10 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           marginLeft: type === 'token' ? '80px' : '0'
         }}
       >
-        Select Chain for {selectedCurrencyList?.chains?.[0]?.symbol}
+        Select Chain
+        {tokenIsDefined ? (
+          <> for {selectedCurrencyList?.chains?.[0]?.symbol}</>
+        ) : null}
       </Text>
       <Input
         inputRef={(element) => {
@@ -216,9 +223,11 @@ export const SetChainStep: FC<SetChainStepProps> = ({
 
         {filteredChains?.unsupported?.length > 0 && (
           <>
-            <Text style="subtitle2" color="subtle" css={{ pl: '2', mt: '2' }}>
-              Other Chains
-            </Text>
+            {tokenIsDefined ? (
+              <Text style="subtitle2" color="subtle" css={{ pl: '2', mt: '2' }}>
+                Other Chains
+              </Text>
+            ) : null}
 
             {filteredChains.unsupported.map((chain) => {
               const nativeToken = {
