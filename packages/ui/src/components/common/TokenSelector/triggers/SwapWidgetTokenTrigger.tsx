@@ -60,7 +60,7 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
     </Button>
   ) : (
     <Button
-      color="primary"
+      color="white"
       corners="pill"
       css={{
         height: 36,
@@ -78,7 +78,7 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
       }}
     >
       Select Token
-      <Box css={{ color: 'white', width: 14 }}>
+      <Box css={{ color: 'gray9', width: 14 }}>
         <FontAwesomeIcon icon={faChevronDown} width={14} />
       </Box>
     </Button>
