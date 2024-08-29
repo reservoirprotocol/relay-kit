@@ -192,6 +192,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     let list =
       context === 'from' &&
       useDefaultTokenList &&
+      chainFilter.id === undefined &&
       suggestedTokens &&
       suggestedTokens.length > 0
         ? suggestedTokens
