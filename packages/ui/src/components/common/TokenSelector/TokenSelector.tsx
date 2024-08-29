@@ -111,7 +111,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
-    chainFilter.id === undefined &&
     (!restrictedTokensList || !restrictedTokensList.length)
 
   let tokenListQuery: string[] | undefined
