@@ -32,16 +32,21 @@ export const ChainTrigger: FC<ChainTriggerProps> = ({
         px: '3',
         borderRadius: '8px',
         width: '100%',
+        height: 48,
         backgroundColor: 'gray2',
         _hover: {
           backgroundColor: 'gray3'
         }
       }}
     >
-      <Flex align="center" css={{ gap: '2' }}>
-        <ChainIcon chainId={token?.chainId} width={24} height={24} />
-        <Text style="h6">{chain?.displayName}</Text>
-      </Flex>
+      {token ? (
+        <Flex align="center" css={{ gap: '2' }}>
+          <ChainIcon chainId={token?.chainId} width={24} height={24} />
+          <Text style="h6">{chain?.displayName}</Text>
+        </Flex>
+      ) : (
+        <Text style="h6">Select Chain</Text>
+      )}
       <Box css={{ color: 'gray9' }}>
         <FontAwesomeIcon icon={faChevronDown} width={14} />
       </Box>
