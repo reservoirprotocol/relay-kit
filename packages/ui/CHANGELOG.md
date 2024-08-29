@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.10
+
+### Patch Changes
+
+- 9b623c2: Add styling support for undefined tokens in new swap widget
+
 ## 1.3.9
 
 ### Patch Changes
