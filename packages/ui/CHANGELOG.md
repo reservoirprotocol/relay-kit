@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.11
+
+### Patch Changes
+
+- 2c6ead0: Chain selector improvements
+
 ## 1.3.10
 
 ### Patch Changes
