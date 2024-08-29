@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.12
+
+### Patch Changes
+
+- 6001f8d: Use default token list when chain is filtered
+
 ## 1.3.11
 
 ### Patch Changes
