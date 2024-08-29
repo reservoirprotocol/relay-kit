@@ -41,7 +41,7 @@ const fuseSearchOptions = {
   includeScore: true,
   includeMatches: true,
   threshold: 0.2,
-  keys: ['relayChain.chainId', 'relayChain.name']
+  keys: ['relayChain.chainId', 'relayChain.name', 'name', 'id']
 }
 
 export const SetChainStep: FC<SetChainStepProps> = ({
@@ -229,51 +229,53 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               </Text>
             ) : null}
 
-            {filteredChains.unsupported.map((chain) => {
-              const nativeToken = {
-                ...chain.currency,
-                metadata: {
-                  logoURI: `https://assets.relay.link/icons/currencies/${chain?.currency?.id}.png`
+            {filteredChains.unsupported
+              .sort((a, b) => a.displayName.localeCompare(b.displayName))
+              .map((chain) => {
+                const nativeToken = {
+                  ...chain.currency,
+                  metadata: {
+                    logoURI: `https://assets.relay.link/icons/currencies/${chain?.currency?.id}.png`
+                  }
                 }
-              }
-              return (
-                <Button
-                  key={chain.id}
-                  color="ghost"
-                  onClick={() => {
-                    selectToken(nativeToken, chain.id)
-                  }}
-                  css={{
-                    gap: '2',
-                    cursor: 'pointer',
-                    px: '2',
-                    py: '2',
-                    transition: 'backdrop-filter 250ms linear',
-                    _hover: {
-                      backgroundColor: 'gray/10'
-                    },
-                    flexShrink: 0,
-                    alignContent: 'center',
-                    display: 'flex',
-                    width: '100%'
-                  }}
-                >
-                  <ChainIcon
-                    chainId={chain.id}
-                    width={24}
-                    height={24}
-                    css={{ borderRadius: 4, overflow: 'hidden' }}
-                  />
-                  <Flex direction="column" align="start">
-                    <Text style="subtitle1">{chain.displayName}</Text>
-                    <Text style="subtitle3" color="subtle">
-                      {/* {truncateAddress(nativeToken?.address)} */}
-                      {nativeToken?.symbol}
-                    </Text>
-                  </Flex>
-                </Button>
-              )
-            })}
+                return (
+                  <Button
+                    key={chain.id}
+                    color="ghost"
+                    onClick={() => {
+                      selectToken(nativeToken, chain.id)
+                    }}
+                    css={{
+                      gap: '2',
+                      cursor: 'pointer',
+                      px: '2',
+                      py: '2',
+                      transition: 'backdrop-filter 250ms linear',
+                      _hover: {
+                        backgroundColor: 'gray/10'
+                      },
+                      flexShrink: 0,
+                      alignContent: 'center',
+                      display: 'flex',
+                      width: '100%'
+                    }}
+                  >
+                    <ChainIcon
+                      chainId={chain.id}
+                      width={24}
+                      height={24}
+                      css={{ borderRadius: 4, overflow: 'hidden' }}
+                    />
+                    <Flex direction="column" align="start">
+                      <Text style="subtitle1">{chain.displayName}</Text>
+                      <Text style="subtitle3" color="subtle">
+                        {/* {truncateAddress(nativeToken?.address)} */}
+                        {nativeToken?.symbol}
+                      </Text>
+                    </Flex>
+                  </Button>
+                )
+              })}
           </>
         )}
       </Flex>
