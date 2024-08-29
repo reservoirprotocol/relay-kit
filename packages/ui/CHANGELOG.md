@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.13
+
+### Patch Changes
+
+- f409525: Fix token selector chain filter bug
+
 ## 1.3.12
 
 ### Patch Changes
