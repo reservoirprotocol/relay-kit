@@ -230,7 +230,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         }}
       >
         <Text style="h5" css={{ mb: 8 }}>
-          {isReviewQuoteStep ? 'Review Quote' : 'Swap Details'}
+          {isReviewQuoteStep ? 'Review Quote' : 'Trade Details'}
         </Text>
 
         {progressStep === TransactionProgressStep.ReviewQuote ? (
