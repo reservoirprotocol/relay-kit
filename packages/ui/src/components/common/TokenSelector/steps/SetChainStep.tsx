@@ -28,6 +28,7 @@ import type { Token } from '../../../../types/index.js'
 type SetChainStepProps = {
   type?: 'token' | 'chain'
   size: 'mobile' | 'desktop'
+  context: 'from' | 'to'
   token?: Token
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
@@ -47,6 +48,7 @@ const fuseSearchOptions = {
 export const SetChainStep: FC<SetChainStepProps> = ({
   type,
   size,
+  context,
   token,
   setTokenSelectorStep,
   setInputElement,
@@ -61,7 +63,10 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const tokenIsDefined = token !== undefined
 
   const supportedChains = selectedCurrencyList?.chains || []
-  const allChains = client?.chains || []
+  const allChains =
+    client?.chains?.filter(
+      (chain) => context !== 'from' || chain.id !== 792703809 // filter out solana if from chain
+    ) || []
   const combinedChains = [
     ...supportedChains.map((chain) => ({ ...chain, isSupported: true })),
     ...allChains
@@ -269,7 +274,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                     <Flex direction="column" align="start">
                       <Text style="subtitle1">{chain.displayName}</Text>
                       <Text style="subtitle3" color="subtle">
-                        {/* {truncateAddress(nativeToken?.address)} */}
                         {nativeToken?.symbol}
                       </Text>
                     </Flex>
