@@ -42,7 +42,14 @@ const fuseSearchOptions = {
   includeScore: true,
   includeMatches: true,
   threshold: 0.2,
-  keys: ['relayChain.chainId', 'relayChain.name', 'name', 'id']
+  keys: [
+    'relayChain.chainId',
+    'relayChain.name',
+    'relayChain.displayName',
+    'name',
+    'id',
+    'displayName'
+  ]
 }
 
 export const SetChainStep: FC<SetChainStepProps> = ({

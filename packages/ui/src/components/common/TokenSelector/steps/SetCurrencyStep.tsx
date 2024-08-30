@@ -50,7 +50,7 @@ const fuseSearchOptions = {
   includeScore: true,
   includeMatches: true,
   threshold: 0.2,
-  keys: ['id', 'name']
+  keys: ['id', 'name', 'displayName']
 }
 
 export const SetCurrencyStep: FC<SetCurrencyProps> = ({
