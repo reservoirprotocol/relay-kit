@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.15
+
+### Patch Changes
+
+- e6f3183: Fix search by chain displayName
+- 5caf19b: Update Swapping CTA
+
 ## 1.3.14
 
 ### Patch Changes
