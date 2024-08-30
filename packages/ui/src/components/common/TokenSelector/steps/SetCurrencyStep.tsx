@@ -78,7 +78,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
     { id: undefined, name: 'All Chains' },
     ...chainFilterOptions
   ]
-  const chainFuse = new Fuse(allChains, fuseSearchOptions)
+  const chainFuse = new Fuse(chainFilterOptions, fuseSearchOptions)
   const [chainSearchInput, setChainSearchInput] = useState('')
 
   const filteredChains = useMemo(() => {
