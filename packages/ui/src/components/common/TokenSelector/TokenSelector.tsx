@@ -458,6 +458,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         {tokenSelectorStep === TokenSelectorStep.SetChain ? (
           <SetChainStep
             token={token}
+            context={context}
             setTokenSelectorStep={setTokenSelectorStep}
             setInputElement={setInputElement}
             chainSearchInput={chainSearchInput}
