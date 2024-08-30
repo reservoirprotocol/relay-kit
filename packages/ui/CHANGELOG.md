@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.14
+
+### Patch Changes
+
+- 2a11467: Small token selector bug fixes
+
 ## 1.3.13
 
 ### Patch Changes
