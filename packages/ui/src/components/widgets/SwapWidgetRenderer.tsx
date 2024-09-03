@@ -229,6 +229,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const isValidSolanaRecipient = solanaAddressRegex.test(customToAddress ?? '')
 
+  const recipientAddress = isSolanaSwap
+    ? customToAddress ?? '11111111111111111111111111111111'
+    : customToAddress ?? address
+
   const {
     data: price,
     isLoading: isFetchingPrice,
@@ -242,7 +246,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
           destinationCurrency: toToken.address,
-          recipient: recipient as string,
+          recipient: recipientAddress,
           tradeType,
           appFees: providerOptionsContext.appFees,
           amount:
@@ -282,8 +286,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
               debouncedOutputAmountValue.length > 0 &&
               Number(debouncedOutputAmountValue) !== 0)) &&
           fromToken !== undefined &&
-          toToken !== undefined &&
-          (!isSolanaSwap || (isSolanaSwap && isValidSolanaRecipient))
+          toToken !== undefined
       ),
       refetchInterval:
         !transactionModalOpen &&
