@@ -42,7 +42,11 @@ export const CustomAddressModal: FC<Props> = ({
 
   const isValidAddress = (input: string) => {
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
-    return ethereumRegex.test(input) || solanaAddressRegex.test(input)
+    if (isSolanaSwap) {
+      return solanaAddressRegex.test(input)
+    } else {
+      return ethereumRegex.test(input)
+    }
   }
   const connectedAddressSet =
     (!address && !toAddress) ||
@@ -53,8 +57,10 @@ export const CustomAddressModal: FC<Props> = ({
       setAddress('')
       setInput('')
     } else {
-      setAddress(toAddress ? toAddress : '')
-      setInput(toAddress ? toAddress : '')
+      if (isValidAddress(toAddress ?? '')) {
+        setAddress(toAddress ? toAddress : '')
+        setInput(toAddress ? toAddress : '')
+      }
       onAnalyticEvent?.(EventNames.ADDRESS_MODAL_OPEN)
     }
   }, [open])
