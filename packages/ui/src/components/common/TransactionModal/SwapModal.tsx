@@ -216,8 +216,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       onOpenChange={onOpenChange}
       css={{
         overflow: 'hidden',
-        p: isReviewQuoteStep ? '4' : '5',
-        maxWidth: '400px !important'
+        p: '4',
+        maxWidth: '412px !important'
       }}
       showCloseButton={isReviewQuoteStep}
     >
@@ -229,7 +229,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
           gap: isReviewQuoteStep ? '3' : '4'
         }}
       >
-        <Text style="h5" css={{ mb: 8 }}>
+        <Text style="h6" css={{ mb: 8 }}>
           {isReviewQuoteStep ? 'Review Quote' : 'Trade Details'}
         </Text>
 
