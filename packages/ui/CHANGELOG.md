@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.16
+
+### Patch Changes
+
+- 7079727: Fix ui overflow on transaction modal
+- 32c533e: Allow fetching solana quotes with no custom address
+
 ## 1.3.15
 
 ### Patch Changes
