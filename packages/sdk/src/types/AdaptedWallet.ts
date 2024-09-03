@@ -1,4 +1,4 @@
-import type { CustomTransport, HttpTransport } from 'viem'
+import type { CustomTransport, HttpTransport, TransactionReceipt } from 'viem'
 import type { Execute } from './Execute.js'
 import type { SignatureStepItem } from './SignatureStepItem.js'
 import type { TransactionStepItem } from './TransactionStepItem.js'
@@ -14,6 +14,9 @@ export type AdaptedWallet = {
     item: TransactionStepItem,
     step: Execute['steps'][0]
   ) => Promise<`0x${string}` | undefined>
+  handleConfirmTransactionStep: (
+    tx: string
+  ) => Promise<TransactionReceipt | undefined>
   address: () => Promise<string>
   transport?: CustomTransport | HttpTransport
 }
