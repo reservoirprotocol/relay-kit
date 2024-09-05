@@ -31,7 +31,7 @@ function formatNumber(
     return '>1B'
   }
 
-  return format(+amount)
+  return format(+amount).replace(/\.?0+$/, '') // remove trailing zeros
 }
 
 const truncateFractionAndFormat = (

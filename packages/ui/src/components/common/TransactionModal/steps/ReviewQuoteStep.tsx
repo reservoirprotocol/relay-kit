@@ -70,7 +70,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
 
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
-  const showHighPriceImpactError = isHighPriceImpact && totalImpactUsd
+  const showHighPriceImpactWarning =
+    isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
 
   const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
 
@@ -236,7 +237,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <Text
               style="h6"
               css={{
-                color: showHighPriceImpactError ? 'red11' : undefined
+                color: showHighPriceImpactWarning ? 'red11' : undefined
               }}
             >
               {toAmountFormatted} {toToken?.symbol}
@@ -250,7 +251,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               style="subtitle3"
               color="subtle"
               css={{
-                color: showHighPriceImpactError ? 'red11' : undefined
+                color: showHighPriceImpactWarning ? 'red11' : undefined
               }}
             >
               {formatDollar(Number(details?.currencyOut?.amountUsd))}
@@ -314,7 +315,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           </React.Fragment>
         ))}
       </Flex>
-      {showHighPriceImpactError ? (
+      {showHighPriceImpactWarning ? (
         <Flex
           align="center"
           css={{
@@ -329,8 +330,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'amber12' }}>
-            Due to high price impact, you will lose{' '}
-            {`${formatDollar(Math.abs(Number(totalImpactUsd)))}`} on this trade.
+            Due to limited liquidity, the price impact is currently high (
+            {quote?.details?.totalImpact?.percent}%).
           </Text>
         </Flex>
       ) : null}
@@ -364,7 +365,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
         css={{
           justifyContent: 'center'
         }}
-        color={showHighPriceImpactError ? 'error' : 'primary'}
+        color={showHighPriceImpactWarning ? 'error' : 'primary'}
         disabled={isFetchingQuote || isRefetchingQuote || waitingForSteps}
         onClick={() => swap?.()}
       >

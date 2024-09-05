@@ -19,6 +19,10 @@ type Props = Pick<
   containerCss?: Styles
 }
 
+const formatSwapRate = (rate: number) => {
+  return rate >= 1 ? formatNumber(rate, 2) : formatNumber(rate, 5)
+}
+
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
   isFetchingPrice,
@@ -32,7 +36,6 @@ const FeeBreakdown: FC<Props> = ({
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
   )
-  const compactSwapRate = Boolean(swapRate && swapRate.length > 8)
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   if (!feeBreakdown || isFetchingPrice) {
@@ -68,14 +71,12 @@ const FeeBreakdown: FC<Props> = ({
         >
           {rateMode === 'input' ? (
             <Text style="subtitle2">
-              1 {fromToken?.symbol} ={' '}
-              {formatNumber(Number(swapRate) / 1, 2, compactSwapRate)}{' '}
+              1 {fromToken?.symbol} = {formatSwapRate(Number(swapRate))}{' '}
               {toToken?.symbol}
             </Text>
           ) : (
             <Text style="subtitle2">
-              1 {toToken?.symbol} ={' '}
-              {formatNumber(1 / Number(swapRate), 2, compactSwapRate)}{' '}
+              1 {toToken?.symbol} = {formatSwapRate(1 / Number(swapRate))}{' '}
               {fromToken?.symbol}
             </Text>
           )}

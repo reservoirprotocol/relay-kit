@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.18
+
+### Patch Changes
+
+- 2d33c4a: Update high price impact warning logic
+- 128127f: Update swap widget padding and box shadow
+
+## 1.3.17
+
+### Patch Changes
+
+- 9fe399d: Fix conversion rate formatting bug
+
 ## 1.3.16
 
 ### Patch Changes

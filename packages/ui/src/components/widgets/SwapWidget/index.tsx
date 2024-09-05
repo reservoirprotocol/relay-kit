@@ -200,9 +200,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     width: '100%',
                     overflow: 'hidden',
                     border: 'widget-border',
-                    p: '4',
+                    boxShadow: 'widget-box-shadow',
                     minWidth: 300,
-                    maxWidth: 440
+                    maxWidth: 408
                   }}
                 >
                   <TokenSelectorContainer

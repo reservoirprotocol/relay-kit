@@ -50,6 +50,8 @@ export const WidgetErrorWell: FC<Props> = ({
 
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
+  const showHighPriceImpactWarning =
+    isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= 10
 
   const isInsufficientLiquidityError =
     fetchQuoteErrorMessage?.includes('No quotes found')
@@ -205,7 +207,7 @@ export const WidgetErrorWell: FC<Props> = ({
     )
   }
 
-  if (isHighPriceImpact && totalImpactUsd) {
+  if (showHighPriceImpactWarning) {
     return (
       <Flex
         align="center"
@@ -223,8 +225,8 @@ export const WidgetErrorWell: FC<Props> = ({
           <FontAwesomeIcon icon={faExclamationCircle} width={16} />
         </Box>
         <Text style="subtitle3" css={{ color: 'amber12' }}>
-          Due to high price impact, you will lose{' '}
-          {formatDollar(Math.abs(Number(totalImpactUsd)))} on this trade.
+          Due to limited liquidity, the price impact is currently high (
+          {quote?.details?.totalImpact?.percent}%).
         </Text>
       </Flex>
     )
