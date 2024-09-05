@@ -39,7 +39,6 @@ type SwapWidgetProps = {
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
-  onOpenAccountModal?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -56,7 +55,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
-  onOpenAccountModal,
   onAnalyticEvent,
   onSwapSuccess,
   onSwapError
@@ -215,27 +213,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <Text style="subtitle2" color="subtle">
                         From
                       </Text>
-                      {isMounted && address && onOpenAccountModal ? (
-                        <AnchorButton
-                          css={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '2'
-                          }}
-                          onClick={onOpenAccountModal}
-                        >
-                          <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {truncatedAddress}
-                          </Text>
-                          <Box css={{ color: 'gray8' }}>
-                            <FontAwesomeIcon
-                              icon={faPenToSquare}
-                              width={16}
-                              height={16}
-                            />
-                          </Box>
-                        </AnchorButton>
-                      ) : null}
                     </Flex>
                     <ChainTrigger
                       token={fromToken}
