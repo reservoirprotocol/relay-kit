@@ -24,6 +24,7 @@ import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
+import type { Chain } from 'viem'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -52,6 +53,14 @@ const fuseSearchOptions = {
   ]
 }
 
+type NormalizedChain = {
+  id: number
+  displayName: string
+  isSupported: boolean
+  currency: EnhancedCurrencyList['chains'][number] | null
+  relayChain: RelayChain
+}
+
 export const SetChainStep: FC<SetChainStepProps> = ({
   type,
   size,
@@ -74,11 +83,28 @@ export const SetChainStep: FC<SetChainStepProps> = ({
     client?.chains?.filter(
       (chain) => context !== 'from' || chain.id !== 792703809 // filter out solana if from chain
     ) || []
-  const combinedChains = [
-    ...supportedChains.map((chain) => ({ ...chain, isSupported: true })),
-    ...allChains
-      .filter((chain) => !supportedChains.some((sc) => sc.chainId === chain.id))
-      .map((chain) => ({ ...chain, isSupported: false }))
+
+  const combinedChains: NormalizedChain[] = [
+    ...supportedChains.map((currency) => ({
+      id: currency.chainId as number,
+      displayName: currency.relayChain.displayName,
+      isSupported: true,
+      currency: currency,
+      relayChain: currency.relayChain
+    })),
+    ...(type === 'chain'
+      ? allChains
+          .filter(
+            (chain) => !supportedChains.some((sc) => sc.chainId === chain.id)
+          )
+          .map((chain) => ({
+            id: chain.id,
+            displayName: chain.displayName,
+            isSupported: false,
+            currency: null,
+            relayChain: chain
+          }))
+      : [])
   ]
 
   const chainFuse = new Fuse(combinedChains, fuseSearchOptions)
@@ -89,31 +115,10 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         ? chainFuse.search(chainSearchInput).map((result) => result.item)
         : combinedChains
 
-    const supported = searchResults
-      .filter((chain) => chain.isSupported)
-      .map((currency) => {
-        const enhancedCurrency =
-          currency as EnhancedCurrencyList['chains'][number]
-        return {
-          ...enhancedCurrency,
-          totalBalance: BigInt(enhancedCurrency?.balance?.amount ?? 0n)
-        }
-      })
-      .sort((a, b) => {
-        if (a.totalBalance !== 0n || b.totalBalance !== 0n) {
-          return b.totalBalance > a.totalBalance ? 1 : -1
-        } else {
-          return a.relayChain.name.localeCompare(b.relayChain.name)
-        }
-      })
-
-    const unsupported =
-      type === 'chain'
-        ? (searchResults.filter((chain) => !chain.isSupported) as RelayChain[])
-        : []
-
-    return { supported, unsupported }
-  }, [chainSearchInput, chainFuse, combinedChains, type])
+    return chainSearchInput.trim() === ''
+      ? searchResults.sort((a, b) => a.displayName.localeCompare(b.displayName))
+      : searchResults
+  }, [chainSearchInput, chainFuse, combinedChains])
 
   return (
     <>
@@ -136,9 +141,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         }}
       >
         Select Chain
-        {tokenIsDefined ? (
-          <> for {selectedCurrencyList?.chains?.[0]?.symbol}</>
-        ) : null}
       </Text>
       <Input
         inputRef={(element) => {
@@ -177,19 +179,30 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           width: '100%'
         }}
       >
-        {filteredChains?.supported?.map((currency) => {
-          const decimals = currency?.balance?.decimals ?? 18
+        {filteredChains?.map((chain) => {
+          const isSupported = chain.isSupported
+          const token = isSupported
+            ? (chain.currency as Currency)
+            : {
+                ...chain.relayChain.currency,
+                metadata: {
+                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
+                }
+              }
+
+          const decimals = chain?.currency?.balance?.decimals ?? 18
           const compactBalance = Boolean(
-            currency.balance?.amount &&
+            chain?.currency?.balance?.amount &&
               decimals &&
-              currency.balance.amount.toString().length - decimals > 4
+              chain?.currency.balance.amount.toString().length - decimals > 4
           )
+
           return (
             <Button
-              key={currency.chainId}
+              key={chain.id}
               color="ghost"
               onClick={() => {
-                selectToken(currency, currency.chainId)
+                selectToken(token, chain.id)
               }}
               css={{
                 minHeight: 'auto',
@@ -208,21 +221,24 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               }}
             >
               <ChainIcon
-                chainId={currency.chainId}
+                chainId={chain.id}
                 width={24}
                 height={24}
                 css={{ borderRadius: 4, overflow: 'hidden' }}
               />
               <Flex direction="column" align="start">
-                <Text style="subtitle1">{currency.relayChain.name}</Text>
-                <Text style="subtitle3" color="subtle">
-                  {truncateAddress(currency.address)}
-                </Text>
+                <Text style="subtitle1">{chain.displayName}</Text>
+
+                {type === 'token' ? (
+                  <Text style="subtitle3" color="subtle">
+                    {truncateAddress(chain?.currency?.address)}
+                  </Text>
+                ) : null}
               </Flex>
-              {currency?.balance?.amount ? (
+              {chain?.currency?.balance?.amount ? (
                 <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
                   {formatBN(
-                    BigInt(currency.balance.amount),
+                    BigInt(chain?.currency?.balance?.amount),
                     5,
                     decimals,
                     compactBalance
@@ -232,63 +248,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
             </Button>
           )
         })}
-
-        {filteredChains?.unsupported?.length > 0 && (
-          <>
-            {tokenIsDefined ? (
-              <Text style="subtitle2" color="subtle" css={{ pl: '2', mt: '2' }}>
-                Other Chains
-              </Text>
-            ) : null}
-
-            {filteredChains.unsupported
-              .sort((a, b) => a.displayName.localeCompare(b.displayName))
-              .map((chain) => {
-                const nativeToken = {
-                  ...chain.currency,
-                  metadata: {
-                    logoURI: `https://assets.relay.link/icons/currencies/${chain?.currency?.id}.png`
-                  }
-                }
-                return (
-                  <Button
-                    key={chain.id}
-                    color="ghost"
-                    onClick={() => {
-                      selectToken(nativeToken, chain.id)
-                    }}
-                    css={{
-                      gap: '2',
-                      cursor: 'pointer',
-                      px: '2',
-                      py: '2',
-                      transition: 'backdrop-filter 250ms linear',
-                      _hover: {
-                        backgroundColor: 'gray/10'
-                      },
-                      flexShrink: 0,
-                      alignContent: 'center',
-                      display: 'flex',
-                      width: '100%'
-                    }}
-                  >
-                    <ChainIcon
-                      chainId={chain.id}
-                      width={24}
-                      height={24}
-                      css={{ borderRadius: 4, overflow: 'hidden' }}
-                    />
-                    <Flex direction="column" align="start">
-                      <Text style="subtitle1">{chain.displayName}</Text>
-                      <Text style="subtitle3" color="subtle">
-                        {nativeToken?.symbol}
-                      </Text>
-                    </Flex>
-                  </Button>
-                )
-              })}
-          </>
-        )}
       </Flex>
     </>
   )

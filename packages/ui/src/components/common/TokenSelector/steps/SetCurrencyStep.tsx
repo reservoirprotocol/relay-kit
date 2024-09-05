@@ -18,7 +18,7 @@ import type { EnhancedCurrencyList } from '../TokenSelector.js'
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
 import type { Address, Chain } from 'viem'
-import type { paths } from '@reservoir0x/relay-sdk'
+import type { paths, RelayChain } from '@reservoir0x/relay-sdk'
 import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
@@ -31,7 +31,7 @@ type SetCurrencyProps = {
   tokenSearchInput: string
   setTokenSearchInput: (value: string) => void
   chainIdsFilter: number[] | undefined
-  chainFilterOptions: Chain[]
+  chainFilterOptions: RelayChain[]
   chainFilter: ChainFilterValue
   setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
   isLoading: boolean
@@ -195,7 +195,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                         height={24}
                       />
                       <Text style="subtitle1" ellipsify>
-                        {chain.name}
+                        {('displayName' in chain && chain.displayName) ||
+                          chain.name}
                       </Text>
                     </Button>
                   )
