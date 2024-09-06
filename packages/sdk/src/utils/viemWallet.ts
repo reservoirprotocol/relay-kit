@@ -95,7 +95,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       onCancelled
     ) => {
       const client = getClient()
-      const chain = client.chains.find((chain) => chain.id === chainId)
+      const chain = getClient().chains.find((chain) => chain.id === chainId)
 
       const viemClient = createPublicClient({
         chain: chain?.viemChain,
