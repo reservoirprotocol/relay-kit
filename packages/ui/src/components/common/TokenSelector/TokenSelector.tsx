@@ -342,10 +342,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setTokenSelectorStep(TokenSelectorStep.SetCurrency)
     setTokenSearchInput('')
     setChainSearchInput('')
-    setChainFilter({
-      id: undefined,
-      name: 'All'
-    })
   }, [])
 
   const selectToken = useCallback(
@@ -397,10 +393,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
       }
     }
-
-    // else if (type === 'chain') {
-    //   setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
-    // }
   }, [open])
 
   return (
