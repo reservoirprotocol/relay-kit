@@ -110,7 +110,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
           quote_id: quoteId,
           txHashes: steps
             ?.map((step) => {
-              let txHashes: { chainId: number; txHash: Address }[] = []
+              let txHashes: { chainId: number; txHash: string }[] = []
               step.items?.forEach((item) => {
                 if (item.txHashes) {
                   txHashes = txHashes.concat([

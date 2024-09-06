@@ -39,7 +39,7 @@ export enum TransactionProgressStep {
   Error
 }
 
-export type TxHashes = { txHash: Address; chainId: number }[]
+export type TxHashes = { txHash: string; chainId: number }[]
 
 export type ChildrenProps = {
   progressStep: TransactionProgressStep
@@ -274,7 +274,7 @@ export const TransactionModalRenderer: FC<Props> = ({
             is_canonical: useExternalLiquidity,
             txHashes: steps
               ?.map((step) => {
-                let txHashes: { chainId: number; txHash: Address }[] = []
+                let txHashes: { chainId: number; txHash: string }[] = []
                 step.items?.forEach((item) => {
                   if (item.txHashes) {
                     txHashes = txHashes.concat([
@@ -309,7 +309,7 @@ export const TransactionModalRenderer: FC<Props> = ({
         is_canonical: useExternalLiquidity,
         txHashes: steps
           ?.map((step) => {
-            let txHashes: { chainId: number; txHash: Address }[] = []
+            let txHashes: { chainId: number; txHash: string }[] = []
             step.items?.forEach((item) => {
               if (item.txHashes) {
                 txHashes = txHashes.concat([

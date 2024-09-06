@@ -1,8 +1,8 @@
 import type { AdaptedWallet } from '../types/index.js'
 import { LogLevel } from './logger.js'
 import { getClient } from '../client.js'
-import type { Account, Hex, WalletClient } from 'viem'
-import { custom, hexToBigInt } from 'viem'
+import type { Account, Address, Hex, WalletClient } from 'viem'
+import { createPublicClient, custom, fallback, hexToBigInt, http } from 'viem'
 
 export function isViemWalletClient(
   wallet: WalletClient | AdaptedWallet
@@ -87,6 +87,36 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           gas: hexToBigInt(stepData.gas as any)
         })
       })
+    },
+    handleConfirmTransactionStep: async (
+      txHash,
+      chainId,
+      onReplaced,
+      onCancelled
+    ) => {
+      const client = getClient()
+      const chain = client.chains.find((chain) => chain.id === chainId)
+
+      const viemClient = createPublicClient({
+        chain: chain?.viemChain,
+        transport: wallet.transport
+          ? fallback([custom(wallet.transport), http()])
+          : http()
+      })
+
+      const receipt = await viemClient.waitForTransactionReceipt({
+        hash: txHash as Address,
+        onReplaced: (replacement) => {
+          if (replacement.reason === 'cancelled') {
+            onCancelled()
+            throw Error('Transaction cancelled')
+          }
+          onReplaced(replacement.transaction.hash)
+        }
+      })
+
+      client.log(['Transaction Receipt obtained', receipt], LogLevel.Verbose)
+      return receipt
     }
   }
 }

@@ -13,9 +13,12 @@ export type AdaptedWallet = {
     chainId: number,
     item: TransactionStepItem,
     step: Execute['steps'][0]
-  ) => Promise<`0x${string}` | undefined>
+  ) => Promise<string | undefined>
   handleConfirmTransactionStep: (
-    tx: string
+    tx: string,
+    chainId: number,
+    onReplaced: (replacementTxHash: string) => void,
+    onCancelled: () => void
   ) => Promise<TransactionReceipt | undefined>
   address: () => Promise<string>
   transport?: CustomTransport | HttpTransport
