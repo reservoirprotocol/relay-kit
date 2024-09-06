@@ -1,12 +1,11 @@
 import { NextPage } from 'next'
 import { SwapWidget } from '@reservoir0x/relay-kit-ui'
-import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 
 const SwapWidgetPage: NextPage = () => {
   const { openConnectModal } = useConnectModal()
-  const { openAccountModal } = useAccountModal()
   const { theme } = useTheme()
 
   return (
@@ -54,7 +53,6 @@ const SwapWidgetPage: NextPage = () => {
           // }}
           // defaultAmount={'5'}
           onConnectWallet={openConnectModal}
-          onOpenAccountModal={openAccountModal}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}

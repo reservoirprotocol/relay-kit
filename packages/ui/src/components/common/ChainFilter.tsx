@@ -113,7 +113,11 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   }}
                   chainId={option.id}
                 />
-                <Text style="subtitle2">{option.name}</Text>
+                <Text style="subtitle2">
+                  {' '}
+                  {('displayName' in option && option.displayName) ||
+                    option.name}
+                </Text>
               </DropdownMenuItem>
             )
           })}
