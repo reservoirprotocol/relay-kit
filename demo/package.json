@@ -15,7 +15,10 @@
   "dependencies": {
     "@next/bundle-analyzer": "^14.2.3",
     "@radix-ui/colors": "^0.1.8",
-    "@rainbow-me/rainbowkit": "2.1.2",
+    "@dynamic-labs/ethereum": "^2.6.0",
+    "@dynamic-labs/sdk-react-core": "^2.6.0",
+    "@dynamic-labs/solana": "^2.6.0",
+    "@dynamic-labs/wagmi-connector": "^2.6.0",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
     "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",

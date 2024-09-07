@@ -1,12 +1,10 @@
 import '@reservoir0x/relay-kit-ui/styles.css'
-import '@rainbow-me/rainbowkit/styles.css'
 import '../fonts.css'
 
 import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { WagmiProvider } from 'wagmi'
+import { createConfig, http, WagmiProvider } from 'wagmi'
 import { Chain, mainnet } from 'wagmi/chains'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
@@ -17,10 +15,12 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
-
-const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
-const WALLET_CONNECT_PROJECT_ID =
-  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ''
+import { DynamicContextProvider } from '@dynamic-labs/sdk-react-core'
+import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
+import { SolanaWalletConnectors } from '@dynamic-labs/solana'
+import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
+import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
+import { HttpTransport } from 'viem'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -30,7 +30,7 @@ const queryClient = new QueryClient()
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const [wagmiConfig, setWagmiConfig] = useState<
-    ReturnType<typeof getDefaultConfig> | undefined
+    ReturnType<typeof createConfig> | undefined
   >()
   const router = useRouter()
   const [relayApi, setRelayApi] = useState(MAINNET_RELAY_API)
@@ -45,14 +45,20 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   })
 
   useEffect(() => {
-    if (chains && viemChains) {
+    if (chains && viemChains && !wagmiConfig) {
       setWagmiConfig(
-        getDefaultConfig({
-          appName: 'Relay SDK Demo',
-          projectId: WALLET_CONNECT_PROJECT_ID,
+        createConfig({
           chains: (viemChains && viemChains.length === 0
             ? [mainnet]
-            : viemChains) as [Chain, ...Chain[]]
+            : viemChains) as [Chain, ...Chain[]],
+          multiInjectedProviderDiscovery: false,
+          transports: chains.reduce(
+            (transportsConfig: Record<number, HttpTransport>, chain) => {
+              transportsConfig[chain.id] = http()
+              return transportsConfig
+            },
+            {}
+          )
         })
       )
     }
@@ -131,11 +137,33 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           // }
         }}
       >
-        {wagmiConfig ? (
+        <DynamicContextProvider
+          settings={{
+            logLevel: 'INFO',
+            environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
+            walletConnectors: [
+              EthereumWalletConnectors,
+              SolanaWalletConnectors
+            ],
+            overrides: {
+              evmNetworks: () => {
+                return (
+                  chains
+                    //@ts-ignore: todo remove when api type is updated
+                    .filter((chain) => chain.vmType === 'evm')
+                    .map((chain) => {
+                      return convertRelayChainToDynamicNetwork(chain)
+                    })
+                )
+              }
+            },
+            initialAuthenticationMode: 'connect-only'
+          }}
+        >
           <WagmiProvider config={wagmiConfig}>
-            <RainbowKitProvider>{children}</RainbowKitProvider>
+            <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
           </WagmiProvider>
-        ) : null}
+        </DynamicContextProvider>
       </RelayKitProvider>
     </ThemeProvider>
   )
