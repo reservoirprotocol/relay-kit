@@ -134,7 +134,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
-          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+          const toChain = relayClient?.chains?.find(
+            (chain) => chain.id === toToken?.chainId
+          )
+          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)

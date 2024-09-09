@@ -121,7 +121,9 @@ export const CustomAddressModal: FC<Props> = ({
                 height: 48
               }}
               placeholder={
-                isSvmSwap ? `Enter ${toChain} address` : 'Address or ENS'
+                isSvmSwap
+                  ? `Enter ${toChain?.displayName} address`
+                  : 'Address or ENS'
               }
               value={input}
               onChange={(e) => {
