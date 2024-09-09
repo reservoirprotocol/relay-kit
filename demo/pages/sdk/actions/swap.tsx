@@ -1,10 +1,10 @@
 import { NextPage } from 'next'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
 import { Address, isAddress } from 'viem'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { ConnectButton } from 'components/ConnectButton'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
