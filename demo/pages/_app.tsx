@@ -21,12 +21,13 @@ import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
+import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 
 type AppWrapperProps = {
   children: ReactNode
 }
 
-const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
+const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 
 const queryClient = new QueryClient()
 
@@ -56,7 +57,14 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           multiInjectedProviderDiscovery: false,
           transports: chains.reduce(
             (transportsConfig: Record<number, HttpTransport>, chain) => {
-              transportsConfig[chain.id] = http()
+              const network = chainIdToAlchemyNetworkMap[chain.id]
+              if (network && ALCHEMY_API_KEY) {
+                transportsConfig[chain.id] = http(
+                  `https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+                )
+              } else {
+                transportsConfig[chain.id] = http() // Fallback to default HTTP transport
+              }
               return transportsConfig
             },
             {}
