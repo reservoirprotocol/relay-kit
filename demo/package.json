@@ -13,12 +13,12 @@
     "trailingComma": "none"
   },
   "dependencies": {
-    "@next/bundle-analyzer": "^14.2.3",
-    "@radix-ui/colors": "^0.1.8",
     "@dynamic-labs/ethereum": "^2.6.0",
     "@dynamic-labs/sdk-react-core": "^2.6.0",
     "@dynamic-labs/solana": "^2.6.0",
     "@dynamic-labs/wagmi-connector": "^2.6.0",
+    "@next/bundle-analyzer": "^14.2.3",
+    "@radix-ui/colors": "^0.1.8",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
     "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",
@@ -32,6 +32,7 @@
     "wagmi": "~2.9.8"
   },
   "devDependencies": {
+    "@dynamic-labs/types": "^2.6.0",
     "@types/node": "^12.12.21",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

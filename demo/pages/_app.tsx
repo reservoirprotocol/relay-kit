@@ -26,6 +26,8 @@ type AppWrapperProps = {
   children: ReactNode
 }
 
+const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
+
 const queryClient = new QueryClient()
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
