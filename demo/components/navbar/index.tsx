@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { ThemeSwitcher } from './ThemeSwitcher'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { BaseApiSwitcher } from './BaseApiSwitcher'
+import { ConnectButton } from 'components/ConnectButton'
 
 export const Navbar: FC = () => {
   return (

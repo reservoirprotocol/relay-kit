@@ -5,8 +5,7 @@
 
 html,
 body,
-#__next,
-#__next > div {
+#__next {
   height: 100%;
 }
 
