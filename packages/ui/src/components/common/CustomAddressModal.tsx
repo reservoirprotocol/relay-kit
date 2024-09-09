@@ -99,9 +99,7 @@ export const CustomAddressModal: FC<Props> = ({
           }
         }}
       >
-        <Text style="h5" css={{ mb: 8 }}>
-          To Address
-        </Text>
+        <Text style="h6">To Address</Text>
         <Flex direction="column" css={{ gap: '2', position: 'relative' }}>
           <Flex
             css={{
