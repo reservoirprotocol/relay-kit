@@ -15,12 +15,14 @@ import {
   faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 import { AnchorButton } from '../primitives/Anchor.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type Props = {
   open: boolean
   toToken?: Token
-  isSolanaSwap: boolean
+  isSvmSwap: boolean
   toAddress?: string
+  toChain?: RelayChain
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onConfirmed: (address: Address) => void
@@ -29,8 +31,9 @@ type Props = {
 
 export const CustomAddressModal: FC<Props> = ({
   open,
-  isSolanaSwap,
+  isSvmSwap,
   toAddress,
+  toChain,
   onAnalyticEvent,
   onOpenChange,
   onConfirmed,
@@ -42,7 +45,7 @@ export const CustomAddressModal: FC<Props> = ({
 
   const isValidAddress = (input: string) => {
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
-    if (isSolanaSwap) {
+    if (isSvmSwap) {
       return solanaAddressRegex.test(input)
     } else {
       return ethereumRegex.test(input)
@@ -118,7 +121,9 @@ export const CustomAddressModal: FC<Props> = ({
                 height: 48
               }}
               placeholder={
-                isSolanaSwap ? 'Enter Solana address' : 'Address or ENS'
+                isSvmSwap
+                  ? `Enter ${toChain?.displayName} address`
+                  : 'Address or ENS'
               }
               value={input}
               onChange={(e) => {
@@ -141,7 +146,7 @@ export const CustomAddressModal: FC<Props> = ({
             </Text>
           ) : null}
 
-          {!connectedAddressSet && isConnected && !isSolanaSwap ? (
+          {!connectedAddressSet && isConnected && !isSvmSwap ? (
             <Flex
               css={{ bg: 'amber2', p: '2', borderRadius: 8, gap: '2' }}
               align="center"
@@ -160,7 +165,7 @@ export const CustomAddressModal: FC<Props> = ({
             </Flex>
           ) : null}
 
-          {!isSolanaSwap && isConnected ? (
+          {!isSvmSwap && isConnected ? (
             connectedAddressSet ? (
               <Flex
                 css={{ bg: 'green2', p: '2', borderRadius: 8, gap: '2' }}

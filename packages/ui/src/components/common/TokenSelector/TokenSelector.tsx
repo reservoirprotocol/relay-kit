@@ -98,7 +98,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const chainFilterOptions =
     context === 'from'
-      ? configuredChains?.filter((chain) => chain.id !== 792703809)
+      ? configuredChains?.filter((chain) => chain.vmType !== 'svm')
       : configuredChains
 
   const configuredChainIds = useMemo(() => {
@@ -233,7 +233,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .filter(
           (currency) =>
             currency !== undefined &&
-            (context !== 'from' || currency.chainId !== 792703809) // filter out solana currencies for from token
+            (context !== 'from' || currency.vmType !== 'svm') // filter out solana currencies for from token
         )
 
       return filteredList.length > 0 ? filteredList : undefined

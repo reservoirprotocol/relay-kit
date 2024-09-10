@@ -95,7 +95,7 @@ export type ChildrenProps = {
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
   fetchingSolverConfig: boolean
-  isSolanaSwap: boolean
+  isSvmSwap: boolean
   isValidSolanaRecipient: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -225,11 +225,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : false
   )
 
-  const isSolanaSwap = toToken?.chainId === 792703809
+  const toChain = relayClient?.chains.find(
+    (chain) => chain.id === toToken?.chainId
+  )
+  const isSvmSwap = toChain?.vmType === 'svm'
 
   const isValidSolanaRecipient = solanaAddressRegex.test(customToAddress ?? '')
 
-  const recipientAddress = isSolanaSwap
+  const recipientAddress = isSvmSwap
     ? customToAddress ?? '11111111111111111111111111111111'
     : customToAddress ?? address
 
@@ -390,8 +393,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
-  } else if (isSolanaSwap && !isValidSolanaRecipient) {
-    ctaCopy = 'Enter Solana Address'
+  } else if (isSvmSwap && !isValidSolanaRecipient) {
+    ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
   } else if (!debouncedInputAmountValue || !debouncedOutputAmountValue) {
@@ -470,7 +473,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig: config.isFetching,
-        isSolanaSwap,
+        isSvmSwap,
         isValidSolanaRecipient,
         invalidateBalanceQueries,
         setUseExternalLiquidity,

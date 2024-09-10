@@ -123,7 +123,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ctaCopy,
         isFromETH,
         timeEstimate,
-        isSolanaSwap,
+        isSvmSwap,
         isValidSolanaRecipient,
         setDetails,
         setSwapError,
@@ -134,7 +134,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
-          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+          const toChain = relayClient?.chains?.find(
+            (chain) => chain.id === toToken?.chainId
+          )
+          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -165,9 +168,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
-            isSolanaSwap={isSolanaSwap}
+            isSvmSwap={isSvmSwap}
             fromToken={fromToken}
             toToken={toToken}
+            toChain={toChain}
             swapError={swapError}
             price={price}
             address={address}
@@ -234,8 +238,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -369,7 +373,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       width: 36
                     }}
                   >
-                    {hasLockedToken || isSolanaSwap ? null : (
+                    {hasLockedToken || isSvmSwap ? null : (
                       <Button
                         size="none"
                         color="white"
@@ -439,8 +443,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {isSolanaSwap && !isValidSolanaRecipient
-                              ? 'Enter Solana Address'
+                            {isSvmSwap && !isValidSolanaRecipient
+                              ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
                           <Box css={{ color: 'gray8' }}>
@@ -473,8 +477,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -653,7 +657,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
                     invalidSolanaRecipient={
-                      isSolanaSwap && !isValidSolanaRecipient
+                      isSvmSwap && !isValidSolanaRecipient
                     }
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
@@ -668,7 +672,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isSameCurrencySameRecipientSwap
                     }
                     onClick={() => {
-                      if (isSolanaSwap && !isValidSolanaRecipient) {
+                      if (isSvmSwap && !isValidSolanaRecipient) {
                         setAddressModalOpen(true)
                       } else {
                         setTransactionModalOpen(true)
