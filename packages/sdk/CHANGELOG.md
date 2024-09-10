@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.2.2
+
+### Patch Changes
+
+- 41feac9: Expand support for svm chains when setting addresses
+
 ## 1.2.1
 
 ### Patch Changes
