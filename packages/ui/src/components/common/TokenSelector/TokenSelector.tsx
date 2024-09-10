@@ -24,6 +24,7 @@ import {
 import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -40,7 +41,7 @@ export type TokenSelectorProps = {
 
 export type EnhancedCurrencyList = {
   chains: (CurrencyList[number] & {
-    relayChain: Chain
+    relayChain: RelayChain
     balance?: DuneBalanceResponse['balances'][0]
   })[]
   totalValueUsd?: number
@@ -91,9 +92,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const relayClient = useRelayClient()
   const configuredChains = useMemo(() => {
     return (
-      relayClient?.chains
-        .map((chain) => chain.viemChain as Chain)
-        .sort((a, b) => a.name.localeCompare(b.name)) ?? []
+      relayClient?.chains.sort((a, b) => a.name.localeCompare(b.name)) ?? []
     )
   }, [relayClient?.chains])
 
@@ -318,7 +317,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           ...currency,
           relayChain: configuredChains.find(
             (chain) => chain.id === currency.chainId
-          ) as Chain,
+          ) as RelayChain,
           balance: tokenBalances
             ? tokenBalances[`${currency.chainId}:${currency.address}`]
             : undefined
@@ -343,10 +342,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setTokenSelectorStep(TokenSelectorStep.SetCurrency)
     setTokenSearchInput('')
     setChainSearchInput('')
-    setChainFilter({
-      id: undefined,
-      name: 'All'
-    })
   }, [])
 
   const selectToken = useCallback(
@@ -398,10 +393,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
       }
     }
-
-    // else if (type === 'chain') {
-    //   setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
-    // }
   }, [open])
 
   return (

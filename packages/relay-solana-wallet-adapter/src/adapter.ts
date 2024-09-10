@@ -1,37 +1,39 @@
 import {
   AddressLookupTableAccount,
   Connection,
-  Keypair,
   PublicKey,
+  Transaction,
   TransactionInstruction,
   TransactionMessage,
-  VersionedTransaction
+  VersionedTransaction,
+  type SendOptions,
+  type TransactionSignature
 } from '@solana/web3.js'
 import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
-import type { Address } from 'viem'
 
 export const adaptSolanaWallet = (
+  walletAddress: string,
+  chainId: number,
   connection: Connection,
-  keypair: Keypair
+  signAndSendTransaction: (
+    transaction: Transaction | VersionedTransaction,
+    options?: SendOptions
+  ) => Promise<{
+    signature: TransactionSignature
+  }>
 ): AdaptedWallet => {
   return {
     getChainId: async () => {
-      // Solana doesn't have a chainId concept like Ethereum
-      // @TODO: implement mapping of svm chain names to chainIds
-      return 792703809
+      return chainId
     },
     address: async () => {
-      return keypair.publicKey.toBase58()
+      return walletAddress
     },
     handleSignMessageStep: async () => {
       throw new Error('Message signing not implemented for Solana')
     },
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const client = getClient()
-      client.log(
-        ['Execute Steps: Sending Solana transaction'],
-        LogLevel.Verbose
-      )
 
       const instructions =
         stepItem?.data?.instructions?.map(
@@ -48,7 +50,7 @@ export const adaptSolanaWallet = (
         ) ?? []
 
       const messageV0 = new TransactionMessage({
-        payerKey: keypair.publicKey,
+        payerKey: new PublicKey(walletAddress),
         instructions,
         recentBlockhash: await connection
           .getLatestBlockhash()
@@ -65,19 +67,18 @@ export const adaptSolanaWallet = (
       )
 
       const transaction = new VersionedTransaction(messageV0)
-      transaction.sign([keypair])
+      const signature = await signAndSendTransaction(transaction)
 
-      const signature = await connection.sendTransaction(transaction)
-      return signature
+      client.log(
+        ['Transaction Signature obtained', signature],
+        LogLevel.Verbose
+      )
+
+      return signature.signature
     },
-    handleConfirmTransactionStep: async (
-      txHash
-      // chainId,
-      // onReplaced,
-      // onCancelled
-    ) => {
-      const client = getClient()
-      client.log(['Confirming Solana transaction'], LogLevel.Verbose)
+    handleConfirmTransactionStep: async (txHash) => {
+      // Solana doesn't have a concept of replaced transactions
+      // So we don't need to handle onReplaced and onCancelled
 
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash('confirmed')
@@ -88,28 +89,15 @@ export const adaptSolanaWallet = (
         signature: txHash
       })
 
-      client.log(['Solana transaction result: ', result], LogLevel.Verbose)
-
       if (result.value.err) {
         throw new Error(`Transaction failed: ${result.value.err}`)
       }
 
-      // Solana doesn't have a concept of replaced transactions
-      // So we don't need to handle onReplaced and onCancelled
-
-      client.log({
+      return {
         blockHash: result.context.slot.toString(),
         blockNumber: result.context.slot,
-        transactionHash: txHash as Address
-      } as any)
-
-      return undefined
-
-      // return {
-      //   blockHash: result.context.slot.toString(),
-      //   blockNumber: result.context.slot,
-      //   transactionHash: txHash as Address
-      // }
+        txHash
+      }
     }
   }
 }

@@ -3,6 +3,12 @@ import type { Execute } from './Execute.js'
 import type { SignatureStepItem } from './SignatureStepItem.js'
 import type { TransactionStepItem } from './TransactionStepItem.js'
 
+export type SvmReciept = {
+  blockHash: string
+  blockNumber: number
+  txHash: string
+}
+
 export type AdaptedWallet = {
   getChainId: () => Promise<number>
   handleSignMessageStep: (
@@ -19,7 +25,10 @@ export type AdaptedWallet = {
     chainId: number,
     onReplaced: (replacementTxHash: string) => void,
     onCancelled: () => void
-  ) => Promise<TransactionReceipt | undefined>
+  ) => Promise<
+    | TransactionReceipt // evm
+    | SvmReciept // svm
+  >
   address: () => Promise<string>
   transport?: CustomTransport | HttpTransport
 }

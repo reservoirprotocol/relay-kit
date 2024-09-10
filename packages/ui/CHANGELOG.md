@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.19
+
+### Patch Changes
+
+- a93ae37: Chain selector ux tweaks
+
 ## 1.3.18
 
 ### Patch Changes

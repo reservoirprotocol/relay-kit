@@ -1,10 +1,14 @@
 import { NextPage } from 'next'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
-import { Address, isAddress } from 'viem'
+import { Address } from 'viem'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { ConnectButton } from 'components/ConnectButton'
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
+import { ISolana } from '@dynamic-labs/solana'
+import { Connection } from '@solana/web3.js'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -21,6 +25,9 @@ const SwapActionPage: NextPage = () => {
   const [tx, setTx] = useState<string>('')
   const { data: wallet } = useWalletClient()
   const client = useRelayClient()
+
+  const { primaryWallet } = useDynamicContext()
+  const walletAddress = primaryWallet?.address
 
   return (
     <div
@@ -181,19 +188,41 @@ const SwapActionPage: NextPage = () => {
           cursor: 'pointer'
         }}
         onClick={async () => {
-          if (!wallet) {
+          if (!primaryWallet) {
             throw 'Please connect to execute transactions'
           }
-          if (recipient && !isAddress(recipient)) {
-            throw 'Recipient must be an address'
-          }
+
           if (!amount) {
             throw 'Must include an amount for swapping'
           }
 
+          let executionWallet
+
+          if (fromChainId === 792703809) {
+            const connection = await primaryWallet.connector.getPublicClient<
+              Connection | undefined
+            >()
+            const signer = await primaryWallet.connector?.getSigner<ISolana>()
+
+            if (!connection || !signer?.signTransaction || !walletAddress) {
+              throw 'Unable to setup Solana wallet'
+            }
+
+            executionWallet = adaptSolanaWallet(
+              walletAddress,
+              connection,
+              signer.signAndSendTransaction
+            )
+          } else {
+            if (!wallet) {
+              throw 'Please connect to execute transactions'
+            }
+            executionWallet = wallet
+          }
+
           const quote = await client?.actions.getQuote({
             chainId: fromChainId,
-            wallet,
+            wallet: executionWallet,
             toChainId,
             toCurrency,
             amount,
@@ -207,7 +236,7 @@ const SwapActionPage: NextPage = () => {
           }
           client?.actions.execute({
             quote,
-            wallet,
+            wallet: executionWallet,
             depositGasLimit,
             onProgress: (data) => {
               console.log(data)

@@ -1,12 +1,11 @@
 import { NextPage } from 'next'
 import { SwapWidget } from '@reservoir0x/relay-kit-ui'
-import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
 
 const SwapWidgetPage: NextPage = () => {
-  const { openConnectModal } = useConnectModal()
-  const { openAccountModal } = useAccountModal()
+  const { setShowAuthFlow } = useDynamicContext()
   const { theme } = useTheme()
 
   return (
@@ -53,8 +52,7 @@ const SwapWidgetPage: NextPage = () => {
           //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
           // }}
           // defaultAmount={'5'}
-          onConnectWallet={openConnectModal}
-          onOpenAccountModal={openAccountModal}
+          onConnectWallet={() => setShowAuthFlow(true)}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}
