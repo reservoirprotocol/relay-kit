@@ -72,6 +72,23 @@ export interface paths {
                   logoUrl?: string | null;
                   /** @description Brand color code */
                   brandColor?: string | null;
+                  /** @description Relay contract addresses */
+                  contracts?: {
+                    multicall3?: string;
+                    multicaller?: string;
+                    onlyOwnerMulticaller?: string;
+                    relayReceiver?: string;
+                    erc20Router?: string;
+                    approvalProxy?: string;
+                  };
+                  /**
+                   * @description The type of VM the chain runs on
+                   * @enum {string}
+                   */
+                  vmType?: "evm" | "svm";
+                  explorerQueryParams?: {
+                    [key: string]: unknown;
+                  } | null;
                 })[];
             };
           };
@@ -1663,6 +1680,7 @@ export interface paths {
               }[];
             destinationCurrency: string;
             destinationChainId: number;
+            partial?: boolean;
             /** @enum {string} */
             tradeType: "EXACT_INPUT";
           };
@@ -2163,6 +2181,8 @@ export interface paths {
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
             usePermit?: boolean;
+            /** @description Enable this to use a deposit address when bridging, in scenarios where calldata cannot be sent alongside the transaction. only works on native currency bridges. */
+            useDepositAddress?: boolean;
             /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
             slippageTolerance?: string;
             appFees?: {
@@ -2601,6 +2621,8 @@ export interface paths {
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
             usePermit?: boolean;
+            /** @description Enable this to use a deposit address when bridging, in scenarios where calldata cannot be sent alongside the transaction. only works on native currency bridges. */
+            useDepositAddress?: boolean;
             /** @description Slippage tolerance for the swap, if not specified then the slippage tolerance is automatically calculated to avoid front-running. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
             slippageTolerance?: string;
             appFees?: {
@@ -3742,19 +3764,21 @@ export interface paths {
         /** @description List of currencies */
         200: {
           content: {
-            "application/json": {
+            "application/json": (({
                   groupID?: string;
                   chainId?: number;
                   address?: string;
                   symbol?: string;
                   name?: string;
                   decimals?: number;
+                  /** @enum {string} */
+                  vmType?: "evm" | "svm";
                   metadata?: {
                     logoURI?: string;
                     verified?: boolean;
                     isNative?: boolean;
                   };
-                }[][];
+                })[])[];
           };
         };
       };

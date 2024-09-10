@@ -1,15 +1,15 @@
 import { useState, type Dispatch, type FC, type ReactNode } from 'react'
-import WidgetFooter from './WidgetFooter.js'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
-import { Flex } from '../primitives/index.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
-  isSolanaSwap: boolean
+  isSvmSwap: boolean
+  toChain?: RelayChain
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: (props: WidgetChildProps) => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
@@ -58,7 +58,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   useExternalLiquidity,
   timeEstimate,
   recipient,
-  isSolanaSwap,
+  isSvmSwap,
+  toChain,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -100,7 +101,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       <CustomAddressModal
         open={addressModalOpen}
         toAddress={customToAddress ?? address}
-        isSolanaSwap={isSolanaSwap}
+        isSvmSwap={isSvmSwap}
+        toChain={toChain}
         onAnalyticEvent={onAnalyticEvent}
         onOpenChange={(open) => {
           setAddressModalOpen(open)
