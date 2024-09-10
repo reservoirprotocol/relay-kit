@@ -23,6 +23,7 @@ export const adaptSolanaWallet = (
   }>
 ): AdaptedWallet => {
   return {
+    vmType: 'svm',
     getChainId: async () => {
       return chainId
     },

@@ -15,6 +15,7 @@ export function isViemWalletClient(
 
 export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
   return {
+    vmType: 'evm',
     getChainId: async () => {
       return wallet.getChainId()
     },

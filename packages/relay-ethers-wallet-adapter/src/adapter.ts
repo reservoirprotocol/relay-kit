@@ -17,6 +17,7 @@ export const adaptEthersSigner = (
   transport?: CustomTransport | HttpTransport
 ): AdaptedWallet => {
   return {
+    vmType: 'evm',
     transport,
     getChainId: () => {
       return signer.getChainId()
