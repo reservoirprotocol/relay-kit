@@ -115,7 +115,6 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         }
       })
 
-      client.log(['Transaction Receipt obtained', receipt], LogLevel.Verbose)
       return receipt
     }
   }

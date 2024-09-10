@@ -94,7 +94,6 @@ export const adaptEthersSigner = (
         }
       })
 
-      client.log(['Transaction Receipt obtained', receipt], LogLevel.Verbose)
       return receipt
     }
   }
