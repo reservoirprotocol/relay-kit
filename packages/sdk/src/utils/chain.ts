@@ -95,6 +95,7 @@ export const convertViemChainToRelayChain = (
     },
     currency: chain.nativeCurrency,
     explorerUrl: chain.blockExplorers?.default.url ?? '',
+    vmType: 'evm',
     depositEnabled: true,
     viemChain: chain
   }

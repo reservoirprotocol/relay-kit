@@ -81,7 +81,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains =
     client?.chains?.filter(
-      (chain) => context !== 'from' || chain.id !== 792703809 // filter out solana if from chain
+      (chain) => context !== 'from' || chain.vmType !== 'svm' // filter out solana if from chain
     ) || []
 
   const combinedChains: NormalizedChain[] = [
