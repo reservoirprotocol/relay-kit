@@ -69,7 +69,8 @@ let wallet = {
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve('0x'),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-  handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
 }
 
 let client = createClient({
@@ -136,7 +137,8 @@ describe('Should test the executeSteps method.', () => {
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -257,13 +259,13 @@ describe('Should test the executeSteps method.', () => {
     )
   })
 
-  it('Should throw: Transaction hash not returned from sendTransaction method', async () => {
+  it('Should throw: Transaction hash not returned from handleSendTransactionStep method', async () => {
     wallet.handleSendTransactionStep = vi.fn().mockResolvedValue(null)
 
     await expect(
       executeSteps(1, {}, wallet, ({ steps }) => {}, bridgeData, undefined)
     ).rejects.toThrow(
-      'Transaction hash not returned from sendTransaction method'
+      'Transaction hash not returned from handleSendTransactionStep method'
     )
   })
 
@@ -353,7 +355,7 @@ describe('Should test the executeSteps method.', () => {
     )
 
     const waitForTransactionReceiptCallIndex =
-      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+      wallet.handleConfirmTransactionStep.mock.invocationCallOrder[0]
     const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
       .filter((call) => call[0].url?.includes('/intents/status'))
       .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
@@ -361,7 +363,7 @@ describe('Should test the executeSteps method.', () => {
     expect(waitForTransactionReceiptCallIndex).toBeLessThan(
       Math.min(...pollForConfirmationCallIndices)
     )
-    expect(waitForTransactionReceiptMock).toHaveBeenCalledTimes(2)
+    expect(wallet.handleConfirmTransactionStep).toHaveBeenCalledTimes(2)
   })
 
   it('Should await tx and poll in series', async () => {
@@ -385,7 +387,7 @@ describe('Should test the executeSteps method.', () => {
     )
 
     const waitForTransactionReceiptCallIndex =
-      waitForTransactionReceiptMock.mock.invocationCallOrder[0]
+      wallet.handleConfirmTransactionStep.mock.invocationCallOrder[0]
     const pollForConfirmationCallIndices = axiosRequestSpy.mock.calls
       .filter((call) => call[0].url?.includes('/intents/status'))
       .map((call, index) => axiosRequestSpy.mock.invocationCallOrder[index])
@@ -409,7 +411,8 @@ describe('Should test a signature step.', () => {
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -841,7 +844,8 @@ describe('Base tests', () => {
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-      handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API

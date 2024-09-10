@@ -1,10 +1,9 @@
-import type { Address } from 'viem'
 import type { Execute } from '../types/index.js'
 
 export const getCurrentStepData = (steps: Execute['steps']) => {
   let currentStep: NonNullable<Execute['steps']>['0'] | null = null
   let currentStepItem: NonNullable<Execute['steps'][0]['items']>[0] | undefined
-  let txHashes: { txHash: Address; chainId: number }[] = []
+  let txHashes: { txHash: string; chainId: number }[] = []
 
   for (const step of steps) {
     for (const item of step.items || []) {

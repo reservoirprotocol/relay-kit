@@ -12,5 +12,16 @@ export type TransactionStepItem = Pick<
     maxFeePerGas?: string
     maxPriorityFeePerGas?: string
     gas?: string
+    // Solana
+    instructions?: {
+      keys: {
+        pubkey: string
+        isSigner: boolean
+        isWritable: boolean
+      }[]
+      programId: string
+      data: string
+    }[]
+    addressLookupTableAddresses?: string[]
   }
 }
