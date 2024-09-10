@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.3.20
+
+### Patch Changes
+
+- ae0dd9b: Remove resetting of chain filter when token selector is closed
+- 10a4d30: Fix modal's "x" button size and alignment
+- 41feac9: Expand support for svm chains when setting addresses
+- Updated dependencies [41feac9]
+  - @reservoir0x/relay-sdk@1.2.2
+  - @reservoir0x/relay-kit-hooks@1.2.5
+
 ## 1.3.19
 
 ### Patch Changes
