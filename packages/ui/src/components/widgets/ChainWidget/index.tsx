@@ -61,6 +61,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
 }) => {
   const isMounted = useMounted()
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [tabId, setTabId] = useState<WidgetTabId>('deposit')
   const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
@@ -191,6 +192,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            addressModalOpen={addressModalOpen}
+            setAddressModalOpen={setAddressModalOpen}
             isSvmSwap={isSvmSwap}
             fromToken={fromToken}
             fromChain={fromChain}
@@ -218,7 +221,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
-            {({ setAddressModalOpen }) => {
+            {() => {
               return (
                 <>
                   <Flex
@@ -315,8 +318,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                                ? formatFixedLength(amountInputValue, 8)
-                                : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -483,8 +486,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             tradeType === 'EXACT_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                                ? formatFixedLength(amountOutputValue, 8)
-                                : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)

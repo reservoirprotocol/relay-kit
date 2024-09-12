@@ -7,12 +7,14 @@ import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
+  addressModalOpen: boolean
   isSvmSwap: boolean
   toChain?: RelayChain
   fromChain?: RelayChain
   wallet?: AdaptedWallet
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-  children: (props: WidgetChildProps) => ReactNode
+  setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  children: () => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
@@ -36,14 +38,11 @@ export type WidgetContainerProps = {
   | 'timeEstimate'
 >
 
-export type WidgetChildProps = {
-  addressModalOpen: boolean
-  setAddressModalOpen: Dispatch<React.SetStateAction<boolean>>
-}
-
 const WidgetContainer: FC<WidgetContainerProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
+  addressModalOpen,
+  setAddressModalOpen,
   children,
   fromChain,
   fromToken,
@@ -70,13 +69,9 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
-  const [addressModalOpen, setAddressModalOpen] = useState(false)
   return (
     <div className="relay-kit-reset">
-      {children({
-        addressModalOpen,
-        setAddressModalOpen
-      })}
+      {children()}
       {isMounted ? (
         <SwapModal
           open={transactionModalOpen}
