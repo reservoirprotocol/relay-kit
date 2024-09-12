@@ -9,6 +9,7 @@ import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
+import { solanaAddressRegex } from '~sdk/utils/solana.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -73,10 +74,18 @@ const useCurrencyBalance = ({
     }
   })
 
+  const isValidSvmAddress = solanaAddressRegex.test(address ?? '')
+
   const duneBalances = useDuneBalances(
     address,
     {
-      enabled: Boolean(chain && chain.vmType === 'svm' && address && enabled)
+      enabled: Boolean(
+        chain &&
+          chain.vmType === 'svm' &&
+          address &&
+          isValidSvmAddress &&
+          enabled
+      )
     },
     chain
   )
@@ -90,16 +99,28 @@ const useCurrencyBalance = ({
       ? erc20BalanceIsLoading
       : ethBalanceIsLoading
     return { value, queryKey, isLoading, isError, error }
-  } else {
-    return {
-      value:
-        currency && duneBalances.balanceMap
-          ? BigInt(duneBalances.balanceMap[currency as string].amount ?? 0)
-          : undefined,
-      queryKey: duneBalances.queryKey,
-      isLoading: duneBalances.isLoading,
-      isError: duneBalances.isError,
-      error: duneBalances.error
+  } else if (chain?.vmType === 'svm') {
+    if (isValidSvmAddress) {
+      return {
+        value:
+          currency &&
+          duneBalances.balanceMap &&
+          duneBalances.balanceMap[currency as string]
+            ? BigInt(duneBalances.balanceMap[currency as string].amount ?? 0)
+            : undefined,
+        queryKey: duneBalances.queryKey,
+        isLoading: duneBalances.isLoading,
+        isError: duneBalances.isError,
+        error: duneBalances.error
+      }
+    } else {
+      return {
+        value: undefined,
+        queryKey: duneBalances.queryKey,
+        isLoading: duneBalances.isLoading,
+        isError: duneBalances.isError,
+        error: duneBalances.error
+      }
     }
   }
 }

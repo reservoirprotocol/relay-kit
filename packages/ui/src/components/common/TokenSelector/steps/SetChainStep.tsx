@@ -76,12 +76,12 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const client = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
-  const tokenIsDefined = token !== undefined
 
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains =
     client?.chains?.filter(
-      (chain) => context !== 'from' || chain.vmType !== 'svm' // filter out solana if from chain
+      (chain) =>
+        context !== 'from' || (chain.vmType !== 'svm' && chain.id !== 792703809) // filter out solana if from chain
     ) || []
 
   const combinedChains: NormalizedChain[] = [

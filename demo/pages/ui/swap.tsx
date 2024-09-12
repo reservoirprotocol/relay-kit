@@ -8,19 +8,24 @@ import {
   useSwitchWallet,
   useUserWallets
 } from '@dynamic-labs/sdk-react-core'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { Connection } from '@solana/web3.js'
+import { ISolana } from '@dynamic-labs/solana'
+import { AdaptedWallet, adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { useWalletClient } from 'wagmi'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
 
 const SwapWidgetPage: NextPage = () => {
-  const { setShowAuthFlow } = useDynamicContext()
+  const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
   const switchWallet = useSwitchWallet()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
-
-  console.log(userWallets)
+  const [wallet, setWallet] = useState<AdaptedWallet | undefined>()
+  const { data: walletClient } = useWalletClient()
 
   const linkedWallets = useMemo(() => {
     return userWallets.map((wallet) => {
@@ -37,6 +42,40 @@ const SwapWidgetPage: NextPage = () => {
       }
     })
   }, [userWallets])
+
+  useEffect(() => {
+    const adaptWallet = async () => {
+      try {
+        if (primaryWallet !== undefined && primaryWallet !== null) {
+          if (primaryWallet.chain === 'SOL') {
+            const connection = await primaryWallet.connector.getPublicClient<
+              Connection | undefined
+            >()
+            const signer = await primaryWallet.connector?.getSigner<ISolana>()
+
+            if (!connection) {
+              throw 'Missing SOL connection, unable to adapt wallet'
+            }
+
+            return adaptSolanaWallet(
+              primaryWallet.address,
+              792703809,
+              connection,
+              signer.signAndSendTransaction
+            )
+          } else if (walletClient) {
+            return adaptViemWallet(walletClient)
+          }
+        } else {
+          setWallet(undefined)
+        }
+      } catch (e) {
+        console.error('UNABLE TO SET WALLET', e)
+        setWallet(undefined)
+      }
+    }
+    adaptWallet()
+  }, [primaryWallet, walletClient])
 
   return (
     <Layout
@@ -82,6 +121,7 @@ const SwapWidgetPage: NextPage = () => {
           //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
           // }}
           // defaultAmount={'5'}
+          wallet={wallet}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
           onLinkNewWallet={() => setShowLinkNewWalletModal(true)}

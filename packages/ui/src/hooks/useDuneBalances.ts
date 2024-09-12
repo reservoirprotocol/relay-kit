@@ -95,7 +95,7 @@ export default (
     ...queryOptions
   })
 
-  response.data?.balances.forEach((balance) => {
+  response.data?.balances?.forEach((balance) => {
     if (!balance.chain_id && balance.chain === 'solana') {
       balance.chain_id = 792703809
     }

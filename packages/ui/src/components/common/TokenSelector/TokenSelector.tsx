@@ -99,7 +99,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const chainFilterOptions =
     context === 'from'
-      ? configuredChains?.filter((chain) => chain.vmType !== 'svm')
+      ? configuredChains?.filter(
+          (chain) => chain.vmType !== 'svm' && chain.id !== 792703809
+        )
       : configuredChains
 
   const configuredChainIds = useMemo(() => {
@@ -238,7 +240,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .filter(
           (currency) =>
             currency !== undefined &&
-            (context !== 'from' || currency.vmType !== 'svm') // filter out solana currencies for from token
+            (context !== 'from' ||
+              (currency.vmType !== 'svm' && currency.chainId !== 792703809)) // filter out non-solana currencies that are svm for from token
         )
 
       return filteredList.length > 0 ? filteredList : undefined
@@ -295,19 +298,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   }, [enhancedCurrencyList, selectedCurrencyList, token])
 
   // Fetch currency list if there is no selectedTokenCurrencyList
-  const { data: fetchedCurrencyList, isLoading: isLoadingFetchedCurrencyList } =
-    useTokenList(
-      relayClient?.baseApiUrl,
-      {
-        chainIds: token?.chainId ? [token.chainId] : [],
-        address: token?.address,
-        limit: 1
-      },
-      {
-        enabled:
-          !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
-      }
-    )
+  const { data: fetchedCurrencyList } = useTokenList(
+    relayClient?.baseApiUrl,
+    {
+      chainIds: token?.chainId ? [token.chainId] : [],
+      address: token?.address,
+      limit: 1
+    },
+    {
+      enabled:
+        !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
+    }
+  )
 
   // Update selectedTokenCurrencyList when fetchedCurrencyList is returned
   useEffect(() => {
