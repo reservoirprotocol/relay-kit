@@ -1,5 +1,16 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 12.0.0
+
+### Minor Changes
+
+- a8215cf: Abstract txs in Adapted Wallet + new Solana Adapter
+
+### Patch Changes
+
+- Updated dependencies [a8215cf]
+  - @reservoir0x/relay-sdk@1.3.0
+
 ## 11.0.2
 
 ### Patch Changes
