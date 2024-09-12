@@ -24,9 +24,9 @@ import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { truncateAddress } from '../../../utils/truncate.js'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
+import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -36,6 +36,7 @@ type SwapWidgetProps = {
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
+  wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -52,6 +53,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultTradeType,
   lockToToken = false,
   lockFromToken = false,
+  wallet,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
@@ -82,6 +84,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
+      wallet={wallet}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
     >
@@ -124,7 +127,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isFromETH,
         timeEstimate,
         isSvmSwap,
-        isValidSolanaRecipient,
+        isValidSvmRecipient,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -137,7 +140,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           const toChain = relayClient?.chains?.find(
             (chain) => chain.id === toToken?.chainId
           )
-          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
+          if (toChain?.vmType !== 'svm' && isValidSvmRecipient) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -151,8 +154,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const toChain = relayClient?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
-
-        const truncatedAddress = truncateAddress(address)
 
         const fromTokenSelectorOpenState = useState(false)
         const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
@@ -170,6 +171,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setTransactionModalOpen={setTransactionModalOpen}
             isSvmSwap={isSvmSwap}
             fromToken={fromToken}
+            fromChain={fromChain}
             toToken={toToken}
             toChain={toChain}
             swapError={swapError}
@@ -193,6 +195,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
+            wallet={wallet}
           >
             {({ setAddressModalOpen }) => {
               return (
@@ -443,7 +446,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {isSvmSwap && !isValidSolanaRecipient
+                            {isSvmSwap && !isValidSvmRecipient
                               ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
@@ -656,9 +659,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
-                    invalidSolanaRecipient={
-                      isSvmSwap && !isValidSolanaRecipient
-                    }
+                    invalidSolanaRecipient={isSvmSwap && !isValidSvmRecipient}
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -672,7 +673,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isSameCurrencySameRecipientSwap
                     }
                     onClick={() => {
-                      if (isSvmSwap && !isValidSolanaRecipient) {
+                      if (isSvmSwap && !isValidSvmRecipient) {
                         setAddressModalOpen(true)
                       } else {
                         setTransactionModalOpen(true)

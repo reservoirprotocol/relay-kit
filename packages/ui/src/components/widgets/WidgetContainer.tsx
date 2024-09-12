@@ -3,13 +3,14 @@ import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import type { Execute } from '@reservoir0x/relay-sdk'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
   isSvmSwap: boolean
   toChain?: RelayChain
+  fromChain?: RelayChain
+  wallet?: AdaptedWallet
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: (props: WidgetChildProps) => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
@@ -44,6 +45,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
   children,
+  fromChain,
   fromToken,
   toToken,
   debouncedInputAmountValue,
@@ -60,6 +62,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   recipient,
   isSvmSwap,
   toChain,
+  wallet,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -81,6 +84,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             onSwapModalOpenChange(open)
             setTransactionModalOpen(open)
           }}
+          fromChain={fromChain}
           fromToken={fromToken}
           toToken={toToken}
           amountInputValue={amountInputValue}
@@ -96,6 +100,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           onAnalyticEvent={onAnalyticEvent}
           onSuccess={onSwapSuccess}
           invalidateBalanceQueries={invalidateBalanceQueries}
+          wallet={wallet}
         />
       ) : null}
       <CustomAddressModal

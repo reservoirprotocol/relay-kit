@@ -142,7 +142,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         timeEstimate,
         fetchingSolverConfig,
         isSvmSwap,
-        isValidSolanaRecipient,
+        isValidSvmRecipient,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
@@ -156,7 +156,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           const toChain = client?.chains?.find(
             (chain) => chain.id === toToken?.chainId
           )
-          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
+          if (toChain?.vmType !== 'svm' && isValidSvmRecipient) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -191,6 +191,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             setTransactionModalOpen={setTransactionModalOpen}
             isSvmSwap={isSvmSwap}
             fromToken={fromToken}
+            fromChain={fromChain}
             toToken={toToken}
             toChain={toChain}
             swapError={swapError}
@@ -427,7 +428,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 style="subtitle3"
                                 css={{ color: 'inherit' }}
                               >
-                                {isSvmSwap && !isValidSolanaRecipient
+                                {isSvmSwap && !isValidSvmRecipient
                                   ? `Enter ${toChain?.displayName} Address`
                                   : toDisplayName}
                               </Text>
@@ -602,9 +603,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     />
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}
-                      invalidSolanaRecipient={
-                        isSvmSwap && !isValidSolanaRecipient
-                      }
+                      invalidSolanaRecipient={isSvmSwap && !isValidSvmRecipient}
                       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
@@ -620,7 +619,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
-                        if (isSvmSwap && !isValidSolanaRecipient) {
+                        if (isSvmSwap && !isValidSvmRecipient) {
                           setAddressModalOpen(true)
                         } else {
                           setTransactionModalOpen(true)

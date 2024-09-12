@@ -6,6 +6,7 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 export type DuneBalanceResponse = {
   request_time: string
@@ -31,13 +32,21 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
-export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
+export default (
+  address?: string,
+  queryOptions?: Partial<QueryOptions>,
+  chain?: RelayChain
+) => {
   const providerOptions = useContext(ProviderOptionsContext)
+  const queryKey = ['useDuneBalances', address]
 
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      const url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`
+      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`
+      if (chain?.id === 792703809) {
+        url = `https://api.dune.com/api/beta/balance/solana/${address?.toLowerCase()}?all_chains`
+      }
 
       return fetch(url, {
         headers: {
@@ -86,18 +95,29 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
     ...queryOptions
   })
 
+  response.data?.balances.forEach((balance) => {
+    if (!balance.chain_id && balance.chain === 'solana') {
+      balance.chain_id = 792703809
+    }
+  })
+
   const balanceMap = response.data?.balances?.reduce(
     (balanceMap, balance) => {
       if (balance.address === 'native') {
         balance.address = zeroAddress
       }
-      balanceMap[`${balance.chain_id}:${balance.address}`] = balance
+      let chainId = balance.chain_id
+      if (!chainId && balance.chain === 'solana') {
+        chainId = 792703809
+      }
+      balanceMap[`${chainId}:${balance.address}`] = balance
       return balanceMap
     },
     {} as Record<string, DuneBalanceResponse['balances'][0]>
   )
 
-  return { ...response, balanceMap } as ReturnType<QueryType> & {
+  return { ...response, balanceMap, queryKey } as ReturnType<QueryType> & {
     balanceMap: typeof balanceMap
+    queryKey: (string | undefined)[]
   }
 }

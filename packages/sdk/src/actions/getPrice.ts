@@ -1,6 +1,6 @@
 import { type AxiosRequestConfig } from 'axios'
 import { axios } from '../utils/axios.js'
-import { zeroAddress, type Address } from 'viem'
+import { type Address } from 'viem'
 import prepareCallTransaction from '../utils/prepareCallTransaction.js'
 import {
   isSimulateContractRequest,
@@ -9,7 +9,8 @@ import {
 } from '../utils/index.js'
 import { getClient } from '../client.js'
 import type { Execute, paths } from '../types/index.js'
-import { deadAddress } from '../constants/address.js'
+import { getDeadAddress } from '../constants/address.js'
+import { svmChainIds } from '../constants/svm.js'
 
 export type PriceBody = NonNullable<
   paths['/price']['post']['requestBody']['content']['application/json']
@@ -74,6 +75,9 @@ export async function getPrice(
       return tx
     })
   }
+  const deadAddress = getDeadAddress(
+    svmChainIds.includes(originChainId) ? 'svm' : 'evm'
+  )
 
   const query: PriceBody = {
     user: user ?? deadAddress,
@@ -82,7 +86,7 @@ export async function getPrice(
     originCurrency,
     originChainId,
     amount,
-    recipient: recipient ? (recipient as string) : user ?? zeroAddress,
+    recipient: recipient ? (recipient as string) : user ?? deadAddress,
     tradeType,
     referrer: client.source || undefined,
     txs: preparedTransactions,

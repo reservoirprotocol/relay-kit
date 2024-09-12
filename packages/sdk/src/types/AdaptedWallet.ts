@@ -33,4 +33,5 @@ export type AdaptedWallet = {
   >
   address: () => Promise<string>
   transport?: CustomTransport | HttpTransport
+  connector?: string //TODO: resolve conflicts
 }

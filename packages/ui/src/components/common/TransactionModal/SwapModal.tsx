@@ -1,4 +1,4 @@
-import type { CallFees, Execute } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { type Address } from 'viem'
 import { type FC, useEffect } from 'react'
 import {
@@ -21,20 +21,21 @@ import { extractQuoteId } from '../../../utils/quote.js'
 
 type SwapModalProps = {
   open: boolean
+  fromChain?: RelayChain
   fromToken?: Token
   toToken?: Token
-  address?: Address
+  address?: Address | string
   timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
   debouncedOutputAmountValue: string
   debouncedInputAmountValue: string
   amountInputValue: string
   amountOutputValue: string
-  toDisplayName?: string
-  recipient?: Address
-  customToAddress?: Address
+  recipient?: Address | string
+  customToAddress?: Address | string
   tradeType: TradeType
   useExternalLiquidity: boolean
+  wallet?: AdaptedWallet
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -45,6 +46,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   const {
     open,
     address,
+    fromChain,
     fromToken,
     toToken,
     tradeType,
@@ -56,6 +58,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     useExternalLiquidity,
     timeEstimate,
     isCanonical,
+    wallet,
     invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess
@@ -63,6 +66,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   return (
     <TransactionModalRenderer
       open={open}
+      fromChain={fromChain}
       fromToken={fromToken}
       toToken={toToken}
       amountInputValue={amountInputValue}
@@ -73,6 +77,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       useExternalLiquidity={useExternalLiquidity}
       address={address}
       recipient={recipient}
+      wallet={wallet}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onAnalyticEvent={onAnalyticEvent}
       onValidating={(quote) => {

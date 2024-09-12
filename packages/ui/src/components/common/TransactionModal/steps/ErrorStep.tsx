@@ -26,7 +26,7 @@ import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 
 type ErrorStepProps = {
   error?: Error | null
-  address?: Address
+  address?: Address | string
   allTxHashes: TxHashes
   transaction?: ReturnType<typeof useRequests>['data']['0']
   onOpenChange: (open: boolean) => void
