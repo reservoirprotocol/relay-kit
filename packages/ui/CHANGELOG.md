@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.4.0
+
+### Minor Changes
+
+- a8215cf: Abstract txs in Adapted Wallet + new Solana Adapter
+
+### Patch Changes
+
+- Updated dependencies [a8215cf]
+  - @reservoir0x/relay-kit-hooks@1.3.0
+  - @reservoir0x/relay-sdk@1.3.0
+
 ## 1.3.20
 
 ### Patch Changes

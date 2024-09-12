@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.3.0
+
+### Minor Changes
+
+- a8215cf: Abstract txs in Adapted Wallet + new Solana Adapter
+
 ## 1.2.2
 
 ### Patch Changes
