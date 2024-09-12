@@ -117,6 +117,11 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       })
 
       return receipt
+    },
+    switchChain: (chainId: number) => {
+      return wallet.switchChain({
+        id: chainId
+      })
     }
   }
 }
