@@ -2,6 +2,7 @@ import type { CustomTransport, HttpTransport, TransactionReceipt } from 'viem'
 import type { Execute } from './Execute.js'
 import type { SignatureStepItem } from './SignatureStepItem.js'
 import type { TransactionStepItem } from './TransactionStepItem.js'
+import type { ChainVM } from './RelayChain.js'
 
 export type SvmReciept = {
   blockHash: string
@@ -10,6 +11,7 @@ export type SvmReciept = {
 }
 
 export type AdaptedWallet = {
+  vmType: ChainVM
   getChainId: () => Promise<number>
   handleSignMessageStep: (
     item: SignatureStepItem,
@@ -30,5 +32,6 @@ export type AdaptedWallet = {
     | SvmReciept // svm
   >
   address: () => Promise<string>
+  switchChain: (chainId: number) => Promise<void>
   transport?: CustomTransport | HttpTransport
 }
