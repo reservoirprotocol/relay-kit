@@ -17,7 +17,7 @@ import { LoadingSpinner } from '../../LoadingSpinner.js'
 import type { EnhancedCurrencyList } from '../TokenSelector.js'
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
-import type { Address, Chain } from 'viem'
+import type { Address } from 'viem'
 import type { paths, RelayChain } from '@reservoir0x/relay-sdk'
 import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
@@ -36,10 +36,6 @@ type SetCurrencyProps = {
   setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
   isLoading: boolean
   isLoadingDuneBalances: boolean
-  useDefaultTokenList: boolean
-  context: 'from' | 'to'
-  suggestedTokens?: paths['/currencies/v1']['post']['responses']['200']['content']['application/json']
-  address?: Address
   enhancedCurrencyList?: EnhancedCurrencyList[]
   token?: Token
   selectToken: (currency: Currency, chainId?: number) => void
@@ -64,10 +60,6 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   setChainFilter,
   isLoading,
   isLoadingDuneBalances,
-  useDefaultTokenList,
-  context,
-  suggestedTokens,
-  address,
   enhancedCurrencyList,
   selectToken,
   setCurrencyList

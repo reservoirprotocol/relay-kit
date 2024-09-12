@@ -29,7 +29,8 @@ export default (
   queryOptions?: Partial<QueryOptions>
 ) => {
   const addressLowercase = address?.toLowerCase()
-  const isENSAvailable = chainId === mainnet.id
+  const isENSAvailable =
+    chainId === mainnet.id && addressLowercase?.includes('0x')
   const url = `https://api.ensideas.com/ens/resolve/${addressLowercase}`
   const response = (useQuery as QueryType)({
     queryKey: ['useENSResolver', address, chainId],

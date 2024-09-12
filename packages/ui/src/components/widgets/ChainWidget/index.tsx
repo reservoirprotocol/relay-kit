@@ -26,6 +26,7 @@ import SwapRouteSelector from '../SwapRouteSelector.js'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import WidgetFooter from '../WidgetFooter.js'
 import { ChainWidgetTrigger } from '../../common/TokenSelector/triggers/ChainWidgetTrigger.js'
+import { useAccount } from 'wagmi'
 
 type ChainWidgetProps = {
   chainId: number
@@ -67,6 +68,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const chain = client?.chains.find((chain) => chain.id === chainId)
   const isTestnet = client?.baseApiUrl?.includes?.('testnets')
   const defaultChainId = isTestnet ? 11155111 : 1
+  const { isConnected } = useAccount()
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
@@ -273,6 +275,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       </Flex>
                       <Flex align="center" justify="between" css={{ gap: '4' }}>
                         <TokenSelector
+                          address={address}
                           token={fromToken}
                           restrictedTokensList={
                             tabId === 'withdraw' ? tokens : undefined
@@ -354,6 +357,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                               decimals={fromToken?.decimals}
                               symbol={fromToken?.symbol}
                               hasInsufficientBalance={hasInsufficientBalance}
+                              isConnected={isConnected}
                             />
                           ) : (
                             <Flex css={{ height: 18 }} />
@@ -440,6 +444,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       <Flex align="center" justify="between" css={{ gap: '4' }}>
                         <TokenSelector
                           token={toToken}
+                          address={recipient}
                           restrictedTokensList={
                             tabId === 'deposit' ? tokens : undefined
                           }
@@ -525,6 +530,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             balance={toBalance}
                             decimals={toToken?.decimals}
                             symbol={toToken?.symbol}
+                            isConnected={isConnected}
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />

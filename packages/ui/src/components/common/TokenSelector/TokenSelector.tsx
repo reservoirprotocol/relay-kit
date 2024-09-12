@@ -11,10 +11,9 @@ import { Modal } from '../Modal.js'
 import type { Token } from '../../../types/index.js'
 import { type ChainFilterValue } from '../ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
-import { type Chain, isAddress, zeroAddress } from 'viem'
+import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { useAccount } from 'wagmi'
 import { type DuneBalanceResponse } from '../../../hooks/useDuneBalances.js'
 import {
   type CurrencyList,
@@ -25,6 +24,7 @@ import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -35,6 +35,7 @@ export type TokenSelectorProps = {
   context: 'from' | 'to'
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
+  address?: Address | string
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -62,12 +63,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   context,
   type = 'token',
   size = 'mobile',
+  address,
   setToken,
   onAnalyticEvent
 }) => {
   const [internalOpen, setInternalOpen] = useState(false)
   const [open, setOpen] = openState || [internalOpen, setInternalOpen]
-  const { address } = useAccount()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const [tokenSelectorStep, setTokenSelectorStep] = useState<TokenSelectorStep>(
     TokenSelectorStep.SetCurrency
@@ -140,7 +141,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     data: duneTokens,
     balanceMap: tokenBalances,
     isLoading: isLoadingDuneBalances
-  } = useDuneBalances(address && address !== zeroAddress ? address : undefined)
+  } = useDuneBalances(
+    address && address !== evmDeadAddress && address !== solDeadAddress
+      ? address
+      : undefined
+  )
 
   const restrictedTokenAddresses = restrictedTokensList?.map((token) =>
     token.address.toLowerCase()
@@ -434,10 +439,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             setChainFilter={setChainFilter}
             isLoading={isLoading}
             isLoadingDuneBalances={isLoadingDuneBalances}
-            useDefaultTokenList={useDefaultTokenList}
-            context={context}
-            suggestedTokens={suggestedTokens}
-            address={address}
             enhancedCurrencyList={
               enhancedCurrencyList as EnhancedCurrencyList[]
             }

@@ -162,10 +162,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   isFetchingQuote,
   isRefetchingQuote,
   quoteError,
+  address,
   swap,
   swapError,
   setSwapError,
-  address,
   progressStep,
   setProgressStep,
   setSteps,
@@ -250,6 +250,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             quoteUpdatedAt={quoteUpdatedAt}
             quote={quote}
             swap={swap}
+            address={address}
           />
         ) : null}
 

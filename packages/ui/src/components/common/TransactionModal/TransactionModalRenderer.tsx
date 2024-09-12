@@ -29,9 +29,8 @@ import { getDeadAddress } from '../../../constants/address.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
-import { useAccount, useConfig, useWalletClient } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { extractQuoteId, parseFees } from '../../../utils/quote.js'
-import { switchChain } from 'wagmi/actions'
 
 export enum TransactionProgressStep {
   ReviewQuote,
@@ -151,7 +150,6 @@ export const TransactionModalRenderer: FC<Props> = ({
 
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
-  const wagmiConfig = useConfig()
   const walletClient = useWalletClient()
   const { connector } = useAccount()
   const deadAddress = getDeadAddress(fromChain?.vmType)
@@ -242,9 +240,7 @@ export const TransactionModalRenderer: FC<Props> = ({
 
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
-        await switchChain(wagmiConfig, {
-          chainId: fromToken.chainId
-        })
+        await wallet?.switchChain(fromToken.chainId)
       }
 
       setProgressStep(TransactionProgressStep.WalletConfirmation)
@@ -334,7 +330,6 @@ export const TransactionModalRenderer: FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     relayClient,
-    wagmiConfig,
     address,
     connector,
     wallet,

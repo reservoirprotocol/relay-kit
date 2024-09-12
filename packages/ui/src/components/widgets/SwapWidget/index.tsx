@@ -27,6 +27,7 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 
 type SwapWidgetProps = {
   defaultFromToken?: Token
@@ -275,6 +276,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <TokenSelector
                         openState={fromTokenSelectorOpenState}
                         type={fromTokenSelectorType}
+                        address={address}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
@@ -337,6 +339,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             symbol={fromToken?.symbol}
                             hasInsufficientBalance={hasInsufficientBalance}
                             displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -519,6 +526,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <TokenSelector
                         openState={toTokenSelectorOpenState}
                         type={toTokenSelectorType}
+                        address={recipient}
                         token={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -611,6 +619,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             decimals={toToken?.decimals}
                             symbol={toToken?.symbol}
                             displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />

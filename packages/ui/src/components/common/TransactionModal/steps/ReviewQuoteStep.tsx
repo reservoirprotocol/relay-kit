@@ -29,6 +29,7 @@ import { useAccount } from 'wagmi'
 import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'
 import React from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
+import type { Address } from 'viem'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -42,6 +43,7 @@ type ReviewQuoteProps = {
   feeBreakdown: ChildrenProps['feeBreakdown']
   fromAmountFormatted: string
   toAmountFormatted: string
+  address?: Address | string
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -57,10 +59,10 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   quoteUpdatedAt,
   feeBreakdown,
   fromAmountFormatted,
-  toAmountFormatted
+  toAmountFormatted,
+  address
 }) => {
   const client = useRelayClient()
-  const { address } = useAccount()
   const details = quote?.details
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const connectedWalletIsNotRecipient =
