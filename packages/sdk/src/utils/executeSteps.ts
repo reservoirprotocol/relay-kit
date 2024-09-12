@@ -5,8 +5,6 @@ import type {
   SignatureStepItem
 } from '../types/index.js'
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
-import type { Address } from 'viem'
-import { createPublicClient, fallback, http } from 'viem'
 import { axios } from '../utils/index.js'
 import type { AxiosRequestConfig } from 'axios'
 import { getClient } from '../client.js'
@@ -397,7 +395,7 @@ export async function executeSteps(
                             const chainTxHashes: NonNullable<
                               Execute['steps'][0]['items']
                             >[0]['txHashes'] = res.data?.txHashes?.map(
-                              (hash: Address) => {
+                              (hash: string) => {
                                 return {
                                   txHash: hash,
                                   chainId:
@@ -410,7 +408,7 @@ export async function executeSteps(
                               const chainInTxHashes: NonNullable<
                                 Execute['steps'][0]['items']
                               >[0]['txHashes'] = res.data?.inTxHashes?.map(
-                                (hash: Address) => {
+                                (hash: string) => {
                                   return {
                                     txHash: hash,
                                     chainId: chain?.id ?? res.data.originChainId
@@ -513,26 +511,7 @@ export async function executeSteps(
       stepOptions
     )
   } catch (err: any) {
-    let blockNumber = 0n
-    try {
-      const chain = client.chains.find((chain) => chain.id === chainId)
-      const viemClient = createPublicClient({
-        chain: chain?.viemChain,
-        transport: wallet.transport
-          ? fallback([wallet.transport, http()])
-          : http()
-      })
-      blockNumber = await viemClient.getBlockNumber()
-    } catch (blockError) {
-      client.log(
-        ['Execute Steps: Failed to get block number', blockError],
-        LogLevel.Error
-      )
-    }
-    client.log(
-      ['Execute Steps: An error occurred', err, 'Block Number:', blockNumber],
-      LogLevel.Error
-    )
+    client.log(['Execute Steps: An error occurred', err], LogLevel.Error)
     const error = err && err?.response?.data ? err.response.data : err
     let refunded = false
     if (error && error.message) {

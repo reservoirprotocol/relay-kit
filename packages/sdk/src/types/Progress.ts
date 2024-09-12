@@ -1,4 +1,3 @@
-import { type Address } from 'viem'
 import type { Execute, ExecuteStep, ExecuteStepItem } from '../types/Execute.js'
 
 export type ProgressData = {
@@ -8,7 +7,7 @@ export type ProgressData = {
   details?: Execute['details']
   currentStep?: ExecuteStep | null
   currentStepItem?: ExecuteStepItem
-  txHashes?: { txHash: Address; chainId: number }[]
+  txHashes?: { txHash: string; chainId: number }[]
   error?: Execute['error']
   refunded?: Execute['refunded']
 }

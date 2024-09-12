@@ -1,8 +1,8 @@
 import { NextPage } from 'next'
 import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
-import { base, baseGoerli, sepolia, zora } from 'viem/chains'
-import { Address, isAddress, zeroAddress } from 'viem'
+import { base, zora } from 'viem/chains'
+import { Address, zeroAddress } from 'viem'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
 import { ConnectButton } from 'components/ConnectButton'
 
@@ -137,9 +137,7 @@ const BridgeActionPage: NextPage = () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
-          if (recipient && !isAddress(recipient)) {
-            throw 'Recipient must be an address'
-          }
+
           if (!amount) {
             throw 'Must include an amount for bridging'
           }

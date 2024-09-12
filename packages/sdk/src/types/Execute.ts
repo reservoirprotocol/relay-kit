@@ -1,4 +1,3 @@
-import type { Address } from 'viem'
 import type { paths } from './api.js'
 import type { AxiosRequestConfig } from 'axios'
 
@@ -53,11 +52,11 @@ export type Execute = {
       // Manually added
       error?: string
       txHashes?: {
-        txHash: Address
+        txHash: string
         chainId: number
       }[]
       internalTxHashes?: {
-        txHash: Address
+        txHash: string
         chainId: number
       }[]
       errorData?: any
