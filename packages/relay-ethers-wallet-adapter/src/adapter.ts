@@ -1,7 +1,7 @@
 import { type TypedDataSigner } from '@ethersproject/abstract-signer/lib/index.js'
 import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { Signer } from 'ethers/lib/ethers.js'
-import { arrayify } from 'ethers/lib/utils.js'
+import { arrayify, hexValue } from 'ethers/lib/utils.js'
 import {
   createPublicClient,
   fallback,
@@ -96,6 +96,16 @@ export const adaptEthersSigner = (
       })
 
       return receipt
+    },
+    switchChain: (chainId: number) => {
+      try {
+        return (window as any).ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: hexValue(chainId) }]
+        })
+      } catch (error) {
+        console.error('Failed to switch chain:', error)
+      }
     }
   }
 }
