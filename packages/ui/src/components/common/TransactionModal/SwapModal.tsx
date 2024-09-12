@@ -31,7 +31,7 @@ type SwapModalProps = {
   amountInputValue: string
   amountOutputValue: string
   toDisplayName?: string
-  recipient?: Address
+  recipient?: string
   customToAddress?: Address
   tradeType: TradeType
   useExternalLiquidity: boolean

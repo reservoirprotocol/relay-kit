@@ -2,11 +2,41 @@ import { NextPage } from 'next'
 import { SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
+import {
+  useDynamicContext,
+  useDynamicModals,
+  useSwitchWallet,
+  useUserWallets
+} from '@dynamic-labs/sdk-react-core'
+import { useMemo } from 'react'
+
+const dynamicStaticAssetUrl =
+  'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
 
 const SwapWidgetPage: NextPage = () => {
   const { setShowAuthFlow } = useDynamicContext()
   const { theme } = useTheme()
+  const switchWallet = useSwitchWallet()
+  const { setShowLinkNewWalletModal } = useDynamicModals()
+  const userWallets = useUserWallets()
+
+  console.log(userWallets)
+
+  const linkedWallets = useMemo(() => {
+    return userWallets.map((wallet) => {
+      const walletLogoId =
+        // @ts-ignore
+        wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
+      return {
+        address: wallet.address,
+        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
+        vmType:
+          wallet.chain.toLowerCase() === 'evm'
+            ? 'evm'
+            : ('svm' as 'evm' | 'svm')
+      }
+    })
+  }, [userWallets])
 
   return (
     <Layout
@@ -52,6 +82,18 @@ const SwapWidgetPage: NextPage = () => {
           //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
           // }}
           // defaultAmount={'5'}
+          multiWalletSupportEnabled={true}
+          linkedWallets={linkedWallets}
+          onLinkNewWallet={() => setShowLinkNewWalletModal(true)}
+          onSetPrimaryWallet={async (address) => {
+            const newPrimaryWallet = userWallets?.find(
+              (wallet) => wallet.address === address
+            )
+
+            if (newPrimaryWallet) {
+              switchWallet(newPrimaryWallet?.id)
+            }
+          }}
           onConnectWallet={() => setShowAuthFlow(true)}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)

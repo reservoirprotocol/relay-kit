@@ -66,9 +66,9 @@ export type ChildrenProps = {
   error: Error | null
   toDisplayName?: string
   address?: Address
-  recipient?: Address
-  customToAddress?: Address
-  setCustomToAddress: Dispatch<React.SetStateAction<Address | undefined>>
+  recipient?: string
+  customToAddress?: string
+  setCustomToAddress: Dispatch<React.SetStateAction<string | undefined>>
   tradeType: TradeType
   setTradeType: Dispatch<React.SetStateAction<TradeType>>
   isSameCurrencySameRecipientSwap: boolean
@@ -118,7 +118,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const relayClient = useRelayClient()
   const { address, connector } = useAccount()
-  const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
+  const [customToAddress, setCustomToAddress] = useState<string | undefined>(
     defaultToAddress
   )
   const [useExternalLiquidity, setUseExternalLiquidity] =
@@ -202,7 +202,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     isLoading: isLoadingToBalance
   } = useCurrencyBalance({
     chainId: toToken?.chainId ? toToken.chainId : 0,
-    address: recipient,
+    address: recipient as Address,
     currency: toToken?.address ? (toToken.address as Address) : undefined,
     enabled: toToken !== undefined
   })
