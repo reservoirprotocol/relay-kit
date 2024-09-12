@@ -1,9 +1,6 @@
-import { GenericNetwork } from '@dynamic-labs/types'
 import { RelayChain } from '@reservoir0x/relay-sdk'
 
-export const convertRelayChainToDynamicNetwork = (
-  chain: RelayChain
-): GenericNetwork => {
+export const convertRelayChainToDynamicNetwork = (chain: RelayChain) => {
   return {
     blockExplorerUrls: [chain.explorerUrl ?? 'https://etherscan.io'],
     chainId: chain.id,

@@ -99,6 +99,10 @@ export const adaptSolanaWallet = (
         blockNumber: result.context.slot,
         txHash
       }
+    },
+    //@ts-ignore
+    switchChain: (chainId: number) => {
+      throw 'Not yet implemented'
     }
   }
 }

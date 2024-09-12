@@ -32,5 +32,6 @@ export type AdaptedWallet = {
     | SvmReciept // svm
   >
   address: () => Promise<string>
+  switchChain: (chainId: number) => Promise<void>
   transport?: CustomTransport | HttpTransport
 }
