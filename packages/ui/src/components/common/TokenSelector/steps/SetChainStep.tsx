@@ -24,7 +24,7 @@ import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
-import type { Chain } from 'viem'
+import { solana } from '../../../../utils/solana.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -81,7 +81,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const allChains =
     client?.chains?.filter(
       (chain) =>
-        context !== 'from' || chain.vmType !== 'svm' || chain.id === 792703809
+        context !== 'from' || chain.vmType !== 'svm' || chain.id === solana.id
     ) || []
 
   const combinedChains: NormalizedChain[] = [

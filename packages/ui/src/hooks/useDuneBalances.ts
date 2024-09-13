@@ -6,7 +6,7 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { solanaAddressRegex } from '../utils/solana.js'
+import { solana, solanaAddressRegex } from '../utils/solana.js'
 
 export type DuneBalanceResponse = {
   request_time: string
@@ -94,7 +94,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
 
   response.data?.balances?.forEach((balance) => {
     if (!balance.chain_id && balance.chain === 'solana') {
-      balance.chain_id = 792703809
+      balance.chain_id = solana.id
     }
   })
 
@@ -105,7 +105,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
       }
       let chainId = balance.chain_id
       if (!chainId && balance.chain === 'solana') {
-        chainId = 792703809
+        chainId = solana.id
       }
       //TODO: Remove temporary fix for SOL dune bug
       if (balance.address === 'So11111111111111111111111111111111111111112') {

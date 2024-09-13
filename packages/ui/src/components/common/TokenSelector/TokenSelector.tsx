@@ -25,6 +25,7 @@ import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
+import { solana } from '../../../utils/solana.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -100,7 +101,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
-          (chain) => chain.vmType !== 'svm' || chain.id === 792703809
+          (chain) => chain.vmType !== 'svm' || chain.id === solana.id
         )
       : configuredChains
 
@@ -242,7 +243,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             currency !== undefined &&
             (context !== 'from' ||
               currency.vmType !== 'svm' ||
-              currency.chainId === 792703809)
+              currency.chainId === solana.id)
         )
       return filteredList.length > 0 ? filteredList : undefined
     })
