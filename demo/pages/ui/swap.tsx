@@ -9,11 +9,10 @@ import {
   useUserWallets
 } from '@dynamic-labs/sdk-react-core'
 import { useEffect, useMemo, useState } from 'react'
+import { isEthereumWallet } from '@dynamic-labs/ethereum'
+import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
-import { Connection } from '@solana/web3.js'
-import { ISolana } from '@dynamic-labs/solana'
 import { AdaptedWallet, adaptViemWallet } from '@reservoir0x/relay-sdk'
-import { useWalletClient } from 'wagmi'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
@@ -25,7 +24,6 @@ const SwapWidgetPage: NextPage = () => {
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
   const [wallet, setWallet] = useState<AdaptedWallet | undefined>()
-  const { data: walletClient } = useWalletClient()
 
   const linkedWallets = useMemo(() => {
     return userWallets.map((wallet) => {
@@ -46,28 +44,23 @@ const SwapWidgetPage: NextPage = () => {
   useEffect(() => {
     const adaptWallet = async () => {
       try {
-        if (primaryWallet !== undefined && primaryWallet !== null) {
-          if (primaryWallet.chain === 'SOL') {
-            const connection = await primaryWallet.connector.getPublicClient<
-              Connection | undefined
-            >()
-            const signer = await primaryWallet.connector?.getSigner<ISolana>()
+        if (primaryWallet !== null) {
+          let adaptedWallet: AdaptedWallet | undefined
+          if (isSolanaWallet(primaryWallet)) {
+            const connection = await primaryWallet.getConnection()
+            const signer = await primaryWallet.getSigner()
 
-            if (!connection) {
-              throw 'Missing SOL connection, unable to adapt wallet'
-            }
-
-            setWallet(
-              adaptSolanaWallet(
-                primaryWallet.address,
-                792703809,
-                connection,
-                signer.signAndSendTransaction
-              )
+            adaptedWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              792703809,
+              connection,
+              signer.signAndSendTransaction
             )
-          } else if (walletClient) {
-            setWallet(adaptViemWallet(walletClient))
+          } else if (isEthereumWallet(primaryWallet)) {
+            const walletClient = await primaryWallet.getWalletClient()
+            adaptedWallet = adaptViemWallet(walletClient)
           }
+          setWallet(adaptedWallet)
         } else {
           setWallet(undefined)
         }
@@ -77,7 +70,7 @@ const SwapWidgetPage: NextPage = () => {
       }
     }
     adaptWallet()
-  }, [primaryWallet, walletClient])
+  }, [primaryWallet])
 
   return (
     <Layout
