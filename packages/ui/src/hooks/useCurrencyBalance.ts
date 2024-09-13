@@ -91,7 +91,6 @@ const useCurrencyBalance = ({
       chain && chain.vmType === 'svm' && address && isValidSvmAddress && enabled
     )
   })
-
   if (chain?.vmType === 'evm') {
     const value = isErc20Currency ? erc20Balance : ethBalance?.value
     const error = isErc20Currency ? erc20Error : ethError
@@ -107,8 +106,10 @@ const useCurrencyBalance = ({
         value:
           currency &&
           duneBalances.balanceMap &&
-          duneBalances.balanceMap[currency as string]
-            ? BigInt(duneBalances.balanceMap[currency as string].amount ?? 0)
+          duneBalances.balanceMap[`${chain.id}:${currency}`]
+            ? BigInt(
+                duneBalances.balanceMap[`${chain.id}:${currency}`].amount ?? 0
+              )
             : undefined,
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,

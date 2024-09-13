@@ -107,6 +107,10 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
       if (!chainId && balance.chain === 'solana') {
         chainId = 792703809
       }
+      //TODO: Remove temporary fix for SOL dune bug
+      if (balance.address === 'So11111111111111111111111111111111111111112') {
+        balance.address = '11111111111111111111111111111111'
+      }
       balanceMap[`${chainId}:${balance.address}`] = balance
       return balanceMap
     },

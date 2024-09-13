@@ -100,7 +100,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
-          (chain) => chain.vmType !== 'svm' && chain.id !== 792703809
+          (chain) => chain.vmType !== 'svm' || chain.id === 792703809
         )
       : configuredChains
 
@@ -241,9 +241,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           (currency) =>
             currency !== undefined &&
             (context !== 'from' ||
-              (currency.vmType !== 'svm' && currency.chainId !== 792703809)) // filter out non-solana currencies that are svm for from token
+              currency.vmType !== 'svm' ||
+              currency.chainId === 792703809)
         )
-
       return filteredList.length > 0 ? filteredList : undefined
     })
 

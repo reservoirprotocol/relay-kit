@@ -81,7 +81,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const allChains =
     client?.chains?.filter(
       (chain) =>
-        context !== 'from' || (chain.vmType !== 'svm' && chain.id !== 792703809) // filter out solana if from chain
+        context !== 'from' || chain.vmType !== 'svm' || chain.id === 792703809
     ) || []
 
   const combinedChains: NormalizedChain[] = [
