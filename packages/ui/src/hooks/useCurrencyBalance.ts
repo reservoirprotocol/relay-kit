@@ -9,7 +9,7 @@ import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
-import { solanaAddressRegex } from '~sdk/utils/solana.js'
+import { solanaAddressRegex } from '../utils/solana.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -121,6 +121,14 @@ const useCurrencyBalance = ({
         isError: duneBalances.isError,
         error: duneBalances.error
       }
+    }
+  } else {
+    return {
+      value: undefined,
+      queryKey: duneBalances.queryKey,
+      isLoading: duneBalances.isLoading,
+      isError: duneBalances.isError,
+      error: duneBalances.error
     }
   }
 }
