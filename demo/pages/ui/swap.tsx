@@ -87,14 +87,6 @@ const SwapWidgetPage: NextPage = () => {
           paddingTop: 50
         }}
       >
-        <button
-          onClick={() => {
-            console.log(wallet)
-            wallet?.address().then((addy) => console.log(addy))
-          }}
-        >
-          Check wallet addy
-        </button>
         <SwapWidget
           defaultToToken={{
             chainId: 10,
