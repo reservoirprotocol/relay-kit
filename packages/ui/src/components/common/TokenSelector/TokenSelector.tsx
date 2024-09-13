@@ -153,7 +153,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     token.address.toLowerCase()
   )
 
-  const duneTokenBalances = duneTokens?.balances.filter((balance) => {
+  const duneTokenBalances = duneTokens?.balances?.filter((balance) => {
     if (restrictedTokenAddresses) {
       return (
         restrictedTokenAddresses.includes(balance.address.toLowerCase()) &&
