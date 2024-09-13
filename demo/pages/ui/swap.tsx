@@ -57,14 +57,16 @@ const SwapWidgetPage: NextPage = () => {
               throw 'Missing SOL connection, unable to adapt wallet'
             }
 
-            return adaptSolanaWallet(
-              primaryWallet.address,
-              792703809,
-              connection,
-              signer.signAndSendTransaction
+            setWallet(
+              adaptSolanaWallet(
+                primaryWallet.address,
+                792703809,
+                connection,
+                signer.signAndSendTransaction
+              )
             )
           } else if (walletClient) {
-            return adaptViemWallet(walletClient)
+            setWallet(adaptViemWallet(walletClient))
           }
         } else {
           setWallet(undefined)
@@ -92,6 +94,14 @@ const SwapWidgetPage: NextPage = () => {
           paddingTop: 50
         }}
       >
+        <button
+          onClick={() => {
+            console.log(wallet)
+            wallet?.address().then((addy) => console.log(addy))
+          }}
+        >
+          Check wallet addy
+        </button>
         <SwapWidget
           defaultToToken={{
             chainId: 10,

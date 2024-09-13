@@ -153,7 +153,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     token.address.toLowerCase()
   )
 
-  const duneTokenBalances = duneTokens?.balances.filter((balance) => {
+  const duneTokenBalances = duneTokens?.balances?.filter((balance) => {
     if (restrictedTokenAddresses) {
       return (
         restrictedTokenAddresses.includes(balance.address.toLowerCase()) &&
@@ -283,6 +283,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       currencyList?.chains?.some(
         (chain) =>
           chain?.chainId === token?.chainId &&
+          //TODO check case sensitivity
           chain?.address?.toLowerCase() === token?.address?.toLowerCase()
       )
     )

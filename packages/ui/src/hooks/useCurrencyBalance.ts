@@ -76,19 +76,11 @@ const useCurrencyBalance = ({
 
   const isValidSvmAddress = solanaAddressRegex.test(address ?? '')
 
-  const duneBalances = useDuneBalances(
-    address,
-    {
-      enabled: Boolean(
-        chain &&
-          chain.vmType === 'svm' &&
-          address &&
-          isValidSvmAddress &&
-          enabled
-      )
-    },
-    chain
-  )
+  const duneBalances = useDuneBalances(address, {
+    enabled: Boolean(
+      chain && chain.vmType === 'svm' && address && isValidSvmAddress && enabled
+    )
+  })
 
   if (chain?.vmType === 'evm') {
     const value = isErc20Currency ? erc20Balance : ethBalance?.value
