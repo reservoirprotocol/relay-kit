@@ -1,6 +1,7 @@
 import {
   type Address,
   type GetBalanceErrorType,
+  isAddress,
   type ReadContractErrorType,
   zeroAddress
 } from 'viem'
@@ -36,6 +37,7 @@ const useCurrencyBalance = ({
   refreshInterval = 60000
 }: UseBalanceProps): UseCurrencyBalanceData => {
   const isErc20Currency = currency && currency !== zeroAddress
+  const isValidEvmAddress = address && isAddress(address)
 
   const {
     data: ethBalance,
@@ -48,7 +50,11 @@ const useCurrencyBalance = ({
     address: address as Address,
     query: {
       enabled: Boolean(
-        !isErc20Currency && chain && chain.vmType === 'evm' && enabled
+        !isErc20Currency &&
+          chain &&
+          chain.vmType === 'evm' &&
+          isValidEvmAddress &&
+          enabled
       ),
       refetchInterval: refreshInterval
     }
@@ -68,7 +74,11 @@ const useCurrencyBalance = ({
     args: address ? [address as Address] : undefined,
     query: {
       enabled: Boolean(
-        isErc20Currency && chain && chain.vmType === 'evm' && enabled
+        isErc20Currency &&
+          chain &&
+          chain.vmType === 'evm' &&
+          isValidEvmAddress &&
+          enabled
       ),
       refetchInterval: refreshInterval
     }
