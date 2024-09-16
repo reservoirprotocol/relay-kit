@@ -43,6 +43,11 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
     }
   }, [selectedWalletAddress, vmType])
 
+  const selectedWallet = useMemo(
+    () => wallets.find((wallet) => wallet.address === selectedWalletAddress),
+    [wallets, selectedWalletAddress]
+  )
+
   return (
     <Dropdown
       open={open}
@@ -50,7 +55,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
       trigger={
         <Button
           aria-label={`Multi wallet dropdown`}
-          color="secondary"
+          color={
+            !selectedWallet && selectedWalletAddress ? 'warning' : 'secondary'
+          }
           size="none"
           corners="pill"
           css={{
@@ -62,11 +69,19 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
             alignContent: 'center'
           }}
         >
-          <Text style="subtitle2" css={{ color: 'secondary-button-color' }}>
-            {isSupportedSelectedWallet
-              ? truncateAddress(selectedWalletAddress)
-              : 'Select wallet'}
-          </Text>
+          <Flex align="center" css={{ gap: '1' }}>
+            {selectedWallet?.walletLogoUrl ? (
+              <img
+                src={selectedWallet.walletLogoUrl}
+                style={{ width: 16, height: 16, borderRadius: 4 }}
+              />
+            ) : null}
+            <Text style="subtitle2" css={{ color: 'secondary-button-color' }}>
+              {isSupportedSelectedWallet
+                ? truncateAddress(selectedWalletAddress)
+                : 'Select wallet'}
+            </Text>
+          </Flex>
           <Box css={{ color: 'secondary-button-color' }}>
             <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />
           </Box>

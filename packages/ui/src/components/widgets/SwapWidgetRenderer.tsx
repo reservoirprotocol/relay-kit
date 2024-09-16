@@ -13,11 +13,7 @@ import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import {
-  evmDeadAddress,
-  getDeadAddress,
-  solDeadAddress
-} from '../../constants/address.js'
+import { evmDeadAddress, solDeadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
@@ -30,7 +26,7 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import { isSolanaAddress, solanaAddressRegex } from '../../utils/solana.js'
+import { isSolanaAddress } from '../../utils/solana.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
@@ -138,6 +134,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     useState<boolean>(false)
   const address = useWalletAddress(wallet)
   const recipient = customToAddress ?? address
+
   const { displayName: toDisplayName } = useENSResolver(recipient)
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
@@ -259,8 +256,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? address
         : evmDeadAddress
       : address && isSolanaAddress(address)
-      ? address
-      : solDeadAddress
+        ? address
+        : solDeadAddress
 
   const isValidToAddress =
     toChain?.vmType === 'evm'
@@ -273,8 +270,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? recipient
         : evmDeadAddress
       : recipient && isSolanaAddress(recipient)
-      ? recipient
-      : solDeadAddress
+        ? recipient
+        : solDeadAddress
 
   const {
     data: price,

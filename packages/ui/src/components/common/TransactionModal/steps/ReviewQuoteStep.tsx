@@ -5,8 +5,7 @@ import {
   Text,
   ChainTokenIcon,
   Skeleton,
-  Box,
-  Anchor
+  Box
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
@@ -19,17 +18,16 @@ import { calculatePriceTimeEstimate } from '../../../../utils/quote.js'
 import {
   faClock,
   faExclamationCircle,
-  faExternalLink,
   faGasPump,
   faInfoCircle,
   faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 import type { ChildrenProps } from '../TransactionModalRenderer.js'
-import { useAccount } from 'wagmi'
 import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'
 import React from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
 import type { Address } from 'viem'
+import type { LinkedWallet } from '../../../widgets/SwapWidget/index.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -44,6 +42,8 @@ type ReviewQuoteProps = {
   fromAmountFormatted: string
   toAmountFormatted: string
   address?: Address | string
+  linkedWallets?: LinkedWallet[]
+  multiWalletEnabled?: boolean
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -60,7 +60,9 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   feeBreakdown,
   fromAmountFormatted,
   toAmountFormatted,
-  address
+  address,
+  linkedWallets,
+  multiWalletEnabled
 }) => {
   const client = useRelayClient()
   const details = quote?.details
@@ -73,7 +75,16 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const showHighPriceImpactWarning =
     isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
 
+  const fromChain = client?.chains?.find(
+    (chain) => chain.id === fromToken?.chainId
+  )
+  const fromWallet = linkedWallets?.find(
+    (wallet) => wallet.address === quote?.details?.sender
+  )
   const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
+  const toWallet = linkedWallets?.find(
+    (wallet) => wallet.address === quote?.details?.recipient
+  )
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
@@ -96,19 +107,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   }, [quoteUpdatedAt])
 
   const breakdown = [
-    {
-      title: 'To address',
-      value: (
-        <Anchor
-          target="_blank"
-          href={`${toChain?.explorerUrl}/address/${quote?.details?.recipient}`}
-          css={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          {truncateAddress(quote?.details?.recipient)}
-          <FontAwesomeIcon icon={faExternalLink} width={14} />
-        </Anchor>
-      )
-    },
     {
       title: 'Estimated time',
       value: (
@@ -174,6 +172,52 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             </div>
           }
         </PriceImpactTooltip>
+      )
+    },
+    {
+      title: 'From address',
+      value: (
+        <Button
+          color="secondary"
+          css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+          onClick={() => {
+            window.open(
+              `${fromChain?.explorerUrl}/address/${quote?.details?.sender}`,
+              '_blank'
+            )
+          }}
+        >
+          {fromWallet?.walletLogoUrl ? (
+            <img
+              src={fromWallet.walletLogoUrl}
+              style={{ width: 16, height: 16, borderRadius: 4 }}
+            />
+          ) : null}
+          {truncateAddress(quote?.details?.sender)}
+        </Button>
+      )
+    },
+    {
+      title: 'To address',
+      value: (
+        <Button
+          color={multiWalletEnabled && !toWallet ? 'warning' : 'secondary'}
+          css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+          onClick={() => {
+            window.open(
+              `${toChain?.explorerUrl}/address/${quote?.details?.recipient}`,
+              '_blank'
+            )
+          }}
+        >
+          {toWallet?.walletLogoUrl ? (
+            <img
+              src={toWallet.walletLogoUrl}
+              style={{ width: 16, height: 16, borderRadius: 4 }}
+            />
+          ) : null}
+          {truncateAddress(quote?.details?.recipient)}
+        </Button>
       )
     }
   ]
