@@ -31,6 +31,7 @@ type SetChainStepProps = {
   size: 'mobile' | 'desktop'
   context: 'from' | 'to'
   token?: Token
+  multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
   chainSearchInput: string
@@ -66,6 +67,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   size,
   context,
   token,
+  multiWalletSupportEnabled = false,
   setTokenSelectorStep,
   setInputElement,
   chainSearchInput,
@@ -81,7 +83,12 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const allChains =
     client?.chains?.filter(
       (chain) =>
-        context !== 'from' || chain.vmType !== 'svm' || chain.id === solana.id
+        (context !== 'from' ||
+          chain.vmType !== 'svm' ||
+          chain.id === solana.id) &&
+        (context !== 'from' ||
+          multiWalletSupportEnabled ||
+          chain.vmType !== 'svm')
     ) || []
 
   const combinedChains: NormalizedChain[] = [
