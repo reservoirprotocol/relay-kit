@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.4.1
+
+### Patch Changes
+
+- c5ed1d8: Improve high price impact copy
+
 ## 1.4.0
 
 ### Minor Changes
