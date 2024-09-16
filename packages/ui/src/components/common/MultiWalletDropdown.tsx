@@ -1,16 +1,19 @@
-import { useState, type FC } from 'react'
+import { useMemo, useState, type FC } from 'react'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { LinkedWallet } from '../widgets/SwapWidget'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import type { SystemStyleObject } from '@reservoir0x/relay-design-system/types/index.js'
+import type { ChainVM } from '@reservoir0x/relay-sdk'
+import { solanaAddressRegex } from '../../utils/solana.js'
+import { isAddress } from 'viem'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
   wallets: LinkedWallet[]
   selectedWalletAddress: string
+  vmType: ChainVM | undefined
   onSelect: (wallet: LinkedWallet) => void
   onLinkNewWallet: () => void
   setAddressModalOpen?: React.Dispatch<React.SetStateAction<boolean>>
@@ -20,11 +23,25 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   context,
   wallets,
   selectedWalletAddress,
+  vmType,
   onSelect,
   onLinkNewWallet,
   setAddressModalOpen
 }) => {
   const [open, setOpen] = useState(false)
+
+  const filteredWallets = useMemo(() => {
+    if (!vmType) return wallets
+    return wallets.filter((wallet) => wallet.vmType === vmType)
+  }, [wallets, vmType])
+
+  const isSupportedSelectedWallet = useMemo(() => {
+    if (vmType === 'svm') {
+      return solanaAddressRegex.test(selectedWalletAddress)
+    } else {
+      return isAddress(selectedWalletAddress)
+    }
+  }, [selectedWalletAddress, vmType])
 
   return (
     <Dropdown
@@ -46,7 +63,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           }}
         >
           <Text style="subtitle2" css={{ color: 'secondary-button-color' }}>
-            {truncateAddress(selectedWalletAddress)}
+            {isSupportedSelectedWallet
+              ? truncateAddress(selectedWalletAddress)
+              : 'Select wallet'}
           </Text>
           <Box css={{ color: 'secondary-button-color' }}>
             <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />
@@ -60,7 +79,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
       }}
     >
       <Flex direction="column" css={{ borderRadius: 12, p: '1', gap: '1' }}>
-        {wallets.map((wallet, idx) => {
+        {filteredWallets.map((wallet, idx) => {
           return (
             <DropdownMenuItem
               aria-label={wallet.address}
