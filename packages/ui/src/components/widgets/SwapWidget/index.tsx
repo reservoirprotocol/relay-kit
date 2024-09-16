@@ -202,7 +202,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             multiWalletSupportEnabled &&
             fromChain &&
             address &&
-            linkedWallets
+            linkedWallets &&
+            !isValidFromAddress
           ) {
             const supportedAddress = findSupportedWallet(
               fromChain.vmType,
@@ -218,11 +219,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           fromChain,
           address,
           linkedWallets,
-          onSetPrimaryWallet
+          onSetPrimaryWallet,
+          isValidFromAddress
         ])
 
         useEffect(() => {
-          if (multiWalletSupportEnabled && toChain && linkedWallets) {
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            linkedWallets &&
+            !isValidToAddress
+          ) {
             const supportedAddress = findSupportedWallet(
               toChain.vmType,
               customToAddress,
@@ -237,7 +244,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           toChain,
           customToAddress,
           linkedWallets,
-          setCustomToAddress
+          setCustomToAddress,
+          isValidToAddress
         ])
 
         return (
@@ -388,6 +396,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="from"
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
                         size={
                           fromTokenSelectorType === 'chain'
                             ? 'mobile'
@@ -654,6 +663,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="to"
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
                         size={
                           toTokenSelectorType === 'chain' ? 'mobile' : 'desktop'
                         }

@@ -37,6 +37,7 @@ export type TokenSelectorProps = {
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
   address?: Address | string
+  multiWalletSupportEnabled?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -65,6 +66,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   type = 'token',
   size = 'mobile',
   address,
+  multiWalletSupportEnabled = false,
   setToken,
   onAnalyticEvent
 }) => {
@@ -93,10 +95,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const relayClient = useRelayClient()
   const configuredChains = useMemo(() => {
-    return (
+    let chains =
       relayClient?.chains.sort((a, b) => a.name.localeCompare(b.name)) ?? []
-    )
-  }, [relayClient?.chains])
+    if (!multiWalletSupportEnabled && context === 'from') {
+      chains = chains.filter((chain) => chain.vmType !== 'svm')
+    }
+    return chains
+  }, [relayClient?.chains, multiWalletSupportEnabled])
 
   const chainFilterOptions =
     context === 'from'
@@ -243,7 +248,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             currency !== undefined &&
             (context !== 'from' ||
               currency.vmType !== 'svm' ||
-              currency.chainId === solana.id)
+              currency.chainId === solana.id) &&
+            (context !== 'from' ||
+              multiWalletSupportEnabled ||
+              currency.vmType !== 'svm')
         )
       return filteredList.length > 0 ? filteredList : undefined
     })
@@ -274,7 +282,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     suggestedTokens,
     useDefaultTokenList,
     configuredChains,
-    tokenBalances
+    tokenBalances,
+    multiWalletSupportEnabled
   ])
 
   const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
@@ -463,6 +472,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             selectedCurrencyList={selectedCurrencyList}
             type={type}
             size={size}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           />
         ) : null}
       </Flex>

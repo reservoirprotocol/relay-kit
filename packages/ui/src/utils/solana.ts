@@ -1,4 +1,4 @@
-import type { ChainVM, AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { ChainVM } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../components/widgets/SwapWidget'
 
 export const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
