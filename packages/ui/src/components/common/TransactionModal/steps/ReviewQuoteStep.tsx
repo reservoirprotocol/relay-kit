@@ -328,7 +328,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'amber12' }}>
-            Due to limited liquidity, the price impact is currently high (
+            The price impact is currently high (
             {quote?.details?.totalImpact?.percent}%).
           </Text>
         </Flex>
