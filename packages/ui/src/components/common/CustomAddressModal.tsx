@@ -1,9 +1,9 @@
-import { type FC, useState, useEffect } from 'react'
-import { Text, Flex, Button, Input } from '../primitives/index.js'
+import { type FC, useState, useEffect, useMemo } from 'react'
+import { Text, Flex, Button, Input, Pill } from '../primitives/index.js'
 import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useENSResolver } from '../../hooks/index.js'
+import { useENSResolver, useWalletAddress } from '../../hooks/index.js'
 import { isENSName } from '../../utils/ens.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
 import { useAccount } from 'wagmi'
@@ -15,7 +15,9 @@ import {
   faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 import { AnchorButton } from '../primitives/Anchor.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
+import type { LinkedWallet } from '../widgets/SwapWidget/index.js'
+import { truncateAddress } from '../../utils/truncate.js'
 
 type Props = {
   open: boolean
@@ -23,9 +25,13 @@ type Props = {
   isSvmSwap: boolean
   toAddress?: string
   toChain?: RelayChain
+  isConnected?: boolean
+  multiWalletSupportEnabled?: boolean
+  linkedWallets: LinkedWallet[]
+  wallet?: AdaptedWallet
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
-  onConfirmed: (address: Address) => void
+  onConfirmed: (address: Address | string) => void
   onClear: () => void
 }
 
@@ -34,12 +40,16 @@ export const CustomAddressModal: FC<Props> = ({
   isSvmSwap,
   toAddress,
   toChain,
+  linkedWallets,
+  isConnected,
+  multiWalletSupportEnabled,
+  wallet,
   onAnalyticEvent,
   onOpenChange,
   onConfirmed,
   onClear
 }) => {
-  const { isConnected, address: connectedAddress } = useAccount()
+  const connectedAddress = useWalletAddress(wallet)
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
 
@@ -51,9 +61,15 @@ export const CustomAddressModal: FC<Props> = ({
       return ethereumRegex.test(input)
     }
   }
+
   const connectedAddressSet =
     (!address && !toAddress) ||
     (toAddress === connectedAddress && address === connectedAddress)
+
+  const availableWallets = useMemo(
+    () => linkedWallets.filter((wallet) => isValidAddress(wallet.address)),
+    [toChain, linkedWallets]
+  )
 
   useEffect(() => {
     if (!open) {
@@ -165,7 +181,7 @@ export const CustomAddressModal: FC<Props> = ({
             </Flex>
           ) : null}
 
-          {!isSvmSwap && isConnected ? (
+          {!multiWalletSupportEnabled && isConnected ? (
             connectedAddressSet ? (
               <Flex
                 css={{ bg: 'green2', p: '2', borderRadius: 8, gap: '2' }}
@@ -190,13 +206,54 @@ export const CustomAddressModal: FC<Props> = ({
               </AnchorButton>
             )
           ) : null}
+
+          {multiWalletSupportEnabled && linkedWallets.length > 0 ? (
+            <>
+              <Text style="subtitle2">Use connected wallet address</Text>
+              <Flex css={{ gap: '2' }} align="center">
+                {availableWallets.map((wallet) => (
+                  <Pill
+                    color="transparent"
+                    bordered
+                    radius="squared"
+                    css={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      onConfirmed(wallet.address)
+                      onOpenChange(false)
+                      onAnalyticEvent?.(EventNames.ADDRESS_MODAL_CONFIRMED, {
+                        address: wallet.address,
+                        context: 'linked_wallet'
+                      })
+                    }}
+                  >
+                    <img
+                      src={wallet.walletLogoUrl}
+                      style={{ width: 16, height: 16, borderRadius: 4 }}
+                    />
+                    <Text style="subtitle2">
+                      {truncateAddress(wallet.address)}
+                    </Text>
+                  </Pill>
+                ))}
+              </Flex>
+            </>
+          ) : null}
         </Flex>
         <Button
           disabled={!isValidAddress(address)}
           css={{ justifyContent: 'center' }}
           onClick={() => {
             if (isValidAddress(address)) {
-              onConfirmed(address as Address)
+              onConfirmed(address)
+              onAnalyticEvent?.(EventNames.ADDRESS_MODAL_CONFIRMED, {
+                address: address,
+                context: 'input'
+              })
             }
             onOpenChange(false)
           }}

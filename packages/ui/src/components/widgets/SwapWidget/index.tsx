@@ -227,6 +227,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
             wallet={wallet}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           >
             {() => {
               return (

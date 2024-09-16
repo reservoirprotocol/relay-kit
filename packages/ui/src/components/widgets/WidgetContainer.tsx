@@ -1,9 +1,11 @@
-import { useState, type Dispatch, type FC, type ReactNode } from 'react'
+import { type FC, type ReactNode } from 'react'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
+import { useAccount } from 'wagmi'
+import type { LinkedWallet } from '../widgets/SwapWidget/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
@@ -12,6 +14,8 @@ export type WidgetContainerProps = {
   toChain?: RelayChain
   fromChain?: RelayChain
   wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: () => ReactNode
@@ -62,6 +66,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   isSvmSwap,
   toChain,
   wallet,
+  linkedWallets,
+  multiWalletSupportEnabled,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -69,6 +75,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
+  const { isConnected } = useAccount()
   return (
     <div className="relay-kit-reset">
       {children()}
@@ -103,6 +110,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
         toAddress={customToAddress ?? address}
         isSvmSwap={isSvmSwap}
         toChain={toChain}
+        isConnected={wallet !== undefined || isConnected ? true : false}
+        linkedWallets={linkedWallets ?? []}
+        multiWalletSupportEnabled={multiWalletSupportEnabled}
+        wallet={wallet}
         onAnalyticEvent={onAnalyticEvent}
         onOpenChange={(open) => {
           setAddressModalOpen(open)
