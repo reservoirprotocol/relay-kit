@@ -70,7 +70,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           }}
         >
           <Flex align="center" css={{ gap: '1' }}>
-            {selectedWallet?.walletLogoUrl ? (
+            {isSupportedSelectedWallet && selectedWallet?.walletLogoUrl ? (
               <img
                 src={selectedWallet.walletLogoUrl}
                 style={{ width: 16, height: 16, borderRadius: 4 }}
