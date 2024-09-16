@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useState, type FC } from 'react'
+import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
@@ -29,6 +29,7 @@ import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.j
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
+import { findSupportedWallet } from '../../../utils/solana.js'
 
 export type LinkedWallet = {
   address: string
@@ -114,6 +115,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
       wallet={wallet}
+      multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
     >
@@ -156,7 +158,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isFromETH,
         timeEstimate,
         isSvmSwap,
-        isValidSvmRecipient,
+        isValidFromAddress,
+        isValidToAddress,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -169,7 +172,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           const toChain = relayClient?.chains?.find(
             (chain) => chain.id === toToken?.chainId
           )
-          if (toChain?.vmType !== 'svm' && isValidSvmRecipient) {
+          if (toChain?.vmType !== 'svm' && isValidToAddress) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -193,6 +196,49 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const [toTokenSelectorType, setToTokenSelectorType] = useState<
           'token' | 'chain'
         >('token')
+
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            fromChain &&
+            address &&
+            linkedWallets
+          ) {
+            const supportedAddress = findSupportedWallet(
+              fromChain.vmType,
+              address,
+              linkedWallets
+            )
+            if (supportedAddress) {
+              onSetPrimaryWallet?.(supportedAddress)
+            }
+          }
+        }, [
+          multiWalletSupportEnabled,
+          fromChain,
+          address,
+          linkedWallets,
+          onSetPrimaryWallet
+        ])
+
+        useEffect(() => {
+          if (multiWalletSupportEnabled && toChain && linkedWallets) {
+            const supportedAddress = findSupportedWallet(
+              toChain.vmType,
+              customToAddress,
+              linkedWallets
+            )
+            if (supportedAddress) {
+              setCustomToAddress(supportedAddress)
+            }
+          }
+        }, [
+          multiWalletSupportEnabled,
+          toChain,
+          customToAddress,
+          linkedWallets,
+          setCustomToAddress
+        ])
 
         return (
           <WidgetContainer
@@ -261,6 +307,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onSelect={(wallet) =>
                             onSetPrimaryWallet?.(wallet.address)
                           }
+                          vmType={fromChain?.vmType}
                           onLinkNewWallet={onLinkNewWallet!}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
@@ -287,8 +334,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -428,7 +475,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       width: 36
                     }}
                   >
-                    {hasLockedToken || isSvmSwap ? null : (
+                    {hasLockedToken ||
+                    (isSvmSwap && !multiWalletSupportEnabled) ? null : (
                       <Button
                         size="none"
                         color="white"
@@ -490,13 +538,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onSelect={(wallet) =>
                             setCustomToAddress(wallet.address)
                           }
+                          vmType={toChain?.vmType}
                           onLinkNewWallet={onLinkNewWallet!}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
                         />
                       ) : null}
 
-                      {/* {isMounted && (address || customToAddress) ? (
+                      {multiWalletSupportEnabled === false &&
+                      isMounted &&
+                      (address || customToAddress) ? (
                         <AnchorButton
                           css={{
                             display: 'flex',
@@ -511,7 +562,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {isSvmSwap && !isValidSvmRecipient
+                            {isSvmSwap && !isValidToAddress
                               ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
@@ -523,7 +574,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             />
                           </Box>
                         </AnchorButton>
-                      ) : null} */}
+                      ) : null}
                     </Flex>
                     <ChainTrigger
                       token={toToken}
@@ -545,8 +596,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -730,7 +781,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
-                    invalidSolanaRecipient={isSvmSwap && !isValidSvmRecipient}
+                    isValidFromAddress={isValidFromAddress}
+                    isValidToAddress={isValidToAddress}
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -744,8 +796,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isSameCurrencySameRecipientSwap
                     }
                     onClick={() => {
-                      if (isSvmSwap && !isValidSvmRecipient) {
-                        setAddressModalOpen(true)
+                      // If either address is not valid, open the link wallet modal
+                      if (!isValidToAddress || !isValidFromAddress) {
+                        if (multiWalletSupportEnabled) {
+                          onLinkNewWallet?.()
+                        } else {
+                          setAddressModalOpen(true)
+                        }
                       } else {
                         setTransactionModalOpen(true)
                       }

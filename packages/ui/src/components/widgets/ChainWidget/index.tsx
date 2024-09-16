@@ -145,7 +145,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         timeEstimate,
         fetchingSolverConfig,
         isSvmSwap,
-        isValidSvmRecipient,
+        isValidFromAddress,
+        isValidToAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
@@ -159,7 +160,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           const toChain = client?.chains?.find(
             (chain) => chain.id === toToken?.chainId
           )
-          if (toChain?.vmType !== 'svm' && isValidSvmRecipient) {
+          if (toChain?.vmType !== 'svm' && isValidToAddress) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -435,7 +436,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 style="subtitle3"
                                 css={{ color: 'inherit' }}
                               >
-                                {isSvmSwap && !isValidSvmRecipient
+                                {isSvmSwap && !isValidToAddress
                                   ? `Enter ${toChain?.displayName} Address`
                                   : toDisplayName}
                               </Text>
@@ -612,7 +613,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     />
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}
-                      invalidSolanaRecipient={isSvmSwap && !isValidSvmRecipient}
+                      isValidFromAddress={isValidFromAddress}
+                      isValidToAddress={isValidToAddress}
                       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
@@ -628,7 +630,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
-                        if (isSvmSwap && !isValidSvmRecipient) {
+                        if (isSvmSwap && !isValidToAddress) {
                           setAddressModalOpen(true)
                         } else {
                           setTransactionModalOpen(true)
