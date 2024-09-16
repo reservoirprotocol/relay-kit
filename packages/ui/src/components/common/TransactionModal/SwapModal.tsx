@@ -18,6 +18,7 @@ import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
+import type { LinkedWallet } from '../../widgets/SwapWidget/index.js'
 
 type SwapModalProps = {
   open: boolean
@@ -36,6 +37,8 @@ type SwapModalProps = {
   tradeType: TradeType
   useExternalLiquidity: boolean
   wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -183,7 +186,9 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   timeEstimate,
   isCanonical,
   feeBreakdown,
-  quoteUpdatedAt
+  quoteUpdatedAt,
+  linkedWallets,
+  multiWalletSupportEnabled
 }) => {
   useEffect(() => {
     if (!open) {
@@ -251,6 +256,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             quote={quote}
             swap={swap}
             address={address}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           />
         ) : null}
 

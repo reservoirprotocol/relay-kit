@@ -103,6 +103,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           onSuccess={onSwapSuccess}
           invalidateBalanceQueries={invalidateBalanceQueries}
           wallet={wallet}
+          linkedWallets={linkedWallets}
+          multiWalletSupportEnabled={multiWalletSupportEnabled}
         />
       ) : null}
       <CustomAddressModal

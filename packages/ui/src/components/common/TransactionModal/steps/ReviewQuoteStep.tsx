@@ -43,7 +43,7 @@ type ReviewQuoteProps = {
   toAmountFormatted: string
   address?: Address | string
   linkedWallets?: LinkedWallet[]
-  multiWalletEnabled?: boolean
+  multiWalletSupportEnabled?: boolean
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -62,7 +62,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   toAmountFormatted,
   address,
   linkedWallets,
-  multiWalletEnabled
+  multiWalletSupportEnabled
 }) => {
   const client = useRelayClient()
   const details = quote?.details
@@ -179,7 +179,16 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
       value: (
         <Button
           color="secondary"
-          css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+          size="none"
+          corners="pill"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1',
+            p: '1',
+            lineHeight: '20px',
+            minHeight: 24
+          }}
           onClick={() => {
             window.open(
               `${fromChain?.explorerUrl}/address/${quote?.details?.sender}`,
@@ -193,7 +202,9 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               style={{ width: 16, height: 16, borderRadius: 4 }}
             />
           ) : null}
-          {truncateAddress(quote?.details?.sender)}
+          <Text style="subtitle2" css={{ color: 'inherit' }}>
+            {truncateAddress(quote?.details?.sender)}
+          </Text>
         </Button>
       )
     },
@@ -201,8 +212,19 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
       title: 'To address',
       value: (
         <Button
-          color={multiWalletEnabled && !toWallet ? 'warning' : 'secondary'}
-          css={{ display: 'flex', alignItems: 'center', gap: '1' }}
+          color={
+            multiWalletSupportEnabled && !toWallet ? 'warning' : 'secondary'
+          }
+          size="none"
+          corners="pill"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1',
+            p: '1',
+            lineHeight: '20px',
+            minHeight: 24
+          }}
           onClick={() => {
             window.open(
               `${toChain?.explorerUrl}/address/${quote?.details?.recipient}`,
@@ -216,7 +238,9 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               style={{ width: 16, height: 16, borderRadius: 4 }}
             />
           ) : null}
-          {truncateAddress(quote?.details?.recipient)}
+          <Text style="subtitle2" css={{ color: 'inherit' }}>
+            {truncateAddress(quote?.details?.recipient)}
+          </Text>
         </Button>
       )
     }

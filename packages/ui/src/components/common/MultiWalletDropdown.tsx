@@ -76,13 +76,28 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                 style={{ width: 16, height: 16, borderRadius: 4 }}
               />
             ) : null}
-            <Text style="subtitle2" css={{ color: 'secondary-button-color' }}>
+            <Text
+              style="subtitle2"
+              css={{
+                color:
+                  !selectedWallet && selectedWalletAddress
+                    ? 'amber11'
+                    : 'secondary-button-color'
+              }}
+            >
               {isSupportedSelectedWallet
                 ? truncateAddress(selectedWalletAddress)
                 : 'Select wallet'}
             </Text>
           </Flex>
-          <Box css={{ color: 'secondary-button-color' }}>
+          <Box
+            css={{
+              color:
+                !selectedWallet && selectedWalletAddress
+                  ? 'amber11'
+                  : 'secondary-button-color'
+            }}
+          >
             <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />
           </Box>
         </Button>
