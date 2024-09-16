@@ -5,8 +5,7 @@ import {
   Text,
   ChainTokenIcon,
   Skeleton,
-  Box,
-  Anchor
+  Box
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
@@ -19,16 +18,16 @@ import { calculatePriceTimeEstimate } from '../../../../utils/quote.js'
 import {
   faClock,
   faExclamationCircle,
-  faExternalLink,
   faGasPump,
   faInfoCircle,
   faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 import type { ChildrenProps } from '../TransactionModalRenderer.js'
-import { useAccount } from 'wagmi'
 import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'
 import React from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
+import type { Address } from 'viem'
+import type { LinkedWallet } from '../../../widgets/SwapWidget/index.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -42,6 +41,9 @@ type ReviewQuoteProps = {
   feeBreakdown: ChildrenProps['feeBreakdown']
   fromAmountFormatted: string
   toAmountFormatted: string
+  address?: Address | string
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -57,22 +59,32 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   quoteUpdatedAt,
   feeBreakdown,
   fromAmountFormatted,
-  toAmountFormatted
+  toAmountFormatted,
+  address,
+  linkedWallets,
+  multiWalletSupportEnabled
 }) => {
   const client = useRelayClient()
-  const { address } = useAccount()
   const details = quote?.details
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const connectedWalletIsNotRecipient =
-    quote &&
-    address !== quote?.details?.recipient &&
-    toToken?.chainId !== 792703809
+    quote && address !== quote?.details?.recipient
 
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
-  const showHighPriceImpactError = isHighPriceImpact && totalImpactUsd
+  const showHighPriceImpactWarning =
+    isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
 
+  const fromChain = client?.chains?.find(
+    (chain) => chain.id === fromToken?.chainId
+  )
+  const fromWallet = linkedWallets?.find(
+    (wallet) => wallet.address === quote?.details?.sender
+  )
   const toChain = client?.chains?.find((chain) => chain.id === toToken?.chainId)
+  const toWallet = linkedWallets?.find(
+    (wallet) => wallet.address === quote?.details?.recipient
+  )
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
@@ -95,19 +107,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   }, [quoteUpdatedAt])
 
   const breakdown = [
-    {
-      title: 'To address',
-      value: (
-        <Anchor
-          target="_blank"
-          href={`${toChain?.explorerUrl}/address/${quote?.details?.recipient}`}
-          css={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          {truncateAddress(quote?.details?.recipient)}
-          <FontAwesomeIcon icon={faExternalLink} width={14} />
-        </Anchor>
-      )
-    },
     {
       title: 'Estimated time',
       value: (
@@ -174,6 +173,76 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           }
         </PriceImpactTooltip>
       )
+    },
+    {
+      title: 'From address',
+      value: (
+        <Button
+          color="secondary"
+          size="none"
+          corners="pill"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1',
+            p: '1',
+            lineHeight: '20px',
+            minHeight: 24
+          }}
+          onClick={() => {
+            window.open(
+              `${fromChain?.explorerUrl}/address/${quote?.details?.sender}`,
+              '_blank'
+            )
+          }}
+        >
+          {fromWallet?.walletLogoUrl ? (
+            <img
+              src={fromWallet.walletLogoUrl}
+              style={{ width: 16, height: 16, borderRadius: 4 }}
+            />
+          ) : null}
+          <Text style="subtitle2" css={{ color: 'inherit' }}>
+            {truncateAddress(quote?.details?.sender)}
+          </Text>
+        </Button>
+      )
+    },
+    {
+      title: 'To address',
+      value: (
+        <Button
+          color={
+            multiWalletSupportEnabled && !toWallet ? 'warning' : 'secondary'
+          }
+          size="none"
+          corners="pill"
+          css={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1',
+            p: '1',
+            lineHeight: '20px',
+            minHeight: 24
+          }}
+          onClick={() => {
+            window.open(
+              `${toChain?.explorerUrl}/address/${quote?.details?.recipient}`,
+              '_blank'
+            )
+          }}
+        >
+          {toWallet?.walletLogoUrl ? (
+            <img
+              src={toWallet.walletLogoUrl}
+              style={{ width: 16, height: 16, borderRadius: 4 }}
+            />
+          ) : null}
+          <Text style="subtitle2" css={{ color: 'inherit' }}>
+            {truncateAddress(quote?.details?.recipient)}
+          </Text>
+        </Button>
+      )
     }
   ]
 
@@ -236,7 +305,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <Text
               style="h6"
               css={{
-                color: showHighPriceImpactError ? 'red11' : undefined
+                color: showHighPriceImpactWarning ? 'red11' : undefined
               }}
             >
               {toAmountFormatted} {toToken?.symbol}
@@ -250,7 +319,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               style="subtitle3"
               color="subtle"
               css={{
-                color: showHighPriceImpactError ? 'red11' : undefined
+                color: showHighPriceImpactWarning ? 'red11' : undefined
               }}
             >
               {formatDollar(Number(details?.currencyOut?.amountUsd))}
@@ -314,7 +383,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           </React.Fragment>
         ))}
       </Flex>
-      {showHighPriceImpactError ? (
+      {showHighPriceImpactWarning ? (
         <Flex
           align="center"
           css={{
@@ -329,8 +398,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'amber12' }}>
-            Due to high price impact, you will lose{' '}
-            {`${formatDollar(Math.abs(Number(totalImpactUsd)))}`} on this trade.
+            Due to limited liquidity, the price impact is currently high (
+            {quote?.details?.totalImpact?.percent}%).
           </Text>
         </Flex>
       ) : null}
@@ -364,7 +433,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
         css={{
           justifyContent: 'center'
         }}
-        color={showHighPriceImpactError ? 'error' : 'primary'}
+        color={showHighPriceImpactWarning ? 'error' : 'primary'}
         disabled={isFetchingQuote || isRefetchingQuote || waitingForSteps}
         onClick={() => swap?.()}
       >

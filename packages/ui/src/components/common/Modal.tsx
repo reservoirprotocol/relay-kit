@@ -45,7 +45,7 @@ export const Modal: FC<
                 css={{
                   '--borderColor': 'colors.subtle-border-color',
                   border: '1px solid var(--borderColor)',
-                  padding: '5',
+                  padding: '4',
                   ...css
                 }}
               >
@@ -54,12 +54,16 @@ export const Modal: FC<
                     asChild
                     style={{
                       position: 'absolute',
-                      right: 20,
-                      top: 20,
+                      right: 10,
+                      top: 12,
                       zIndex: 10
                     }}
                   >
-                    <Button color="ghost" size="xs" css={{ color: 'gray9' }}>
+                    <Button
+                      color="ghost"
+                      size="none"
+                      css={{ color: 'gray9', p: '2' }}
+                    >
                       <FontAwesomeIcon icon={faXmark} width={16} height={16} />
                     </Button>
                   </DialogClose>

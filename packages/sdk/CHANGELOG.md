@@ -1,5 +1,29 @@
 # @reservoir0x/relay-sdk
 
+## 1.3.0
+
+### Minor Changes
+
+- a8215cf: Abstract txs in Adapted Wallet + new Solana Adapter
+
+## 1.2.2
+
+### Patch Changes
+
+- 41feac9: Expand support for svm chains when setting addresses
+
+## 1.2.1
+
+### Patch Changes
+
+- 7a084fa: New swap widget ui
+
+## 1.2.0
+
+### Minor Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+
 ## 1.1.2
 
 ### Patch Changes

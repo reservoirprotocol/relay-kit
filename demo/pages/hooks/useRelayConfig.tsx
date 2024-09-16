@@ -1,10 +1,10 @@
 import { NextPage } from 'next'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
 import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 
-import { useRelayChains, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
+import { useRelayConfig } from '@reservoir0x/relay-kit-hooks'
 import { useAccount } from 'wagmi'
+import { ConnectButton } from 'components/ConnectButton'
 
 const UseRelayConfigPage: NextPage = () => {
   const { address } = useAccount()

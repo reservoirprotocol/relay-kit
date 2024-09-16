@@ -29,7 +29,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         align="center"
         justify="between"
         direction="column"
-        css={{ bp500: { flexDirection: 'row' } }}
+        css={{ flexShrink: 0, bp500: { flexDirection: 'row' } }}
       >
         <Flex
           direction="column"

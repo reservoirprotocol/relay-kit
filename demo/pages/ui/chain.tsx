@@ -1,11 +1,14 @@
 import { NextPage } from 'next'
 import { ChainWidget } from '@reservoir0x/relay-kit-ui'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { Layout } from 'components/Layout'
-import { zeroAddress } from 'viem'
+import {
+  useDynamicContext,
+  useDynamicModals
+} from '@dynamic-labs/sdk-react-core'
 
 const ChainWidgetPage: NextPage = () => {
-  const { openConnectModal } = useConnectModal()
+  const { setShowAuthFlow, primaryWallet } = useDynamicContext()
+  const { setShowLinkNewWalletModal } = useDynamicModals()
 
   return (
     <Layout>
@@ -47,7 +50,13 @@ const ChainWidgetPage: NextPage = () => {
             logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
           }}
           // defaultAmount={'5'}
-          onConnectWallet={openConnectModal}
+          onConnectWallet={() => {
+            if (primaryWallet) {
+              setShowLinkNewWalletModal(true)
+            } else {
+              setShowAuthFlow(true)
+            }
+          }}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}

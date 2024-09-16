@@ -9,6 +9,8 @@ type BalanceDisplayProps = {
   symbol?: string
   isLoading: boolean
   hasInsufficientBalance?: boolean
+  displaySymbol?: boolean
+  isConnected?: boolean
 }
 
 export const BalanceDisplay: FC<BalanceDisplayProps> = ({
@@ -16,9 +18,10 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
   decimals,
   symbol,
   isLoading,
-  hasInsufficientBalance
+  hasInsufficientBalance,
+  displaySymbol = true,
+  isConnected
 }) => {
-  const { isConnected } = useAccount()
   const compactBalance = Boolean(
     balance && decimals && balance.toString().length - decimals > 4
   )
@@ -37,7 +40,7 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
               Balance:{' '}
               {balance !== undefined
                 ? formatBN(balance ?? 0n, 5, decimals, compactBalance) +
-                  ` ${symbol}`
+                  (displaySymbol && symbol ? ` ${symbol}` : '')
                 : '-'}{' '}
             </Text>
           )}

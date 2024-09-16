@@ -14,4 +14,4 @@ export { default as SwapWidget } from './components/widgets/SwapWidget/index.js'
 export { default as ChainWidget } from './components/widgets/ChainWidget/index.js'
 
 //components
-export { default as TokenSelector } from './components/common/TokenSelector.js'
+export { default as TokenSelector } from './components/common/TokenSelector/TokenSelector.js'

@@ -1,16 +1,11 @@
-import {
-  createPublicClient,
-  fallback,
-  http,
-  type Address,
-  type TransactionReceipt
-} from 'viem'
+import { type Address, type TransactionReceipt } from 'viem'
 import { LogLevel } from './logger.js'
 import type {
   Execute,
   AdaptedWallet,
   TransactionStepItem,
-  paths
+  paths,
+  SvmReciept
 } from '../types/index.js'
 import { axios } from '../utils/axios.js'
 import type {
@@ -43,12 +38,11 @@ export async function sendTransactionSafely(
   isValidating?: (res?: AxiosResponse<any, any>) => void
 ) {
   const client = getClient()
-  const chain = client.chains.find((chain) => chain.id === chainId)
   const walletChainId = await wallet.getChainId()
   if (chainId !== walletChainId) {
     throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
   }
-  let receipt: TransactionReceipt | undefined
+  let receipt: TransactionReceipt | SvmReciept | undefined
   let transactionCancelled = false
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
@@ -56,11 +50,6 @@ export async function sendTransactionSafely(
     (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
   let waitingForConfirmation = true
   let attemptCount = 0
-
-  const viemClient = createPublicClient({
-    chain: chain?.viemChain,
-    transport: wallet.transport ? fallback([wallet.transport, http()]) : http()
-  })
 
   let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
   if ((txHash as any) === 'null') {
@@ -76,7 +65,9 @@ export async function sendTransactionSafely(
   })
 
   if (!txHash) {
-    throw Error('Transaction hash not returned from sendTransaction method')
+    throw Error(
+      'Transaction hash not returned from handleSendTransactionStep method'
+    )
   }
   setTxHashes([{ txHash: txHash, chainId: chainId }])
 
@@ -155,36 +146,37 @@ export async function sendTransactionSafely(
     const signal = controller.signal
     // Handle transaction replacements and cancellations
     return {
-      promise: viemClient
-        .waitForTransactionReceipt({
-          hash: txHash as Address,
-          onReplaced: (replacement) => {
+      promise: wallet
+        .handleConfirmTransactionStep(
+          txHash as string,
+          chainId,
+          (replacementTxHash) => {
             if (signal.aborted) {
               return
             }
-            if (replacement.reason === 'cancelled') {
-              transactionCancelled = true
-              throw Error('Transaction cancelled')
-            }
-
-            setTxHashes([
-              { txHash: replacement.transaction.hash, chainId: chainId }
-            ])
-            txHash = replacement.transaction.hash
+            setTxHashes([{ txHash: replacementTxHash, chainId: chainId }])
+            txHash = replacementTxHash
             attemptCount = 0 // reset attempt count
             getClient()?.log(
-              ['Transaction replaced', replacement],
+              ['Transaction replaced', replacementTxHash],
               LogLevel.Verbose
             )
             postTransactionToSolver({
-              txHash,
+              txHash: replacementTxHash as Address,
               chainId,
               step,
               request,
               headers
             })
+          },
+          () => {
+            if (signal.aborted) {
+              return
+            }
+            transactionCancelled = true
+            getClient()?.log(['Transaction cancelled'], LogLevel.Verbose)
           }
-        })
+        )
         .then((data) => {
           if (signal.aborted) {
             return
@@ -200,9 +192,12 @@ export async function sendTransactionSafely(
             return
           }
           getClient()?.log(
-            ['Error in waitForTransactionReceipt', error],
+            ['Error in handleConfirmTransactionStep', error],
             LogLevel.Error
           )
+          if (error.message === 'Transaction cancelled') {
+            transactionCancelled = true
+          }
         }),
       controller
     }
@@ -242,7 +237,7 @@ const postTransactionToSolver = async ({
   headers,
   step
 }: {
-  txHash: Address | undefined
+  txHash: string | undefined
   chainId: number
   step: Execute['steps'][0]
   request: AxiosRequestConfig

@@ -5,8 +5,12 @@ import { Button, Flex, Text } from '../primitives/index.js'
 import ChainIcon from '../primitives/ChainIcon.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
-export type ChainFilterValue = Chain | { id: undefined; name: string }
+export type ChainFilterValue =
+  | Chain
+  | RelayChain
+  | { id: undefined; name: string }
 
 type Props = {
   options: ChainFilterValue[]
@@ -94,7 +98,6 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   _hover: {
                     backdropFilter: 'brightness(95%)'
                   },
-
                   flexShrink: 0,
                   alignContent: 'center',
 
@@ -110,7 +113,11 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   }}
                   chainId={option.id}
                 />
-                <Text style="subtitle2">{option.name}</Text>
+                <Text style="subtitle2">
+                  {' '}
+                  {('displayName' in option && option.displayName) ||
+                    option.name}
+                </Text>
               </DropdownMenuItem>
             )
           })}

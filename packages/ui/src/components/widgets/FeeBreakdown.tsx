@@ -5,6 +5,7 @@ import { formatNumber } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
+import type { Styles } from '@reservoir0x/relay-design-system/css'
 
 type Props = Pick<
   ChildrenProps,
@@ -14,7 +15,13 @@ type Props = Pick<
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
->
+> & {
+  containerCss?: Styles
+}
+
+const formatSwapRate = (rate: number) => {
+  return rate >= 1 ? formatNumber(rate, 2) : formatNumber(rate, 5)
+}
 
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
@@ -22,13 +29,13 @@ const FeeBreakdown: FC<Props> = ({
   price,
   toToken,
   fromToken,
-  timeEstimate
+  timeEstimate,
+  containerCss
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
   )
-  const compactSwapRate = Boolean(swapRate && swapRate.length > 8)
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   if (!feeBreakdown || isFetchingPrice) {
@@ -43,7 +50,8 @@ const FeeBreakdown: FC<Props> = ({
         '--borderColor': 'colors.subtle-border-color',
         border: '1px solid var(--borderColor)',
         p: '3',
-        mb: '3'
+        mb: '3',
+        ...containerCss
       }}
     >
       <Flex
@@ -63,14 +71,12 @@ const FeeBreakdown: FC<Props> = ({
         >
           {rateMode === 'input' ? (
             <Text style="subtitle2">
-              1 {fromToken?.symbol} ={' '}
-              {formatNumber(Number(swapRate) / 1, 2, compactSwapRate)}{' '}
+              1 {fromToken?.symbol} = {formatSwapRate(Number(swapRate))}{' '}
               {toToken?.symbol}
             </Text>
           ) : (
             <Text style="subtitle2">
-              1 {toToken?.symbol} ={' '}
-              {formatNumber(1 / Number(swapRate), 2, compactSwapRate)}{' '}
+              1 {toToken?.symbol} = {formatSwapRate(1 / Number(swapRate))}{' '}
               {fromToken?.symbol}
             </Text>
           )}

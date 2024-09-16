@@ -1,5 +1,109 @@
 # @reservoir0x/relay-kit-ui
 
+## 1.4.0
+
+### Minor Changes
+
+- a8215cf: Abstract txs in Adapted Wallet + new Solana Adapter
+
+### Patch Changes
+
+- Updated dependencies [a8215cf]
+  - @reservoir0x/relay-kit-hooks@1.3.0
+  - @reservoir0x/relay-sdk@1.3.0
+
+## 1.3.20
+
+### Patch Changes
+
+- ae0dd9b: Remove resetting of chain filter when token selector is closed
+- 10a4d30: Fix modal's "x" button size and alignment
+- 41feac9: Expand support for svm chains when setting addresses
+- Updated dependencies [41feac9]
+  - @reservoir0x/relay-sdk@1.2.2
+  - @reservoir0x/relay-kit-hooks@1.2.5
+
+## 1.3.19
+
+### Patch Changes
+
+- a93ae37: Chain selector ux tweaks
+
+## 1.3.18
+
+### Patch Changes
+
+- 2d33c4a: Update high price impact warning logic
+- 128127f: Update swap widget padding and box shadow
+
+## 1.3.17
+
+### Patch Changes
+
+- 9fe399d: Fix conversion rate formatting bug
+
+## 1.3.16
+
+### Patch Changes
+
+- 7079727: Fix ui overflow on transaction modal
+- 32c533e: Allow fetching solana quotes with no custom address
+
+## 1.3.15
+
+### Patch Changes
+
+- e6f3183: Fix search by chain displayName
+- 5caf19b: Update Swapping CTA
+
+## 1.3.14
+
+### Patch Changes
+
+- 2a11467: Small token selector bug fixes
+
+## 1.3.13
+
+### Patch Changes
+
+- f409525: Fix token selector chain filter bug
+
+## 1.3.12
+
+### Patch Changes
+
+- 6001f8d: Use default token list when chain is filtered
+
+## 1.3.11
+
+### Patch Changes
+
+- 2c6ead0: Chain selector improvements
+
+## 1.3.10
+
+### Patch Changes
+
+- 9b623c2: Add styling support for undefined tokens in new swap widget
+
+## 1.3.9
+
+### Patch Changes
+
+- 7a084fa: New swap widget ui
+- Updated dependencies [7a084fa]
+  - @reservoir0x/relay-kit-hooks@1.2.4
+  - @reservoir0x/relay-sdk@1.2.1
+
+## 1.3.8
+
+### Patch Changes
+
+- 9e14a17: Better handling of transaction in flight and post transaction ui, handle refund status when polling for transaction success
+- Updated dependencies [9e14a17]
+  - @reservoir0x/relay-sdk@1.2.0
+  - @reservoir0x/relay-kit-hooks@1.2.3
+
 ## 1.3.7
 
 ### Patch Changes

@@ -1,17 +1,24 @@
-import { useState, type Dispatch, type FC, type ReactNode } from 'react'
-import WidgetFooter from './WidgetFooter.js'
+import { type FC, type ReactNode } from 'react'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import type { Execute } from '@reservoir0x/relay-sdk'
-import { Flex } from '../primitives/index.js'
+import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
+import { useAccount } from 'wagmi'
+import type { LinkedWallet } from '../widgets/SwapWidget/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
-  isSolanaSwap: boolean
+  addressModalOpen: boolean
+  isSvmSwap: boolean
+  toChain?: RelayChain
+  fromChain?: RelayChain
+  wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-  children: (props: WidgetChildProps) => ReactNode
+  setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  children: () => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
@@ -35,15 +42,13 @@ export type WidgetContainerProps = {
   | 'timeEstimate'
 >
 
-export type WidgetChildProps = {
-  addressModalOpen: boolean
-  setAddressModalOpen: Dispatch<React.SetStateAction<boolean>>
-}
-
 const WidgetContainer: FC<WidgetContainerProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
+  addressModalOpen,
+  setAddressModalOpen,
   children,
+  fromChain,
   fromToken,
   toToken,
   debouncedInputAmountValue,
@@ -58,7 +63,11 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   useExternalLiquidity,
   timeEstimate,
   recipient,
-  isSolanaSwap,
+  isSvmSwap,
+  toChain,
+  wallet,
+  linkedWallets,
+  multiWalletSupportEnabled,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -66,68 +75,58 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
-  const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const { isConnected } = useAccount()
   return (
     <div className="relay-kit-reset">
-      <Flex
-        direction="column"
-        css={{
-          width: '100%',
-          borderRadius: 'widget-border-radius',
-          overflow: 'hidden',
-          backgroundColor: 'widget-background',
-          boxShadow: 'widget-box-shadow',
-          border: 'widget-border',
-          p: '4',
-          minWidth: 300,
-          maxWidth: 440
-        }}
-      >
-        {children({
-          addressModalOpen,
-          setAddressModalOpen
-        })}
-        {isMounted ? (
-          <SwapModal
-            open={transactionModalOpen}
-            onOpenChange={(open) => {
-              onSwapModalOpenChange(open)
-              setTransactionModalOpen(open)
-            }}
-            fromToken={fromToken}
-            toToken={toToken}
-            amountInputValue={amountInputValue}
-            amountOutputValue={amountOutputValue}
-            debouncedInputAmountValue={debouncedInputAmountValue}
-            debouncedOutputAmountValue={debouncedOutputAmountValue}
-            tradeType={tradeType}
-            useExternalLiquidity={useExternalLiquidity}
-            address={address}
-            recipient={recipient}
-            isCanonical={useExternalLiquidity}
-            timeEstimate={timeEstimate}
-            onAnalyticEvent={onAnalyticEvent}
-            onSuccess={onSwapSuccess}
-            invalidateBalanceQueries={invalidateBalanceQueries}
-          />
-        ) : null}
-        <CustomAddressModal
-          open={addressModalOpen}
-          toAddress={customToAddress ?? address}
-          isSolanaSwap={isSolanaSwap}
-          onAnalyticEvent={onAnalyticEvent}
+      {children()}
+      {isMounted ? (
+        <SwapModal
+          open={transactionModalOpen}
           onOpenChange={(open) => {
-            setAddressModalOpen(open)
+            onSwapModalOpenChange(open)
+            setTransactionModalOpen(open)
           }}
-          onConfirmed={(address) => {
-            setCustomToAddress(address)
-          }}
-          onClear={() => {
-            setCustomToAddress(undefined)
-          }}
+          fromChain={fromChain}
+          fromToken={fromToken}
+          toToken={toToken}
+          amountInputValue={amountInputValue}
+          amountOutputValue={amountOutputValue}
+          debouncedInputAmountValue={debouncedInputAmountValue}
+          debouncedOutputAmountValue={debouncedOutputAmountValue}
+          tradeType={tradeType}
+          useExternalLiquidity={useExternalLiquidity}
+          address={address}
+          recipient={recipient}
+          isCanonical={useExternalLiquidity}
+          timeEstimate={timeEstimate}
+          onAnalyticEvent={onAnalyticEvent}
+          onSuccess={onSwapSuccess}
+          invalidateBalanceQueries={invalidateBalanceQueries}
+          wallet={wallet}
+          linkedWallets={linkedWallets}
+          multiWalletSupportEnabled={multiWalletSupportEnabled}
         />
-        <WidgetFooter />
-      </Flex>
+      ) : null}
+      <CustomAddressModal
+        open={addressModalOpen}
+        toAddress={customToAddress ?? address}
+        isSvmSwap={isSvmSwap}
+        toChain={toChain}
+        isConnected={wallet !== undefined || isConnected ? true : false}
+        linkedWallets={linkedWallets ?? []}
+        multiWalletSupportEnabled={multiWalletSupportEnabled}
+        wallet={wallet}
+        onAnalyticEvent={onAnalyticEvent}
+        onOpenChange={(open) => {
+          setAddressModalOpen(open)
+        }}
+        onConfirmed={(address) => {
+          setCustomToAddress(address)
+        }}
+        onClear={() => {
+          setCustomToAddress(undefined)
+        }}
+      />
     </div>
   )
 }

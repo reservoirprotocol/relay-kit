@@ -5,6 +5,8 @@ type Erc20Currencies = NonNullable<
   paths['/chains']['get']['responses']['200']['content']['application/json']['chains']
 >['0']['erc20Currencies']
 
+export type ChainVM = 'evm' | 'svm'
+
 export type RelayChain = {
   id: number
   name: string
@@ -22,6 +24,7 @@ export type RelayChain = {
     id?: string
     symbol?: string
     name?: string
+    address?: string
     decimals?: number
     supportsBridging?: boolean
   }
@@ -31,5 +34,6 @@ export type RelayChain = {
   iconUrl?: string | null
   logoUrl?: string | null
   brandColor?: string | null
+  vmType?: ChainVM
   viemChain: Chain
 }

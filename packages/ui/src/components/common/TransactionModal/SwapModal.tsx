@@ -1,4 +1,4 @@
-import type { CallFees, Execute } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { type Address } from 'viem'
 import { type FC, useEffect } from 'react'
 import {
@@ -18,23 +18,27 @@ import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
+import type { LinkedWallet } from '../../widgets/SwapWidget/index.js'
 
 type SwapModalProps = {
   open: boolean
+  fromChain?: RelayChain
   fromToken?: Token
   toToken?: Token
-  address?: Address
+  address?: Address | string
   timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
   debouncedOutputAmountValue: string
   debouncedInputAmountValue: string
   amountInputValue: string
   amountOutputValue: string
-  toDisplayName?: string
-  recipient?: Address
-  customToAddress?: Address
+  recipient?: Address | string
+  customToAddress?: Address | string
   tradeType: TradeType
   useExternalLiquidity: boolean
+  wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -45,6 +49,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   const {
     open,
     address,
+    fromChain,
     fromToken,
     toToken,
     tradeType,
@@ -56,6 +61,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     useExternalLiquidity,
     timeEstimate,
     isCanonical,
+    wallet,
     invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess
@@ -63,6 +69,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   return (
     <TransactionModalRenderer
       open={open}
+      fromChain={fromChain}
       fromToken={fromToken}
       toToken={toToken}
       amountInputValue={amountInputValue}
@@ -73,6 +80,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       useExternalLiquidity={useExternalLiquidity}
       address={address}
       recipient={recipient}
+      wallet={wallet}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onAnalyticEvent={onAnalyticEvent}
       onValidating={(quote) => {
@@ -110,7 +118,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
           quote_id: quoteId,
           txHashes: steps
             ?.map((step) => {
-              let txHashes: { chainId: number; txHash: Address }[] = []
+              let txHashes: { chainId: number; txHash: string }[] = []
               step.items?.forEach((item) => {
                 if (item.txHashes) {
                   txHashes = txHashes.concat([
@@ -157,10 +165,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   isFetchingQuote,
   isRefetchingQuote,
   quoteError,
+  address,
   swap,
   swapError,
   setSwapError,
-  address,
   progressStep,
   setProgressStep,
   setSteps,
@@ -178,7 +186,9 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   timeEstimate,
   isCanonical,
   feeBreakdown,
-  quoteUpdatedAt
+  quoteUpdatedAt,
+  linkedWallets,
+  multiWalletSupportEnabled
 }) => {
   useEffect(() => {
     if (!open) {
@@ -216,8 +226,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       onOpenChange={onOpenChange}
       css={{
         overflow: 'hidden',
-        p: isReviewQuoteStep ? '4' : '5',
-        maxWidth: '400px !important'
+        p: '4',
+        maxWidth: '412px !important'
       }}
       showCloseButton={isReviewQuoteStep}
     >
@@ -229,8 +239,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
           gap: isReviewQuoteStep ? '3' : '4'
         }}
       >
-        <Text style="h5" css={{ mb: 8 }}>
-          {isReviewQuoteStep ? 'Review Quote' : 'Swap Details'}
+        <Text style="h6" css={{ mb: 8 }}>
+          {isReviewQuoteStep ? 'Review Quote' : 'Trade Details'}
         </Text>
 
         {progressStep === TransactionProgressStep.ReviewQuote ? (
@@ -245,6 +255,9 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             quoteUpdatedAt={quoteUpdatedAt}
             quote={quote}
             swap={swap}
+            address={address}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           />
         ) : null}
 

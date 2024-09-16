@@ -1,22 +1,20 @@
-import { Flex, Button, Text, Box, ChainIcon } from '../../primitives/index.js'
-import { useState, type FC } from 'react'
+import { Flex, Button, Text, Box } from '../../primitives/index.js'
+import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
-import TokenSelector from '../../common/TokenSelector.js'
+import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import type { Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import type { Execute } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
-import Tooltip from '../../primitives/Tooltip.js'
 import SwapWidgetRenderer from '../SwapWidgetRenderer.js'
 import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
@@ -25,8 +23,21 @@ import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
+import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
+import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
+import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
+import { findSupportedWallet } from '../../../utils/solana.js'
 
-type SwapWidgetProps = {
+export type LinkedWallet = {
+  address: string
+  vmType: ChainVM
+  walletLogoUrl?: string
+}
+
+type BaseSwapWidgetProps = {
   defaultFromToken?: Token
   defaultToToken?: Token
   defaultToAddress?: Address
@@ -34,6 +45,7 @@ type SwapWidgetProps = {
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
+  wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -41,6 +53,22 @@ type SwapWidgetProps = {
   onSwapSuccess?: (data: Execute) => void
   onSwapError?: (error: string, data?: Execute) => void
 }
+
+type MultiWalletDisabledProps = BaseSwapWidgetProps & {
+  multiWalletSupportEnabled?: false
+  linkedWallets?: never
+  onSetPrimaryWallet?: never
+  onLinkNewWallet?: never
+}
+
+type MultiWalletEnabledProps = BaseSwapWidgetProps & {
+  multiWalletSupportEnabled: true
+  linkedWallets: LinkedWallet[]
+  onSetPrimaryWallet?: (address: string) => void
+  onLinkNewWallet: () => void
+}
+
+export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
 
 const SwapWidget: FC<SwapWidgetProps> = ({
   defaultFromToken,
@@ -50,6 +78,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultTradeType,
   lockToToken = false,
   lockFromToken = false,
+  wallet,
+  multiWalletSupportEnabled = false,
+  linkedWallets,
+  onSetPrimaryWallet,
+  onLinkNewWallet,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
@@ -59,6 +92,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 }) => {
   const relayClient = useRelayClient()
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
   const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
@@ -80,6 +114,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
+      wallet={wallet}
+      multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
     >
@@ -121,8 +157,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ctaCopy,
         isFromETH,
         timeEstimate,
-        isSolanaSwap,
-        isValidSolanaRecipient,
+        isSvmSwap,
+        isValidFromAddress,
+        isValidToAddress,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -132,7 +169,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
-          if (token?.chainId !== 792703809 && isValidSolanaRecipient) {
+          const toChain = relayClient?.chains?.find(
+            (chain) => chain.id === toToken?.chainId
+          )
+          if (toChain?.vmType !== 'svm' && isValidToAddress) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -147,13 +187,78 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           (chain) => chain.id === toToken?.chainId
         )
 
+        const fromTokenSelectorOpenState = useState(false)
+        const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
+          'token' | 'chain'
+        >('token')
+
+        const toTokenSelectorOpenState = useState(false)
+        const [toTokenSelectorType, setToTokenSelectorType] = useState<
+          'token' | 'chain'
+        >('token')
+
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            fromChain &&
+            address &&
+            linkedWallets &&
+            !isValidFromAddress
+          ) {
+            const supportedAddress = findSupportedWallet(
+              fromChain.vmType,
+              address,
+              linkedWallets
+            )
+            if (supportedAddress) {
+              onSetPrimaryWallet?.(supportedAddress)
+            }
+          }
+        }, [
+          multiWalletSupportEnabled,
+          fromChain,
+          address,
+          linkedWallets,
+          onSetPrimaryWallet,
+          isValidFromAddress
+        ])
+
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            linkedWallets &&
+            !isValidToAddress
+          ) {
+            const supportedAddress = findSupportedWallet(
+              toChain.vmType,
+              customToAddress,
+              linkedWallets
+            )
+            if (supportedAddress) {
+              setCustomToAddress(supportedAddress)
+            }
+          }
+        }, [
+          multiWalletSupportEnabled,
+          toChain,
+          customToAddress,
+          linkedWallets,
+          setCustomToAddress,
+          isValidToAddress
+        ])
+
         return (
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
-            isSolanaSwap={isSolanaSwap}
+            addressModalOpen={addressModalOpen}
+            setAddressModalOpen={setAddressModalOpen}
+            isSvmSwap={isSvmSwap}
             fromToken={fromToken}
+            fromChain={fromChain}
             toToken={toToken}
+            toChain={toChain}
             swapError={swapError}
             price={price}
             address={address}
@@ -175,30 +280,104 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
+            wallet={wallet}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           >
-            {({ setAddressModalOpen }) => {
+            {() => {
               return (
-                <>
-                  <TokenSelectorContainer>
-                    <Flex align="center" css={{ gap: '2' }}>
-                      <Text style="subtitle1">From</Text>
-                      {fromChain ? (
-                        <Flex align="center" css={{ gap: '1' }}>
-                          <ChainIcon
-                            chainId={fromToken?.chainId}
-                            width={16}
-                            height={16}
-                          />
-                          <Text style="subtitle2" color="subtle">
-                            {fromChain?.displayName}
-                          </Text>
-                        </Flex>
+                <Flex
+                  direction="column"
+                  css={{
+                    width: '100%',
+                    overflow: 'hidden',
+                    border: 'widget-border',
+                    minWidth: 300,
+                    maxWidth: 408
+                  }}
+                >
+                  <TokenSelectorContainer
+                    css={{ backgroundColor: 'widget-background' }}
+                  >
+                    <Flex
+                      align="center"
+                      justify="between"
+                      css={{ gap: '2', width: '100%' }}
+                    >
+                      <Text style="subtitle2" color="subtle">
+                        From
+                      </Text>
+
+                      {multiWalletSupportEnabled === true && address ? (
+                        <MultiWalletDropdown
+                          context="origin"
+                          selectedWalletAddress={address} // @TODO: update to use AdaptedWallet
+                          onSelect={(wallet) =>
+                            onSetPrimaryWallet?.(wallet.address)
+                          }
+                          vmType={fromChain?.vmType}
+                          onLinkNewWallet={onLinkNewWallet!}
+                          setAddressModalOpen={setAddressModalOpen}
+                          wallets={linkedWallets!}
+                        />
                       ) : null}
                     </Flex>
+                    <ChainTrigger
+                      token={fromToken}
+                      chain={fromChain}
+                      onClick={() => {
+                        setFromTokenSelectorType('chain')
+                        fromTokenSelectorOpenState[1](
+                          !fromTokenSelectorOpenState[0]
+                        )
+                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
+                          type: 'chain',
+                          direction: 'input'
+                        })
+                      }}
+                    />
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
+                      <AmountInput
+                        value={
+                          tradeType === 'EXACT_INPUT'
+                            ? amountInputValue
+                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
+                        }
+                        setValue={(e) => {
+                          setAmountInputValue(e)
+                          setTradeType('EXACT_INPUT')
+                          if (Number(e) === 0) {
+                            setAmountOutputValue('')
+                            debouncedAmountInputControls.flush()
+                          }
+                        }}
+                        onFocus={() => {
+                          onAnalyticEvent?.(EventNames.SWAP_INPUT_FOCUSED)
+                        }}
+                        css={{
+                          fontWeight: '700',
+                          fontSize: 28,
+                          lineHeight: '36px',
+                          py: 0,
+                          color:
+                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                              ? 'text-subtle'
+                              : 'input-color',
+                          _placeholder: {
+                            color:
+                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                                ? 'text-subtle'
+                                : 'input-color'
+                          }
+                        }}
+                      />
                       <TokenSelector
+                        openState={fromTokenSelectorOpenState}
+                        type={fromTokenSelectorType}
+                        address={address}
                         token={fromToken}
-                        locked={lockFromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -217,39 +396,23 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="from"
-                      />
-                      <AmountInput
-                        value={
-                          tradeType === 'EXACT_INPUT'
-                            ? amountInputValue
-                            : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
+                        size={
+                          fromTokenSelectorType === 'chain'
+                            ? 'mobile'
+                            : 'desktop'
                         }
-                        setValue={(e) => {
-                          setAmountInputValue(e)
-                          setTradeType('EXACT_INPUT')
-                          if (Number(e) === 0) {
-                            setAmountOutputValue('')
-                            debouncedAmountInputControls.flush()
-                          }
-                        }}
-                        onFocus={() => {
-                          onAnalyticEvent?.(EventNames.SWAP_INPUT_FOCUSED)
-                        }}
-                        css={{
-                          textAlign: 'right',
-                          color:
-                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
-                              ? 'text-subtle'
-                              : 'input-color',
-                          _placeholder: {
-                            color:
-                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
-                                ? 'text-subtle'
-                                : 'input-color'
-                          }
-                        }}
+                        trigger={
+                          <div
+                            style={{ width: 'max-content' }}
+                            onClick={() => setFromTokenSelectorType('token')}
+                          >
+                            <SwapWidgetTokenTrigger
+                              token={fromToken}
+                              locked={lockFromToken}
+                            />
+                          </div>
+                        }
                       />
                     </Flex>
                     <Flex
@@ -257,7 +420,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      <Flex align="center" css={{ gap: '3' }}>
+                      {price?.details?.currencyIn?.amountUsd &&
+                      Number(price.details.currencyIn.amountUsd) > 0 ? (
+                        <Text style="subtitle3" color="subtle">
+                          {formatDollar(
+                            Number(price.details.currencyIn.amountUsd)
+                          )}
+                        </Text>
+                      ) : null}
+                      <Flex
+                        align="center"
+                        css={{ gap: '3', marginLeft: 'auto' }}
+                      >
                         {fromToken ? (
                           <BalanceDisplay
                             isLoading={isLoadingFromBalance}
@@ -265,6 +439,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             decimals={fromToken?.decimals}
                             symbol={fromToken?.symbol}
                             hasInsufficientBalance={hasInsufficientBalance}
+                            displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -293,35 +473,32 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </AnchorButton>
                         ) : null}
                       </Flex>
-                      {price?.details?.currencyIn?.amountUsd &&
-                      Number(price.details.currencyIn.amountUsd) > 0 ? (
-                        <Text style="subtitle3" color="subtle">
-                          {formatDollar(
-                            Number(price.details.currencyIn.amountUsd)
-                          )}
-                        </Text>
-                      ) : null}
                     </Flex>
                   </TokenSelectorContainer>
                   <Box
                     css={{
                       position: 'relative',
-                      my: -10,
+                      my: -15,
                       mx: 'auto',
-                      height: hasLockedToken ? 30 : 40
+                      height: 36,
+                      width: 36
                     }}
                   >
-                    {hasLockedToken || isSolanaSwap ? null : (
+                    {hasLockedToken ||
+                    (isSvmSwap && !multiWalletSupportEnabled) ? null : (
                       <Button
-                        size="small"
+                        size="none"
                         color="white"
                         css={{
+                          mt: '4px',
                           color: 'gray9',
                           alignSelf: 'center',
-                          px: '2',
-                          py: '2',
-                          borderWidth: '2px !important',
-                          minHeight: 30,
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%',
+                          '--borderColor':
+                            'colors.widget-swap-currency-button-border-color',
+                          border: '4px solid var(--borderColor)',
                           zIndex: 10
                         }}
                         onClick={() => {
@@ -351,25 +528,35 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Button>
                     )}
                   </Box>
-                  <TokenSelectorContainer>
-                    <Flex css={{ width: '100%' }} justify="between">
-                      <Flex align="center" css={{ gap: '2' }}>
-                        <Text style="subtitle1">To</Text>
-                        {toChain ? (
-                          <Flex align="center" css={{ gap: '1' }}>
-                            <ChainIcon
-                              chainId={toToken?.chainId}
-                              width={16}
-                              height={16}
-                            />
-                            <Text style="subtitle2" color="subtle">
-                              {toChain?.displayName}
-                            </Text>
-                          </Flex>
-                        ) : null}
-                      </Flex>
+                  <TokenSelectorContainer
+                    css={{ backgroundColor: 'widget-background', mb: '6px' }}
+                  >
+                    <Flex
+                      css={{ width: '100%' }}
+                      align="center"
+                      justify="between"
+                    >
+                      <Text style="subtitle2" color="subtle">
+                        To
+                      </Text>
 
-                      {isMounted && (address || customToAddress) ? (
+                      {multiWalletSupportEnabled === true && recipient ? (
+                        <MultiWalletDropdown
+                          context="destination"
+                          selectedWalletAddress={recipient}
+                          onSelect={(wallet) =>
+                            setCustomToAddress(wallet.address)
+                          }
+                          vmType={toChain?.vmType}
+                          onLinkNewWallet={onLinkNewWallet!}
+                          setAddressModalOpen={setAddressModalOpen}
+                          wallets={linkedWallets!}
+                        />
+                      ) : null}
+
+                      {multiWalletSupportEnabled === false &&
+                      isMounted &&
+                      (address || customToAddress) ? (
                         <AnchorButton
                           css={{
                             display: 'flex',
@@ -383,19 +570,82 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             )
                           }}
                         >
-                          <Text style="subtitle3" css={{ color: 'inherit' }}>
-                            {isSolanaSwap && !isValidSolanaRecipient
-                              ? 'Enter Solana Address'
+                          <Text style="subtitle2" css={{ color: 'inherit' }}>
+                            {isSvmSwap && !isValidToAddress
+                              ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
-                          <FontAwesomeIcon icon={faChevronRight} width={8} />
+                          <Box css={{ color: 'gray8' }}>
+                            <FontAwesomeIcon
+                              icon={faPenToSquare}
+                              width={16}
+                              height={16}
+                            />
+                          </Box>
                         </AnchorButton>
                       ) : null}
                     </Flex>
+                    <ChainTrigger
+                      token={toToken}
+                      chain={toChain}
+                      onClick={() => {
+                        setToTokenSelectorType('chain')
+                        toTokenSelectorOpenState[1](
+                          !toTokenSelectorOpenState[0]
+                        )
+                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
+                          type: 'chain',
+                          direction: 'output'
+                        })
+                      }}
+                    />
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
+                      <AmountInput
+                        value={
+                          tradeType === 'EXACT_OUTPUT'
+                            ? amountOutputValue
+                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
+                        }
+                        setValue={(e) => {
+                          setAmountOutputValue(e)
+                          setTradeType('EXACT_OUTPUT')
+                          if (Number(e) === 0) {
+                            setAmountInputValue('')
+                            debouncedAmountOutputControls.flush()
+                          }
+                        }}
+                        disabled={!toToken}
+                        onFocus={() => {
+                          onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
+                        }}
+                        css={{
+                          fontWeight: '700',
+                          fontSize: 28,
+                          color:
+                            isFetchingPrice && tradeType === 'EXACT_INPUT'
+                              ? 'gray11'
+                              : 'gray12',
+                          _placeholder: {
+                            color:
+                              isFetchingPrice && tradeType === 'EXACT_INPUT'
+                                ? 'gray11'
+                                : 'gray12'
+                          },
+                          _disabled: {
+                            cursor: 'not-allowed',
+                            _placeholder: {
+                              color: 'gray10'
+                            }
+                          }
+                        }}
+                      />
                       <TokenSelector
+                        openState={toTokenSelectorOpenState}
+                        type={toTokenSelectorType}
+                        address={recipient}
                         token={toToken}
-                        locked={lockToToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
@@ -413,47 +663,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="to"
-                        onAnalyticEvent={onAnalyticEvent}
-                      />
-                      <AmountInput
-                        value={
-                          tradeType === 'EXACT_OUTPUT'
-                            ? amountOutputValue
-                            : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
+                        size={
+                          toTokenSelectorType === 'chain' ? 'mobile' : 'desktop'
                         }
-                        setValue={(e) => {
-                          setAmountOutputValue(e)
-                          setTradeType('EXACT_OUTPUT')
-                          if (Number(e) === 0) {
-                            setAmountInputValue('')
-                            debouncedAmountOutputControls.flush()
-                          }
-                        }}
-                        disabled={!toToken}
-                        onFocus={() => {
-                          onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
-                        }}
-                        css={{
-                          color:
-                            isFetchingPrice && tradeType === 'EXACT_INPUT'
-                              ? 'gray11'
-                              : 'gray12',
-                          _placeholder: {
-                            color:
-                              isFetchingPrice && tradeType === 'EXACT_INPUT'
-                                ? 'gray11'
-                                : 'gray12'
-                          },
-                          textAlign: 'right',
-                          _disabled: {
-                            cursor: 'not-allowed',
-                            _placeholder: {
-                              color: 'gray10'
-                            }
-                          }
-                        }}
+                        trigger={
+                          <div
+                            style={{ width: 'max-content' }}
+                            onClick={() => setToTokenSelectorType('token')}
+                          >
+                            <SwapWidgetTokenTrigger
+                              token={toToken}
+                              locked={lockToToken}
+                            />
+                          </div>
+                        }
+                        onAnalyticEvent={onAnalyticEvent}
                       />
                     </Flex>
                     <Flex
@@ -461,16 +686,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      {toToken ? (
-                        <BalanceDisplay
-                          isLoading={isLoadingToBalance}
-                          balance={toBalance}
-                          decimals={toToken?.decimals}
-                          symbol={toToken?.symbol}
-                        />
-                      ) : (
-                        <Flex css={{ height: 18 }} />
-                      )}
                       {price?.details?.currencyOut?.amountUsd &&
                       Number(price.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
@@ -515,9 +730,38 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </PriceImpactTooltip>
                         </Flex>
                       ) : null}
+                      <Flex css={{ marginLeft: 'auto' }}>
+                        {toToken ? (
+                          <BalanceDisplay
+                            isLoading={isLoadingToBalance}
+                            balance={toBalance}
+                            decimals={toToken?.decimals}
+                            symbol={toToken?.symbol}
+                            displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
+                          />
+                        ) : (
+                          <Flex css={{ height: 18 }} />
+                        )}
+                      </Flex>
                     </Flex>
                   </TokenSelectorContainer>
-                  <FetchingQuoteLoader isLoading={isFetchingPrice} />
+                  <FetchingQuoteLoader
+                    isLoading={isFetchingPrice}
+                    containerCss={{
+                      mb: '6px',
+                      mt: 0,
+                      p: '3',
+                      width: '100%',
+                      justifyContent: 'center',
+                      borderRadius: 'widget-card-border-radius',
+                      backgroundColor: 'widget-background'
+                    }}
+                  />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingPrice={isFetchingPrice}
@@ -525,6 +769,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     fromToken={fromToken}
                     price={price}
                     timeEstimate={timeEstimate}
+                    containerCss={{
+                      border: 'none',
+                      borderRadius: 'widget-card-border-radius',
+                      backgroundColor: 'widget-background',
+                      mb: '6px'
+                    }}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
@@ -535,12 +785,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     relayerFeeProportion={relayerFeeProportion}
                     context="swap"
+                    containerCss={{
+                      mb: '6px'
+                    }}
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
-                    invalidSolanaRecipient={
-                      isSolanaSwap && !isValidSolanaRecipient
-                    }
+                    isValidFromAddress={isValidFromAddress}
+                    isValidToAddress={isValidToAddress}
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -554,15 +806,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isSameCurrencySameRecipientSwap
                     }
                     onClick={() => {
-                      if (isSolanaSwap && !isValidSolanaRecipient) {
-                        setAddressModalOpen(true)
+                      // If either address is not valid, open the link wallet modal
+                      if (!isValidToAddress || !isValidFromAddress) {
+                        if (multiWalletSupportEnabled) {
+                          onLinkNewWallet?.()
+                        } else {
+                          setAddressModalOpen(true)
+                        }
                       } else {
                         setTransactionModalOpen(true)
                       }
                     }}
                     ctaCopy={ctaCopy}
                   />
-                </>
+                </Flex>
               )
             }}
           </WidgetContainer>

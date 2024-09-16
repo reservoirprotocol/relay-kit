@@ -1,10 +1,14 @@
 import { NextPage } from 'next'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useState } from 'react'
-import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
-import { Address, isAddress } from 'viem'
+import { Address } from 'viem'
 import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { ConnectButton } from 'components/ConnectButton'
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
+import { isEthereumWallet } from '@dynamic-labs/ethereum'
+import { isSolanaWallet } from '@dynamic-labs/solana'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptViemWallet } from '@reservoir0x/relay-sdk'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -19,8 +23,9 @@ const SwapActionPage: NextPage = () => {
   )
   const [txs, setTxs] = useState<string[]>([])
   const [tx, setTx] = useState<string>('')
-  const { data: wallet } = useWalletClient()
   const client = useRelayClient()
+
+  const { primaryWallet } = useDynamicContext()
 
   return (
     <div
@@ -181,19 +186,40 @@ const SwapActionPage: NextPage = () => {
           cursor: 'pointer'
         }}
         onClick={async () => {
-          if (!wallet) {
+          if (!primaryWallet) {
             throw 'Please connect to execute transactions'
           }
-          if (recipient && !isAddress(recipient)) {
-            throw 'Recipient must be an address'
-          }
+
           if (!amount) {
             throw 'Must include an amount for swapping'
           }
 
+          let executionWallet
+
+          if (fromChainId === 792703809 && isSolanaWallet(primaryWallet)) {
+            const connection = await primaryWallet.getConnection()
+            const signer = await primaryWallet.getSigner()
+
+            if (!connection || !signer?.signTransaction) {
+              throw 'Unable to setup Solana wallet'
+            }
+
+            executionWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              792703809,
+              connection,
+              signer.signAndSendTransaction
+            )
+          } else if (isEthereumWallet(primaryWallet)) {
+            const walletClient = await primaryWallet.getWalletClient()
+            executionWallet = adaptViemWallet(walletClient)
+          } else {
+            throw 'Unable to configure wallet'
+          }
+
           const quote = await client?.actions.getQuote({
             chainId: fromChainId,
-            wallet,
+            wallet: executionWallet,
             toChainId,
             toCurrency,
             amount,
@@ -207,7 +233,7 @@ const SwapActionPage: NextPage = () => {
           }
           client?.actions.execute({
             quote,
-            wallet,
+            wallet: executionWallet,
             depositGasLimit,
             onProgress: (data) => {
               console.log(data)

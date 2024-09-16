@@ -56,6 +56,7 @@ export const Colors = {
   yellow12: { value: '{colors.yellow.12}' },
   // Amber
   amber2: { value: '{colors.amber.2}' },
+  amber3: { value: '{colors.amber.3}' },
   amber9: { value: '{colors.amber.9}' },
   amber10: { value: '{colors.amber.10}' },
   amber11: { value: '{colors.amber.11}' },
@@ -214,6 +215,9 @@ export default defineConfig({
           value: { base: 'white', _dark: '{colors.gray.1}' }
         },
         'widget-card-background': { value: { base: '{colors.gray.1}' } },
+        'widget-swap-currency-button-border-color': {
+          value: { base: '{colors.primary3}' }
+        },
 
         // Modal
         'modal-background': {
