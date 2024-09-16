@@ -62,14 +62,15 @@ export const CustomAddressModal: FC<Props> = ({
     }
   }
 
-  const connectedAddressSet =
-    (!address && !toAddress) ||
-    (toAddress === connectedAddress && address === connectedAddress)
-
   const availableWallets = useMemo(
     () => linkedWallets.filter((wallet) => isValidAddress(wallet.address)),
     [toChain, linkedWallets]
   )
+
+  const connectedAddressSet =
+    (!address && !toAddress) ||
+    (toAddress === connectedAddress && address === connectedAddress) ||
+    availableWallets.some((wallet) => wallet.address === toAddress)
 
   useEffect(() => {
     if (!open) {
@@ -162,7 +163,7 @@ export const CustomAddressModal: FC<Props> = ({
             </Text>
           ) : null}
 
-          {!connectedAddressSet && isConnected && !isSvmSwap ? (
+          {!connectedAddressSet && isConnected ? (
             <Flex
               css={{ bg: 'amber2', p: '2', borderRadius: 8, gap: '2' }}
               align="center"
