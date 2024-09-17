@@ -4,6 +4,7 @@ import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import {
   useDynamicContext,
+  useDynamicEvents,
   useDynamicModals,
   useSwitchWallet,
   useUserWallets
@@ -13,12 +14,13 @@ import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { AdaptedWallet, adaptViemWallet } from '@reservoir0x/relay-sdk'
-import { useWalletFilter } from 'pages/context/walletFilter'
+import { useWalletFilter } from 'context/walletFilter'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
 
 const SwapWidgetPage: NextPage = () => {
+  useDynamicEvents('walletAdded', () => {})
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
@@ -26,6 +28,7 @@ const SwapWidgetPage: NextPage = () => {
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
   const [wallet, setWallet] = useState<AdaptedWallet | undefined>()
+  const [pendingPromise, setPendingPromise] = useState<any>()
 
   const linkedWallets = useMemo(() => {
     return userWallets.map((wallet) => {
@@ -130,6 +133,8 @@ const SwapWidgetPage: NextPage = () => {
               setWalletFilter(undefined)
             }
             setShowLinkNewWalletModal(true)
+
+            // return new Promise((resolve) => {})
           }}
           onSetPrimaryWallet={async (address) => {
             const newPrimaryWallet = userWallets?.find(
