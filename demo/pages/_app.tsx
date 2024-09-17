@@ -25,10 +25,7 @@ import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
-import {
-  useWalletFilter,
-  WalletFilterProvider
-} from 'pages/context/walletFilter'
+import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 
 type AppWrapperProps = {
   children: ReactNode
