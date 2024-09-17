@@ -48,16 +48,23 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
     [wallets, selectedWalletAddress]
   )
 
+  const showDropdown = context !== 'origin' || filteredWallets.length > 0
+
   return (
     <Dropdown
-      open={open}
-      onOpenChange={(open) => setOpen(open)}
+      open={showDropdown ? open : false}
+      onOpenChange={(open) => showDropdown && setOpen(open)}
       trigger={
         <Button
           aria-label={`Multi wallet dropdown`}
           color={
             !selectedWallet && selectedWalletAddress ? 'warning' : 'secondary'
           }
+          onClick={() => {
+            if (!showDropdown) {
+              onLinkNewWallet()
+            }
+          }}
           size="none"
           corners="pill"
           css={{
@@ -94,16 +101,18 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                 : 'Select wallet'}
             </Text>
           </Flex>
-          <Box
-            css={{
-              color:
-                !selectedWallet && selectedWalletAddress
-                  ? 'amber11'
-                  : 'secondary-button-color'
-            }}
-          >
-            <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />
-          </Box>
+          {showDropdown && (
+            <Box
+              css={{
+                color:
+                  !selectedWallet && selectedWalletAddress
+                    ? 'amber11'
+                    : 'secondary-button-color'
+              }}
+            >
+              <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />
+            </Box>
+          )}
         </Button>
       }
       contentProps={{

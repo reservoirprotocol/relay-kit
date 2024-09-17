@@ -213,6 +213,7 @@ export const CustomAddressModal: FC<Props> = ({
               <Flex css={{ gap: '2', flexWrap: 'wrap' }} align="center">
                 {availableWallets.map((wallet) => (
                   <Pill
+                    key={wallet.address}
                     color="transparent"
                     bordered
                     radius="squared"
