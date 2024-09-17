@@ -153,7 +153,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               <Flex align="center" css={{ gap: '1', color: 'gray8' }}>
                 <Text
                   style="subtitle2"
-                  color="subtle"
                   css={{
                     color: isHighPriceImpact ? 'red11' : undefined
                   }}
@@ -186,9 +185,10 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '1',
-            p: '1',
-            lineHeight: '20px',
-            minHeight: 24
+            py: '2px',
+            px: '2',
+            lineHeight: '17px',
+            minHeight: 21
           }}
           onClick={() => {
             window.open(
@@ -222,9 +222,10 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '1',
-            p: '1',
-            lineHeight: '20px',
-            minHeight: 24
+            py: '2px',
+            px: '2',
+            lineHeight: '17px',
+            minHeight: 21
           }}
           onClick={() => {
             window.open(
