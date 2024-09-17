@@ -56,7 +56,7 @@ const SwapWidgetPage: NextPage = () => {
     | {
         resolve: (value: LinkedWallet) => void
         reject: () => void
-        params: { chain: RelayChain; direction: 'to' | 'from' }
+        params: { chain?: RelayChain; direction: 'to' | 'from' }
       }
     | undefined
   >()
@@ -175,7 +175,7 @@ const SwapWidgetPage: NextPage = () => {
             } else {
               setWalletFilter(undefined)
             }
-            const promise = new Promise((resolve, reject) => {
+            const promise = new Promise<LinkedWallet>((resolve, reject) => {
               setLinkWalletPromise({
                 resolve,
                 reject,
