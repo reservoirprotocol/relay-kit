@@ -13,11 +13,13 @@ import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { AdaptedWallet, adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { useWalletFilter } from 'pages/context/walletFilter'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
 
 const SwapWidgetPage: NextPage = () => {
+  const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
   const switchWallet = useSwitchWallet()
@@ -119,7 +121,16 @@ const SwapWidgetPage: NextPage = () => {
           wallet={wallet}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
-          onLinkNewWallet={() => setShowLinkNewWalletModal(true)}
+          onLinkNewWallet={({ chain }) => {
+            if (chain?.vmType === 'evm') {
+              setWalletFilter('EVM')
+            } else if (chain?.id === 792703809) {
+              setWalletFilter('SOL')
+            } else {
+              setWalletFilter(undefined)
+            }
+            setShowLinkNewWalletModal(true)
+          }}
           onSetPrimaryWallet={async (address) => {
             const newPrimaryWallet = userWallets?.find(
               (wallet) => wallet.address === address
@@ -129,7 +140,9 @@ const SwapWidgetPage: NextPage = () => {
               switchWallet(newPrimaryWallet?.id)
             }
           }}
-          onConnectWallet={() => setShowAuthFlow(true)}
+          onConnectWallet={() => {
+            setShowAuthFlow(true)
+          }}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}
