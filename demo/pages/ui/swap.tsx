@@ -119,7 +119,9 @@ const SwapWidgetPage: NextPage = () => {
           wallet={wallet}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
-          onLinkNewWallet={() => setShowLinkNewWalletModal(true)}
+          onLinkNewWallet={() => {
+            setShowLinkNewWalletModal(true)
+          }}
           onSetPrimaryWallet={async (address) => {
             const newPrimaryWallet = userWallets?.find(
               (wallet) => wallet.address === address
@@ -129,7 +131,9 @@ const SwapWidgetPage: NextPage = () => {
               switchWallet(newPrimaryWallet?.id)
             }
           }}
-          onConnectWallet={() => setShowAuthFlow(true)}
+          onConnectWallet={() => {
+            setShowAuthFlow(true)
+          }}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}
