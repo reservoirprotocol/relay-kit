@@ -169,12 +169,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
-          const toChain = relayClient?.chains?.find(
-            (chain) => chain.id === toToken?.chainId
-          )
-          if (toChain?.vmType !== 'svm' && isValidToAddress) {
-            setCustomToAddress(address ?? undefined)
-          }
           setToToken(token)
           onToTokenChange?.(token)
         }
@@ -235,6 +229,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               customToAddress,
               linkedWallets
             )
+
             if (supportedAddress) {
               setCustomToAddress(supportedAddress)
             }
@@ -342,8 +337,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -605,8 +600,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
