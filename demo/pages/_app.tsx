@@ -15,13 +15,17 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
-import { DynamicContextProvider } from '@dynamic-labs/sdk-react-core'
+import {
+  DynamicContextProvider,
+  FilterChain
+} from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
+import { SdkViewSectionType, SdkViewType } from '@dynamic-labs/sdk-api'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -153,6 +157,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors
             ],
+            cssOverrides: `
+              [data-testid="send-balance-button"] {
+                display: none;
+              }
+            `,
             overrides: {
               evmNetworks: () => {
                 return (
