@@ -211,7 +211,7 @@ export const CustomAddressModal: FC<Props> = ({
           {multiWalletSupportEnabled && linkedWallets.length > 0 ? (
             <>
               <Text style="subtitle2">Use connected wallet address</Text>
-              <Flex css={{ gap: '2' }} align="center">
+              <Flex css={{ gap: '2', flexWrap: 'wrap' }} align="center">
                 {availableWallets.map((wallet) => (
                   <Pill
                     color="transparent"
