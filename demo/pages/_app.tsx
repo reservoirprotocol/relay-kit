@@ -25,7 +25,10 @@ import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
-import { SdkViewSectionType, SdkViewType } from '@dynamic-labs/sdk-api'
+import {
+  useWalletFilter,
+  WalletFilterProvider
+} from 'pages/context/walletFilter'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -36,6 +39,7 @@ const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 const queryClient = new QueryClient()
 
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
+  const { walletFilter, setWalletFilter } = useWalletFilter()
   const [wagmiConfig, setWagmiConfig] = useState<
     ReturnType<typeof createConfig> | undefined
   >()
@@ -162,6 +166,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
                 display: none;
               }
             `,
+            walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
                 return (
@@ -174,7 +179,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
                 )
               }
             },
-            initialAuthenticationMode: 'connect-only'
+            initialAuthenticationMode: 'connect-only',
+            events: {
+              onAuthFlowClose: () => {
+                setWalletFilter(undefined)
+              }
+            }
           }}
         >
           <WagmiProvider config={wagmiConfig}>
@@ -188,11 +198,13 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppWrapper>
-        <Component {...pageProps} />
-      </AppWrapper>
-    </QueryClientProvider>
+    <WalletFilterProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppWrapper>
+          <Component {...pageProps} />
+        </AppWrapper>
+      </QueryClientProvider>
+    </WalletFilterProvider>
   )
 }
 

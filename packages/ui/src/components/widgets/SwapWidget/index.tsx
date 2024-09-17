@@ -11,7 +11,7 @@ import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -65,7 +65,7 @@ type MultiWalletEnabledProps = BaseSwapWidgetProps & {
   multiWalletSupportEnabled: true
   linkedWallets: LinkedWallet[]
   onSetPrimaryWallet?: (address: string) => void
-  onLinkNewWallet: () => void
+  onLinkNewWallet: (params: { chain?: RelayChain }) => void
 }
 
 export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
@@ -311,7 +311,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             onSetPrimaryWallet?.(wallet.address)
                           }
                           vmType={fromChain?.vmType}
-                          onLinkNewWallet={onLinkNewWallet!}
+                          onLinkNewWallet={() => {
+                            onLinkNewWallet?.({
+                              chain: fromChain
+                            })
+                          }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
                         />
@@ -337,8 +341,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -543,7 +547,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             setCustomToAddress(wallet.address)
                           }
                           vmType={toChain?.vmType}
-                          onLinkNewWallet={onLinkNewWallet!}
+                          onLinkNewWallet={() => {
+                            onLinkNewWallet?.({
+                              chain: toChain
+                            })
+                          }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
                         />
@@ -600,8 +608,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -804,7 +812,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       // If either address is not valid, open the link wallet modal
                       if (!isValidToAddress || !isValidFromAddress) {
                         if (multiWalletSupportEnabled) {
-                          onLinkNewWallet?.()
+                          const chain = !isValidFromAddress
+                            ? fromChain
+                            : toChain
+                          onLinkNewWallet?.({
+                            chain: chain
+                          })
                         } else {
                           setAddressModalOpen(true)
                         }
