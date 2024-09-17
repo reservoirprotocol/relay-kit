@@ -67,8 +67,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const client = useRelayClient()
   const details = quote?.details
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
-  const connectedWalletIsNotRecipient =
-    quote && address !== quote?.details?.recipient
 
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
@@ -85,6 +83,9 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const toWallet = linkedWallets?.find(
     (wallet) => wallet.address === quote?.details?.recipient
   )
+
+  const connectedWalletIsNotRecipient =
+    quote && address !== quote?.details?.recipient && !toWallet
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
