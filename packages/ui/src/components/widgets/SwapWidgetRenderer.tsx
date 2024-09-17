@@ -5,7 +5,8 @@ import {
   useENSResolver,
   useRelayClient,
   useDebounceState,
-  useWalletAddress
+  useWalletAddress,
+  useDisconnected
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, isAddress, parseUnits } from 'viem'
@@ -336,6 +337,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : undefined
     }
   )
+
+  useDisconnected(address, () => {
+    setCustomToAddress(undefined)
+  })
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
