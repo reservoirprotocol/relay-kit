@@ -114,8 +114,6 @@ const SwapWidgetPage: NextPage = () => {
     adaptWallet()
   }, [primaryWallet])
 
-  console.log('wallets', userWallets)
-
   return (
     <Layout
       styles={{
@@ -193,7 +191,6 @@ const SwapWidgetPage: NextPage = () => {
             const maxAttempts = 20
             let attemptCount = 0
             const timer = setInterval(async () => {
-              console.log('ATTEMPT', userWallets)
               attemptCount++
               const newPrimaryWallet = wallets.current?.find(
                 (wallet) => wallet.address === address

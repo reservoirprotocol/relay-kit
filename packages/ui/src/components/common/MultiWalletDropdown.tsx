@@ -8,6 +8,7 @@ import { faChevronDown, faWallet } from '@fortawesome/free-solid-svg-icons'
 import type { ChainVM } from '@reservoir0x/relay-sdk'
 import { solanaAddressRegex } from '../../utils/solana.js'
 import { isAddress } from 'viem'
+import { useENSResolver } from '../../hooks/index.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
@@ -49,6 +50,10 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   )
 
   const showDropdown = context !== 'origin' || filteredWallets.length > 0
+
+  const { displayName } = useENSResolver(selectedWalletAddress, {
+    enabled: vmType === 'evm'
+  })
 
   return (
     <Dropdown
@@ -97,7 +102,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               }}
             >
               {isSupportedSelectedWallet
-                ? truncateAddress(selectedWalletAddress)
+                ? displayName && vmType === 'evm'
+                  ? displayName
+                  : truncateAddress(selectedWalletAddress)
                 : 'Select wallet'}
             </Text>
           </Flex>
