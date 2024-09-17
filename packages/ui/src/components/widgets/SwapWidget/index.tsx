@@ -309,7 +309,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       {multiWalletSupportEnabled === true && address ? (
                         <MultiWalletDropdown
                           context="origin"
-                          selectedWalletAddress={address} // @TODO: update to use AdaptedWallet
+                          selectedWalletAddress={address}
                           onSelect={(wallet) =>
                             onSetPrimaryWallet?.(wallet.address)
                           }
