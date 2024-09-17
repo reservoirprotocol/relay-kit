@@ -65,7 +65,10 @@ type MultiWalletEnabledProps = BaseSwapWidgetProps & {
   multiWalletSupportEnabled: true
   linkedWallets: LinkedWallet[]
   onSetPrimaryWallet?: (address: string) => void
-  onLinkNewWallet: (params: { chain?: RelayChain }) => void
+  onLinkNewWallet: (params: {
+    chain?: RelayChain
+    direction: 'to' | 'from'
+  }) => Promise<LinkedWallet> | void
 }
 
 export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
@@ -313,7 +316,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           vmType={fromChain?.vmType}
                           onLinkNewWallet={() => {
                             onLinkNewWallet?.({
-                              chain: fromChain
+                              chain: fromChain,
+                              direction: 'from'
+                            })?.then((wallet) => {
+                              onSetPrimaryWallet?.(wallet.address)
                             })
                           }}
                           setAddressModalOpen={setAddressModalOpen}
@@ -549,7 +555,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           vmType={toChain?.vmType}
                           onLinkNewWallet={() => {
                             onLinkNewWallet?.({
-                              chain: toChain
+                              chain: toChain,
+                              direction: 'to'
+                            })?.then((wallet) => {
+                              setCustomToAddress(wallet.address)
                             })
                           }}
                           setAddressModalOpen={setAddressModalOpen}
@@ -816,7 +825,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             ? fromChain
                             : toChain
                           onLinkNewWallet?.({
-                            chain: chain
+                            chain: chain,
+                            direction: !isValidFromAddress ? 'from' : 'to'
+                          })?.then((wallet) => {
+                            if (!isValidFromAddress) {
+                              onSetPrimaryWallet?.(wallet.address)
+                            } else {
+                              setCustomToAddress(wallet.address)
+                            }
                           })
                         } else {
                           setAddressModalOpen(true)

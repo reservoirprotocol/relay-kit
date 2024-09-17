@@ -5,7 +5,8 @@ import {
   useENSResolver,
   useRelayClient,
   useDebounceState,
-  useWalletAddress
+  useWalletAddress,
+  useDisconnected
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, isAddress, parseUnits } from 'viem'
@@ -256,8 +257,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? address
         : evmDeadAddress
       : address && isSolanaAddress(address)
-        ? address
-        : solDeadAddress
+      ? address
+      : solDeadAddress
 
   const isValidToAddress =
     toChain?.vmType === 'evm'
@@ -270,8 +271,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? recipient
         : evmDeadAddress
       : recipient && isSolanaAddress(recipient)
-        ? recipient
-        : solDeadAddress
+      ? recipient
+      : solDeadAddress
 
   const {
     data: price,
@@ -336,6 +337,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : undefined
     }
   )
+
+  useDisconnected(address, () => {
+    setCustomToAddress(undefined)
+  })
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
@@ -431,9 +436,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
   } else if (multiWalletSupportEnabled && !isValidFromAddress) {
-    ctaCopy = `Connect ${fromChain?.displayName} Address`
+    ctaCopy = `Select ${fromChain?.displayName} wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = `Connect ${toChain?.displayName} Address`
+    ctaCopy = `Select ${toChain?.displayName} wallet`
   } else if (isSvmSwap && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
