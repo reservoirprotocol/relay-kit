@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useENSResolver, useWalletAddress } from '../../hooks/index.js'
 import { isENSName } from '../../utils/ens.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
-import { useAccount } from 'wagmi'
 import { EventNames } from '../../constants/events.js'
 import { solanaAddressRegex } from '../../utils/solana.js'
 import type { Token } from '../../types/index.js'
@@ -214,6 +213,7 @@ export const CustomAddressModal: FC<Props> = ({
               <Flex css={{ gap: '2', flexWrap: 'wrap' }} align="center">
                 {availableWallets.map((wallet) => (
                   <Pill
+                    key={wallet.address}
                     color="transparent"
                     bordered
                     radius="squared"

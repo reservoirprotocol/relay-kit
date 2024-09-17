@@ -1,4 +1,3 @@
-import { mainnet } from 'wagmi/chains'
 import { truncateAddress, truncateEns } from '../utils/truncate.js'
 import {
   useQuery,
@@ -23,19 +22,13 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
-export default (
-  address?: string,
-  chainId: number = 1,
-  queryOptions?: Partial<QueryOptions>
-) => {
+export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const addressLowercase = address?.toLowerCase()
-  const isENSAvailable =
-    chainId === mainnet.id && addressLowercase?.includes('0x')
   const url = `https://api.ensideas.com/ens/resolve/${addressLowercase}`
   const response = (useQuery as QueryType)({
-    queryKey: ['useENSResolver', address, chainId],
+    queryKey: ['useENSResolver', address],
     queryFn: () => fetch(url).then((response) => response.json()),
-    enabled: address && chainId && isENSAvailable ? true : false,
+    enabled: address ? true : false,
     ...queryOptions
   })
 

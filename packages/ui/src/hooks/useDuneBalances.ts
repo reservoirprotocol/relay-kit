@@ -101,16 +101,16 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const balanceMap = response.data?.balances?.reduce(
     (balanceMap, balance) => {
       if (balance.address === 'native') {
-        balance.address = zeroAddress
+        balance.address =
+          balance.chain === 'solana'
+            ? '11111111111111111111111111111111'
+            : zeroAddress
       }
       let chainId = balance.chain_id
       if (!chainId && balance.chain === 'solana') {
         chainId = solana.id
       }
-      //TODO: Remove temporary fix for SOL dune bug
-      if (balance.address === 'So11111111111111111111111111111111111111112') {
-        balance.address = '11111111111111111111111111111111'
-      }
+
       balanceMap[`${chainId}:${balance.address}`] = balance
       return balanceMap
     },
