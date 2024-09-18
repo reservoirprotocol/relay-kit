@@ -139,7 +139,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
@@ -319,8 +319,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -374,7 +374,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 if (fromToken) {
                                   setAmountInputValue(
                                     formatUnits(
-                                      isFromETH
+                                      isFromNative
                                         ? (fromBalance * 99n) / 100n
                                         : fromBalance,
                                       fromToken?.decimals
@@ -487,8 +487,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             tradeType === 'EXACT_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
