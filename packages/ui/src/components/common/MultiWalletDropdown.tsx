@@ -4,7 +4,7 @@ import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import type { ChainVM } from '@reservoir0x/relay-sdk'
 import { solanaAddressRegex } from '../../utils/solana.js'
 import { isAddress } from 'viem'
@@ -104,7 +104,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               />
             ) : selectedWalletAddress && !selectedWallet ? (
               <Box css={{ color: 'amber11' }}>
-                <FontAwesomeIcon icon={faWallet} width={16} height={16} />
+                <FontAwesomeIcon icon={faClipboard} width={16} height={16} />
               </Box>
             ) : null}
             <Text
