@@ -5,7 +5,7 @@ import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 import { useAccount } from 'wagmi'
-import type { LinkedWallet } from '../widgets/SwapWidget/index.js'
+import type { LinkedWallet } from '../../types/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean

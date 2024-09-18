@@ -4,14 +4,14 @@ import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
-import type { Token } from '../../../types/index.js'
+import type { LinkedWallet, Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -30,12 +30,6 @@ import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/solana.js'
-
-export type LinkedWallet = {
-  address: string
-  vmType: ChainVM
-  walletLogoUrl?: string
-}
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -118,6 +112,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
       wallet={wallet}
+      linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
@@ -218,32 +213,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           linkedWallets,
           onSetPrimaryWallet,
           isValidFromAddress
-        ])
-
-        useEffect(() => {
-          if (
-            multiWalletSupportEnabled &&
-            toChain &&
-            linkedWallets &&
-            !isValidToAddress
-          ) {
-            const supportedAddress = findSupportedWallet(
-              toChain.vmType,
-              customToAddress,
-              linkedWallets
-            )
-
-            if (supportedAddress) {
-              setCustomToAddress(supportedAddress)
-            }
-          }
-        }, [
-          multiWalletSupportEnabled,
-          toChain,
-          customToAddress,
-          linkedWallets,
-          setCustomToAddress,
-          isValidToAddress
         ])
 
         return (

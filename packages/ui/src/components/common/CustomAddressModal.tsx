@@ -15,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { AnchorButton } from '../primitives/Anchor.js'
 import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
-import type { LinkedWallet } from '../widgets/SwapWidget/index.js'
+import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 
 type Props = {
@@ -48,7 +48,7 @@ export const CustomAddressModal: FC<Props> = ({
   onConfirmed,
   onClear
 }) => {
-  const connectedAddress = useWalletAddress(wallet)
+  const connectedAddress = useWalletAddress(wallet, linkedWallets)
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
 

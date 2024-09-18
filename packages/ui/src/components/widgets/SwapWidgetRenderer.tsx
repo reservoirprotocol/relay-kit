@@ -9,7 +9,7 @@ import {
   useDisconnected
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, isAddress, parseUnits, zeroAddress } from 'viem'
+import { formatUnits, isAddress, parseUnits } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
@@ -27,8 +27,9 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import { isSolanaAddress } from '../../utils/solana.js'
+import { findSupportedWallet, isSolanaAddress } from '../../utils/solana.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { LinkedWallet } from '../../types/index.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -43,6 +44,7 @@ type SwapWidgetRendererProps = {
   fetchSolverConfig?: boolean
   context: 'Swap' | 'Deposit' | 'Withdraw'
   wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -122,6 +124,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   fetchSolverConfig,
   wallet,
   multiWalletSupportEnabled = false,
+  linkedWallets,
   children,
   onAnalyticEvent
 }) => {
@@ -133,10 +136,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   >(defaultToAddress)
   const [useExternalLiquidity, setUseExternalLiquidity] =
     useState<boolean>(false)
-  const address = useWalletAddress(wallet)
-  const recipient = customToAddress ?? address
+  const address = useWalletAddress(wallet, linkedWallets)
 
-  const { displayName: toDisplayName } = useENSResolver(recipient)
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
   )
@@ -203,6 +204,39 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const fromChain = relayClient?.chains?.find(
     (chain) => chain.id === fromToken?.chainId
   )
+
+  const defaultRecipient = useMemo(() => {
+    const isValidToAddress =
+      toChain?.vmType === 'evm'
+        ? isAddress(customToAddress ?? address ?? '')
+        : isSolanaAddress(customToAddress ?? address ?? '')
+    if (
+      multiWalletSupportEnabled &&
+      toChain &&
+      linkedWallets &&
+      !isValidToAddress
+    ) {
+      const supportedAddress = findSupportedWallet(
+        toChain.vmType,
+        customToAddress,
+        linkedWallets
+      )
+
+      return supportedAddress
+    }
+  }, [
+    multiWalletSupportEnabled,
+    toChain,
+    customToAddress,
+    address,
+    linkedWallets,
+    setCustomToAddress
+  ])
+
+  const recipient = customToAddress ?? defaultRecipient ?? address
+
+  const { displayName: toDisplayName } = useENSResolver(recipient)
+
   const {
     value: fromBalance,
     queryKey: fromBalanceQueryKey,

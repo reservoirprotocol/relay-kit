@@ -1,7 +1,7 @@
 import { useMemo, useState, type FC } from 'react'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
-import type { LinkedWallet } from '../widgets/SwapWidget'
+import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faWallet } from '@fortawesome/free-solid-svg-icons'

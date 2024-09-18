@@ -27,7 +27,7 @@ import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'
 import React from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
 import type { Address } from 'viem'
-import type { LinkedWallet } from '../../../widgets/SwapWidget/index.js'
+import type { LinkedWallet } from '../../../../types/index.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
