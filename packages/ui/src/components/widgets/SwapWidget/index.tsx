@@ -158,7 +158,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         timeEstimate,
         isSvmSwap,
         isValidFromAddress,
@@ -462,7 +462,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               if (fromToken) {
                                 setAmountInputValue(
                                   formatUnits(
-                                    isFromETH
+                                    isFromNative
                                       ? (fromBalance * 99n) / 100n
                                       : fromBalance,
                                     fromToken?.decimals

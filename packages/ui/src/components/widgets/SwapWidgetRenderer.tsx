@@ -9,7 +9,7 @@ import {
   useDisconnected
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, isAddress, parseUnits } from 'viem'
+import { formatUnits, isAddress, parseUnits, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
@@ -97,7 +97,7 @@ export type ChildrenProps = {
   hasInsufficientBalance: boolean
   isInsufficientLiquidityError?: boolean
   ctaCopy: string
-  isFromETH: boolean
+  isFromNative: boolean
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
@@ -257,8 +257,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? address
         : evmDeadAddress
       : address && isSolanaAddress(address)
-      ? address
-      : solDeadAddress
+        ? address
+        : solDeadAddress
 
   const isValidToAddress =
     toChain?.vmType === 'evm'
@@ -271,8 +271,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? recipient
         : evmDeadAddress
       : recipient && isSolanaAddress(recipient)
-      ? recipient
-      : solDeadAddress
+        ? recipient
+        : solDeadAddress
 
   const {
     data: price,
@@ -399,7 +399,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
   const timeEstimate = calculatePriceTimeEstimate(price?.details)
 
-  const isFromETH = fromToken?.symbol === 'ETH'
+  const isFromNative = fromToken?.address === fromChain?.currency?.address
 
   const isSameCurrencySameRecipientSwap =
     fromToken?.address === toToken?.address &&
@@ -514,7 +514,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
