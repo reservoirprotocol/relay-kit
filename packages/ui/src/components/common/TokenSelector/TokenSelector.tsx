@@ -290,11 +290,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const selectedTokenCurrencyList = useMemo(() => {
     const fromEnhancedList = enhancedCurrencyList?.find((currencyList) =>
-      currencyList?.chains?.some(
-        (chain) =>
-          chain?.chainId === token?.chainId &&
-          //TODO check case sensitivity
-          chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+      currencyList?.chains?.some((chain) =>
+        chain?.chainId === token?.chainId && chain?.vmType === 'evm'
+          ? chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+          : chain?.address === token?.address
       )
     )
 
