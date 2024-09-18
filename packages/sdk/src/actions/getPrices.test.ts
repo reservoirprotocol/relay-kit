@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { RelayClient, createClient, getClient } from '../client'
-import { http, zeroAddress } from 'viem'
-import { mainnet } from 'viem/chains'
+import { RelayClient, createClient } from '../client'
 import { MAINNET_RELAY_API } from '../constants'
 import { axios } from '../utils'
 
@@ -75,7 +73,7 @@ describe('Should test the getPrice action.', () => {
           originCurrency: '0x0000000000000000000000000000000000000000',
           originChainId: 8453,
           amount: '1000000000000000',
-          recipient: '0x0000000000000000000000000000000000000000',
+          recipient: '0x000000000000000000000000000000000000dead',
           tradeType: 'EXACT_INPUT',
           txs: [{ data: '0x', value: '0', to: '0x' }]
         })

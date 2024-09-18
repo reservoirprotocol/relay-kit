@@ -293,6 +293,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
+                          onAnalyticEvent={onAnalyticEvent}
                         />
                       ) : null}
                     </Flex>
@@ -440,6 +441,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 setTradeType('EXACT_INPUT')
                                 debouncedAmountOutputControls.cancel()
                                 debouncedAmountInputControls.flush()
+                                onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED)
                               }
                             }}
                           >
@@ -532,6 +534,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
+                          onAnalyticEvent={onAnalyticEvent}
                         />
                       ) : null}
 

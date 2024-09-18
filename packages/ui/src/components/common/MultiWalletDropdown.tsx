@@ -4,11 +4,12 @@ import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import type { ChainVM } from '@reservoir0x/relay-sdk'
 import { solanaAddressRegex } from '../../utils/solana.js'
 import { isAddress } from 'viem'
 import { useENSResolver } from '../../hooks/index.js'
+import { EventNames } from '../../constants/events.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
@@ -17,6 +18,7 @@ type MultiWalletDropdownProps = {
   vmType: ChainVM | undefined
   onSelect: (wallet: LinkedWallet) => void
   onLinkNewWallet: () => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
   setAddressModalOpen?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -26,6 +28,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   selectedWalletAddress,
   vmType,
   onSelect,
+  onAnalyticEvent,
   onLinkNewWallet,
   setAddressModalOpen
 }) => {
@@ -58,7 +61,16 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   return (
     <Dropdown
       open={showDropdown ? open : false}
-      onOpenChange={(open) => showDropdown && setOpen(open)}
+      onOpenChange={(open) => {
+        if (showDropdown) {
+          setOpen(open)
+          onAnalyticEvent?.(
+            open
+              ? EventNames.WALLET_SELECTOR_OPEN
+              : EventNames.WALLET_SELECTOR_CLOSE
+          )
+        }
+      }}
       trigger={
         <Button
           aria-label={`Multi wallet dropdown`}
@@ -68,6 +80,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           onClick={() => {
             if (!showDropdown) {
               onLinkNewWallet()
+              onAnalyticEvent?.(EventNames.WALLET_SELECTOR_SELECT, {
+                context: 'not_connected'
+              })
             }
           }}
           size="none"
@@ -89,7 +104,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               />
             ) : selectedWalletAddress && !selectedWallet ? (
               <Box css={{ color: 'amber11' }}>
-                <FontAwesomeIcon icon={faWallet} width={16} height={16} />
+                <FontAwesomeIcon icon={faClipboard} width={16} height={16} />
               </Box>
             ) : null}
             <Text
@@ -135,6 +150,12 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               aria-label={wallet.address}
               key={idx}
               onClick={() => {
+                onAnalyticEvent?.(EventNames.WALLET_SELECTOR_SELECT, {
+                  context: 'select_option',
+                  wallet_address: wallet.address,
+                  wallet_vm: wallet.vmType,
+                  wallet_icon: wallet.walletLogoUrl ?? ''
+                })
                 setOpen(false)
                 onSelect(wallet)
               }}
@@ -161,7 +182,12 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           css={{
             ...DropdownItemBaseStyle
           }}
-          onClick={onLinkNewWallet}
+          onClick={() => {
+            onAnalyticEvent?.(EventNames.WALLET_SELECTOR_SELECT, {
+              context: 'link_option'
+            })
+            onLinkNewWallet()
+          }}
         >
           <Text style="subtitle2">Link a new wallet</Text>
         </DropdownMenuItem>
@@ -172,7 +198,12 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
             css={{
               ...DropdownItemBaseStyle
             }}
-            onClick={() => setAddressModalOpen?.(true)}
+            onClick={() => {
+              onAnalyticEvent?.(EventNames.WALLET_SELECTOR_SELECT, {
+                context: 'custom_option'
+              })
+              setAddressModalOpen?.(true)
+            }}
           >
             <Text style="subtitle2">Paste wallet address</Text>
           </DropdownMenuItem>
