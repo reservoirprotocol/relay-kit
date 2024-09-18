@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.3.1
+
+### Patch Changes
+
+- 2c38afe: Add solana ui support in SwapWidget
+
 ## 1.3.0
 
 ### Minor Changes
