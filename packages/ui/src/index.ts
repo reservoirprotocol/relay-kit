@@ -15,3 +15,6 @@ export { default as ChainWidget } from './components/widgets/ChainWidget/index.j
 
 //components
 export { default as TokenSelector } from './components/common/TokenSelector/TokenSelector.js'
+
+//types
+export type { LinkedWallet } from './types/index.js'

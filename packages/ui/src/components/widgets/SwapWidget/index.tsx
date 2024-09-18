@@ -1,17 +1,17 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useState, type FC } from 'react'
+import { useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
-import type { Token } from '../../../types/index.js'
+import type { LinkedWallet, Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import type { Execute } from '@reservoir0x/relay-sdk'
+import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -24,11 +24,14 @@ import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { truncateAddress } from '../../../utils/truncate.js'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
+import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
+import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
+import { findSupportedWallet } from '../../../utils/solana.js'
 
-type SwapWidgetProps = {
+type BaseSwapWidgetProps = {
   defaultFromToken?: Token
   defaultToToken?: Token
   defaultToAddress?: Address
@@ -36,6 +39,7 @@ type SwapWidgetProps = {
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
+  wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -43,6 +47,25 @@ type SwapWidgetProps = {
   onSwapSuccess?: (data: Execute) => void
   onSwapError?: (error: string, data?: Execute) => void
 }
+
+type MultiWalletDisabledProps = BaseSwapWidgetProps & {
+  multiWalletSupportEnabled?: false
+  linkedWallets?: never
+  onSetPrimaryWallet?: never
+  onLinkNewWallet?: never
+}
+
+type MultiWalletEnabledProps = BaseSwapWidgetProps & {
+  multiWalletSupportEnabled: true
+  linkedWallets: LinkedWallet[]
+  onSetPrimaryWallet?: (address: string) => void
+  onLinkNewWallet: (params: {
+    chain?: RelayChain
+    direction: 'to' | 'from'
+  }) => Promise<LinkedWallet> | void
+}
+
+export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
 
 const SwapWidget: FC<SwapWidgetProps> = ({
   defaultFromToken,
@@ -52,6 +75,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultTradeType,
   lockToToken = false,
   lockFromToken = false,
+  wallet,
+  multiWalletSupportEnabled = false,
+  linkedWallets,
+  onSetPrimaryWallet,
+  onLinkNewWallet,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
@@ -61,6 +89,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 }) => {
   const relayClient = useRelayClient()
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
   const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
@@ -82,6 +111,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
+      wallet={wallet}
+      linkedWallets={linkedWallets}
+      multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
     >
@@ -121,10 +153,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         timeEstimate,
         isSvmSwap,
-        isValidSolanaRecipient,
+        isValidFromAddress,
+        isValidToAddress,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -134,12 +167,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onFromTokenChange?.(token)
         }
         const handleSetToToken = (token?: Token) => {
-          const toChain = relayClient?.chains?.find(
-            (chain) => chain.id === toToken?.chainId
-          )
-          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
-            setCustomToAddress(address ?? undefined)
-          }
           setToToken(token)
           onToTokenChange?.(token)
         }
@@ -152,8 +179,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           (chain) => chain.id === toToken?.chainId
         )
 
-        const truncatedAddress = truncateAddress(address)
-
         const fromTokenSelectorOpenState = useState(false)
         const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
           'token' | 'chain'
@@ -164,12 +189,41 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           'token' | 'chain'
         >('token')
 
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            fromChain &&
+            address &&
+            linkedWallets &&
+            !isValidFromAddress
+          ) {
+            const supportedAddress = findSupportedWallet(
+              fromChain.vmType,
+              address,
+              linkedWallets
+            )
+            if (supportedAddress) {
+              onSetPrimaryWallet?.(supportedAddress)
+            }
+          }
+        }, [
+          multiWalletSupportEnabled,
+          fromChain,
+          address,
+          linkedWallets,
+          onSetPrimaryWallet,
+          isValidFromAddress
+        ])
+
         return (
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            addressModalOpen={addressModalOpen}
+            setAddressModalOpen={setAddressModalOpen}
             isSvmSwap={isSvmSwap}
             fromToken={fromToken}
+            fromChain={fromChain}
             toToken={toToken}
             toChain={toChain}
             swapError={swapError}
@@ -193,8 +247,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
+            wallet={wallet}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           >
-            {({ setAddressModalOpen }) => {
+            {() => {
               return (
                 <Flex
                   direction="column"
@@ -217,6 +274,28 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <Text style="subtitle2" color="subtle">
                         From
                       </Text>
+
+                      {multiWalletSupportEnabled === true && address ? (
+                        <MultiWalletDropdown
+                          context="origin"
+                          selectedWalletAddress={address}
+                          onSelect={(wallet) =>
+                            onSetPrimaryWallet?.(wallet.address)
+                          }
+                          vmType={fromChain?.vmType}
+                          onLinkNewWallet={() => {
+                            onLinkNewWallet?.({
+                              chain: fromChain,
+                              direction: 'from'
+                            })?.then((wallet) => {
+                              onSetPrimaryWallet?.(wallet.address)
+                            })
+                          }}
+                          setAddressModalOpen={setAddressModalOpen}
+                          wallets={linkedWallets!}
+                          onAnalyticEvent={onAnalyticEvent}
+                        />
+                      ) : null}
                     </Flex>
                     <ChainTrigger
                       token={fromToken}
@@ -272,6 +351,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <TokenSelector
                         openState={fromTokenSelectorOpenState}
                         type={fromTokenSelectorType}
+                        address={address}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
@@ -291,6 +371,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="from"
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
                         size={
                           fromTokenSelectorType === 'chain'
                             ? 'mobile'
@@ -334,6 +415,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             symbol={fromToken?.symbol}
                             hasInsufficientBalance={hasInsufficientBalance}
                             displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -346,7 +432,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               if (fromToken) {
                                 setAmountInputValue(
                                   formatUnits(
-                                    isFromETH
+                                    isFromNative
                                       ? (fromBalance * 99n) / 100n
                                       : fromBalance,
                                     fromToken?.decimals
@@ -355,6 +441,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 setTradeType('EXACT_INPUT')
                                 debouncedAmountOutputControls.cancel()
                                 debouncedAmountInputControls.flush()
+                                onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED)
                               }
                             }}
                           >
@@ -373,7 +460,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       width: 36
                     }}
                   >
-                    {hasLockedToken || isSvmSwap ? null : (
+                    {hasLockedToken ||
+                    (isSvmSwap && !multiWalletSupportEnabled) ? null : (
                       <Button
                         size="none"
                         color="white"
@@ -428,7 +516,31 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         To
                       </Text>
 
-                      {isMounted && (address || customToAddress) ? (
+                      {multiWalletSupportEnabled === true && recipient ? (
+                        <MultiWalletDropdown
+                          context="destination"
+                          selectedWalletAddress={recipient}
+                          onSelect={(wallet) =>
+                            setCustomToAddress(wallet.address)
+                          }
+                          vmType={toChain?.vmType}
+                          onLinkNewWallet={() => {
+                            onLinkNewWallet?.({
+                              chain: toChain,
+                              direction: 'to'
+                            })?.then((wallet) => {
+                              setCustomToAddress(wallet.address)
+                            })
+                          }}
+                          setAddressModalOpen={setAddressModalOpen}
+                          wallets={linkedWallets!}
+                          onAnalyticEvent={onAnalyticEvent}
+                        />
+                      ) : null}
+
+                      {multiWalletSupportEnabled === false &&
+                      isMounted &&
+                      (address || customToAddress) ? (
                         <AnchorButton
                           css={{
                             display: 'flex',
@@ -443,7 +555,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {isSvmSwap && !isValidSolanaRecipient
+                            {isSvmSwap && !isValidToAddress
                               ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
@@ -516,6 +628,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <TokenSelector
                         openState={toTokenSelectorOpenState}
                         type={toTokenSelectorType}
+                        address={recipient}
                         token={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -534,6 +647,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                         context="to"
+                        multiWalletSupportEnabled={multiWalletSupportEnabled}
                         size={
                           toTokenSelectorType === 'chain' ? 'mobile' : 'desktop'
                         }
@@ -608,6 +722,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             decimals={toToken?.decimals}
                             symbol={toToken?.symbol}
                             displaySymbol={false}
+                            isConnected={
+                              address !== evmDeadAddress &&
+                              address !== solDeadAddress &&
+                              address !== undefined
+                            }
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -656,9 +775,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   />
                   <SwapButton
                     transactionModalOpen={transactionModalOpen}
-                    invalidSolanaRecipient={
-                      isSvmSwap && !isValidSolanaRecipient
-                    }
+                    isValidFromAddress={isValidFromAddress}
+                    isValidToAddress={isValidToAddress}
                     context={'Swap'}
                     onConnectWallet={onConnectWallet}
                     onAnalyticEvent={onAnalyticEvent}
@@ -672,8 +790,25 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isSameCurrencySameRecipientSwap
                     }
                     onClick={() => {
-                      if (isSvmSwap && !isValidSolanaRecipient) {
-                        setAddressModalOpen(true)
+                      // If either address is not valid, open the link wallet modal
+                      if (!isValidToAddress || !isValidFromAddress) {
+                        if (multiWalletSupportEnabled) {
+                          const chain = !isValidFromAddress
+                            ? fromChain
+                            : toChain
+                          onLinkNewWallet?.({
+                            chain: chain,
+                            direction: !isValidFromAddress ? 'from' : 'to'
+                          })?.then((wallet) => {
+                            if (!isValidFromAddress) {
+                              onSetPrimaryWallet?.(wallet.address)
+                            } else {
+                              setCustomToAddress(wallet.address)
+                            }
+                          })
+                        } else {
+                          setAddressModalOpen(true)
+                        }
                       } else {
                         setTransactionModalOpen(true)
                       }

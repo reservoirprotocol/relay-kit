@@ -6,7 +6,6 @@ import { EventNames } from '../../constants/events.js'
 
 type SwapButtonProps = {
   transactionModalOpen: boolean
-  invalidSolanaRecipient: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onClick: () => void
@@ -21,11 +20,14 @@ type SwapButtonProps = {
   | 'debouncedOutputAmountValue'
   | 'isSameCurrencySameRecipientSwap'
   | 'ctaCopy'
+  | 'isValidFromAddress'
+  | 'isValidToAddress'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
   transactionModalOpen,
-  invalidSolanaRecipient,
+  isValidFromAddress,
+  isValidToAddress,
   context,
   onConnectWallet,
   price,
@@ -37,26 +39,33 @@ const SwapButton: FC<SwapButtonProps> = ({
   isSameCurrencySameRecipientSwap,
   onClick,
   ctaCopy,
-
   onAnalyticEvent
 }) => {
   const isMounted = useMounted()
+
   if (isMounted && address) {
     return (
       <Button
         css={{ justifyContent: 'center' }}
         aria-label={context}
         disabled={
+          isValidToAddress &&
+          isValidFromAddress &&
           (!price ||
             hasInsufficientBalance ||
             isInsufficientLiquidityError ||
             transactionModalOpen ||
             Number(debouncedInputAmountValue) === 0 ||
             Number(debouncedOutputAmountValue) === 0 ||
-            isSameCurrencySameRecipientSwap) &&
-          !invalidSolanaRecipient
+            isSameCurrencySameRecipientSwap)
         }
-        onClick={onClick}
+        onClick={() => {
+          onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {
+            context,
+            ctaCopy
+          })
+          onClick()
+        }}
       >
         {ctaCopy}
       </Button>
@@ -71,6 +80,7 @@ const SwapButton: FC<SwapButtonProps> = ({
         if (!onConnectWallet) {
           throw 'Missing onWalletConnect function'
         }
+
         onConnectWallet()
         onAnalyticEvent?.(EventNames.CONNECT_WALLET_CLICKED, {
           context

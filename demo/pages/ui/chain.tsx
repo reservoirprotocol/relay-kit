@@ -1,10 +1,14 @@
 import { NextPage } from 'next'
 import { ChainWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
+import {
+  useDynamicContext,
+  useDynamicModals
+} from '@dynamic-labs/sdk-react-core'
 
 const ChainWidgetPage: NextPage = () => {
-  const { setShowAuthFlow } = useDynamicContext()
+  const { setShowAuthFlow, primaryWallet } = useDynamicContext()
+  const { setShowLinkNewWalletModal } = useDynamicModals()
 
   return (
     <Layout>
@@ -46,7 +50,13 @@ const ChainWidgetPage: NextPage = () => {
             logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
           }}
           // defaultAmount={'5'}
-          onConnectWallet={() => setShowAuthFlow(true)}
+          onConnectWallet={() => {
+            if (primaryWallet) {
+              setShowLinkNewWalletModal(true)
+            } else {
+              setShowAuthFlow(true)
+            }
+          }}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}

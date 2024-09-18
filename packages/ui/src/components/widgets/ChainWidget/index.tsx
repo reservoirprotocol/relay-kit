@@ -26,6 +26,7 @@ import SwapRouteSelector from '../SwapRouteSelector.js'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import WidgetFooter from '../WidgetFooter.js'
 import { ChainWidgetTrigger } from '../../common/TokenSelector/triggers/ChainWidgetTrigger.js'
+import { useAccount } from 'wagmi'
 
 type ChainWidgetProps = {
   chainId: number
@@ -60,6 +61,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
 }) => {
   const isMounted = useMounted()
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [tabId, setTabId] = useState<WidgetTabId>('deposit')
   const lockFromToken = tabId === 'withdraw' && (!tokens || tokens.length === 0)
   const lockToToken = tabId === 'deposit' && (!tokens || tokens.length === 0)
@@ -67,6 +69,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
   const chain = client?.chains.find((chain) => chain.id === chainId)
   const isTestnet = client?.baseApiUrl?.includes?.('testnets')
   const defaultChainId = isTestnet ? 11155111 : 1
+  const { isConnected } = useAccount()
 
   useEffect(() => {
     if (chainId !== defaultToken.chainId) {
@@ -136,13 +139,14 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig,
         isSvmSwap,
-        isValidSolanaRecipient,
+        isValidFromAddress,
+        isValidToAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
@@ -156,7 +160,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           const toChain = client?.chains?.find(
             (chain) => chain.id === toToken?.chainId
           )
-          if (toChain?.vmType !== 'svm' && isValidSolanaRecipient) {
+          if (toChain?.vmType !== 'svm' && isValidToAddress) {
             setCustomToAddress(address ?? undefined)
           }
           setToToken(token)
@@ -189,8 +193,11 @@ const ChainWidget: FC<ChainWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            addressModalOpen={addressModalOpen}
+            setAddressModalOpen={setAddressModalOpen}
             isSvmSwap={isSvmSwap}
             fromToken={fromToken}
+            fromChain={fromChain}
             toToken={toToken}
             toChain={toChain}
             swapError={swapError}
@@ -215,7 +222,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
           >
-            {({ setAddressModalOpen }) => {
+            {() => {
               return (
                 <>
                   <Flex
@@ -272,6 +279,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       </Flex>
                       <Flex align="center" justify="between" css={{ gap: '4' }}>
                         <TokenSelector
+                          address={address}
                           token={fromToken}
                           restrictedTokensList={
                             tabId === 'withdraw' ? tokens : undefined
@@ -353,6 +361,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                               decimals={fromToken?.decimals}
                               symbol={fromToken?.symbol}
                               hasInsufficientBalance={hasInsufficientBalance}
+                              isConnected={isConnected}
                             />
                           ) : (
                             <Flex css={{ height: 18 }} />
@@ -365,7 +374,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 if (fromToken) {
                                   setAmountInputValue(
                                     formatUnits(
-                                      isFromETH
+                                      isFromNative
                                         ? (fromBalance * 99n) / 100n
                                         : fromBalance,
                                       fromToken?.decimals
@@ -427,7 +436,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 style="subtitle3"
                                 css={{ color: 'inherit' }}
                               >
-                                {isSvmSwap && !isValidSolanaRecipient
+                                {isSvmSwap && !isValidToAddress
                                   ? `Enter ${toChain?.displayName} Address`
                                   : toDisplayName}
                               </Text>
@@ -439,6 +448,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                       <Flex align="center" justify="between" css={{ gap: '4' }}>
                         <TokenSelector
                           token={toToken}
+                          address={recipient}
                           restrictedTokensList={
                             tabId === 'deposit' ? tokens : undefined
                           }
@@ -524,6 +534,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                             balance={toBalance}
                             decimals={toToken?.decimals}
                             symbol={toToken?.symbol}
+                            isConnected={isConnected}
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -602,9 +613,8 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                     />
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}
-                      invalidSolanaRecipient={
-                        isSvmSwap && !isValidSolanaRecipient
-                      }
+                      isValidFromAddress={isValidFromAddress}
+                      isValidToAddress={isValidToAddress}
                       context={tabId === 'deposit' ? 'Deposit' : 'Withdraw'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
@@ -620,7 +630,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
-                        if (isSvmSwap && !isValidSolanaRecipient) {
+                        if (isSvmSwap && !isValidToAddress) {
                           setAddressModalOpen(true)
                         } else {
                           setTransactionModalOpen(true)

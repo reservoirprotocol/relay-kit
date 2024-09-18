@@ -1,17 +1,24 @@
-import { useState, type Dispatch, type FC, type ReactNode } from 'react'
+import { type FC, type ReactNode } from 'react'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import type { Execute } from '@reservoir0x/relay-sdk'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
+import { useAccount } from 'wagmi'
+import type { LinkedWallet } from '../../types/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
+  addressModalOpen: boolean
   isSvmSwap: boolean
   toChain?: RelayChain
+  fromChain?: RelayChain
+  wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-  children: (props: WidgetChildProps) => ReactNode
+  setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  children: () => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
@@ -35,15 +42,13 @@ export type WidgetContainerProps = {
   | 'timeEstimate'
 >
 
-export type WidgetChildProps = {
-  addressModalOpen: boolean
-  setAddressModalOpen: Dispatch<React.SetStateAction<boolean>>
-}
-
 const WidgetContainer: FC<WidgetContainerProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
+  addressModalOpen,
+  setAddressModalOpen,
   children,
+  fromChain,
   fromToken,
   toToken,
   debouncedInputAmountValue,
@@ -60,6 +65,9 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   recipient,
   isSvmSwap,
   toChain,
+  wallet,
+  linkedWallets,
+  multiWalletSupportEnabled,
   onSwapModalOpenChange,
   onSwapSuccess,
   onAnalyticEvent,
@@ -67,13 +75,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
-  const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const { isConnected } = useAccount()
   return (
     <div className="relay-kit-reset">
-      {children({
-        addressModalOpen,
-        setAddressModalOpen
-      })}
+      {children()}
       {isMounted ? (
         <SwapModal
           open={transactionModalOpen}
@@ -81,6 +86,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             onSwapModalOpenChange(open)
             setTransactionModalOpen(open)
           }}
+          fromChain={fromChain}
           fromToken={fromToken}
           toToken={toToken}
           amountInputValue={amountInputValue}
@@ -96,6 +102,9 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           onAnalyticEvent={onAnalyticEvent}
           onSuccess={onSwapSuccess}
           invalidateBalanceQueries={invalidateBalanceQueries}
+          wallet={wallet}
+          linkedWallets={linkedWallets}
+          multiWalletSupportEnabled={multiWalletSupportEnabled}
         />
       ) : null}
       <CustomAddressModal
@@ -103,6 +112,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
         toAddress={customToAddress ?? address}
         isSvmSwap={isSvmSwap}
         toChain={toChain}
+        isConnected={wallet !== undefined || isConnected ? true : false}
+        linkedWallets={linkedWallets ?? []}
+        multiWalletSupportEnabled={multiWalletSupportEnabled}
+        wallet={wallet}
         onAnalyticEvent={onAnalyticEvent}
         onOpenChange={(open) => {
           setAddressModalOpen(open)

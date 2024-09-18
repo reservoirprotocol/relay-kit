@@ -31,6 +31,10 @@ export const PillStyle = cva({
       amber: {
         background: 'amber2',
         color: 'amber9'
+      },
+      transparent: {
+        background: 'none',
+        color: 'gray12'
       }
     },
     radius: {
@@ -39,6 +43,15 @@ export const PillStyle = cva({
       },
       rounded: {
         borderRadius: 12
+      },
+      squared: {
+        borderRadius: 8
+      }
+    },
+    bordered: {
+      true: {
+        '--borderColor': 'colors.gray.6',
+        border: '1px solid var(--borderColor)'
       }
     }
   },

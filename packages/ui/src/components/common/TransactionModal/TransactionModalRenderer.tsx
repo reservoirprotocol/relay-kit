@@ -11,9 +11,11 @@ import {
 } from 'react'
 import { parseUnits, type Address } from 'viem'
 import type {
+  AdaptedWallet,
   Execute,
   ExecuteStep,
-  ExecuteStepItem
+  ExecuteStepItem,
+  RelayChain
 } from '@reservoir0x/relay-sdk'
 import {
   calculateExecutionTime,
@@ -23,13 +25,12 @@ import {
 import type { BridgeFee, Token } from '../../../types/index.js'
 import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
-import { deadAddress } from '../../../constants/address.js'
+import { getDeadAddress } from '../../../constants/address.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
-import { useAccount, useConfig, useWalletClient } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { extractQuoteId, parseFees } from '../../../utils/quote.js'
-import { switchChain } from 'wagmi/actions'
 
 export enum TransactionProgressStep {
   ReviewQuote,
@@ -84,18 +85,19 @@ export type ChildrenProps = {
 
 type Props = {
   open: boolean
-  address?: Address
+  address?: Address | string
   fromToken?: Token
+  fromChain?: RelayChain
   toToken?: Token
   debouncedOutputAmountValue: string
   debouncedInputAmountValue: string
   amountInputValue: string
   amountOutputValue: string
-  toDisplayName?: string
-  recipient?: Address
+  recipient?: Address | string
   customToAddress?: Address
   tradeType: TradeType
   useExternalLiquidity: boolean
+  wallet?: AdaptedWallet
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
@@ -110,17 +112,18 @@ type Props = {
 export const TransactionModalRenderer: FC<Props> = ({
   open,
   address,
+  fromChain,
   fromToken,
   toToken,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   amountInputValue,
   amountOutputValue,
-  toDisplayName,
   recipient,
   customToAddress,
   tradeType,
   useExternalLiquidity,
+  wallet,
   invalidateBalanceQueries,
   children,
   onSuccess,
@@ -147,9 +150,9 @@ export const TransactionModalRenderer: FC<Props> = ({
 
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
-  const wagmiConfig = useConfig()
   const walletClient = useWalletClient()
-  const { chainId: activeWalletChainId, connector } = useAccount()
+  const { connector } = useAccount()
+  const deadAddress = getDeadAddress(fromChain?.vmType)
 
   const {
     data: quote,
@@ -160,7 +163,7 @@ export const TransactionModalRenderer: FC<Props> = ({
     dataUpdatedAt: quoteUpdatedAt
   } = useQuote(
     relayClient ? relayClient : undefined,
-    walletClient.data,
+    wallet ?? walletClient.data,
     fromToken && toToken
       ? {
           user: address ?? deadAddress,
@@ -233,11 +236,11 @@ export const TransactionModalRenderer: FC<Props> = ({
         throw 'Missing a quote'
       }
 
+      const activeWalletChainId = await wallet?.getChainId()
+
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
-        await switchChain(wagmiConfig, {
-          chainId: fromToken.chainId
-        })
+        await wallet?.switchChain(fromToken.chainId)
       }
 
       setProgressStep(TransactionProgressStep.WalletConfirmation)
@@ -327,10 +330,9 @@ export const TransactionModalRenderer: FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     relayClient,
-    activeWalletChainId,
-    wagmiConfig,
     address,
     connector,
+    wallet,
     fromToken,
     toToken,
     customToAddress,

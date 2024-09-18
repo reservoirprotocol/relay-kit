@@ -24,13 +24,14 @@ import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
-import type { Chain } from 'viem'
+import { solana } from '../../../../utils/solana.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
   size: 'mobile' | 'desktop'
   context: 'from' | 'to'
   token?: Token
+  multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
   chainSearchInput: string
@@ -66,6 +67,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   size,
   context,
   token,
+  multiWalletSupportEnabled = false,
   setTokenSelectorStep,
   setInputElement,
   chainSearchInput,
@@ -76,12 +78,17 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const client = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
-  const tokenIsDefined = token !== undefined
 
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains =
     client?.chains?.filter(
-      (chain) => context !== 'from' || chain.vmType !== 'svm' // filter out solana if from chain
+      (chain) =>
+        (context !== 'from' ||
+          chain.vmType !== 'svm' ||
+          chain.id === solana.id) &&
+        (context !== 'from' ||
+          multiWalletSupportEnabled ||
+          chain.vmType !== 'svm')
     ) || []
 
   const combinedChains: NormalizedChain[] = [

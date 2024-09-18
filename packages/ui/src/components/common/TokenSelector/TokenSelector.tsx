@@ -11,10 +11,9 @@ import { Modal } from '../Modal.js'
 import type { Token } from '../../../types/index.js'
 import { type ChainFilterValue } from '../ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
-import { type Chain, isAddress, zeroAddress } from 'viem'
+import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { useAccount } from 'wagmi'
 import { type DuneBalanceResponse } from '../../../hooks/useDuneBalances.js'
 import {
   type CurrencyList,
@@ -25,6 +24,8 @@ import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
+import { solana } from '../../../utils/solana.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -35,6 +36,8 @@ export type TokenSelectorProps = {
   context: 'from' | 'to'
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
+  address?: Address | string
+  multiWalletSupportEnabled?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -62,12 +65,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   context,
   type = 'token',
   size = 'mobile',
+  address,
+  multiWalletSupportEnabled = false,
   setToken,
   onAnalyticEvent
 }) => {
   const [internalOpen, setInternalOpen] = useState(false)
   const [open, setOpen] = openState || [internalOpen, setInternalOpen]
-  const { address } = useAccount()
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const [tokenSelectorStep, setTokenSelectorStep] = useState<TokenSelectorStep>(
     TokenSelectorStep.SetCurrency
@@ -91,14 +95,19 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const relayClient = useRelayClient()
   const configuredChains = useMemo(() => {
-    return (
+    let chains =
       relayClient?.chains.sort((a, b) => a.name.localeCompare(b.name)) ?? []
-    )
-  }, [relayClient?.chains])
+    if (!multiWalletSupportEnabled && context === 'from') {
+      chains = chains.filter((chain) => chain.vmType !== 'svm')
+    }
+    return chains
+  }, [relayClient?.chains, multiWalletSupportEnabled])
 
   const chainFilterOptions =
     context === 'from'
-      ? configuredChains?.filter((chain) => chain.vmType !== 'svm')
+      ? configuredChains?.filter(
+          (chain) => chain.vmType !== 'svm' || chain.id === solana.id
+        )
       : configuredChains
 
   const configuredChainIds = useMemo(() => {
@@ -140,13 +149,17 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     data: duneTokens,
     balanceMap: tokenBalances,
     isLoading: isLoadingDuneBalances
-  } = useDuneBalances(address && address !== zeroAddress ? address : undefined)
+  } = useDuneBalances(
+    address && address !== evmDeadAddress && address !== solDeadAddress
+      ? address
+      : undefined
+  )
 
   const restrictedTokenAddresses = restrictedTokensList?.map((token) =>
     token.address.toLowerCase()
   )
 
-  const duneTokenBalances = duneTokens?.balances.filter((balance) => {
+  const duneTokenBalances = duneTokens?.balances?.filter((balance) => {
     if (restrictedTokenAddresses) {
       return (
         restrictedTokenAddresses.includes(balance.address.toLowerCase()) &&
@@ -233,9 +246,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .filter(
           (currency) =>
             currency !== undefined &&
-            (context !== 'from' || currency.vmType !== 'svm') // filter out solana currencies for from token
+            (context !== 'from' ||
+              currency.vmType !== 'svm' ||
+              currency.chainId === solana.id) &&
+            (context !== 'from' ||
+              multiWalletSupportEnabled ||
+              currency.vmType !== 'svm')
         )
-
       return filteredList.length > 0 ? filteredList : undefined
     })
 
@@ -265,17 +282,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     suggestedTokens,
     useDefaultTokenList,
     configuredChains,
-    tokenBalances
+    tokenBalances,
+    multiWalletSupportEnabled
   ])
 
   const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
 
   const selectedTokenCurrencyList = useMemo(() => {
     const fromEnhancedList = enhancedCurrencyList?.find((currencyList) =>
-      currencyList?.chains?.some(
-        (chain) =>
-          chain?.chainId === token?.chainId &&
-          chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+      currencyList?.chains?.some((chain) =>
+        chain?.chainId === token?.chainId && chain?.vmType === 'evm'
+          ? chain?.address?.toLowerCase() === token?.address?.toLowerCase()
+          : chain?.address === token?.address
       )
     )
 
@@ -290,19 +308,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   }, [enhancedCurrencyList, selectedCurrencyList, token])
 
   // Fetch currency list if there is no selectedTokenCurrencyList
-  const { data: fetchedCurrencyList, isLoading: isLoadingFetchedCurrencyList } =
-    useTokenList(
-      relayClient?.baseApiUrl,
-      {
-        chainIds: token?.chainId ? [token.chainId] : [],
-        address: token?.address,
-        limit: 1
-      },
-      {
-        enabled:
-          !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
-      }
-    )
+  const { data: fetchedCurrencyList } = useTokenList(
+    relayClient?.baseApiUrl,
+    {
+      chainIds: token?.chainId ? [token.chainId] : [],
+      address: token?.address,
+      limit: 1
+    },
+    {
+      enabled:
+        !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
+    }
+  )
 
   // Update selectedTokenCurrencyList when fetchedCurrencyList is returned
   useEffect(() => {
@@ -434,16 +451,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             setChainFilter={setChainFilter}
             isLoading={isLoading}
             isLoadingDuneBalances={isLoadingDuneBalances}
-            useDefaultTokenList={useDefaultTokenList}
-            context={context}
-            suggestedTokens={suggestedTokens}
-            address={address}
             enhancedCurrencyList={
               enhancedCurrencyList as EnhancedCurrencyList[]
             }
             token={token}
             selectToken={selectToken}
             setCurrencyList={setCurrencyList}
+            onAnalyticEvent={onAnalyticEvent}
           />
         ) : null}
         {tokenSelectorStep === TokenSelectorStep.SetChain ? (
@@ -458,6 +472,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             selectedCurrencyList={selectedCurrencyList}
             type={type}
             size={size}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
           />
         ) : null}
       </Flex>

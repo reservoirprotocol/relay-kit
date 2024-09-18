@@ -10,6 +10,7 @@ type BalanceDisplayProps = {
   isLoading: boolean
   hasInsufficientBalance?: boolean
   displaySymbol?: boolean
+  isConnected?: boolean
 }
 
 export const BalanceDisplay: FC<BalanceDisplayProps> = ({
@@ -18,9 +19,9 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
   symbol,
   isLoading,
   hasInsufficientBalance,
-  displaySymbol = true
+  displaySymbol = true,
+  isConnected
 }) => {
-  const { isConnected } = useAccount()
   const compactBalance = Boolean(
     balance && decimals && balance.toString().length - decimals > 4
   )

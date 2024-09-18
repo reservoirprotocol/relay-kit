@@ -4,15 +4,17 @@ import {
   useCurrencyBalance,
   useENSResolver,
   useRelayClient,
-  useDebounceState
+  useDebounceState,
+  useWalletAddress,
+  useDisconnected
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, parseUnits } from 'viem'
+import { formatUnits, isAddress, parseUnits } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import { deadAddress } from '../../constants/address.js'
+import { evmDeadAddress, solDeadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
@@ -25,7 +27,9 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import { solanaAddressRegex } from '../../utils/solana.js'
+import { findSupportedWallet, isSolanaAddress } from '../../utils/solana.js'
+import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { LinkedWallet } from '../../types/index.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -38,10 +42,13 @@ type SwapWidgetRendererProps = {
   defaultAmount?: string
   defaultTradeType?: TradeType
   fetchSolverConfig?: boolean
+  context: 'Swap' | 'Deposit' | 'Withdraw'
+  wallet?: AdaptedWallet
+  linkedWallets?: LinkedWallet[]
+  multiWalletSupportEnabled?: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
-  context: 'Swap' | 'Deposit' | 'Withdraw'
 }
 
 export type ChildrenProps = {
@@ -65,10 +72,12 @@ export type ChildrenProps = {
   swapError: Error | null
   error: Error | null
   toDisplayName?: string
-  address?: Address
-  recipient?: Address
-  customToAddress?: Address
-  setCustomToAddress: Dispatch<React.SetStateAction<Address | undefined>>
+  address?: Address | string
+  recipient?: Address | string
+  customToAddress?: Address | string
+  setCustomToAddress: Dispatch<
+    React.SetStateAction<Address | string | undefined>
+  >
   tradeType: TradeType
   setTradeType: Dispatch<React.SetStateAction<TradeType>>
   isSameCurrencySameRecipientSwap: boolean
@@ -90,13 +99,14 @@ export type ChildrenProps = {
   hasInsufficientBalance: boolean
   isInsufficientLiquidityError?: boolean
   ctaCopy: string
-  isFromETH: boolean
+  isFromNative: boolean
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
   fetchingSolverConfig: boolean
   isSvmSwap: boolean
-  isValidSolanaRecipient: boolean
+  isValidFromAddress: boolean
+  isValidToAddress: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -112,19 +122,22 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   defaultTradeType,
   context,
   fetchSolverConfig,
+  wallet,
+  multiWalletSupportEnabled = false,
+  linkedWallets,
   children,
   onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const relayClient = useRelayClient()
-  const { address, connector } = useAccount()
-  const [customToAddress, setCustomToAddress] = useState<Address | undefined>(
-    defaultToAddress
-  )
+  const { connector } = useAccount()
+  const [customToAddress, setCustomToAddress] = useState<
+    Address | string | undefined
+  >(defaultToAddress)
   const [useExternalLiquidity, setUseExternalLiquidity] =
     useState<boolean>(false)
-  const recipient = customToAddress ?? address
-  const { displayName: toDisplayName } = useENSResolver(recipient)
+  const address = useWalletAddress(wallet, linkedWallets)
+
   const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
   )
@@ -184,13 +197,53 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     tokenPairIsCanonical && config.data?.supportsExternalLiquidity
       ? true
       : false
+
+  const toChain = relayClient?.chains.find(
+    (chain) => chain.id === toToken?.chainId
+  )
+  const fromChain = relayClient?.chains?.find(
+    (chain) => chain.id === fromToken?.chainId
+  )
+
+  const defaultRecipient = useMemo(() => {
+    const isValidToAddress =
+      toChain?.vmType === 'evm'
+        ? isAddress(customToAddress ?? address ?? '')
+        : isSolanaAddress(customToAddress ?? address ?? '')
+    if (
+      multiWalletSupportEnabled &&
+      toChain &&
+      linkedWallets &&
+      !isValidToAddress
+    ) {
+      const supportedAddress = findSupportedWallet(
+        toChain.vmType,
+        customToAddress,
+        linkedWallets
+      )
+
+      return supportedAddress
+    }
+  }, [
+    multiWalletSupportEnabled,
+    toChain,
+    customToAddress,
+    address,
+    linkedWallets,
+    setCustomToAddress
+  ])
+
+  const recipient = customToAddress ?? defaultRecipient ?? address
+
+  const { displayName: toDisplayName } = useENSResolver(recipient)
+
   const {
     value: fromBalance,
     queryKey: fromBalanceQueryKey,
     isLoading: isLoadingFromBalance,
     isError: fromBalanceErrorFetching
   } = useCurrencyBalance({
-    chainId: fromToken?.chainId ? fromToken.chainId : 0,
+    chain: fromChain,
     address: address,
     currency: fromToken?.address ? (fromToken.address as Address) : undefined,
     enabled: fromToken !== undefined
@@ -201,7 +254,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     queryKey: toBalanceQueryKey,
     isLoading: isLoadingToBalance
   } = useCurrencyBalance({
-    chainId: toToken?.chainId ? toToken.chainId : 0,
+    chain: toChain,
     address: recipient,
     currency: toToken?.address ? (toToken.address as Address) : undefined,
     enabled: toToken !== undefined
@@ -225,16 +278,35 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : false
   )
 
-  const toChain = relayClient?.chains.find(
-    (chain) => chain.id === toToken?.chainId
-  )
-  const isSvmSwap = toChain?.vmType === 'svm'
+  const isSvmSwap = fromChain?.vmType === 'svm' || toChain?.vmType === 'svm'
 
-  const isValidSolanaRecipient = solanaAddressRegex.test(customToAddress ?? '')
+  const isValidFromAddress =
+    fromChain?.vmType === 'evm'
+      ? isAddress(address ?? '')
+      : isSolanaAddress(address ?? '')
 
-  const recipientAddress = isSvmSwap
-    ? customToAddress ?? '11111111111111111111111111111111'
-    : customToAddress ?? address
+  const fromAddressWithFallback =
+    fromChain?.vmType === 'evm'
+      ? address && isAddress(address)
+        ? address
+        : evmDeadAddress
+      : address && isSolanaAddress(address)
+        ? address
+        : solDeadAddress
+
+  const isValidToAddress =
+    toChain?.vmType === 'evm'
+      ? isAddress(recipient ?? '')
+      : isSolanaAddress(recipient ?? '')
+
+  const toAddressWithFallback =
+    toChain?.vmType === 'evm'
+      ? recipient && isAddress(recipient)
+        ? recipient
+        : evmDeadAddress
+      : recipient && isSolanaAddress(recipient)
+        ? recipient
+        : solDeadAddress
 
   const {
     data: price,
@@ -244,12 +316,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     relayClient ? relayClient : undefined,
     fromToken && toToken
       ? {
-          user: address ?? deadAddress,
+          user: fromAddressWithFallback,
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
           destinationCurrency: toToken.address,
-          recipient: recipientAddress,
+          recipient: toAddressWithFallback,
           tradeType,
           appFees: providerOptionsContext.appFees,
           amount:
@@ -299,6 +371,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : undefined
     }
   )
+
+  useDisconnected(address, () => {
+    setCustomToAddress(undefined)
+  })
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
@@ -357,16 +433,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
   const timeEstimate = calculatePriceTimeEstimate(price?.details)
 
-  const isFromETH = fromToken?.symbol === 'ETH'
-
-  const isWrap =
-    isFromETH &&
-    toToken?.symbol === 'WETH' &&
-    fromToken.chainId === toToken.chainId
-  const isUnwrap =
-    fromToken?.symbol === 'WETH' &&
-    toToken?.symbol === 'ETH' &&
-    fromToken.chainId === toToken.chainId
+  const isFromNative = fromToken?.address === fromChain?.currency?.address
 
   const isSameCurrencySameRecipientSwap =
     fromToken?.address === toToken?.address &&
@@ -403,7 +470,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
-  } else if (isSvmSwap && !isValidSolanaRecipient) {
+  } else if (multiWalletSupportEnabled && !isValidFromAddress) {
+    ctaCopy = `Select ${fromChain?.displayName} wallet`
+  } else if (multiWalletSupportEnabled && !isValidToAddress) {
+    ctaCopy = `Select ${toChain?.displayName} wallet`
+  } else if (isSvmSwap && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
@@ -478,13 +549,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         ctaCopy,
-        isFromETH,
+        isFromNative,
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig: config.isFetching,
         isSvmSwap,
-        isValidSolanaRecipient,
+        isValidFromAddress,
+        isValidToAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
