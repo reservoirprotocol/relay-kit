@@ -18,7 +18,7 @@ import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
-import type { LinkedWallet } from '../../widgets/SwapWidget/index.js'
+import type { LinkedWallet } from '../../../types/index.js'
 
 type SwapModalProps = {
   open: boolean

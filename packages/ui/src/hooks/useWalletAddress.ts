@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { Address } from 'viem'
 import { useAccount } from 'wagmi'
+import type { LinkedWallet } from '../types/index.js'
 
-export default function (wallet?: AdaptedWallet): string | Address | undefined {
+export default function (
+  wallet?: AdaptedWallet,
+  linkedWallets?: LinkedWallet[]
+): string | Address | undefined {
   const [address, setAddress] = useState<string | Address | undefined>()
   const { address: wagmiAddress } = useAccount()
 
@@ -18,7 +22,7 @@ export default function (wallet?: AdaptedWallet): string | Address | undefined {
     }
 
     getWalletAddress(wallet)
-  }, [wallet])
+  }, [wallet, linkedWallets])
 
   return wallet ? address : wagmiAddress
 }

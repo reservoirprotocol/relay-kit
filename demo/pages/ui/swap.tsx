@@ -20,7 +20,7 @@ import {
   RelayChain
 } from '@reservoir0x/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
-import { LinkedWallet } from '@reservoir0x/relay-kit-ui/_types/src/components/widgets/SwapWidget'
+import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
@@ -107,12 +107,11 @@ const SwapWidgetPage: NextPage = () => {
           setWallet(undefined)
         }
       } catch (e) {
-        console.error('UNABLE TO SET WALLET', e)
         setWallet(undefined)
       }
     }
     adaptWallet()
-  }, [primaryWallet])
+  }, [primaryWallet, primaryWallet?.address])
 
   return (
     <Layout
