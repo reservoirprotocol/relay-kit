@@ -17,11 +17,11 @@ import { LoadingSpinner } from '../../LoadingSpinner.js'
 import type { EnhancedCurrencyList } from '../TokenSelector.js'
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
-import type { Address } from 'viem'
-import type { paths, RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
+import { EventNames } from '../../../../constants/events.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
@@ -40,6 +40,7 @@ type SetCurrencyProps = {
   token?: Token
   selectToken: (currency: Currency, chainId?: number) => void
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 const fuseSearchOptions = {
@@ -62,7 +63,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   isLoadingDuneBalances,
   enhancedCurrencyList,
   selectToken,
-  setCurrencyList
+  setCurrencyList,
+  onAnalyticEvent
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
@@ -178,7 +180,16 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                           backgroundColor: active ? '' : 'gray/10'
                         }
                       }}
-                      onClick={() => setChainFilter(chain)}
+                      onClick={() => {
+                        setChainFilter(chain)
+                        onAnalyticEvent?.(
+                          EventNames.CURRENCY_STEP_CHAIN_FILTER,
+                          {
+                            chain: chain.name,
+                            chain_id: chain.id
+                          }
+                        )
+                      }}
                     >
                       <ChainIcon
                         chainId={chain.id}

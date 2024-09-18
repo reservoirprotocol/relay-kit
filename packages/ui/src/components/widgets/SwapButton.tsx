@@ -59,7 +59,13 @@ const SwapButton: FC<SwapButtonProps> = ({
             Number(debouncedOutputAmountValue) === 0 ||
             isSameCurrencySameRecipientSwap)
         }
-        onClick={onClick}
+        onClick={() => {
+          onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {
+            context,
+            ctaCopy
+          })
+          onClick()
+        }}
       >
         {ctaCopy}
       </Button>

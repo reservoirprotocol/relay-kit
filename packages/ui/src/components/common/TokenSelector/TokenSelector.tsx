@@ -458,6 +458,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             token={token}
             selectToken={selectToken}
             setCurrencyList={setCurrencyList}
+            onAnalyticEvent={onAnalyticEvent}
           />
         ) : null}
         {tokenSelectorStep === TokenSelectorStep.SetChain ? (
