@@ -264,16 +264,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const invalidateBalanceQueries = useCallback(() => {
     const invalidatePeriodically = (invalidateFn: () => void) => {
-      let maxRefreshes = 5
+      let maxRefreshes = 4
       let refreshCount = 0
       const timer = setInterval(() => {
-        refreshCount++
         if (maxRefreshes === refreshCount) {
           clearInterval(timer)
           return
         }
+        refreshCount++
         invalidateFn()
-      }, 1000)
+      }, 3000)
     }
 
     queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
