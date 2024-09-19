@@ -10,7 +10,6 @@ import type { LinkedWallet } from '../../types/index.js'
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
   addressModalOpen: boolean
-  isSvmSwap: boolean
   toChain?: RelayChain
   fromChain?: RelayChain
   wallet?: AdaptedWallet
@@ -63,7 +62,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   useExternalLiquidity,
   timeEstimate,
   recipient,
-  isSvmSwap,
   toChain,
   wallet,
   linkedWallets,
@@ -110,7 +108,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       <CustomAddressModal
         open={addressModalOpen}
         toAddress={customToAddress ?? address}
-        isSvmSwap={isSvmSwap}
         toChain={toChain}
         isConnected={wallet !== undefined || isConnected ? true : false}
         linkedWallets={linkedWallets ?? []}

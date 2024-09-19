@@ -21,7 +21,6 @@ import { truncateAddress } from '../../utils/truncate.js'
 type Props = {
   open: boolean
   toToken?: Token
-  isSvmSwap: boolean
   toAddress?: string
   toChain?: RelayChain
   isConnected?: boolean
@@ -36,7 +35,6 @@ type Props = {
 
 export const CustomAddressModal: FC<Props> = ({
   open,
-  isSvmSwap,
   toAddress,
   toChain,
   linkedWallets,
@@ -54,7 +52,7 @@ export const CustomAddressModal: FC<Props> = ({
 
   const isValidAddress = (input: string) => {
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
-    if (isSvmSwap) {
+    if (toChain?.vmType === 'svm') {
       return solanaAddressRegex.test(input)
     } else {
       return ethereumRegex.test(input)
@@ -137,7 +135,7 @@ export const CustomAddressModal: FC<Props> = ({
                 height: 48
               }}
               placeholder={
-                isSvmSwap
+                toChain?.vmType === 'svm'
                   ? `Enter ${toChain?.displayName} address`
                   : 'Address or ENS'
               }
