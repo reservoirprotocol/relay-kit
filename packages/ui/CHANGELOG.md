@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.3
+
+### Patch Changes
+
+- 277bfc5: Fix wallet switching in ChainWidget, fix sdk convert viem chain to RelayChain helper
+- 1edca7c: Removed max button when Solana balance is less than minimum buffer.
+- Updated dependencies [277bfc5]
+  - @reservoir0x/relay-sdk@1.3.2
+  - @reservoir0x/relay-kit-hooks@1.3.2
+
 ## 2.0.2
 
 ### Patch Changes
