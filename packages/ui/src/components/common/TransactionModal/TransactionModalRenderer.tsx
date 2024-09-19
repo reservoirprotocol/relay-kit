@@ -9,13 +9,13 @@ import {
   useContext,
   useCallback
 } from 'react'
-import { parseUnits, type Address } from 'viem'
-import type {
-  AdaptedWallet,
-  Execute,
-  ExecuteStep,
-  ExecuteStepItem,
-  RelayChain
+import { parseUnits, type Address, type WalletClient } from 'viem'
+import {
+  type AdaptedWallet,
+  type Execute,
+  type ExecuteStep,
+  type ExecuteStepItem,
+  type RelayChain
 } from '@reservoir0x/relay-sdk'
 import {
   calculateExecutionTime,
@@ -31,6 +31,7 @@ import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount, useWalletClient } from 'wagmi'
 import { extractQuoteId, parseFees } from '../../../utils/quote.js'
+import { adaptViemWallet } from '@reservoir0x/relay-sdk'
 
 export enum TransactionProgressStep {
   ReviewQuote,
@@ -236,11 +237,18 @@ export const TransactionModalRenderer: FC<Props> = ({
         throw 'Missing a quote'
       }
 
-      const activeWalletChainId = await wallet?.getChainId()
+      if (!wallet && !walletClient.data) {
+        throw 'Missing a wallet'
+      }
+
+      const _wallet =
+        wallet ?? adaptViemWallet(walletClient.data as WalletClient)
+
+      const activeWalletChainId = await _wallet?.getChainId()
 
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
-        await wallet?.switchChain(fromToken.chainId)
+        await _wallet?.switchChain(fromToken.chainId)
       }
 
       setProgressStep(TransactionProgressStep.WalletConfirmation)
@@ -333,6 +341,7 @@ export const TransactionModalRenderer: FC<Props> = ({
     address,
     connector,
     wallet,
+    walletClient,
     fromToken,
     toToken,
     customToAddress,

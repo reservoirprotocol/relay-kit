@@ -1,4 +1,4 @@
-import type { Chain } from 'viem'
+import { zeroAddress, type Chain } from 'viem'
 import type { RelayChain, paths } from '../types/index.js'
 import * as viemChains from 'viem/chains'
 import { ASSETS_RELAY_API } from '../constants/servers.js'
@@ -93,7 +93,10 @@ export const convertViemChainToRelayChain = (
       squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
       squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
     },
-    currency: chain.nativeCurrency,
+    currency: {
+      address: zeroAddress,
+      ...chain.nativeCurrency
+    },
     explorerUrl: chain.blockExplorers?.default.url ?? '',
     vmType: 'evm',
     depositEnabled: true,
