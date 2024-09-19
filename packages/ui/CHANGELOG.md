@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.1
+
+### Patch Changes
+
+- dc387e3: Fix solana balance cached after swapping
+
 ## 2.0.0
 
 ### Major Changes
