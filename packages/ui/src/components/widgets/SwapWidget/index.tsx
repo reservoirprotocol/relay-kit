@@ -423,7 +423,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         ) : (
                           <Flex css={{ height: 18 }} />
                         )}
-                        {fromBalance ? (
+                        {fromBalance &&
+                        (fromChain?.vmType === 'evm' ||
+                          (isFromNative &&
+                            fromBalance >
+                              BigInt(
+                                0.02 * 10 ** (fromToken?.decimals ?? 18)
+                              ))) ? (
                           <AnchorButton
                             aria-label="MAX"
                             css={{ fontSize: 12 }}
@@ -441,7 +447,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 setAmountInputValue(
                                   formatUnits(
                                     isFromNative
-                                      ? isSvmSwap
+                                      ? fromChain?.vmType === 'svm'
                                         ? fromBalance - solanaBuffer
                                         : fromBalance - percentageBuffer
                                       : fromBalance,
