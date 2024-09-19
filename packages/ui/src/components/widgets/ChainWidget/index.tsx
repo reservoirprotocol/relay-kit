@@ -144,7 +144,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
         supportsExternalLiquidity,
         timeEstimate,
         fetchingSolverConfig,
-        isSvmSwap,
         isValidFromAddress,
         isValidToAddress,
         invalidateBalanceQueries,
@@ -195,7 +194,6 @@ const ChainWidget: FC<ChainWidgetProps> = ({
             setTransactionModalOpen={setTransactionModalOpen}
             addressModalOpen={addressModalOpen}
             setAddressModalOpen={setAddressModalOpen}
-            isSvmSwap={isSvmSwap}
             fromToken={fromToken}
             fromChain={fromChain}
             toToken={toToken}
@@ -436,7 +434,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                                 style="subtitle3"
                                 css={{ color: 'inherit' }}
                               >
-                                {isSvmSwap && !isValidToAddress
+                                {toChain?.vmType === 'svm' && !isValidToAddress
                                   ? `Enter ${toChain?.displayName} Address`
                                   : toDisplayName}
                               </Text>
@@ -630,7 +628,7 @@ const ChainWidget: FC<ChainWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
-                        if (isSvmSwap && !isValidToAddress) {
+                        if (toChain?.vmType === 'svm' && !isValidToAddress) {
                           setAddressModalOpen(true)
                         } else {
                           setTransactionModalOpen(true)

@@ -221,7 +221,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setTransactionModalOpen={setTransactionModalOpen}
             addressModalOpen={addressModalOpen}
             setAddressModalOpen={setAddressModalOpen}
-            isSvmSwap={isSvmSwap}
             fromToken={fromToken}
             fromChain={fromChain}
             toToken={toToken}
@@ -555,7 +554,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {isSvmSwap && !isValidToAddress
+                            {toChain?.vmType === 'svm' && !isValidToAddress
                               ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
