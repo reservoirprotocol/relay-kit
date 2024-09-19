@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.2
+
+### Patch Changes
+
+- 78e5d13: Added a buffer of 0.02 minimum when selecting max for a Solana balance
+- b1526cb: Fix solana custom address prompt
+
 ## 2.0.1
 
 ### Patch Changes
