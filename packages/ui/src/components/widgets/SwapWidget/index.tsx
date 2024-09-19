@@ -317,8 +317,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -429,11 +429,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             aria-label="MAX"
                             css={{ fontSize: 12 }}
                             onClick={() => {
+                              const percentageBuffer = (fromBalance * 1n) / 100n // 1% of the balance
+                              const fixedBuffer = BigInt(
+                                0.02 * 10 ** (fromToken?.decimals ?? 18)
+                              ) // Fixed buffer of 0.02 tokens
+                              const solanaBuffer =
+                                percentageBuffer > fixedBuffer
+                                  ? percentageBuffer
+                                  : fixedBuffer
+
                               if (fromToken) {
                                 setAmountInputValue(
                                   formatUnits(
                                     isFromNative
-                                      ? (fromBalance * 99n) / 100n
+                                      ? isSvmSwap
+                                        ? fromBalance - solanaBuffer
+                                        : fromBalance - percentageBuffer
                                       : fromBalance,
                                     fromToken?.decimals
                                   )
@@ -589,8 +600,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
