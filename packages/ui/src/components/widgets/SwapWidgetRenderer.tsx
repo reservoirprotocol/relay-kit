@@ -511,7 +511,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = `Select ${fromChain?.displayName} wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
     ctaCopy = `Select ${toChain?.displayName} wallet`
-  } else if (isSvmSwap && !isValidToAddress) {
+  } else if (toChain?.vmType === 'svm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
