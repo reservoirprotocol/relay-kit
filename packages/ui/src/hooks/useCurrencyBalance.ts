@@ -26,6 +26,7 @@ type UseCurrencyBalanceData = {
   isLoading: boolean
   isError: boolean | GetBalanceErrorType | null
   error: boolean | ReadContractErrorType | Error | null
+  isDuneBalance: boolean
 }
 
 // Handle fetching the balance of both native eth and erc20s
@@ -99,7 +100,7 @@ const useCurrencyBalance = ({
     const isLoading = isErc20Currency
       ? erc20BalanceIsLoading
       : ethBalanceIsLoading
-    return { value, queryKey, isLoading, isError, error }
+    return { value, queryKey, isLoading, isError, error, isDuneBalance: false }
   } else if (chain?.vmType === 'svm') {
     if (isValidSvmAddress) {
       return {
@@ -114,7 +115,8 @@ const useCurrencyBalance = ({
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,
         isError: duneBalances.isError,
-        error: duneBalances.error
+        error: duneBalances.error,
+        isDuneBalance: true
       }
     } else {
       return {
@@ -122,7 +124,8 @@ const useCurrencyBalance = ({
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,
         isError: duneBalances.isError,
-        error: duneBalances.error
+        error: duneBalances.error,
+        isDuneBalance: true
       }
     }
   } else {
@@ -131,7 +134,8 @@ const useCurrencyBalance = ({
       queryKey: duneBalances.queryKey,
       isLoading: duneBalances.isLoading,
       isError: duneBalances.isError,
-      error: duneBalances.error
+      error: duneBalances.error,
+      isDuneBalance: false
     }
   }
 }
