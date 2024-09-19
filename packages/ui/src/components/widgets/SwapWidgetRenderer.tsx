@@ -241,7 +241,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     value: fromBalance,
     queryKey: fromBalanceQueryKey,
     isLoading: isLoadingFromBalance,
-    isError: fromBalanceErrorFetching
+    isError: fromBalanceErrorFetching,
+    isDuneBalance: fromBalanceIsDune
   } = useCurrencyBalance({
     chain: fromChain,
     address: address,
@@ -252,7 +253,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const {
     value: toBalance,
     queryKey: toBalanceQueryKey,
-    isLoading: isLoadingToBalance
+    isLoading: isLoadingToBalance,
+    isDuneBalance: toBalanceIsDune
   } = useCurrencyBalance({
     chain: toChain,
     address: recipient,
@@ -261,10 +263,45 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   })
 
   const invalidateBalanceQueries = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
-    queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
+    const invalidatePeriodically = (invalidateFn: () => void) => {
+      let maxRefreshes = 5
+      let refreshCount = 0
+      const timer = setInterval(() => {
+        refreshCount++
+        if (maxRefreshes === refreshCount) {
+          clearInterval(timer)
+          return
+        }
+        invalidateFn()
+      }, 1000)
+    }
+
     queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
-  }, [queryClient, fromBalanceQueryKey, toBalanceQueryKey, address])
+
+    // Dune balances are sometimes stale, because of this we need to aggressively fetch them
+    // for a predetermined period to make sure we get back a fresh response
+    if (fromBalanceIsDune) {
+      invalidatePeriodically(() => {
+        queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
+      })
+    } else {
+      queryClient.invalidateQueries({ queryKey: fromBalanceQueryKey })
+    }
+    if (toBalanceIsDune) {
+      invalidatePeriodically(() => {
+        queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
+      })
+    } else {
+      queryClient.invalidateQueries({ queryKey: toBalanceQueryKey })
+    }
+  }, [
+    queryClient,
+    fromBalanceQueryKey,
+    toBalanceQueryKey,
+    toBalanceIsDune,
+    fromBalanceIsDune,
+    address
+  ])
   const { data: capabilities } = useCapabilities({
     query: {
       enabled:
