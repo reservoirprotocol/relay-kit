@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.5
+
+### Patch Changes
+
+- e0b311d: Patches fixes for Solana + multi wallet dropdown ui
+
 ## 2.0.4
 
 ### Patch Changes
