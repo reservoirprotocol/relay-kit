@@ -54,8 +54,10 @@ export const CustomAddressModal: FC<Props> = ({
     const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
     if (toChain?.vmType === 'svm') {
       return solanaAddressRegex.test(input)
-    } else {
+    } else if (toChain?.vmType === 'evm') {
       return ethereumRegex.test(input)
+    } else {
+      return false
     }
   }
 
@@ -160,7 +162,7 @@ export const CustomAddressModal: FC<Props> = ({
             </Text>
           ) : null}
 
-          {!connectedAddressSet && isConnected ? (
+          {!connectedAddressSet && address && isConnected ? (
             <Flex
               css={{ bg: 'amber2', p: '2', borderRadius: 8, gap: '2' }}
               align="center"
@@ -205,7 +207,7 @@ export const CustomAddressModal: FC<Props> = ({
             )
           ) : null}
 
-          {multiWalletSupportEnabled && linkedWallets.length > 0 ? (
+          {multiWalletSupportEnabled && availableWallets.length > 0 ? (
             <>
               <Text style="subtitle2">Use connected wallet address</Text>
               <Flex css={{ gap: '2', flexWrap: 'wrap' }} align="center">
