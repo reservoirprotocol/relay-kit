@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.4
+
+### Patch Changes
+
+- e763551: Fix minor CustomAddressModal bugs
+
 ## 2.0.3
 
 ### Patch Changes
