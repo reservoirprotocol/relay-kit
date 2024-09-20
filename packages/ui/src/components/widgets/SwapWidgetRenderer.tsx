@@ -508,9 +508,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
   } else if (multiWalletSupportEnabled && !isValidFromAddress) {
-    ctaCopy = `Select ${fromChain?.displayName} wallet`
+    ctaCopy = `Select ${fromChain?.displayName} Wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = `Select ${toChain?.displayName} wallet`
+    ctaCopy = `Select ${toChain?.displayName} Wallet`
   } else if (toChain?.vmType === 'svm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
