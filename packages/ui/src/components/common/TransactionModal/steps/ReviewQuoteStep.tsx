@@ -84,9 +84,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     (wallet) => wallet.address === quote?.details?.recipient
   )
 
-  const connectedWalletIsNotRecipient =
-    quote && address !== quote?.details?.recipient && !toWallet
-
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
 
   useEffect(() => {
@@ -357,31 +354,6 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                 item.value
               )}
             </Flex>
-            {item.title === 'To address' && connectedWalletIsNotRecipient ? (
-              <Flex
-                align="center"
-                css={{
-                  gap: '2',
-                  p: '2',
-                  borderRadius: 8,
-                  bg: 'amber2',
-                  color: 'amber10'
-                }}
-              >
-                <FontAwesomeIcon
-                  icon={faTriangleExclamation}
-                  width={16}
-                  height={16}
-                />
-                <Text
-                  style="subtitle3"
-                  css={{ color: 'amber12', maxWidth: 300 }}
-                >
-                  This isn't the connected wallet address. Please verify that
-                  the recipient is correct.{' '}
-                </Text>
-              </Flex>
-            ) : null}
           </React.Fragment>
         ))}
       </Flex>
