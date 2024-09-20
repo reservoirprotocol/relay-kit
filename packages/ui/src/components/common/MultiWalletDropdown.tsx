@@ -139,8 +139,8 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
       }
       contentProps={{
         sideOffset: 12,
-        alignOffset: -16,
-        align: 'start',
+        alignOffset: -12,
+        align: 'end',
         css: { maxWidth: 248, p: 0 }
       }}
     >
