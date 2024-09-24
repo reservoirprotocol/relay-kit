@@ -230,6 +230,18 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         maxWidth: '412px !important'
       }}
       showCloseButton={isReviewQuoteStep}
+      onPointerDownOutside={(e) => {
+        const dynamicModalElements = Array.from(
+          document.querySelectorAll('#dynamic-send-transaction')
+        )
+        const clickedInsideDynamicModal = dynamicModalElements.some((el) =>
+          e.target ? el.contains(e.target as Node) : false
+        )
+
+        if (clickedInsideDynamicModal && dynamicModalElements.length > 0) {
+          e.preventDefault()
+        }
+      }}
     >
       <Flex
         direction="column"
