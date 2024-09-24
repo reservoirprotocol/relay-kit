@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.8
+
+### Patch Changes
+
+- e3044ff: Fix token selector balance display
+
 ## 2.0.7
 
 ### Patch Changes
