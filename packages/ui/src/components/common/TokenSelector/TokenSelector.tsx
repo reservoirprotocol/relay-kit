@@ -359,6 +359,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setTokenSelectorStep(TokenSelectorStep.SetCurrency)
     setTokenSearchInput('')
     setChainSearchInput('')
+    setChainFilter({
+      id: undefined,
+      name: 'All'
+    })
   }, [])
 
   const selectToken = useCallback(
