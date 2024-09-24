@@ -118,10 +118,23 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
 
       return receipt
     },
-    switchChain: (chainId: number) => {
-      return wallet.switchChain({
-        id: chainId
-      })
+    switchChain: async (chainId: number) => {
+      try {
+        await wallet.switchChain({
+          id: chainId
+        })
+        return
+      } catch (e) {
+        const client = getClient()
+        const chain = client.chains.find((chain) => chain.id === chainId)
+        if (!chain) {
+          throw 'Chain missing from Relay Client'
+        }
+        await wallet.addChain({
+          chain: chain?.viemChain
+        })
+        return
+      }
     }
   }
 }
