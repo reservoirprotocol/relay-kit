@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.3.3
+
+### Patch Changes
+
+- 3f88d12: Fix switchChain logic to take into account missing chain in wallet
+
 ## 1.3.2
 
 ### Patch Changes
