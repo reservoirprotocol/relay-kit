@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.0.7
+
+### Patch Changes
+
+- 49cd085: Fix swap modal closing when dynamic embedded wallet tx modal is prompted and clicked on
+
 ## 2.0.6
 
 ### Patch Changes
