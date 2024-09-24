@@ -20,7 +20,12 @@ type ModalProps = {
 }
 
 export const Modal: FC<
-  ComponentPropsWithoutRef<typeof DialogRoot> & ModalProps
+  ComponentPropsWithoutRef<typeof DialogRoot> &
+    ModalProps &
+    Pick<
+      ComponentPropsWithoutRef<typeof AnimatedContent>,
+      'onPointerDownOutside'
+    >
 > = ({ trigger, css, showCloseButton = true, children, ...props }) => {
   return (
     <DialogRoot modal={true} {...props}>
@@ -48,6 +53,7 @@ export const Modal: FC<
                   padding: '4',
                   ...css
                 }}
+                onPointerDownOutside={props.onPointerDownOutside}
               >
                 {showCloseButton ? (
                   <DialogClose
