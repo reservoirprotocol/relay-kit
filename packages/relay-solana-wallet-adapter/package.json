@@ -1,6 +1,6 @@
 {
     "name": "@reservoir0x/relay-solana-wallet-adapter",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A Solana adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
