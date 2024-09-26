@@ -106,7 +106,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
         Select Token
       </Text>
       <Flex css={{ width: '100%', gap: '3' }}>
-        {isDesktop ? (
+        {isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
           <>
             <Flex
               direction="column"

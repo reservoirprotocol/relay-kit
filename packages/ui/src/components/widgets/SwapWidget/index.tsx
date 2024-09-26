@@ -39,6 +39,8 @@ type BaseSwapWidgetProps = {
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
+  lockToChain?: boolean
+  tokens?: Token[]
   wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
@@ -75,6 +77,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultTradeType,
   lockToToken = false,
   lockFromToken = false,
+  lockToChain = false,
+  tokens,
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
@@ -101,7 +105,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     decimals: 18,
     logoURI: 'https://assets.relay.link/icons/1/light.png'
   }
-
   return (
     <SwapWidgetRenderer
       context="Swap"
@@ -116,6 +119,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
+      fetchSolverConfig={true}
     >
       {({
         price,
@@ -316,8 +320,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -588,6 +592,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <ChainTrigger
                       token={toToken}
                       chain={toChain}
+                      locked={lockToChain}
                       onClick={() => {
                         setToTokenSelectorType('chain')
                         toTokenSelectorOpenState[1](
@@ -605,8 +610,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -679,6 +684,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </div>
                         }
                         onAnalyticEvent={onAnalyticEvent}
+                        restrictedTokensList={tokens}
+                        chainIdsFilter={
+                          lockToChain && toToken?.chainId
+                            ? [toToken.chainId]
+                            : undefined
+                        }
                       />
                     </Flex>
                     <Flex
