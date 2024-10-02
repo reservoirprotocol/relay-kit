@@ -41,6 +41,15 @@ const ButtonCss = cva({
           color: 'primary-button-hover-color'
         }
       },
+      primaryOutline: {
+        backgroundColor: 'transparent',
+        color: 'gray12',
+        '--border-color': 'primary-outline-button-color',
+        border: '1px solid var(--border-color)',
+        '&:hover': {
+          color: 'primary-outline-button-hover-color'
+        }
+      },
       secondary: {
         backgroundColor: 'secondary-button-background',
         color: 'secondary-button-color',

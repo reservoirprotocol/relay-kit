@@ -115,6 +115,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
           currency_in: fromToken?.symbol,
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
+          is_canonical: useExternalLiquidity,
           quote_id: quoteId,
           txHashes: steps
             ?.map((step) => {

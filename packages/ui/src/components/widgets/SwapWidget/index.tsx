@@ -19,7 +19,6 @@ import SwapWidgetRenderer from '../SwapWidgetRenderer.js'
 import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
-import FetchingQuoteLoader from '../FetchingQuoteLoader.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
@@ -119,7 +118,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
-      fetchSolverConfig={true}
+      checkExternalLiquiditySupport={true}
     >
       {({
         price,
@@ -156,12 +155,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         relayerFeeProportion,
         hasInsufficientBalance,
         isInsufficientLiquidityError,
+        isCapacityExceededError,
+        maxCapacityFormatted,
         ctaCopy,
         isFromNative,
         timeEstimate,
         isSvmSwap,
         isValidFromAddress,
         isValidToAddress,
+        supportsExternalLiquidity,
+        useExternalLiquidity,
+        setUseExternalLiquidity,
         setDetails,
         setSwapError,
         invalidateBalanceQueries
@@ -761,18 +765,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
-                  <FetchingQuoteLoader
-                    isLoading={isFetchingPrice}
-                    containerCss={{
-                      mb: '6px',
-                      mt: 0,
-                      p: '3',
-                      width: '100%',
-                      justifyContent: 'center',
-                      borderRadius: 'widget-card-border-radius',
-                      backgroundColor: 'widget-background'
-                    }}
-                  />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingPrice={isFetchingPrice}
@@ -780,68 +772,99 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     fromToken={fromToken}
                     price={price}
                     timeEstimate={timeEstimate}
-                    containerCss={{
-                      border: 'none',
-                      borderRadius: 'widget-card-border-radius',
-                      backgroundColor: 'widget-background',
-                      mb: '6px'
+                    supportsExternalLiquidity={supportsExternalLiquidity}
+                    useExternalLiquidity={useExternalLiquidity}
+                    toChain={toChain}
+                    setUseExternalLiquidity={(enabled) => {
+                      setUseExternalLiquidity(enabled)
+                      onAnalyticEvent?.(EventNames.SWAP_ROUTE_SELECTED, {
+                        route: enabled ? 'canonical' : 'relay'
+                      })
                     }}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
-                    hasInsufficientSafeBalance={false}
                     error={error}
                     quote={price}
-                    currency={fromToken}
+                    currency={toToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
+                    isCapacityExceededError={isCapacityExceededError}
+                    maxCapacity={maxCapacityFormatted}
                     relayerFeeProportion={relayerFeeProportion}
-                    context="swap"
+                    supportsExternalLiquidity={supportsExternalLiquidity}
                     containerCss={{
                       mb: '6px'
                     }}
                   />
-                  <SwapButton
-                    transactionModalOpen={transactionModalOpen}
-                    isValidFromAddress={isValidFromAddress}
-                    isValidToAddress={isValidToAddress}
-                    context={'Swap'}
-                    onConnectWallet={onConnectWallet}
-                    onAnalyticEvent={onAnalyticEvent}
-                    price={price}
-                    address={address}
-                    hasInsufficientBalance={hasInsufficientBalance}
-                    isInsufficientLiquidityError={isInsufficientLiquidityError}
-                    debouncedInputAmountValue={debouncedInputAmountValue}
-                    debouncedOutputAmountValue={debouncedOutputAmountValue}
-                    isSameCurrencySameRecipientSwap={
-                      isSameCurrencySameRecipientSwap
-                    }
-                    onClick={() => {
-                      // If either address is not valid, open the link wallet modal
-                      if (!isValidToAddress || !isValidFromAddress) {
-                        if (multiWalletSupportEnabled) {
-                          const chain = !isValidFromAddress
-                            ? fromChain
-                            : toChain
-                          onLinkNewWallet?.({
-                            chain: chain,
-                            direction: !isValidFromAddress ? 'from' : 'to'
-                          })?.then((wallet) => {
-                            if (!isValidFromAddress) {
-                              onSetPrimaryWallet?.(wallet.address)
-                            } else {
-                              setCustomToAddress(wallet.address)
-                            }
-                          })
-                        } else {
-                          setAddressModalOpen(true)
-                        }
-                      } else {
-                        setTransactionModalOpen(true)
+                  {isCapacityExceededError && supportsExternalLiquidity ? (
+                    <Flex css={{ mt: '6px', gap: '3' }}>
+                      <Button
+                        color="white"
+                        onClick={() => {
+                          if (maxCapacityFormatted) {
+                            setAmountInputValue(maxCapacityFormatted)
+                          } else {
+                            console.error('Missing max capacity')
+                          }
+                        }}
+                      >
+                        Set to {maxCapacityFormatted} {toToken?.symbol}
+                      </Button>
+                      <Button
+                        color="primary"
+                        onClick={() => {
+                          setUseExternalLiquidity(true)
+                        }}
+                      >
+                        Switch Route
+                      </Button>
+                    </Flex>
+                  ) : (
+                    <SwapButton
+                      transactionModalOpen={transactionModalOpen}
+                      isValidFromAddress={isValidFromAddress}
+                      isValidToAddress={isValidToAddress}
+                      context={'Swap'}
+                      onConnectWallet={onConnectWallet}
+                      onAnalyticEvent={onAnalyticEvent}
+                      price={price}
+                      address={address}
+                      hasInsufficientBalance={hasInsufficientBalance}
+                      isInsufficientLiquidityError={
+                        isInsufficientLiquidityError
                       }
-                    }}
-                    ctaCopy={ctaCopy}
-                  />
+                      debouncedInputAmountValue={debouncedInputAmountValue}
+                      debouncedOutputAmountValue={debouncedOutputAmountValue}
+                      isSameCurrencySameRecipientSwap={
+                        isSameCurrencySameRecipientSwap
+                      }
+                      onClick={() => {
+                        // If either address is not valid, open the link wallet modal
+                        if (!isValidToAddress || !isValidFromAddress) {
+                          if (multiWalletSupportEnabled) {
+                            const chain = !isValidFromAddress
+                              ? fromChain
+                              : toChain
+                            onLinkNewWallet?.({
+                              chain: chain,
+                              direction: !isValidFromAddress ? 'from' : 'to'
+                            })?.then((wallet) => {
+                              if (!isValidFromAddress) {
+                                onSetPrimaryWallet?.(wallet.address)
+                              } else {
+                                setCustomToAddress(wallet.address)
+                              }
+                            })
+                          } else {
+                            setAddressModalOpen(true)
+                          }
+                        } else {
+                          setTransactionModalOpen(true)
+                        }
+                      }}
+                      ctaCopy={ctaCopy}
+                    />
+                  )}
                 </Flex>
               )
             }}

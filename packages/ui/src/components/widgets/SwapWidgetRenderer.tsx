@@ -22,7 +22,7 @@ import {
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { usePrice, useRelayConfig } from '@reservoir0x/relay-kit-hooks'
+import { usePrice } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
@@ -30,6 +30,7 @@ import type Text from '../../components/primitives/Text.js'
 import { findSupportedWallet, isSolanaAddress } from '../../utils/solana.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
+import { formatBN } from '../../utils/numbers.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -41,7 +42,7 @@ type SwapWidgetRendererProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: TradeType
-  fetchSolverConfig?: boolean
+  checkExternalLiquiditySupport?: boolean
   context: 'Swap' | 'Deposit' | 'Withdraw'
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
@@ -98,12 +99,15 @@ export type ChildrenProps = {
   relayerFeeProportion: bigint
   hasInsufficientBalance: boolean
   isInsufficientLiquidityError?: boolean
+  isCapacityExceededError?: boolean
+  maxCapacityWei?: string
+  maxCapacityFormatted?: string
   ctaCopy: string
   isFromNative: boolean
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
-  fetchingSolverConfig: boolean
+  fetchingExternalLiquiditySupport: boolean
   isSvmSwap: boolean
   isValidFromAddress: boolean
   isValidToAddress: boolean
@@ -121,7 +125,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   defaultAmount,
   defaultTradeType,
   context,
-  fetchSolverConfig,
+  checkExternalLiquiditySupport,
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
@@ -182,21 +186,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     toToken?.chainId !== undefined &&
     fromToken.symbol === toToken.symbol &&
     canonicalCurrencies.includes(fromToken.symbol.toLowerCase())
-  const config = useRelayConfig(
-    relayClient?.baseApiUrl,
-    {
-      currency: ((fromToken?.symbol as any) ?? '').toLowerCase(),
-      originChainId: `${fromToken?.chainId}`,
-      destinationChainId: `${toToken?.chainId}`
-    },
-    {
-      enabled: tokenPairIsCanonical && fetchSolverConfig
-    }
-  )
-  const supportsExternalLiquidity =
-    tokenPairIsCanonical && config.data?.supportsExternalLiquidity
-      ? true
-      : false
 
   const toChain = relayClient?.chains.find(
     (chain) => chain.id === toToken?.chainId
@@ -345,6 +334,36 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? recipient
         : solDeadAddress
 
+  const externalLiquiditySupport = usePrice(
+    relayClient ? relayClient : undefined,
+    fromToken && toToken
+      ? {
+          user: fromAddressWithFallback,
+          originChainId: fromToken.chainId,
+          destinationChainId: toToken.chainId,
+          originCurrency: fromToken.address,
+          destinationCurrency: toToken.address,
+          recipient: toAddressWithFallback,
+          tradeType,
+          appFees: providerOptionsContext.appFees,
+          amount: parseUnits('1', fromToken.decimals).toString(),
+          referrer: relayClient?.source ?? undefined,
+          useExternalLiquidity: true
+        }
+      : undefined,
+    undefined,
+    {
+      enabled:
+        checkExternalLiquiditySupport &&
+        fromToken !== undefined &&
+        toToken !== undefined
+    }
+  )
+  const supportsExternalLiquidity =
+    tokenPairIsCanonical && externalLiquiditySupport.status === 'success'
+      ? true
+      : false
+
   const {
     data: price,
     isLoading: isFetchingPrice,
@@ -383,7 +402,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         chain_id_in: details?.currencyIn?.currency?.chainId,
         amount_out: details?.currencyOut?.amountFormatted,
         currency_out: details?.currencyOut?.currency?.symbol,
-        chain_id_out: details?.currencyOut?.currency?.chainId
+        chain_id_out: details?.currencyOut?.currency?.chainId,
+        is_canonical: useExternalLiquidity
       })
     },
     {
@@ -463,8 +483,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? (error?.message as string)
       : 'Unknown Error'
     : null
+  const fetchQuoteDataErrorMessage = error
+    ? (error as any)?.response?.data?.message
+      ? ((error as any)?.response?.data.message as string)
+      : 'Unknown Error'
+    : null
   const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
     'No quotes available'
+  )
+  const isCapacityExceededError = fetchQuoteDataErrorMessage?.includes(
+    'Amount is higher than the available liquidity'
   )
   const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
@@ -478,6 +506,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     address === recipient
 
   const operation = price?.details?.operation || 'swap'
+  const maxCapacityWei =
+    isCapacityExceededError && fetchQuoteDataErrorMessage
+      ? fetchQuoteDataErrorMessage.match(/(\d+)/)?.[0]
+      : undefined
+  const maxCapacityFormatted = maxCapacityWei
+    ? formatBN(BigInt(maxCapacityWei), 5, toToken?.decimals ?? 18)
+    : undefined
 
   let ctaCopy: string = context || 'Swap'
 
@@ -585,12 +620,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         relayerFeeProportion,
         hasInsufficientBalance,
         isInsufficientLiquidityError,
+        isCapacityExceededError,
+        maxCapacityFormatted,
+        maxCapacityWei,
         ctaCopy,
         isFromNative,
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
-        fetchingSolverConfig: config.isFetching,
+        fetchingExternalLiquiditySupport: externalLiquiditySupport.isFetching,
         isSvmSwap,
         isValidFromAddress,
         isValidToAddress,

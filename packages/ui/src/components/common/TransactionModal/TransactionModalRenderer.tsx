@@ -199,7 +199,8 @@ export const TransactionModalRenderer: FC<Props> = ({
         chain_id_in: details?.currencyIn?.currency?.chainId,
         amount_out: details?.currencyOut?.amountFormatted,
         currency_out: details?.currencyOut?.currency?.symbol,
-        chain_id_out: details?.currencyOut?.currency?.chainId
+        chain_id_out: details?.currencyOut?.currency?.chainId,
+        is_canonical: useExternalLiquidity
       })
     },
     {
