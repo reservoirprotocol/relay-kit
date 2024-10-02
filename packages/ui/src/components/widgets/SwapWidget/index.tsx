@@ -247,7 +247,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 setSwapError(null)
               }
             }}
-            useExternalLiquidity={false}
+            useExternalLiquidity={useExternalLiquidity}
             onSwapSuccess={onSwapSuccess}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}

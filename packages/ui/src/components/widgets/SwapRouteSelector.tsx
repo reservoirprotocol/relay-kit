@@ -66,7 +66,10 @@ const SwapRouteSelector: FC<Props> = ({
           disabled={!(supportsExternalLiquidity || externalLiquidtySelected)}
         >
           <Text style="subtitle2">Route</Text>
-          <Pill css={{ gap: '2' }} color="gray">
+          <Pill
+            css={{ gap: '2', display: 'flex', alignItems: 'center' }}
+            color="gray"
+          >
             <Text style="subtitle2">
               {externalLiquidtySelected ? 'Standard' : 'Relay'}
             </Text>
@@ -95,7 +98,7 @@ const SwapRouteSelector: FC<Props> = ({
               backdropFilter: 'brightness(95%)'
             },
             flexShrink: 0,
-            alignContent: 'center',
+            alignContent: 'top',
             width: '100%',
             display: 'flex'
           }}
@@ -128,7 +131,7 @@ const SwapRouteSelector: FC<Props> = ({
                 backdropFilter: 'brightness(95%)'
               },
               flexShrink: 0,
-              alignContent: 'center',
+              alignContent: 'top',
               width: '100%',
               display: 'flex',
               pt: '8px'
