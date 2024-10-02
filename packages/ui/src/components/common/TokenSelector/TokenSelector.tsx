@@ -435,7 +435,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       trigger={trigger}
       css={{
         p: '4',
-        sm: { minWidth: size === 'desktop' ? 568 : 400, maxWidth: 568 }
+        sm: {
+          minWidth:
+            size === 'desktop'
+              ? !chainIdsFilter || chainIdsFilter.length > 1
+                ? 568
+                : 378
+              : 400,
+          maxWidth:
+            size === 'desktop' && (!chainIdsFilter || chainIdsFilter.length > 1)
+              ? 568
+              : 378
+        }
       }}
     >
       <Flex
