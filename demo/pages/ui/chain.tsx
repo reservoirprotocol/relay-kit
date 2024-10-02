@@ -1,17 +1,23 @@
 import { NextPage } from 'next'
-import { ChainWidget } from '@reservoir0x/relay-kit-ui'
+import { SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import {
   useDynamicContext,
   useDynamicModals
 } from '@dynamic-labs/sdk-react-core'
+import { useTheme } from 'next-themes'
 
 const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { setShowLinkNewWalletModal } = useDynamicModals()
+  const { theme } = useTheme()
 
   return (
-    <Layout>
+    <Layout
+      styles={{
+        background: theme === 'light' ? 'rgba(245, 242, 255, 1)' : '#1c172b'
+      }}
+    >
       <div
         style={{
           display: 'flex',
@@ -21,8 +27,8 @@ const ChainWidgetPage: NextPage = () => {
           paddingTop: 50
         }}
       >
-        <ChainWidget
-          chainId={8453}
+        <SwapWidget
+          lockToChain={true}
           tokens={[
             {
               chainId: 8453,
@@ -41,7 +47,7 @@ const ChainWidgetPage: NextPage = () => {
               logoURI: 'https://assets.relay.link/icons/1/light.png'
             }
           ]}
-          defaultToken={{
+          defaultToToken={{
             chainId: 8453,
             address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
             decimals: 6,
