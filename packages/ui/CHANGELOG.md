@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.1
+
+### Patch Changes
+
+- d7a2ced: Fix canonical check amount, disable token selector when one option available
+
 ## 2.1.0
 
 ### Minor Changes
