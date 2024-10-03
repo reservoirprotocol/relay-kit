@@ -129,7 +129,7 @@ const ChainWidgetPage: NextPage = () => {
         }}
       >
         <SwapWidget
-          lockToChain={true}
+          lockChainId={8453}
           tokens={[
             {
               chainId: 8453,
