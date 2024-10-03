@@ -40,9 +40,9 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?all_chains`
+      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all`
       if (isSvmAddress) {
-        url = `https://api.dune.com/api/beta/balance/solana/${address}?all_chains`
+        url = `https://api.dune.com/api/beta/balance/solana/${address}?chain_ids=all`
       }
 
       return fetch(url, {

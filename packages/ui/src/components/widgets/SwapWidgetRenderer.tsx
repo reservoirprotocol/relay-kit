@@ -460,6 +460,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedAmountOutputControls.flush()
   }, [price, tradeType])
 
+  useEffect(() => {
+    if (useExternalLiquidity && !supportsExternalLiquidity) {
+      setUseExternalLiquidity(false)
+    }
+  }, [supportsExternalLiquidity, useExternalLiquidity])
+
   const feeBreakdown = useMemo(() => {
     const chains = relayClient?.chains
     const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
