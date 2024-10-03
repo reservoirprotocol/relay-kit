@@ -404,7 +404,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           >
                             <SwapWidgetTokenTrigger
                               token={fromToken}
-                              locked={lockFromToken}
+                              locked={
+                                lockFromToken ||
+                                (tokens &&
+                                  tokens.filter(
+                                    (token) =>
+                                      token.chainId === fromToken?.chainId
+                                  ).length === 1)
+                              }
                             />
                           </div>
                         }
@@ -699,7 +706,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           >
                             <SwapWidgetTokenTrigger
                               token={toToken}
-                              locked={lockToToken}
+                              locked={
+                                lockToToken ||
+                                (tokens &&
+                                  tokens.filter(
+                                    (token) =>
+                                      token.chainId === toToken?.chainId
+                                  ).length === 1)
+                              }
                             />
                           </div>
                         }
