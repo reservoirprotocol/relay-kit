@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.0
+
+### Minor Changes
+
+- 466cf46: Implement canonical+ support into SwapWidget, remove ChainWidget
+
 ## 2.0.8
 
 ### Patch Changes
