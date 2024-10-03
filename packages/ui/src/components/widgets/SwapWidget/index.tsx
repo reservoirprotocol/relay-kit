@@ -38,7 +38,7 @@ type BaseSwapWidgetProps = {
   defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
-  lockToChain?: boolean
+  lockChainId?: number
   tokens?: Token[]
   wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
@@ -76,7 +76,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultTradeType,
   lockToToken = false,
   lockFromToken = false,
-  lockToChain = false,
+  lockChainId,
   tokens,
   wallet,
   multiWalletSupportEnabled = false,
@@ -307,6 +307,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <ChainTrigger
                       token={fromToken}
                       chain={fromChain}
+                      locked={
+                        lockChainId !== undefined &&
+                        lockChainId === fromToken?.chainId
+                      }
                       onClick={() => {
                         setFromTokenSelectorType('chain')
                         fromTokenSelectorOpenState[1](
@@ -379,6 +383,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                         context="from"
                         multiWalletSupportEnabled={multiWalletSupportEnabled}
+                        chainIdsFilter={
+                          lockChainId !== undefined &&
+                          fromToken?.chainId === lockChainId
+                            ? [fromToken.chainId]
+                            : undefined
+                        }
+                        restrictedTokensList={tokens?.filter(
+                          (token) => token.chainId === fromToken?.chainId
+                        )}
                         size={
                           fromTokenSelectorType === 'chain'
                             ? 'mobile'
@@ -596,7 +609,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <ChainTrigger
                       token={toToken}
                       chain={toChain}
-                      locked={lockToChain}
+                      locked={
+                        lockChainId !== undefined &&
+                        lockChainId === toToken?.chainId
+                      }
                       onClick={() => {
                         setToTokenSelectorType('chain')
                         toTokenSelectorOpenState[1](
@@ -688,12 +704,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </div>
                         }
                         onAnalyticEvent={onAnalyticEvent}
-                        restrictedTokensList={tokens}
                         chainIdsFilter={
-                          lockToChain && toToken?.chainId
+                          lockChainId !== undefined &&
+                          toToken?.chainId === lockChainId
                             ? [toToken.chainId]
                             : undefined
                         }
+                        restrictedTokensList={tokens?.filter(
+                          (token) => token.chainId === toToken?.chainId
+                        )}
                       />
                     </Flex>
                     <Flex
