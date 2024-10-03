@@ -14,12 +14,14 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 type ChainTriggerProps = {
   token?: Token
   chain?: RelayChain
+  locked?: boolean
   onClick?: () => void
 }
 
 export const ChainTrigger: FC<ChainTriggerProps> = ({
   token,
   chain,
+  locked,
   onClick
 }) => {
   return (
@@ -34,6 +36,7 @@ export const ChainTrigger: FC<ChainTriggerProps> = ({
         width: '100%',
         height: 48,
         backgroundColor: 'gray2',
+        pointerEvents: locked ? 'none' : 'all',
         _hover: {
           backgroundColor: 'gray3'
         }
@@ -47,9 +50,11 @@ export const ChainTrigger: FC<ChainTriggerProps> = ({
       ) : (
         <Text style="h6">Select Chain</Text>
       )}
-      <Box css={{ color: 'gray9' }}>
-        <FontAwesomeIcon icon={faChevronDown} width={14} />
-      </Box>
+      {locked ? null : (
+        <Box css={{ color: 'gray9' }}>
+          <FontAwesomeIcon icon={faChevronDown} width={14} />
+        </Box>
+      )}
     </Button>
   )
 }

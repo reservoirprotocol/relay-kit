@@ -5,7 +5,9 @@ import { formatNumber } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
+import FetchingQuoteLoader from '../widgets/FetchingQuoteLoader.js'
+import SwapRouteSelector from '../widgets/SwapRouteSelector.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type Props = Pick<
   ChildrenProps,
@@ -15,8 +17,11 @@ type Props = Pick<
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
+  | 'supportsExternalLiquidity'
+  | 'useExternalLiquidity'
+  | 'setUseExternalLiquidity'
 > & {
-  containerCss?: Styles
+  toChain?: RelayChain
 }
 
 const formatSwapRate = (rate: number) => {
@@ -29,8 +34,11 @@ const FeeBreakdown: FC<Props> = ({
   price,
   toToken,
   fromToken,
-  timeEstimate,
-  containerCss
+  toChain,
+  supportsExternalLiquidity,
+  useExternalLiquidity,
+  setUseExternalLiquidity,
+  timeEstimate
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -38,28 +46,61 @@ const FeeBreakdown: FC<Props> = ({
   )
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
-  if (!feeBreakdown || isFetchingPrice) {
-    return null
+  if (!feeBreakdown) {
+    if (isFetchingPrice) {
+      return (
+        <Box
+          css={{
+            borderRadius: 'widget-card-border-radius',
+            backgroundColor: 'widget-background',
+            overflow: 'hidden',
+            mb: '6px'
+          }}
+        >
+          <FetchingQuoteLoader
+            isLoading={isFetchingPrice}
+            containerCss={{
+              mt: 0,
+              mb: 0,
+              px: '4',
+              py: '3',
+              width: '100%',
+              justifyContent: 'center'
+            }}
+          />
+        </Box>
+      )
+    } else {
+      return null
+    }
   }
 
   return (
     <Box
       css={{
-        borderRadius: 16,
+        borderRadius: 'widget-card-border-radius',
+        backgroundColor: 'widget-background',
         overflow: 'hidden',
-        '--borderColor': 'colors.subtle-border-color',
-        border: '1px solid var(--borderColor)',
-        p: '3',
-        mb: '3',
-        ...containerCss
+        mb: '6px'
       }}
     >
+      <SwapRouteSelector
+        chain={toChain}
+        supportsExternalLiquidity={supportsExternalLiquidity}
+        externalLiquidtySelected={useExternalLiquidity}
+        onExternalLiquidityChange={(selected) => {
+          setUseExternalLiquidity(selected)
+        }}
+      />
+      <Box css={{ height: 1, background: 'gray5', width: '100%' }} />
       <Flex
         justify="between"
         css={{
           flexDirection: 'row',
           gap: '2',
-          width: '100%'
+          width: '100%',
+          px: '4',
+          py: '3'
         }}
       >
         <button

@@ -1,17 +1,124 @@
 import { NextPage } from 'next'
-import { ChainWidget } from '@reservoir0x/relay-kit-ui'
+import { LinkedWallet, SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import {
   useDynamicContext,
-  useDynamicModals
+  useDynamicEvents,
+  useDynamicModals,
+  useSwitchWallet,
+  useUserWallets,
+  Wallet
 } from '@dynamic-labs/sdk-react-core'
+import { useTheme } from 'next-themes'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  AdaptedWallet,
+  adaptViemWallet,
+  RelayChain
+} from '@reservoir0x/relay-sdk'
+import { isSolanaWallet } from '@dynamic-labs/solana'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { isEthereumWallet } from '@dynamic-labs/ethereum'
+import { useWalletFilter } from 'context/walletFilter'
+
+const dynamicStaticAssetUrl =
+  'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
 
 const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { setShowLinkNewWalletModal } = useDynamicModals()
+  const { theme } = useTheme()
+
+  useDynamicEvents('walletAdded', (newWallet) => {
+    if (linkWalletPromise) {
+      const walletLogoId =
+        // @ts-ignore
+        newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
+      const linkedWallet = {
+        address: newWallet.address,
+        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
+        vmType:
+          newWallet.chain.toLowerCase() === 'evm'
+            ? 'evm'
+            : ('svm' as 'evm' | 'svm')
+      }
+      linkWalletPromise.resolve(linkedWallet)
+      setLinkWalletPromise(undefined)
+    }
+  })
+  const { setWalletFilter } = useWalletFilter()
+  const _switchWallet = useSwitchWallet()
+  const userWallets = useUserWallets()
+  const wallets = useRef<Wallet<any>[]>()
+  const switchWallet = useRef<(walletId: string) => Promise<void>>()
+  const [wallet, setWallet] = useState<AdaptedWallet | undefined>()
+  const [linkWalletPromise, setLinkWalletPromise] = useState<
+    | {
+        resolve: (value: LinkedWallet) => void
+        reject: () => void
+        params: { chain?: RelayChain; direction: 'to' | 'from' }
+      }
+    | undefined
+  >()
+
+  const linkedWallets = useMemo(() => {
+    const _wallets = userWallets.map((wallet) => {
+      const walletLogoId =
+        // @ts-ignore
+        wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
+      return {
+        address: wallet.address,
+        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
+        vmType:
+          wallet.chain.toLowerCase() === 'evm'
+            ? 'evm'
+            : ('svm' as 'evm' | 'svm')
+      }
+    })
+    wallets.current = userWallets
+    return _wallets
+  }, [userWallets])
+
+  useEffect(() => {
+    switchWallet.current = _switchWallet
+  }, [_switchWallet])
+
+  useEffect(() => {
+    const adaptWallet = async () => {
+      try {
+        if (primaryWallet !== null) {
+          let adaptedWallet: AdaptedWallet | undefined
+          if (isSolanaWallet(primaryWallet)) {
+            const connection = await primaryWallet.getConnection()
+            const signer = await primaryWallet.getSigner()
+
+            adaptedWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              792703809,
+              connection,
+              signer.signAndSendTransaction
+            )
+          } else if (isEthereumWallet(primaryWallet)) {
+            const walletClient = await primaryWallet.getWalletClient()
+            adaptedWallet = adaptViemWallet(walletClient)
+          }
+          setWallet(adaptedWallet)
+        } else {
+          setWallet(undefined)
+        }
+      } catch (e) {
+        setWallet(undefined)
+      }
+    }
+    adaptWallet()
+  }, [primaryWallet, primaryWallet?.address])
 
   return (
-    <Layout>
+    <Layout
+      styles={{
+        background: theme === 'light' ? 'rgba(245, 242, 255, 1)' : '#1c172b'
+      }}
+    >
       <div
         style={{
           display: 'flex',
@@ -21,8 +128,8 @@ const ChainWidgetPage: NextPage = () => {
           paddingTop: 50
         }}
       >
-        <ChainWidget
-          chainId={8453}
+        <SwapWidget
+          lockChainId={8453}
           tokens={[
             {
               chainId: 8453,
@@ -41,7 +148,7 @@ const ChainWidgetPage: NextPage = () => {
               logoURI: 'https://assets.relay.link/icons/1/light.png'
             }
           ]}
-          defaultToken={{
+          defaultToToken={{
             chainId: 8453,
             address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
             decimals: 6,
@@ -49,13 +156,57 @@ const ChainWidgetPage: NextPage = () => {
             symbol: 'USDC',
             logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
           }}
-          // defaultAmount={'5'}
-          onConnectWallet={() => {
-            if (primaryWallet) {
-              setShowLinkNewWalletModal(true)
-            } else {
-              setShowAuthFlow(true)
+          multiWalletSupportEnabled={true}
+          linkedWallets={linkedWallets}
+          onLinkNewWallet={({ chain, direction }) => {
+            if (linkWalletPromise) {
+              linkWalletPromise.reject()
+              setLinkWalletPromise(undefined)
             }
+            if (chain?.vmType === 'evm') {
+              setWalletFilter('EVM')
+            } else if (chain?.id === 792703809) {
+              setWalletFilter('SOL')
+            } else {
+              setWalletFilter(undefined)
+            }
+            const promise = new Promise<LinkedWallet>((resolve, reject) => {
+              setLinkWalletPromise({
+                resolve,
+                reject,
+                params: {
+                  chain,
+                  direction
+                }
+              })
+            })
+            setShowLinkNewWalletModal(true)
+            return promise
+          }}
+          onSetPrimaryWallet={async (address: string) => {
+            //In some cases there's a race condition between connecting the wallet and having it available to switch to so we need to poll for it
+            const maxAttempts = 20
+            let attemptCount = 0
+            const timer = setInterval(async () => {
+              attemptCount++
+              const newPrimaryWallet = wallets.current?.find(
+                (wallet) => wallet.address === address
+              )
+              if (attemptCount >= maxAttempts) {
+                clearInterval(timer)
+                return
+              }
+              if (!newPrimaryWallet || !switchWallet.current) {
+                return
+              }
+              try {
+                await switchWallet.current(newPrimaryWallet?.id)
+                clearInterval(timer)
+              } catch (e) {}
+            }, 200)
+          }}
+          onConnectWallet={() => {
+            setShowAuthFlow(true)
           }}
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
