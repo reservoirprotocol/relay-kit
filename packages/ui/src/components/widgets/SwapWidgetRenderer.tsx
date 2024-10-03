@@ -347,7 +347,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             fromChain?.vmType === 'evm' ? evmDeadAddress : solDeadAddress,
           tradeType,
           appFees: providerOptionsContext.appFees,
-          amount: parseUnits('1', fromToken.decimals).toString(),
+          amount: '10000000000000000000000', //Hardcode an extremely high number
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity: true
         }
