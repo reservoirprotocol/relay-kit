@@ -453,10 +453,18 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   }, [price, tradeType])
 
   useEffect(() => {
-    if (useExternalLiquidity && !supportsExternalLiquidity) {
+    if (
+      useExternalLiquidity &&
+      !externalLiquiditySupport.isFetching &&
+      !supportsExternalLiquidity
+    ) {
       setUseExternalLiquidity(false)
     }
-  }, [supportsExternalLiquidity, useExternalLiquidity])
+  }, [
+    supportsExternalLiquidity,
+    useExternalLiquidity,
+    externalLiquiditySupport.isFetching
+  ])
 
   const feeBreakdown = useMemo(() => {
     const chains = relayClient?.chains
