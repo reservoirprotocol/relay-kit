@@ -174,18 +174,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultFromToken
   )
   const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
-  const canonicalCurrencies: string[] = [
-    'degen',
-    'eth',
-    'usdc',
-    'xai',
-    'sipher'
-  ]
   const tokenPairIsCanonical =
     fromToken?.chainId !== undefined &&
     toToken?.chainId !== undefined &&
-    fromToken.symbol === toToken.symbol &&
-    canonicalCurrencies.includes(fromToken.symbol.toLowerCase())
+    fromToken.symbol === toToken.symbol
 
   const toChain = relayClient?.chains.find(
     (chain) => chain.id === toToken?.chainId
@@ -364,7 +356,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     tokenPairIsCanonical && externalLiquiditySupport.status === 'success'
       ? true
       : false
-
+  console.log(externalLiquiditySupport)
   const {
     data: price,
     isLoading: isFetchingPrice,
