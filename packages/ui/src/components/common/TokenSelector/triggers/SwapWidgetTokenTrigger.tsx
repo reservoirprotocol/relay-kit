@@ -35,6 +35,9 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
         border: 'none',
         _hover: {
           backgroundColor: 'gray3'
+        },
+        _disabled: {
+          backgroundColor: 'gray2'
         }
       }}
     >
