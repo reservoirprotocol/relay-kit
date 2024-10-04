@@ -839,6 +839,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           } else {
                             console.error('Missing max capacity')
                           }
+                          onAnalyticEvent?.(
+                            EventNames.CTA_SET_MAX_CAPACITY_CLICKED
+                          )
                         }}
                       >
                         Set to {maxCapacityFormatted} {toToken?.symbol}
@@ -847,6 +850,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         color="primary"
                         onClick={() => {
                           setUseExternalLiquidity(true)
+                          onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
                         }}
                       >
                         Switch Route
