@@ -98,7 +98,7 @@ const SwapRouteSelector: FC<Props> = ({
               backdropFilter: 'brightness(95%)'
             },
             flexShrink: 0,
-            alignContent: 'top',
+            alignItems: 'flex-start',
             width: '100%',
             display: 'flex'
           }}
@@ -131,7 +131,7 @@ const SwapRouteSelector: FC<Props> = ({
                 backdropFilter: 'brightness(95%)'
               },
               flexShrink: 0,
-              alignContent: 'top',
+              alignItems: 'flex-start',
               width: '100%',
               display: 'flex',
               pt: '8px'
