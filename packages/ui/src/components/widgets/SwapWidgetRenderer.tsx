@@ -356,7 +356,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     tokenPairIsCanonical && externalLiquiditySupport.status === 'success'
       ? true
       : false
-  console.log(externalLiquiditySupport)
+
   const {
     data: price,
     isLoading: isFetchingPrice,
