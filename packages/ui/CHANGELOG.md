@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.3
+
+### Patch Changes
+
+- 25d9c9a: Fix disabled token selector background and issue with resetting canonical route
+
 ## 2.1.2
 
 ### Patch Changes
