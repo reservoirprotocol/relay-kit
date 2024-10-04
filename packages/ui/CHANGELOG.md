@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.2
+
+### Patch Changes
+
+- 9b0319e: Remove hardcoded canonical currencies
+
 ## 2.1.1
 
 ### Patch Changes
