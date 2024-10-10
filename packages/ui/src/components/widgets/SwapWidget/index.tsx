@@ -206,7 +206,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             !isValidFromAddress
           ) {
             const supportedAddress = findSupportedWallet(
-              fromChain.vmType,
+              fromChain,
               address,
               linkedWallets
             )
@@ -289,7 +289,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onSelect={(wallet) =>
                             onSetPrimaryWallet?.(wallet.address)
                           }
-                          vmType={fromChain?.vmType}
+                          chain={fromChain}
                           onLinkNewWallet={() => {
                             onLinkNewWallet?.({
                               chain: fromChain,
@@ -567,7 +567,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onSelect={(wallet) =>
                             setCustomToAddress(wallet.address)
                           }
-                          vmType={toChain?.vmType}
+                          chain={toChain}
                           onLinkNewWallet={() => {
                             onLinkNewWallet?.({
                               chain: toChain,

@@ -10,7 +10,6 @@ import {
 import { getClient } from '../client.js'
 import type { Execute, paths } from '../types/index.js'
 import { getDeadAddress } from '../constants/address.js'
-import { svmChainIds } from '../constants/svm.js'
 
 export type PriceBody = NonNullable<
   paths['/price']['post']['requestBody']['content']['application/json']
@@ -75,9 +74,8 @@ export async function getPrice(
       return tx
     })
   }
-  const deadAddress = getDeadAddress(
-    svmChainIds.includes(originChainId) ? 'svm' : 'evm'
-  )
+  const originChain = client.chains.find((chain) => chain.id === originChainId)
+  const deadAddress = getDeadAddress(originChain?.vmType)
 
   const query: PriceBody = {
     user: user ?? deadAddress,

@@ -14,6 +14,7 @@ type Token = {
 type LinkedWallet = {
   address: string
   vmType: ChainVM
+  connector: string
   walletLogoUrl?: string
 }
 

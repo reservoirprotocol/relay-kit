@@ -48,7 +48,9 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(relayApi)
+  const { chains, viemChains } = useRelayChains(relayApi, {
+    includeChains: '9286185'
+  })
 
   useEffect(() => {
     if (chains && viemChains && !wagmiConfig) {
@@ -166,14 +168,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
-                return (
-                  chains
-                    //@ts-ignore: todo remove when api type is updated
-                    .filter((chain) => chain.vmType === 'evm')
-                    .map((chain) => {
-                      return convertRelayChainToDynamicNetwork(chain)
-                    })
-                )
+                return chains
+                  .filter((chain) => chain.vmType === 'evm')
+                  .map((chain) => {
+                    return convertRelayChainToDynamicNetwork(chain)
+                  })
               }
             },
             initialAuthenticationMode: 'connect-only',

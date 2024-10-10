@@ -69,6 +69,7 @@ const SwapWidgetPage: NextPage = () => {
       return {
         address: wallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
+        connector: wallet.connector.name.toLowerCase(),
         vmType:
           wallet.chain.toLowerCase() === 'evm'
             ? 'evm'
@@ -91,10 +92,10 @@ const SwapWidgetPage: NextPage = () => {
           if (isSolanaWallet(primaryWallet)) {
             const connection = await primaryWallet.getConnection()
             const signer = await primaryWallet.getSigner()
-
+            let _chainId = 792703809
             adaptedWallet = adaptSolanaWallet(
               primaryWallet.address,
-              792703809,
+              _chainId,
               connection,
               signer.signAndSendTransaction
             )

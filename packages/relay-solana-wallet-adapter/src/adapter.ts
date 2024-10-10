@@ -22,11 +22,15 @@ export const adaptSolanaWallet = (
     signature: TransactionSignature
   }>
 ): AdaptedWallet => {
+  let _chainId = chainId
+  const _originalRpcEndpoint = connection.rpcEndpoint
+  const getChainId = async () => {
+    return _chainId
+  }
+
   return {
     vmType: 'svm',
-    getChainId: async () => {
-      return chainId
-    },
+    getChainId,
     address: async () => {
       return walletAddress
     },
@@ -35,6 +39,15 @@ export const adaptSolanaWallet = (
     },
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const client = getClient()
+      const chainId = await getChainId()
+      debugger
+      if (chainId === 9286185) {
+        //@ts-ignore: Hacky patch for updating eclipse rpc endpoint
+        connection._rpcEndpoint = 'https://mainnetbeta-rpc.eclipse.xyz'
+      } else {
+        //@ts-ignore
+        connection._rpcEndpoint = _originalRpcEndpoint
+      }
 
       const instructions =
         stepItem?.data?.instructions?.map(
@@ -100,9 +113,9 @@ export const adaptSolanaWallet = (
         txHash
       }
     },
-    //@ts-ignore
     switchChain: (chainId: number) => {
-      throw 'Not yet implemented'
+      _chainId = chainId
+      return new Promise((res) => res())
     }
   }
 }

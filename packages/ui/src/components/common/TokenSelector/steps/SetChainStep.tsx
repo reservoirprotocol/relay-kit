@@ -83,12 +83,9 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const allChains =
     client?.chains?.filter(
       (chain) =>
-        (context !== 'from' ||
-          chain.vmType !== 'svm' ||
-          chain.id === solana.id) &&
-        (context !== 'from' ||
-          multiWalletSupportEnabled ||
-          chain.vmType !== 'svm')
+        context !== 'from' ||
+        multiWalletSupportEnabled ||
+        chain.vmType !== 'svm'
     ) || []
 
   const combinedChains: NormalizedChain[] = [

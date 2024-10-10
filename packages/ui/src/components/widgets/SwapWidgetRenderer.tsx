@@ -198,7 +198,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       !isValidToAddress
     ) {
       const supportedAddress = findSupportedWallet(
-        toChain.vmType,
+        toChain,
         customToAddress,
         linkedWallets
       )

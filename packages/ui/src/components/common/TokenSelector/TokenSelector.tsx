@@ -103,13 +103,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     return chains
   }, [relayClient?.chains, multiWalletSupportEnabled])
 
-  const chainFilterOptions =
-    context === 'from'
-      ? configuredChains?.filter(
-          (chain) => chain.vmType !== 'svm' || chain.id === solana.id
-        )
-      : configuredChains
-
   const configuredChainIds = useMemo(() => {
     if (chainIdsFilter) {
       return chainIdsFilter
@@ -246,9 +239,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         .filter(
           (currency) =>
             currency !== undefined &&
-            (context !== 'from' ||
-              currency.vmType !== 'svm' ||
-              currency.chainId === solana.id) &&
             (context !== 'from' ||
               multiWalletSupportEnabled ||
               currency.vmType !== 'svm')
@@ -461,7 +451,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             tokenSearchInput={tokenSearchInput}
             setTokenSearchInput={setTokenSearchInput}
             chainIdsFilter={chainIdsFilter}
-            chainFilterOptions={chainFilterOptions}
+            chainFilterOptions={configuredChains}
             chainFilter={chainFilter}
             setChainFilter={setChainFilter}
             isLoading={isLoading}
