@@ -71,7 +71,7 @@ export const WidgetErrorWell: FC<Props> = ({
           <Text style="subtitle3" css={{ color: 'amber12' }}>
             Due to high demand, only {maxCapacity} {currency.symbol} can be
             bridged instantly. Set to max instant capacity or switch to the
-            standard route for unlimited capacity.
+            native route for unlimited capacity.
           </Text>
         </Flex>
       )

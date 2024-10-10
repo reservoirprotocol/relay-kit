@@ -71,7 +71,7 @@ const SwapRouteSelector: FC<Props> = ({
             color="gray"
           >
             <Text style="subtitle2">
-              {externalLiquidtySelected ? 'Standard' : 'Relay'}
+              {externalLiquidtySelected ? 'Native' : 'Relay'}
             </Text>
             {supportsExternalLiquidity || externalLiquidtySelected ? (
               <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
