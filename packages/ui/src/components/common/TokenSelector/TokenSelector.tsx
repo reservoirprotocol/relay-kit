@@ -26,6 +26,11 @@ import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { solana } from '../../../utils/solana.js'
+import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
+import {
+  getRelayUiKitData,
+  setRelayUiKitData
+} from '../../../utils/localStorage.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -70,6 +75,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   setToken,
   onAnalyticEvent
 }) => {
+  const [unverifiedTokenModalOpen, setUnverifiedTokenModalOpen] =
+    useState(false)
+  const [unverifiedToken, setUnverifiedToken] = useState<Token | undefined>()
+
   const [internalOpen, setInternalOpen] = useState(false)
   const [open, setOpen] = openState || [internalOpen, setInternalOpen]
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
@@ -96,7 +105,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const relayClient = useRelayClient()
   const configuredChains = useMemo(() => {
     let chains =
-      relayClient?.chains.sort((a, b) => a.name.localeCompare(b.name)) ?? []
+      relayClient?.chains.sort((a, b) =>
+        a.displayName.localeCompare(b.displayName)
+      ) ?? []
+
     if (!multiWalletSupportEnabled && context === 'from') {
       chains = chains.filter((chain) => chain.vmType !== 'svm')
     }
@@ -383,6 +395,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           logoURI: currency.metadata?.logoURI ?? ''
         })
         setOpen(false)
+
         // reset state
         resetState()
       }
@@ -417,81 +430,126 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   }, [open])
 
   return (
-    <Modal
-      open={open}
-      onOpenChange={(openChange) => {
-        onAnalyticEvent?.(
-          openChange
-            ? EventNames.SWAP_START_TOKEN_SELECT
-            : EventNames.SWAP_EXIT_TOKEN_SELECT,
-          {
-            type,
-            direction: context === 'from' ? 'input' : 'output'
-          }
-        )
-        setOpen(openChange)
-      }}
-      showCloseButton={true}
-      trigger={trigger}
-      css={{
-        p: '4',
-        sm: {
-          minWidth:
-            size === 'desktop'
-              ? !chainIdsFilter || chainIdsFilter.length > 1
-                ? 568
-                : 378
-              : 400,
-          maxWidth:
-            size === 'desktop' && (!chainIdsFilter || chainIdsFilter.length > 1)
-              ? 568
-              : 378
-        }
-      }}
-    >
-      <Flex
-        direction="column"
-        align="center"
-        css={{ width: '100%', height: '100%', gap: '3', position: 'relative' }}
-      >
-        {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
-          <SetCurrencyStep
-            size={size}
-            setInputElement={setInputElement}
-            tokenSearchInput={tokenSearchInput}
-            setTokenSearchInput={setTokenSearchInput}
-            chainIdsFilter={chainIdsFilter}
-            chainFilterOptions={chainFilterOptions}
-            chainFilter={chainFilter}
-            setChainFilter={setChainFilter}
-            isLoading={isLoading}
-            isLoadingDuneBalances={isLoadingDuneBalances}
-            enhancedCurrencyList={
-              enhancedCurrencyList as EnhancedCurrencyList[]
+    <>
+      <div style={{ position: 'relative' }}>
+        <Modal
+          open={open}
+          onOpenChange={(openChange) => {
+            onAnalyticEvent?.(
+              openChange
+                ? EventNames.SWAP_START_TOKEN_SELECT
+                : EventNames.SWAP_EXIT_TOKEN_SELECT,
+              {
+                type,
+                direction: context === 'from' ? 'input' : 'output'
+              }
+            )
+            setOpen(openChange)
+          }}
+          showCloseButton={true}
+          trigger={trigger}
+          css={{
+            p: '4',
+            sm: {
+              minWidth:
+                size === 'desktop'
+                  ? !chainIdsFilter || chainIdsFilter.length > 1
+                    ? 568
+                    : 378
+                  : 400,
+              maxWidth:
+                size === 'desktop' &&
+                (!chainIdsFilter || chainIdsFilter.length > 1)
+                  ? 568
+                  : 378
             }
-            token={token}
-            selectToken={selectToken}
-            setCurrencyList={setCurrencyList}
-            onAnalyticEvent={onAnalyticEvent}
-          />
-        ) : null}
-        {tokenSelectorStep === TokenSelectorStep.SetChain ? (
-          <SetChainStep
-            token={token}
-            context={context}
-            setTokenSelectorStep={setTokenSelectorStep}
-            setInputElement={setInputElement}
-            chainSearchInput={chainSearchInput}
-            setChainSearchInput={setChainSearchInput}
-            selectToken={selectToken}
-            selectedCurrencyList={selectedCurrencyList}
-            type={type}
-            size={size}
-            multiWalletSupportEnabled={multiWalletSupportEnabled}
-          />
-        ) : null}
-      </Flex>
-    </Modal>
+          }}
+        >
+          <Flex
+            direction="column"
+            align="center"
+            css={{
+              width: '100%',
+              height: '100%',
+              gap: '3',
+              position: 'relative'
+            }}
+          >
+            {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
+              <SetCurrencyStep
+                size={size}
+                setInputElement={setInputElement}
+                tokenSearchInput={tokenSearchInput}
+                setTokenSearchInput={setTokenSearchInput}
+                chainIdsFilter={chainIdsFilter}
+                chainFilterOptions={chainFilterOptions}
+                chainFilter={chainFilter}
+                setChainFilter={setChainFilter}
+                isLoading={isLoading}
+                isLoadingDuneBalances={isLoadingDuneBalances}
+                enhancedCurrencyList={
+                  enhancedCurrencyList as EnhancedCurrencyList[]
+                }
+                token={token}
+                selectToken={selectToken}
+                setCurrencyList={setCurrencyList}
+                onAnalyticEvent={onAnalyticEvent}
+                setUnverifiedToken={setUnverifiedToken}
+                setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
+              />
+            ) : null}
+            {tokenSelectorStep === TokenSelectorStep.SetChain ? (
+              <SetChainStep
+                token={token}
+                context={context}
+                setTokenSelectorStep={setTokenSelectorStep}
+                setInputElement={setInputElement}
+                chainSearchInput={chainSearchInput}
+                setChainSearchInput={setChainSearchInput}
+                selectToken={selectToken}
+                selectedCurrencyList={selectedCurrencyList}
+                type={type}
+                size={size}
+                multiWalletSupportEnabled={multiWalletSupportEnabled}
+              />
+            ) : null}
+          </Flex>
+        </Modal>
+      </div>
+
+      {unverifiedTokenModalOpen && (
+        <UnverifiedTokenModal
+          open={unverifiedTokenModalOpen}
+          onOpenChange={setUnverifiedTokenModalOpen}
+          token={unverifiedToken}
+          onAcceptToken={(token) => {
+            if (token) {
+              const currentData = getRelayUiKitData()
+              const tokenIdentifier = `${token.chainId}:${token.address}`
+
+              console.log('currentData: ', currentData)
+              console.log('tokenIdentifier: ', tokenIdentifier)
+              if (
+                !currentData.acceptedUnverifiedTokens.includes(tokenIdentifier)
+              ) {
+                console.log('setting new token data')
+                setRelayUiKitData({
+                  acceptedUnverifiedTokens: [
+                    ...currentData.acceptedUnverifiedTokens,
+                    tokenIdentifier
+                  ]
+                })
+              }
+
+              selectToken(token, token.chainId)
+            }
+            resetState()
+            setOpen(false)
+            setUnverifiedTokenModalOpen(false)
+          }}
+        />
+      )}
+    </>
   )
 }
 

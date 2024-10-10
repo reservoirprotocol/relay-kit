@@ -10,7 +10,10 @@ import {
   ChainTokenIcon
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import {
+  faExclamationTriangle,
+  faMagnifyingGlass
+} from '@fortawesome/free-solid-svg-icons'
 import { formatBN } from '../../../../utils/numbers.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
@@ -22,6 +25,7 @@ import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { EventNames } from '../../../../constants/events.js'
+import { getRelayUiKitData } from '../../../../utils/localStorage.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
@@ -39,6 +43,8 @@ type SetCurrencyProps = {
   enhancedCurrencyList?: EnhancedCurrencyList[]
   token?: Token
   selectToken: (currency: Currency, chainId?: number) => void
+  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -63,6 +69,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   isLoadingDuneBalances,
   enhancedCurrencyList,
   selectToken,
+  setUnverifiedTokenModalOpen,
+  setUnverifiedToken,
   setCurrencyList,
   onAnalyticEvent
 }) => {
@@ -288,6 +296,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                       setCurrencyList={setCurrencyList}
                       selectToken={selectToken}
                       isLoadingDuneBalances={isLoadingDuneBalances}
+                      setUnverifiedToken={setUnverifiedToken}
+                      setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
                       key={idx}
                     />
                   ) : null
@@ -311,6 +321,8 @@ type CurrencyRowProps = {
   currencyList: EnhancedCurrencyList
   setCurrencyList: (currencyList: EnhancedCurrencyList) => void
   selectToken: (currency: Currency, chainId?: number) => void
+  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
   isLoadingDuneBalances: boolean
 }
 
@@ -318,6 +330,8 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
   currencyList,
   setCurrencyList,
   selectToken,
+  setUnverifiedTokenModalOpen,
+  setUnverifiedToken,
   isLoadingDuneBalances
 }) => {
   const balance = currencyList.totalBalance
@@ -338,11 +352,35 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         if (!isSingleChainCurrency) {
           setCurrencyList(currencyList)
         } else {
-          selectToken(
-            currencyList?.chains?.[0],
-            currencyList?.chains?.[0].chainId
-          )
-          setCurrencyList(currencyList)
+          const token = {
+            ...currencyList?.chains?.[0],
+            logoURI: currencyList?.chains?.[0].metadata?.logoURI
+          }
+
+          // @TODO: check if not isVerified
+          if (true) {
+            const relayUiKitData = getRelayUiKitData()
+            const tokenKey = `${token.chainId}:${token.address}`
+            const isAlreadyAccepted =
+              relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
+
+            console.log('relayUiKitData: ', relayUiKitData)
+            console.log('isAlreadyAccepted: ', isAlreadyAccepted)
+
+            if (isAlreadyAccepted) {
+              // If already accepted, proceed with selection
+              selectToken(token, token.chainId)
+              setCurrencyList(currencyList)
+            } else {
+              setUnverifiedToken(token as Token)
+              setUnverifiedTokenModalOpen(true)
+            }
+          }
+          // if(token?.isVerified)
+          else {
+            selectToken(token, token.chainId)
+            setCurrencyList(currencyList)
+          }
         }
       }}
       css={{
@@ -379,12 +417,28 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
         />
       )}
       <Flex direction="column" align="start">
-        <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
-        {isSingleChainCurrency ? (
+        <Text style="subtitle1">{currencyList?.chains?.[0]?.name}</Text>
+        <Flex align="center" css={{ gap: '1' }}>
           <Text style="subtitle3" color="subtle">
-            {truncateAddress(currencyList?.chains?.[0].address)}
+            {currencyList?.chains?.[0]?.symbol}
           </Text>
-        ) : null}
+          {isSingleChainCurrency ? (
+            <Text style="subtitle3" color="subtle">
+              {truncateAddress(currencyList?.chains?.[0].address)}
+            </Text>
+          ) : null}
+
+          {/* @TODO: update with isVerified variable */}
+          {Math.random() > 0.5 ? (
+            <Box css={{ color: 'gray8' }}>
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                width={16}
+                height={16}
+              />
+            </Box>
+          ) : null}
+        </Flex>
       </Flex>
 
       {!isSingleChainCurrency ? (
