@@ -1,5 +1,5 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
-import { type FC } from 'react'
+import { useEffect, type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
