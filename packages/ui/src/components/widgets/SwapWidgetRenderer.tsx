@@ -6,7 +6,8 @@ import {
   useRelayClient,
   useDebounceState,
   useWalletAddress,
-  useDisconnected
+  useDisconnected,
+  usePreviousValueChange
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, isAddress, parseUnits } from 'viem'
@@ -517,7 +518,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? fetchQuoteDataErrorMessage.match(/(\d+)/)?.[0]
       : undefined
   const maxCapacityFormatted = maxCapacityWei
-    ? formatBN(BigInt(maxCapacityWei), 5, toToken?.decimals ?? 18)
+    ? formatBN(BigInt(maxCapacityWei), 2, toToken?.decimals ?? 18)
     : undefined
 
   let ctaCopy: string = context || 'Swap'
@@ -587,6 +588,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       }
     }
   }
+
+  usePreviousValueChange(
+    isCapacityExceededError && supportsExternalLiquidity,
+    !isFetchingPrice && !externalLiquiditySupport.isFetching,
+    (capacityExceeded) => {
+      if (capacityExceeded) {
+        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED)
+      }
+    }
+  )
 
   return (
     <>

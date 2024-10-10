@@ -71,7 +71,7 @@ const SwapRouteSelector: FC<Props> = ({
             color="gray"
           >
             <Text style="subtitle2">
-              {externalLiquidtySelected ? 'Standard' : 'Relay'}
+              {externalLiquidtySelected ? 'Native' : 'Relay'}
             </Text>
             {supportsExternalLiquidity || externalLiquidtySelected ? (
               <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
@@ -118,7 +118,7 @@ const SwapRouteSelector: FC<Props> = ({
         </DropdownMenuItem>
         {supportsExternalLiquidity || externalLiquidtySelected ? (
           <DropdownMenuItem
-            aria-label={'Standard Bridge'}
+            aria-label={'Native Bridge'}
             onClick={() => {
               setOpen(false)
               onExternalLiquidityChange(true)
@@ -148,7 +148,7 @@ const SwapRouteSelector: FC<Props> = ({
               }}
             />
             <Flex direction="column">
-              <Text style="subtitle2">Standard</Text>
+              <Text style="subtitle2">Native</Text>
               <Text style="body3" color="subtle">
                 Standard time (&#62;2m), unlimited transaction capacity
               </Text>
