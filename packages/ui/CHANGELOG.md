@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.4
+
+### Patch Changes
+
+- fbe5a41: Improvements on the canonical fallback ux
+
 ## 2.1.3
 
 ### Patch Changes
