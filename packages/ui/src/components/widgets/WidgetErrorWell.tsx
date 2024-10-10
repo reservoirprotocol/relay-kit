@@ -1,5 +1,5 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
-import { type FC } from 'react'
+import { useEffect, type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
@@ -71,7 +71,7 @@ export const WidgetErrorWell: FC<Props> = ({
           <Text style="subtitle3" css={{ color: 'amber12' }}>
             Due to high demand, only {maxCapacity} {currency.symbol} can be
             bridged instantly. Set to max instant capacity or switch to the
-            standard route for unlimited capacity.
+            native route for unlimited capacity.
           </Text>
         </Flex>
       )
