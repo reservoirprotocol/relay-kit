@@ -829,6 +829,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       mb: '6px'
                     }}
                   />
+
                   {isCapacityExceededError && supportsExternalLiquidity ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
                       <Button

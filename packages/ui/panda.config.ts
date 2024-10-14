@@ -1,4 +1,4 @@
-import { defineConfig } from '@pandacss/dev'
+import { defineConfig, defineGlobalStyles } from '@pandacss/dev'
 import radixColorsPreset from 'pandacss-preset-radix-colors'
 import postcss from 'postcss'
 import postcssCascadeLayers from '@csstools/postcss-cascade-layers'
@@ -63,7 +63,17 @@ export const Colors = {
   amber12: { value: '{colors.amber.12}' }
 }
 
+const globalCss = defineGlobalStyles({
+  '.accessible-list-container > div': {
+    position: 'static !important',
+    width: 'auto !important',
+    height: 'auto !important',
+    left: '0 !important'
+  }
+})
+
 export default defineConfig({
+  globalCss,
   jsxFramework: 'react',
   // Whether to use css reset
   preflight: {
