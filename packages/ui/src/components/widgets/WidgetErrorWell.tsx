@@ -75,6 +75,27 @@ export const WidgetErrorWell: FC<Props> = ({
           </Text>
         </Flex>
       )
+    } else if (supportsExternalLiquidity && currency) {
+      return (
+        <Flex
+          align="center"
+          css={{
+            gap: '2',
+            p: '3',
+            backgroundColor: 'red2',
+            borderRadius: 12,
+            mb: '3',
+            ...containerCss
+          }}
+        >
+          <Box css={{ color: 'red10' }}>
+            <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+          </Box>
+          <Text style="subtitle3" css={{ color: 'red12' }}>
+            {fetchQuoteErrorMessage} Please switch to the native route.
+          </Text>
+        </Flex>
+      )
     } else {
       return (
         <Flex
