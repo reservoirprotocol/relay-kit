@@ -6,6 +6,7 @@ import useDebounceState from './useDebounceState.js'
 import useDuneBalances from './useDuneBalances.js'
 import useWalletAddress from './useWalletAddress.js'
 import useDisconnected from './useDisconnected.js'
+import usePreviousValueChange from './usePreviousValueChange.js'
 
 export {
   useMounted,
@@ -15,5 +16,6 @@ export {
   useDebounceState,
   useDuneBalances,
   useWalletAddress,
-  useDisconnected
+  useDisconnected,
+  usePreviousValueChange
 }

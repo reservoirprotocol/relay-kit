@@ -829,26 +829,30 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       mb: '6px'
                     }}
                   />
-
-                  {isCapacityExceededError && supportsExternalLiquidity ? (
+                  {error && supportsExternalLiquidity ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
-                      <Button
-                        color="white"
-                        onClick={() => {
-                          if (maxCapacityFormatted) {
-                            setAmountInputValue(maxCapacityFormatted)
-                          } else {
-                            console.error('Missing max capacity')
-                          }
-                          onAnalyticEvent?.(
-                            EventNames.CTA_SET_MAX_CAPACITY_CLICKED
-                          )
-                        }}
-                      >
-                        Set to {maxCapacityFormatted} {toToken?.symbol}
-                      </Button>
+                      {isCapacityExceededError &&
+                      maxCapacityFormatted != '0' ? (
+                        <Button
+                          color="white"
+                          css={{ flexGrow: '1', justifyContent: 'center' }}
+                          onClick={() => {
+                            if (maxCapacityFormatted) {
+                              setAmountInputValue(maxCapacityFormatted)
+                            } else {
+                              console.error('Missing max capacity')
+                            }
+                            onAnalyticEvent?.(
+                              EventNames.CTA_SET_MAX_CAPACITY_CLICKED
+                            )
+                          }}
+                        >
+                          Set to {maxCapacityFormatted} {toToken?.symbol}
+                        </Button>
+                      ) : null}
                       <Button
                         color="primary"
+                        css={{ flexGrow: '1', justifyContent: 'center' }}
                         onClick={() => {
                           setUseExternalLiquidity(true)
                           onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
