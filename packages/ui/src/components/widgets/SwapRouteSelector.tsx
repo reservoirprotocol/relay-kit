@@ -55,9 +55,6 @@ const SwapRouteSelector: FC<Props> = ({
             py: '3',
             borderRadius: 'widget-card-border-radius',
             border: 'widget-card-border',
-            backgroundColor: 'widget-background',
-            overflow: 'hidden',
-            mb: '6px',
 
             '&:disabled': {
               cursor: 'default',
