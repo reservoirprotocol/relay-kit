@@ -85,7 +85,7 @@ export interface paths {
                    * @description The type of VM the chain runs on
                    * @enum {string}
                    */
-                  vmType?: "evm" | "svm";
+                  vmType?: "bvm" | "evm" | "svm";
                   explorerQueryParams?: {
                     [key: string]: unknown;
                   } | null;
@@ -144,7 +144,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
         };
       };
       responses: {
@@ -197,7 +197,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -296,7 +296,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -307,10 +307,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -372,7 +372,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -796,7 +796,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "avax" | "degen" | "bnb" | "matic" | "eth" | "usdc" | "xai" | "dai" | "sipher" | "sol" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -807,10 +807,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "degen" | "eth" | "usdc" | "xai" | "sipher" | "pop" | "tia" | "tg7" | "cgt" | "omi";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
               };
               /**
                * @example {
@@ -1673,6 +1673,7 @@ export interface paths {
         content: {
           "application/json": {
             user: string;
+            recipient?: string;
             origins: {
                 chainId: number;
                 currency: string;
@@ -1683,6 +1684,7 @@ export interface paths {
             partial?: boolean;
             /** @enum {string} */
             tradeType: "EXACT_INPUT";
+            useUserOperation?: boolean;
           };
         };
       };
@@ -2967,6 +2969,83 @@ export interface paths {
       };
     };
   };
+  "/execute/user-op/{chainId}": {
+    post: {
+      parameters: {
+        path: {
+          chainId: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            id: number;
+            jsonrpc: string;
+            method: string;
+            params: [{
+                sender: string;
+                nonce: string;
+                factory?: string | null;
+                factoryData?: string | null;
+                callData: string;
+                callGasLimit: string;
+                verificationGasLimit: string;
+                preVerificationGas: string;
+                maxFeePerGas: string;
+                maxPriorityFeePerGas: string;
+                paymaster?: string | null;
+                paymasterVerificationGasLimit?: string | null;
+                paymasterPostOpGasLimit?: string | null;
+                paymasterData?: string | null;
+                signature: string;
+              }, string];
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              jsonrpc?: string;
+              id?: number;
+              result?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              jsonrpc?: string;
+              id?: number;
+              error?: unknown;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              jsonrpc?: string;
+              id?: number;
+              error?: unknown;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              jsonrpc?: string;
+              id?: number;
+              error?: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
   "/lives": {
     get: {
       responses: {
@@ -2999,6 +3078,39 @@ export interface paths {
                * @enum {string}
                */
               status?: "failure" | "fallback" | "pending" | "received" | "success";
+              details?: string;
+              /** @description Incoming transaction hashes */
+              inTxHashes?: string[];
+              /** @description Outgoing transaction hashes */
+              txHashes?: string[];
+              /** @description The last timestamp the data was updated */
+              time?: number;
+              originChainId?: number;
+              destinationChainId?: number;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/intents/status/v2": {
+    get: {
+      parameters: {
+        query?: {
+          /** @description A unique id representing the execution in the Relay system. You can obtain this id from the requests api or the check object within the step items. */
+          requestId?: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /**
+               * @description Note that fallback is returned in the case of a refund
+               * @enum {string}
+               */
+              status?: "refund" | "delayed" | "waiting" | "failure" | "pending" | "success";
               details?: string;
               /** @description Incoming transaction hashes */
               inTxHashes?: string[];
@@ -3054,12 +3166,14 @@ export interface paths {
       };
     };
   };
-  "/intents/status/v2": {
-    get: {
-      parameters: {
-        query?: {
-          /** @description A unique id representing the execution in the Relay system. You can obtain this id from the requests api or the check object within the step items. */
-          requestId?: string;
+  "/intents/quote/v2": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            request: Record<string, never>;
+            source?: string;
+          };
         };
       };
       responses: {
@@ -3067,20 +3181,136 @@ export interface paths {
         200: {
           content: {
             "application/json": {
+              requestId?: string;
+              approvalTxData?: {
+                to?: string;
+                data?: string;
+                value?: string;
+              };
+              depositTxData?: {
+                to?: string;
+                data?: string;
+                value?: string;
+              };
               /**
-               * @description Note that fallback is returned in the case of a refund
-               * @enum {string}
+               * @example {
+               *   "currency": {
+               *     "chainId": 8453,
+               *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+               *     "symbol": "USDC",
+               *     "name": "USD Coin",
+               *     "decimals": 6,
+               *     "metadata": {
+               *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+               *       "verified": false,
+               *       "isNative": false
+               *     }
+               *   },
+               *   "amount": "30754920",
+               *   "amountFormatted": "30.75492",
+               *   "amountUsd": "30.901612"
+               * }
                */
-              status?: "refund" | "delayed" | "waiting" | "failure" | "pending" | "success";
-              details?: string;
-              /** @description Incoming transaction hashes */
-              inTxHashes?: string[];
-              /** @description Outgoing transaction hashes */
-              txHashes?: string[];
-              /** @description The last timestamp the data was updated */
-              time?: number;
-              originChainId?: number;
-              destinationChainId?: number;
+              currencyIn?: {
+                currency?: {
+                  chainId?: number;
+                  address?: string;
+                  symbol?: string;
+                  name?: string;
+                  decimals?: number;
+                  metadata?: {
+                    logoURI?: string;
+                    verified?: boolean;
+                    isNative?: boolean;
+                  };
+                };
+                amount?: string;
+                amountFormatted?: string;
+                amountUsd?: string;
+              };
+              /**
+               * @example {
+               *   "currency": {
+               *     "chainId": 8453,
+               *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+               *     "symbol": "USDC",
+               *     "name": "USD Coin",
+               *     "decimals": 6,
+               *     "metadata": {
+               *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+               *       "verified": false,
+               *       "isNative": false
+               *     }
+               *   },
+               *   "amount": "30754920",
+               *   "amountFormatted": "30.75492",
+               *   "amountUsd": "30.901612"
+               * }
+               */
+              currencyOut?: {
+                currency?: {
+                  chainId?: number;
+                  address?: string;
+                  symbol?: string;
+                  name?: string;
+                  decimals?: number;
+                  metadata?: {
+                    logoURI?: string;
+                    verified?: boolean;
+                    isNative?: boolean;
+                  };
+                };
+                amount?: string;
+                amountFormatted?: string;
+                amountUsd?: string;
+              };
+              relayerFee?: string;
+              depositGasFee?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/requests/{requestId}/signature": {
+    get: {
+      parameters: {
+        path: {
+          requestId: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              requestData?: {
+                originChainId?: number;
+                originUser?: string;
+                originCurrency?: string;
+                originAmount?: string;
+                originTransferDestination?: string;
+                destinationChainId?: number;
+                destinationUser?: string;
+              };
+              signature?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
             };
           };
         };
@@ -3319,6 +3549,9 @@ export interface paths {
           id?: string;
           startTimestamp?: number;
           endTimestamp?: number;
+          /** @description Get all requests for a single chain in either direction. Setting originChainId and/or destinationChainId will override this parameter. */
+          chainId?: string;
+          sortBy?: "createdAt" | "updatedAt";
         };
       };
       responses: {
@@ -3646,20 +3879,20 @@ export interface paths {
         content: {
           "application/json": {
             /** @enum {string} */
-            event?: "INSTALLED" | "UNINSTALLED" | "NETWORK_UPDATED" | "NETWORK_DELETED";
+            event: "INSTALLED" | "UNINSTALLED" | "NETWORK_UPDATED" | "NETWORK_DELETED";
             id: string;
-            chain_id: number;
-            parent_chain_id: number;
+            chain_id?: number;
+            parent_chain_id?: number;
             /** @enum {string} */
-            type: "OPTIMISM" | "ARBITRUM";
-            name: string;
-            rpc: string;
-            ws: string;
+            type?: "OPTIMISM" | "ARBITRUM";
+            name?: string;
+            rpc?: string;
+            ws?: string;
             explorer?: string;
             logo_url?: string;
             icon_url?: string;
             brand_color?: string;
-            native_currency: {
+            native_currency?: {
               name?: string;
               symbol?: string;
               decimals?: number;
@@ -3730,6 +3963,8 @@ export interface paths {
               TIA?: number;
               POP?: number;
               OMI?: number;
+              TOPIA?: number;
+              ANIME?: number;
             };
           };
         };
@@ -3757,6 +3992,8 @@ export interface paths {
             verified?: boolean;
             /** @description Limit the number of results */
             limit?: number;
+            /** @description Include all chains for a currency when filtering by chainId and address */
+            includeAllChains?: boolean;
           };
         };
       };
@@ -3772,13 +4009,47 @@ export interface paths {
                   name?: string;
                   decimals?: number;
                   /** @enum {string} */
-                  vmType?: "evm" | "svm";
+                  vmType?: "bvm" | "evm" | "svm";
                   metadata?: {
                     logoURI?: string;
                     verified?: boolean;
                     isNative?: boolean;
                   };
                 })[])[];
+          };
+        };
+      };
+    };
+  };
+  "/tokenlist": {
+    get: {
+      parameters: {
+        query?: {
+          chainId?: number;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              name?: string;
+              logoURI?: string;
+              tokens?: {
+                  name?: string;
+                  decimals?: number;
+                  symbol?: string;
+                  address?: string;
+                  chainId?: number;
+                  logoURI?: string;
+                }[];
+              timestamp?: string;
+              version?: {
+                major?: number;
+                minor?: number;
+                patch?: number;
+              };
+            };
           };
         };
       };
@@ -3810,6 +4081,81 @@ export interface paths {
             "application/json": {
               /** @description Error message */
               error?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/provision/chain": {
+    post: {
+      parameters: {
+        header: {
+          "X-RELAY-INTEGRATION-SECRET": string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: number;
+            parentChainId: number;
+            /** @enum {string} */
+            type: "OPTIMISM" | "ARBITRUM";
+            name: string;
+            rpc: string;
+            ws: string;
+            explorer?: string;
+            logoUrl?: string;
+            iconurl?: string;
+            brandColor?: string;
+            nativeCurrency: {
+              name?: string;
+              symbol?: string;
+              decimals?: number;
+              contract?: string;
+            };
+            contracts: Record<string, never>;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              id?: string;
+              status?: string;
+              etaSeconds?: number;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+              status?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+              status?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+              status?: string;
             };
           };
         };
