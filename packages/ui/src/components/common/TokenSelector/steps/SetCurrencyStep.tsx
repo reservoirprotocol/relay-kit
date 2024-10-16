@@ -14,7 +14,7 @@ import {
   faExclamationTriangle,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
-import { formatBN } from '../../../../utils/numbers.js'
+import { formatBN, formatDollar } from '../../../../utils/numbers.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import type { EnhancedCurrencyList } from '../TokenSelector.js'
@@ -113,7 +113,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       >
         Select Token
       </Text>
-      <Flex css={{ width: '100%', gap: '3' }}>
+      <Flex css={{ width: '100%', gap: '2' }}>
         {isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
           <>
             <Flex
@@ -334,6 +334,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
   setUnverifiedToken,
   isLoadingDuneBalances
 }) => {
+  const totalValueUsd = currencyList.totalValueUsd
   const balance = currencyList.totalBalance
   const decimals =
     currencyList?.chains?.length > 0
@@ -386,7 +387,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
       css={{
         gap: '2',
         cursor: 'pointer',
-        px: '4',
+        px: '2',
         py: '2',
         transition: 'backdrop-filter 250ms linear',
         _hover: {
@@ -416,8 +417,10 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
           style={{ borderRadius: 9999 }}
         />
       )}
-      <Flex direction="column" align="start">
-        <Text style="subtitle1">{currencyList?.chains?.[0]?.name}</Text>
+      <Flex direction="column" align="start" css={{ gap: '2px' }}>
+        <Text style="subtitle1" ellipsify css={{ maxWidth: '112px' }}>
+          {currencyList?.chains?.[0]?.name}
+        </Text>
         <Flex align="center" css={{ gap: '1' }}>
           <Text style="subtitle3" color="subtle">
             {currencyList?.chains?.[0]?.symbol}
@@ -443,7 +446,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
 
       {!isSingleChainCurrency ? (
         <Flex align="center" css={{ position: 'relative' }}>
-          {currencyList?.chains?.slice(0, 6).map((currency, index) => (
+          {currencyList?.chains?.slice(0, 3).map((currency, index) => (
             <ChainIcon
               chainId={Number(currency.chainId)}
               key={index}
@@ -459,21 +462,34 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
               }}
             />
           ))}
-          {currencyList?.chains?.length > 6 ? (
+          {currencyList?.chains?.length > 3 ? (
             <Text style="tiny" css={{ ml: '1' }}>
               + more
             </Text>
           ) : null}
         </Flex>
       ) : null}
-      {isLoadingDuneBalances && !balance ? (
-        <Skeleton css={{ ml: 'auto', width: 60 }} />
-      ) : null}
-      {balance ? (
-        <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
-          {formatBN(balance, 5, decimals, compactBalance)}
-        </Text>
-      ) : null}
+      <Flex direction="column" align="end" css={{ gap: '2px', ml: 'auto' }}>
+        {isLoadingDuneBalances ? (
+          <>
+            <Skeleton css={{ ml: 'auto', width: 60 }} />
+            <Skeleton css={{ ml: 'auto', width: 60 }} />
+          </>
+        ) : (
+          <>
+            {balance ? (
+              <Text style="subtitle1" css={{ ml: 'auto' }}>
+                {formatBN(balance, 4, decimals, compactBalance)}
+              </Text>
+            ) : null}
+            {totalValueUsd ? (
+              <Text color="subtle" style="body3">
+                {formatDollar(totalValueUsd)}
+              </Text>
+            ) : null}
+          </>
+        )}
+      </Flex>
     </Button>
   )
 }
