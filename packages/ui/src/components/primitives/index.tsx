@@ -8,6 +8,7 @@ import { ChainTokenIcon } from './ChainTokenIcon.js'
 import { Pill } from './Pill.js'
 import { default as Anchor } from './Anchor.js'
 import { default as Input } from './Input.js'
+import { AccessibleList, ListItem } from './AccessibleList.js'
 
 export {
   Box,
@@ -19,5 +20,7 @@ export {
   ChainTokenIcon,
   Pill,
   Anchor,
-  Input
+  Input,
+  AccessibleList,
+  ListItem
 }
