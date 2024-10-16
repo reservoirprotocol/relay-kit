@@ -29,6 +29,7 @@ import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/solana.js'
+import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -156,6 +157,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         isCapacityExceededError,
+        isCouldNotExecuteError,
         maxCapacityFormatted,
         ctaCopy,
         isFromNative,
@@ -165,6 +167,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isValidToAddress,
         supportsExternalLiquidity,
         useExternalLiquidity,
+        canonicalTimeEstimate,
         setUseExternalLiquidity,
         setDetails,
         setSwapError,
@@ -222,6 +225,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onSetPrimaryWallet,
           isValidFromAddress
         ])
+
+        const promptSwitchRoute =
+          (isCapacityExceededError || isCouldNotExecuteError) &&
+          supportsExternalLiquidity
 
         return (
           <WidgetContainer
@@ -798,6 +805,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
+                  <SwapRouteSelector
+                    chain={toChain}
+                    supportsExternalLiquidity={supportsExternalLiquidity}
+                    externalLiquidtySelected={useExternalLiquidity}
+                    canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
+                    onExternalLiquidityChange={(selected) => {
+                      setUseExternalLiquidity(selected)
+                    }}
+                  />
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingPrice={isFetchingPrice}
@@ -805,15 +821,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     fromToken={fromToken}
                     price={price}
                     timeEstimate={timeEstimate}
-                    supportsExternalLiquidity={supportsExternalLiquidity}
-                    useExternalLiquidity={useExternalLiquidity}
-                    toChain={toChain}
-                    setUseExternalLiquidity={(enabled) => {
-                      setUseExternalLiquidity(enabled)
-                      onAnalyticEvent?.(EventNames.SWAP_ROUTE_SELECTED, {
-                        route: enabled ? 'canonical' : 'relay'
-                      })
-                    }}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
@@ -829,7 +836,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       mb: '6px'
                     }}
                   />
-                  {error && supportsExternalLiquidity ? (
+                  {promptSwitchRoute ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
                       {isCapacityExceededError &&
                       maxCapacityFormatted != '0' ? (
