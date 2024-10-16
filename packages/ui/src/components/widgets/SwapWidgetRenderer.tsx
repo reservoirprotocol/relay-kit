@@ -10,12 +10,11 @@ import {
   usePreviousValueChange
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, isAddress, parseUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import { evmDeadAddress, solDeadAddress } from '../../constants/address.js'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
@@ -28,10 +27,12 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import { findSupportedWallet, isSolanaAddress } from '../../utils/solana.js'
+import { findSupportedWallet } from '../../utils/solana.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { formatBN } from '../../utils/numbers.js'
+import { addressWithFallback, isValidAddress } from '../../utils/address.js'
+import { getDeadAddress } from '@reservoir0x/relay-sdk'
 
 export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
@@ -110,6 +111,7 @@ export type ChildrenProps = {
   timeEstimate?: { time: number; formattedTime: string }
   fetchingExternalLiquiditySupport: boolean
   isSvmSwap: boolean
+  isBvmSwap: boolean
   isValidFromAddress: boolean
   isValidToAddress: boolean
   invalidateBalanceQueries: () => void
@@ -188,10 +190,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const defaultRecipient = useMemo(() => {
-    const isValidToAddress =
-      toChain?.vmType === 'evm'
-        ? isAddress(customToAddress ?? address ?? '')
-        : isSolanaAddress(customToAddress ?? address ?? '')
     if (
       multiWalletSupportEnabled &&
       toChain &&
@@ -298,46 +296,27 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const isSvmSwap = fromChain?.vmType === 'svm' || toChain?.vmType === 'svm'
+  const isBvmSwap = fromChain?.vmType === 'bvm' || toChain?.vmType === 'bvm'
 
-  const isValidFromAddress =
-    fromChain?.vmType === 'evm'
-      ? isAddress(address ?? '')
-      : isSolanaAddress(address ?? '')
+  const isValidFromAddress = isValidAddress(fromChain?.vmType, address ?? '')
+  const fromAddressWithFallback = addressWithFallback(
+    fromChain?.vmType,
+    address
+  )
 
-  const fromAddressWithFallback =
-    fromChain?.vmType === 'evm'
-      ? address && isAddress(address)
-        ? address
-        : evmDeadAddress
-      : address && isSolanaAddress(address)
-        ? address
-        : solDeadAddress
-
-  const isValidToAddress =
-    toChain?.vmType === 'evm'
-      ? isAddress(recipient ?? '')
-      : isSolanaAddress(recipient ?? '')
-
-  const toAddressWithFallback =
-    toChain?.vmType === 'evm'
-      ? recipient && isAddress(recipient)
-        ? recipient
-        : evmDeadAddress
-      : recipient && isSolanaAddress(recipient)
-        ? recipient
-        : solDeadAddress
+  const isValidToAddress = isValidAddress(toChain?.vmType, recipient ?? '')
+  const toAddressWithFallback = addressWithFallback(toChain?.vmType, recipient)
 
   const externalLiquiditySupport = usePrice(
     relayClient ? relayClient : undefined,
     fromToken && toToken
       ? {
-          user: fromChain?.vmType === 'evm' ? evmDeadAddress : solDeadAddress,
+          user: getDeadAddress(fromChain?.vmType),
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
           destinationCurrency: toToken.address,
-          recipient:
-            fromChain?.vmType === 'evm' ? evmDeadAddress : solDeadAddress,
+          recipient: getDeadAddress(fromChain?.vmType),
           tradeType,
           appFees: providerOptionsContext.appFees,
           amount: '10000000000000000000000', //Hardcode an extremely high number
@@ -554,7 +533,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = `Select ${fromChain?.displayName} Wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
     ctaCopy = `Select ${toChain?.displayName} Wallet`
-  } else if (toChain?.vmType === 'svm' && !isValidToAddress) {
+  } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
@@ -648,6 +627,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         timeEstimate,
         fetchingExternalLiquiditySupport: externalLiquiditySupport.isFetching,
         isSvmSwap,
+        isBvmSwap,
         isValidFromAddress,
         isValidToAddress,
         invalidateBalanceQueries,

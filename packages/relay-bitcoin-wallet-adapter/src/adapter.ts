@@ -32,7 +32,6 @@ export const adaptBitcoinWallet = (
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const client = getClient()
 
-      //@ts-ignore: TODO
       const psbtHex: string = stepItem.data.psbt
 
       const psbt = bitcoin.Psbt.fromHex(psbtHex, {

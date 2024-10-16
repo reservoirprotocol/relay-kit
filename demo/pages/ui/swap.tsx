@@ -21,6 +21,8 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
 import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
+import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
+import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
@@ -31,6 +33,10 @@ const SwapWidgetPage: NextPage = () => {
       const walletLogoId =
         // @ts-ignore
         newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
+
+      debugger
+      //TODO
+
       const linkedWallet = {
         address: newWallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
@@ -101,6 +107,22 @@ const SwapWidgetPage: NextPage = () => {
           } else if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
+          } else if (isBitcoinWallet(primaryWallet)) {
+            adaptedWallet = adaptBitcoinWallet(
+              primaryWallet.address,
+              async (_address, _psbt, dynamicParams) => {
+                try {
+                  // Request the wallet to sign the PSBT
+                  const response = await primaryWallet.signPsbt(dynamicParams)
+                  if (!response) {
+                    throw 'Missing psbt response'
+                  }
+                  return response.signedPsbt
+                } catch (e) {
+                  throw e
+                }
+              }
+            )
           }
           setWallet(adaptedWallet)
         } else {
@@ -169,6 +191,8 @@ const SwapWidgetPage: NextPage = () => {
               setWalletFilter('EVM')
             } else if (chain?.id === 792703809) {
               setWalletFilter('SOL')
+            } else if (chain?.id === 8253038) {
+              setWalletFilter('BTC')
             } else {
               setWalletFilter(undefined)
             }

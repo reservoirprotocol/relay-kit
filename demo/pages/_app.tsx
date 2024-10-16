@@ -170,14 +170,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
-                return (
-                  chains
-                    //@ts-ignore: todo remove when api type is updated
-                    .filter((chain) => chain.vmType === 'evm')
-                    .map((chain) => {
-                      return convertRelayChainToDynamicNetwork(chain)
-                    })
-                )
+                return chains
+                  .filter((chain) => chain.vmType === 'evm')
+                  .map((chain) => {
+                    return convertRelayChainToDynamicNetwork(chain)
+                  })
               }
             },
             initialAuthenticationMode: 'connect-only',
