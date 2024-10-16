@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock'
 import FetchingQuoteLoader from '../widgets/FetchingQuoteLoader.js'
+import SwapRouteSelector from '../widgets/SwapRouteSelector.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type Props = Pick<
@@ -16,7 +17,13 @@ type Props = Pick<
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
->
+  | 'supportsExternalLiquidity'
+  | 'useExternalLiquidity'
+  | 'setUseExternalLiquidity'
+  | 'canonicalTimeEstimate'
+> & {
+  toChain?: RelayChain
+}
 
 const formatSwapRate = (rate: number) => {
   return rate >= 1 ? formatNumber(rate, 2) : formatNumber(rate, 5)
@@ -28,7 +35,12 @@ const FeeBreakdown: FC<Props> = ({
   price,
   toToken,
   fromToken,
-  timeEstimate
+  toChain,
+  supportsExternalLiquidity,
+  useExternalLiquidity,
+  setUseExternalLiquidity,
+  timeEstimate,
+  canonicalTimeEstimate
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -66,65 +78,80 @@ const FeeBreakdown: FC<Props> = ({
   }
 
   return (
-    <Flex
-      justify="between"
+    <Box
       css={{
-        flexDirection: 'row',
-        gap: '2',
-        width: '100%',
-        px: '4',
-        py: '3',
         borderRadius: 'widget-card-border-radius',
         backgroundColor: 'widget-background',
         overflow: 'hidden',
         mb: '6px'
       }}
     >
-      <button
-        style={{ cursor: 'pointer' }}
-        onClick={(e) => {
-          setRateMode(rateMode === 'input' ? 'output' : 'input')
-          e.preventDefault()
+      <SwapRouteSelector
+        chain={toChain}
+        supportsExternalLiquidity={supportsExternalLiquidity}
+        externalLiquidtySelected={useExternalLiquidity}
+        onExternalLiquidityChange={(selected) => {
+          setUseExternalLiquidity(selected)
         }}
-      >
-        {rateMode === 'input' ? (
-          <Text style="subtitle2">
-            1 {fromToken?.symbol} = {formatSwapRate(Number(swapRate))}{' '}
-            {toToken?.symbol}
-          </Text>
-        ) : (
-          <Text style="subtitle2">
-            1 {toToken?.symbol} = {formatSwapRate(1 / Number(swapRate))}{' '}
-            {fromToken?.symbol}
-          </Text>
-        )}
-      </button>
-
+        canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
+      />
+      <Box css={{ height: 1, background: 'gray5', width: '100%' }} />
       <Flex
+        justify="between"
         css={{
+          flexDirection: 'row',
           gap: '2',
-          color:
-            timeEstimate && timeEstimate.time <= 30
-              ? '{colors.green.9}'
-              : '{colors.amber.9}'
+          width: '100%',
+          px: '4',
+          py: '3'
         }}
-        align="center"
       >
-        {timeEstimate && timeEstimate?.time !== 0 ? (
-          <>
-            <FontAwesomeIcon icon={faClock} width={16} />
-            <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
-            <Box css={{ width: 1, background: 'gray6', height: 20 }} />
-          </>
-        ) : null}
-        <FontAwesomeIcon
-          icon={faGasPump}
-          width={16}
-          style={{ color: '#C1C8CD' }}
-        />
-        <Text style="subtitle2">{originGasFee?.usd}</Text>
+        <button
+          style={{ cursor: 'pointer' }}
+          onClick={(e) => {
+            setRateMode(rateMode === 'input' ? 'output' : 'input')
+            e.preventDefault()
+          }}
+        >
+          {rateMode === 'input' ? (
+            <Text style="subtitle2">
+              1 {fromToken?.symbol} = {formatSwapRate(Number(swapRate))}{' '}
+              {toToken?.symbol}
+            </Text>
+          ) : (
+            <Text style="subtitle2">
+              1 {toToken?.symbol} = {formatSwapRate(1 / Number(swapRate))}{' '}
+              {fromToken?.symbol}
+            </Text>
+          )}
+        </button>
+
+        <Flex
+          css={{
+            gap: '2',
+            color:
+              timeEstimate && timeEstimate.time <= 30
+                ? '{colors.green.9}'
+                : '{colors.amber.9}'
+          }}
+          align="center"
+        >
+          {timeEstimate && timeEstimate?.time !== 0 ? (
+            <>
+              <FontAwesomeIcon icon={faClock} width={16} />
+              <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
+              <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+            </>
+          ) : null}
+          <FontAwesomeIcon
+            icon={faGasPump}
+            width={16}
+            style={{ color: '#C1C8CD' }}
+          />
+          <Text style="subtitle2">{originGasFee?.usd}</Text>
+        </Flex>
       </Flex>
-    </Flex>
+    </Box>
   )
 }
 

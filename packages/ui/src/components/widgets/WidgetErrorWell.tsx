@@ -16,6 +16,7 @@ type Props = {
   relayerFeeProportion?: bigint | 0
   isHighRelayerServiceFee?: boolean
   isCapacityExceededError?: boolean
+  isCouldNotExecuteError?: boolean
   maxCapacity?: string
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
@@ -29,6 +30,7 @@ export const WidgetErrorWell: FC<Props> = ({
   relayerFeeProportion,
   isHighRelayerServiceFee,
   isCapacityExceededError,
+  isCouldNotExecuteError,
   maxCapacity,
   supportsExternalLiquidity,
   containerCss
@@ -75,7 +77,11 @@ export const WidgetErrorWell: FC<Props> = ({
           </Text>
         </Flex>
       )
-    } else if (supportsExternalLiquidity && currency) {
+    } else if (
+      supportsExternalLiquidity &&
+      isCouldNotExecuteError &&
+      currency
+    ) {
       return (
         <Flex
           align="center"
