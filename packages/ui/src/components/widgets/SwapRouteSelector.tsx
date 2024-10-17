@@ -10,16 +10,17 @@ type Props = {
   externalLiquidtySelected: boolean
   onExternalLiquidityChange: (externalLiquiditySelected: boolean) => void
   chain?: RelayChain
+  canonicalTimeEstimate?: string
 }
 
 const SwapRouteSelector: FC<Props> = ({
   supportsExternalLiquidity,
   externalLiquidtySelected,
   onExternalLiquidityChange,
-  chain
+  chain,
+  canonicalTimeEstimate
 }) => {
   const [open, setOpen] = useState(false)
-  const chainName = chain?.displayName ?? ''
   return (
     <Dropdown
       open={open}
@@ -29,7 +30,7 @@ const SwapRouteSelector: FC<Props> = ({
         }
       }}
       contentProps={{
-        sideOffset: 12,
+        sideOffset: 8,
         align: 'end',
         css: {
           maxWidth: 248,
@@ -49,12 +50,12 @@ const SwapRouteSelector: FC<Props> = ({
             justifyContent: 'space-between',
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: 'transparent',
             gap: '3',
             px: '4',
             py: '3',
             borderRadius: 'widget-card-border-radius',
             border: 'widget-card-border',
+
             '&:disabled': {
               cursor: 'default',
               backgroundColor: 'transparent',
@@ -150,7 +151,9 @@ const SwapRouteSelector: FC<Props> = ({
             <Flex direction="column">
               <Text style="subtitle2">Native</Text>
               <Text style="body3" color="subtle">
-                Standard time (&#62;2m), unlimited transaction capacity
+                {canonicalTimeEstimate
+                  ? `Standard time ~${canonicalTimeEstimate}, unlimited transaction capacity`
+                  : 'Unlimited transaction capacity'}
               </Text>
             </Flex>
           </DropdownMenuItem>
