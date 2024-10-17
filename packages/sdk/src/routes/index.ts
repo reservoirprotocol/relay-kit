@@ -11,10 +11,13 @@ export const routes = [
   "/execute/permits",
   "/quote",
   "/price",
+  "/execute/user-op/{chainId}",
   "/lives",
   "/intents/status",
-  "/intents/quote",
   "/intents/status/v2",
+  "/intents/quote",
+  "/intents/quote/v2",
+  "/requests/{requestId}/signature",
   "/requests",
   "/requests/v2",
   "/transactions/index",
@@ -22,5 +25,7 @@ export const routes = [
   "/conduit/install",
   "/prices/rates",
   "/currencies/v1",
-  "/currencies/token/price"
+  "/tokenlist",
+  "/currencies/token/price",
+  "/provision/chain"
 ];
