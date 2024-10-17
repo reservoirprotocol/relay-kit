@@ -30,7 +30,7 @@ const SwapRouteSelector: FC<Props> = ({
         }
       }}
       contentProps={{
-        sideOffset: 12,
+        sideOffset: 8,
         align: 'end',
         css: {
           maxWidth: 248,
@@ -152,7 +152,7 @@ const SwapRouteSelector: FC<Props> = ({
               <Text style="subtitle2">Native</Text>
               <Text style="body3" color="subtle">
                 {canonicalTimeEstimate
-                  ? `Standard time ${canonicalTimeEstimate}, unlimited transaction capacity`
+                  ? `Standard time ~${canonicalTimeEstimate}, unlimited transaction capacity`
                   : 'Unlimited transaction capacity'}
               </Text>
             </Flex>
