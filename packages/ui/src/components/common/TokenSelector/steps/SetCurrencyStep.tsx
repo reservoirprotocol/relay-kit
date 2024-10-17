@@ -16,7 +16,7 @@ import {
   Button,
   ChainTokenIcon,
   AccessibleList,
-  ListItem
+  AccessibleListItem
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
@@ -150,7 +150,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   scrollPaddingTop: '40px'
                 }}
               >
-                <ListItem value="input" asChild>
+                <AccessibleListItem value="input" asChild>
                   <Input
                     placeholder="Search chains"
                     icon={
@@ -183,11 +183,11 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                       setChainSearchInput((e.target as HTMLInputElement).value)
                     }
                   />
-                </ListItem>
+                </AccessibleListItem>
                 {filteredChains?.map((chain) => {
                   const active = chainFilter.id === chain.id
                   return (
-                    <ListItem
+                    <AccessibleListItem
                       key={chain.id?.toString() ?? 'all-chains'}
                       value={chain.id?.toString() ?? 'all-chains'}
                       asChild
@@ -242,7 +242,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                             chain.name}
                         </Text>
                       </Button>
-                    </ListItem>
+                    </AccessibleListItem>
                   )
                 })}
               </AccessibleList>
@@ -293,7 +293,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             }}
           >
             <Flex align="center" css={{ width: '100%', gap: '2' }}>
-              <ListItem value="input" asChild>
+              <AccessibleListItem value="input" asChild>
                 <Input
                   ref={setInputElement}
                   placeholder="Search for a token"
@@ -327,7 +327,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                     setTokenSearchInput((e.target as HTMLInputElement).value)
                   }
                 />
-              </ListItem>
+              </AccessibleListItem>
               {!isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
                 <ChainFilter
                   options={allChains}
@@ -353,14 +353,18 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             enhancedCurrencyList?.length > 0
               ? enhancedCurrencyList?.map((list, idx) =>
                   list && list.chains[0].address ? (
-                    <ListItem key={idx} value={list.chains[0].address} asChild>
+                    <AccessibleListItem
+                      key={idx}
+                      value={list.chains[0].address}
+                      asChild
+                    >
                       <CurrencyRow
                         currencyList={list as EnhancedCurrencyList}
                         setCurrencyList={setCurrencyList}
                         selectToken={selectToken}
                         isLoadingDuneBalances={isLoadingDuneBalances}
                       />
-                    </ListItem>
+                    </AccessibleListItem>
                   ) : null
                 )
               : null}

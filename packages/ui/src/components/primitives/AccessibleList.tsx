@@ -50,27 +50,28 @@ export const AccessibleList: FC<AccessibleListProps> = ({
   )
 }
 
-type ListItemProps = {
+type AccessibleListItemProps = {
   children: React.ReactNode
   value: string
   css?: Styles
   asChild?: boolean
 }
 
-export const ListItem = forwardRef<HTMLButtonElement, ListItemProps>(
-  ({ children, value, css, asChild, ...props }, forwardedRef) => {
-    return (
-      <ToggleGroup.Item
-        value={value}
-        className={designCss(AccessibleListItemCss.raw(), designCss.raw(css))}
-        asChild={asChild}
-        {...props}
-        ref={forwardedRef}
-      >
-        {children}
-      </ToggleGroup.Item>
-    )
-  }
-)
+export const AccessibleListItem = forwardRef<
+  HTMLButtonElement,
+  AccessibleListItemProps
+>(({ children, value, css, asChild, ...props }, forwardedRef) => {
+  return (
+    <ToggleGroup.Item
+      value={value}
+      className={designCss(AccessibleListItemCss.raw(), designCss.raw(css))}
+      asChild={asChild}
+      {...props}
+      ref={forwardedRef}
+    >
+      {children}
+    </ToggleGroup.Item>
+  )
+})
 
-ListItem.displayName = 'ListItem'
+AccessibleListItem.displayName = 'AccessibleListItem'
