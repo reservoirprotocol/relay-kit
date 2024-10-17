@@ -144,7 +144,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
         };
       };
       responses: {
@@ -197,7 +197,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -296,7 +296,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -307,10 +307,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -372,7 +372,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -796,7 +796,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -807,10 +807,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
               };
               /**
                * @example {

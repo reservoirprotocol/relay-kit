@@ -21,6 +21,7 @@ import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../../hooks/index.js'
 import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
+import { bitcoin } from '../../../../utils/bitcoin.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -65,8 +66,20 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   const toChain = toToken
     ? relayClient?.chains.find((chain) => chain.id === toToken?.chainId)
     : null
+  const delayedTxUrl = transaction?.data?.inTxs?.[0]?.hash
+    ? `${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`
+    : `${baseTransactionUrl}/transactions?address=${details?.recipient ?? details?.sender}`
+  const timeEstimateMs =
+    ((details?.timeEstimate ?? 0) +
+      (fromChain && fromChain.id === bitcoin.id ? 600 : 0)) *
+    1000
+  const isDelayedTx =
+    isCanonical ||
+    timeEstimateMs >
+      (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
+        (relayClient?.pollingInterval ?? 5000)
 
-  return isCanonical ? (
+  return isDelayedTx ? (
     <>
       <Flex direction="column" align="center" justify="between">
         <motion.div
@@ -169,11 +182,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         >
           Done
         </Button>
-        <a
-          href={`/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
-          style={{ width: '100%' }}
-          target="_blank"
-        >
+        <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
           <Button
             color={'primary'}
             css={{

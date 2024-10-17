@@ -10,6 +10,18 @@ type DynamicSignPsbtParams = {
   }>
 }
 
+function hexToBase64(hex: string) {
+  // Convert hex to bytes
+  const bytes = []
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substr(i, 2), 16))
+  }
+
+  // Convert bytes to base64
+  const binary = String.fromCharCode(...bytes)
+  return btoa(binary)
+}
+
 export const adaptBitcoinWallet = (
   walletAddress: string,
   signPsbt: (
@@ -32,7 +44,8 @@ export const adaptBitcoinWallet = (
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const client = getClient()
 
-      const psbtHex: string = stepItem.data.psbt
+      const psbtHex = stepItem.data.psbt as string
+      const psbtBase64 = hexToBase64(psbtHex)
 
       const psbt = bitcoin.Psbt.fromHex(psbtHex, {
         network: bitcoin.networks.bitcoin
@@ -40,7 +53,7 @@ export const adaptBitcoinWallet = (
 
       const dynamicParams: DynamicSignPsbtParams = {
         allowedSighash: [1], // Only allow SIGHASH_ALL
-        unsignedPsbtBase64: psbtHex, // The unsigned PSBT in Base64 format
+        unsignedPsbtBase64: psbtBase64, // The unsigned PSBT in Base64 format
         signature: [
           {
             address: walletAddress, // The address that is signing
@@ -48,7 +61,7 @@ export const adaptBitcoinWallet = (
           }
         ]
       }
-
+      debugger
       const signedPsbt = await signPsbt(walletAddress, psbt, dynamicParams)
 
       client.log(['PSBT Signed', signedPsbt], LogLevel.Verbose)

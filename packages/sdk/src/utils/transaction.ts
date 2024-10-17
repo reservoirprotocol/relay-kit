@@ -36,7 +36,8 @@ export async function sendTransactionSafely(
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
-  isValidating?: (res?: AxiosResponse<any, any>) => void
+  isValidating?: (res?: AxiosResponse<any, any>) => void,
+  details?: Execute['details']
 ) {
   const client = getClient()
   const walletChainId = await wallet.getChainId()
@@ -104,9 +105,9 @@ export async function sendTransactionSafely(
     return false
   }
 
+  // Poll the confirmation url to confirm the transaction went through
   const pollForConfirmation = async () => {
     isValidating?.()
-    // Poll the confirmation url to confirm the transaction went through
     while (
       waitingForConfirmation &&
       attemptCount < maximumAttempts &&
@@ -202,6 +203,15 @@ export async function sendTransactionSafely(
         }),
       controller
     }
+  }
+
+  //If the time estimate of the tx is greater than the maximum attempts we should skip polling confirmation
+  const timeEstimateMs =
+    ((details?.timeEstimate ?? 0) + (chainId === 8253038 ? 600 : 0)) * 1000
+  const maximumWaitTimeInMs = maximumAttempts * pollingInterval
+
+  if (timeEstimateMs > maximumWaitTimeInMs) {
+    return true
   }
 
   //Sequence internal functions

@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.6
+
+### Patch Changes
+
+- cea3f43: Fix ux issues with canonical route selector
+
+## 2.1.5
+
+### Patch Changes
+
+- af05332: Improve price impact, handle no instant liquidity ux
+
 ## 2.1.4
 
 ### Patch Changes

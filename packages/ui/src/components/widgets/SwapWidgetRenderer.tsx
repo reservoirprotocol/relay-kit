@@ -102,6 +102,7 @@ export type ChildrenProps = {
   hasInsufficientBalance: boolean
   isInsufficientLiquidityError?: boolean
   isCapacityExceededError?: boolean
+  isCouldNotExecuteError?: boolean
   maxCapacityWei?: string
   maxCapacityFormatted?: string
   ctaCopy: string
@@ -109,6 +110,7 @@ export type ChildrenProps = {
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
+  canonicalTimeEstimate?: { time: number; formattedTime: string }
   fetchingExternalLiquiditySupport: boolean
   isSvmSwap: boolean
   isBvmSwap: boolean
@@ -190,11 +192,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const defaultRecipient = useMemo(() => {
+    const _isValidToAddress = isValidAddress(
+      toChain?.vmType,
+      customToAddress ?? address ?? ''
+    )
     if (
       multiWalletSupportEnabled &&
       toChain &&
       linkedWallets &&
-      !isValidToAddress
+      !_isValidToAddress
     ) {
       const supportedAddress = findSupportedWallet(
         toChain.vmType,
@@ -481,9 +487,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isCapacityExceededError = fetchQuoteDataErrorMessage?.includes(
     'Amount is higher than the available liquidity'
   )
+  const isCouldNotExecuteError =
+    fetchQuoteDataErrorMessage?.includes('Could not execute')
   const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
   const timeEstimate = calculatePriceTimeEstimate(price?.details)
+  const canonicalTimeEstimate = calculatePriceTimeEstimate(
+    externalLiquiditySupport.data?.details
+  )
 
   const isFromNative = fromToken?.address === fromChain?.currency?.address
 
@@ -618,6 +629,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         isCapacityExceededError,
+        isCouldNotExecuteError,
         maxCapacityFormatted,
         maxCapacityWei,
         ctaCopy,
@@ -625,6 +637,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
+        canonicalTimeEstimate,
         fetchingExternalLiquiditySupport: externalLiquiditySupport.isFetching,
         isSvmSwap,
         isBvmSwap,

@@ -33,6 +33,7 @@ import {
   solDeadAddress,
   bitcoinDeadAddress
 } from '@reservoir0x/relay-sdk'
+import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -160,6 +161,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         isCapacityExceededError,
+        isCouldNotExecuteError,
         maxCapacityFormatted,
         ctaCopy,
         isFromNative,
@@ -170,6 +172,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isValidToAddress,
         supportsExternalLiquidity,
         useExternalLiquidity,
+        canonicalTimeEstimate,
         setUseExternalLiquidity,
         setDetails,
         setSwapError,
@@ -227,6 +230,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onSetPrimaryWallet,
           isValidFromAddress
         ])
+
+        const promptSwitchRoute =
+          (isCapacityExceededError || isCouldNotExecuteError) &&
+          supportsExternalLiquidity
 
         return (
           <WidgetContainer
@@ -805,6 +812,28 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
+                  {error && !isFetchingPrice ? (
+                    <Box
+                      css={{
+                        borderRadius: 'widget-card-border-radius',
+                        backgroundColor: 'widget-background',
+                        overflow: 'hidden',
+                        mb: '6px'
+                      }}
+                    >
+                      <SwapRouteSelector
+                        chain={toChain}
+                        supportsExternalLiquidity={supportsExternalLiquidity}
+                        externalLiquidtySelected={useExternalLiquidity}
+                        canonicalTimeEstimate={
+                          canonicalTimeEstimate?.formattedTime
+                        }
+                        onExternalLiquidityChange={(selected) => {
+                          setUseExternalLiquidity(selected)
+                        }}
+                      />
+                    </Box>
+                  ) : null}
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingPrice={isFetchingPrice}
@@ -821,6 +850,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         route: enabled ? 'canonical' : 'relay'
                       })
                     }}
+                    canonicalTimeEstimate={canonicalTimeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
@@ -829,6 +859,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     currency={toToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
+                    isCouldNotExecuteError={isCouldNotExecuteError}
                     maxCapacity={maxCapacityFormatted}
                     relayerFeeProportion={relayerFeeProportion}
                     supportsExternalLiquidity={supportsExternalLiquidity}
@@ -836,9 +867,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       mb: '6px'
                     }}
                   />
-                  {isCapacityExceededError && supportsExternalLiquidity ? (
+                  {promptSwitchRoute ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
-                      {maxCapacityFormatted != '0' ? (
+                      {isCapacityExceededError &&
+                      maxCapacityFormatted != '0' ? (
                         <Button
                           color="white"
                           css={{ flexGrow: '1', justifyContent: 'center' }}

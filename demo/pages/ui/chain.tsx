@@ -33,20 +33,27 @@ const ChainWidgetPage: NextPage = () => {
 
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
-      const walletLogoId =
+      let walletLogoId =
         // @ts-ignore
         newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
 
-      debugger
-      //TODO
+      if (walletLogoId.includes('phantom')) {
+        walletLogoId = 'phantom'
+      }
+
+      let walletChain = newWallet.chain.toLowerCase()
+      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
+
+      if (walletChain === 'sol') {
+        vmType = 'svm'
+      } else if (walletChain === 'btc') {
+        vmType = 'bvm'
+      }
 
       const linkedWallet = {
         address: newWallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType:
-          newWallet.chain.toLowerCase() === 'evm'
-            ? 'evm'
-            : ('svm' as 'evm' | 'svm')
+        vmType
       }
       linkWalletPromise.resolve(linkedWallet)
       setLinkWalletPromise(undefined)
@@ -69,16 +76,27 @@ const ChainWidgetPage: NextPage = () => {
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.map((wallet) => {
-      const walletLogoId =
+      let walletLogoId =
         // @ts-ignore
         wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
+
+      if (walletLogoId.includes('phantom')) {
+        walletLogoId = 'phantom'
+      }
+
+      let walletChain = wallet.chain.toLowerCase()
+
+      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
+
+      if (walletChain === 'sol') {
+        vmType = 'svm'
+      } else if (walletChain === 'btc') {
+        vmType = 'bvm'
+      }
       return {
         address: wallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType:
-          wallet.chain.toLowerCase() === 'evm'
-            ? 'evm'
-            : ('svm' as 'evm' | 'svm')
+        vmType
       }
     })
     wallets.current = userWallets

@@ -5,6 +5,7 @@ import { formatSeconds } from './time.js'
 import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
+import { bitcoin } from '../utils/bitcoin.js'
 
 type QuoteResponse = ReturnType<typeof useQuote>['data']
 
@@ -183,8 +184,12 @@ export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
     return false
   }
 
-  const fivePercentOfUsdIn = (usdIn * 5) / 100
-  return relayerServiceFeeUsd >= fivePercentOfUsdIn
+  const feeThresholdPercentage = (usdIn * 2.5) / 100
+  const feeThresholdUsd = 25
+  return (
+    relayerServiceFeeUsd > feeThresholdPercentage &&
+    relayerServiceFeeUsd > feeThresholdUsd
+  )
 }
 
 export const extractQuoteId = (steps?: Execute['steps']) => {
@@ -227,7 +232,10 @@ export const calculateTimeEstimate = (breakdown?: Execute['breakdown']) => {
 export const calculatePriceTimeEstimate = (
   details?: PriceResponse['details']
 ) => {
-  const time = details?.timeEstimate ?? 0
+  const isBitcoin = details?.currencyIn?.currency?.chainId === bitcoin.id
+
+  //Add 10m origin because of the origin deposit time
+  const time = (details?.timeEstimate ?? 0) + (isBitcoin ? 600 : 0)
   const formattedTime = formatSeconds(time)
 
   return {
