@@ -36,7 +36,7 @@ type BaseSwapWidgetProps = {
   defaultToToken?: Token
   defaultToAddress?: Address
   defaultAmount?: string
-  defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
+  defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
   lockChainId?: number
@@ -355,12 +355,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           lineHeight: '36px',
                           py: 0,
                           color:
-                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                            isFetchingPrice && tradeType === 'EXPECTED_OUTPUT'
                               ? 'text-subtle'
                               : 'input-color',
                           _placeholder: {
                             color:
-                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                              isFetchingPrice && tradeType === 'EXPECTED_OUTPUT'
                                 ? 'text-subtle'
                                 : 'input-color'
                           }
@@ -531,7 +531,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         onClick={() => {
                           if (fromToken || toToken) {
                             if (tradeType === 'EXACT_INPUT') {
-                              setTradeType('EXACT_OUTPUT')
+                              setTradeType('EXPECTED_OUTPUT')
                               setAmountInputValue('')
                               setAmountOutputValue(amountInputValue)
                             } else {
@@ -641,7 +641,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
                         value={
-                          tradeType === 'EXACT_OUTPUT'
+                          tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
                               ? formatFixedLength(amountOutputValue, 8)
@@ -649,7 +649,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
-                          setTradeType('EXACT_OUTPUT')
+                          setTradeType('EXPECTED_OUTPUT')
                           if (Number(e) === 0) {
                             setAmountInputValue('')
                             debouncedAmountOutputControls.flush()

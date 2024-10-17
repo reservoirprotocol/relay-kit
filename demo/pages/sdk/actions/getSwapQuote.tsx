@@ -130,7 +130,7 @@ const GetSwapQuote: NextPage = () => {
             amount,
             currency: fromCurrency,
             recipient: recipient ? (recipient as Address) : undefined,
-            tradeType: useExactOuput ? 'EXACT_OUTPUT' : 'EXACT_INPUT'
+            tradeType: useExactOuput ? 'EXPECTED_OUTPUT' : 'EXACT_INPUT'
           })
           setResponse(quote)
         }}

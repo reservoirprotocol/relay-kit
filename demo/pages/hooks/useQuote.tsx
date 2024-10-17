@@ -15,8 +15,8 @@ const UseQuote: NextPage = () => {
   const [originCurrency, setOriginCurrency] = useState<string>('')
   const [destinationCurrency, setDestinationCurrency] = useState<string>('')
   const [recipient, setRecipient] = useState<string | undefined>()
-  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
-    'EXACT_INPUT'
+  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXPECTED_OUTPUT'>(
+    'EXPECTED_OUTPUT'
   )
   const [source, setSource] = useState<string | undefined>()
   const [useExternalLiquidity, setUseExternalLiquidity] =
@@ -125,7 +125,7 @@ const UseQuote: NextPage = () => {
             }}
           >
             <option value="EXACT_INPUT">EXACT_INPUT</option>
-            <option value="EXACT_OUTPUT">EXACT_OUTPUT</option>
+            <option value="EXPECTED_OUTPUT">EXPECTED_OUTPUT</option>
           </select>
         </div>
         <div>
