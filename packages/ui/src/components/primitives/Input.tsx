@@ -1,5 +1,6 @@
+import React, { forwardRef } from 'react'
 import Flex from './Flex.js'
-import type { FC, HTMLProps, PropsWithChildren, ReactNode } from 'react'
+import type { HTMLProps, PropsWithChildren, ReactNode } from 'react'
 import {
   cva,
   css as designCss,
@@ -21,7 +22,7 @@ const StyledInputCss = cva({
     },
     '--focusColor': 'colors.focus-color',
     _focus: {
-      boxShadow: '0 0 0 2px var(--focusColor)',
+      boxShadow: 'inset 0 0 0 2px var(--focusColor)',
       outline: 'none'
     },
     _disabled: {
@@ -53,66 +54,64 @@ type StyledInputCssVariants = NonNullable<
   Parameters<(typeof StyledInputCss)['raw']>['0']
 >
 
-const Input: FC<
+const Input = forwardRef<
+  HTMLInputElement,
   Omit<HTMLProps<HTMLInputElement>, 'size'> &
     PropsWithChildren & {
       icon?: ReactNode
       iconPosition?: 'left' | 'right'
       iconCss?: Styles
       containerCss?: Styles
-      inputRef?: (element: HTMLInputElement) => void
     } & { css?: Styles } & StyledInputCssVariants
-> = ({
-  children,
-  icon,
-  iconPosition,
-  iconCss,
-  containerCss,
-  css,
-  inputRef,
-  ...props
-}) => {
-  const { size, ellipsify, ...inputProps } = props
+>(
+  (
+    { children, icon, iconPosition, iconCss, containerCss, css, ...props },
+    ref
+  ) => {
+    const { size, ellipsify, ...inputProps } = props
 
-  return (
-    <Flex
-      css={{
-        ...containerCss
-      }}
-    >
-      {icon && (
-        <Flex css={{ position: 'relative' }}>
-          <Box
-            css={{
-              position: 'absolute',
-              top: 12,
-              left: iconPosition === 'right' ? 'unset' : 16,
-              right: iconPosition === 'right' ? 16 : 'unset',
-              zIndex: 0,
-              ...iconCss
-            }}
-          >
-            {icon}
-          </Box>
-        </Flex>
-      )}
-      <input
-        {...inputProps}
-        ref={inputRef}
-        style={{
-          paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
-          paddingRight: icon && iconPosition === 'right' ? 42 : 16
+    return (
+      <Flex
+        css={{
+          ...containerCss
         }}
-        className={designCss(
-          StyledInputCss.raw({ size, ellipsify }),
-          designCss.raw({
-            ...css
-          })
+        style={{ ...props.style }}
+      >
+        {icon && (
+          <Flex css={{ position: 'relative' }}>
+            <Box
+              css={{
+                position: 'absolute',
+                top: 12,
+                left: iconPosition === 'right' ? 'unset' : 16,
+                right: iconPosition === 'right' ? 16 : 'unset',
+                zIndex: 0,
+                ...iconCss
+              }}
+            >
+              {icon}
+            </Box>
+          </Flex>
         )}
-      />
-    </Flex>
-  )
-}
+        <input
+          {...inputProps}
+          type="text"
+          ref={ref}
+          style={{
+            paddingLeft: icon && iconPosition !== 'right' ? 42 : 16,
+            paddingRight: icon && iconPosition === 'right' ? 42 : 16
+          }}
+          className={designCss(
+            StyledInputCss.raw({ size, ellipsify }),
+            designCss.raw({
+              ...css
+            })
+          )}
+        />
+      </Flex>
+    )
+  }
+)
 
 Input.displayName = 'Input'
 

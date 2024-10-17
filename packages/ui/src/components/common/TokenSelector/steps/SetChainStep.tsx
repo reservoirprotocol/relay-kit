@@ -5,7 +5,9 @@ import {
   Text,
   Box,
   Input,
-  ChainIcon
+  ChainIcon,
+  AccessibleList,
+  AccessibleListItem
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -149,54 +151,78 @@ export const SetChainStep: FC<SetChainStepProps> = ({
       >
         Select Chain
       </Text>
-      <Input
-        inputRef={(element) => {
-          setInputElement(element)
-        }}
-        placeholder="Search for a chain"
-        icon={
-          <Box css={{ color: 'gray9' }}>
-            <FontAwesomeIcon icon={faMagnifyingGlass} width={16} height={16} />
-          </Box>
-        }
-        containerCss={{ width: '100%', height: 40 }}
-        css={{
-          width: '100%',
-          _placeholder_parent: {
-            textOverflow: 'ellipsis'
+      <AccessibleList
+        onSelect={(value) => {
+          if (value && value !== 'input') {
+            const chain = filteredChains.find(
+              (chain) => chain.id.toString() === value
+            )
+            if (chain) {
+              const token = chain.isSupported
+                ? (chain.currency as Currency)
+                : {
+                    ...chain.relayChain.currency,
+                    metadata: {
+                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
+                    }
+                  }
+              selectToken(token, chain.id)
+            }
           }
         }}
-        value={chainSearchInput}
-        onChange={(e) =>
-          setChainSearchInput((e.target as HTMLInputElement).value)
-        }
-      />
-
-      <Flex
-        direction={'column'}
         css={{
           display: isDesktop ? 'grid' : 'flex',
           gridTemplateColumns: isDesktop ? 'repeat(2, minmax(0, 1fr))' : 'none',
           gridColumnGap: isDesktop ? '8px' : '0',
           gridAutoRows: 'min-content',
-          height: 350,
+          height: 370,
           overflowY: 'auto',
           pb: '2',
           gap: isDesktop ? '0' : '2',
-          width: '100%'
+          width: '100%',
+          scrollSnapType: 'y mandatory',
+          scrollPaddingTop: '40px'
         }}
       >
-        {filteredChains?.map((chain) => {
-          const isSupported = chain.isSupported
-          const token = isSupported
-            ? (chain.currency as Currency)
-            : {
-                ...chain.relayChain.currency,
-                metadata: {
-                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
-                }
+        <AccessibleListItem value="input" asChild>
+          <Input
+            ref={setInputElement}
+            placeholder="Search for a chain"
+            icon={
+              <Box css={{ color: 'gray9' }}>
+                <FontAwesomeIcon
+                  icon={faMagnifyingGlass}
+                  width={16}
+                  height={16}
+                />
+              </Box>
+            }
+            containerCss={{
+              width: '100%',
+              height: 40,
+              scrollSnapAlign: 'start'
+            }}
+            style={{
+              gridColumn: isDesktop ? '1/3' : '',
+              marginBottom: isDesktop ? '10px' : '',
+              position: 'sticky',
+              top: 0,
+              zIndex: 1
+            }}
+            css={{
+              width: '100%',
+              _placeholder: {
+                textOverflow: 'ellipsis'
               }
+            }}
+            value={chainSearchInput}
+            onChange={(e) =>
+              setChainSearchInput((e.target as HTMLInputElement).value)
+            }
+          />
+        </AccessibleListItem>
 
+        {filteredChains?.map((chain) => {
           const decimals = chain?.currency?.balance?.decimals ?? 18
           const compactBalance = Boolean(
             chain?.currency?.balance?.amount &&
@@ -205,57 +231,73 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           )
 
           return (
-            <Button
+            <AccessibleListItem
               key={chain.id}
-              color="ghost"
-              onClick={() => {
-                selectToken(token, chain.id)
-              }}
-              css={{
-                minHeight: 'auto',
-                gap: '2',
-                cursor: 'pointer',
-                px: '2',
-                py: '2',
-                transition: 'backdrop-filter 250ms linear',
-                _hover: {
-                  backgroundColor: 'gray/10'
-                },
-                flexShrink: 0,
-                alignContent: 'center',
-                display: 'flex',
-                width: '100%'
-              }}
+              value={chain.id.toString()}
+              asChild
             >
-              <ChainIcon
-                chainId={chain.id}
-                width={24}
-                height={24}
-                css={{ borderRadius: 4, overflow: 'hidden' }}
-              />
-              <Flex direction="column" align="start">
-                <Text style="subtitle1">{chain.displayName}</Text>
+              <Button
+                color="ghost"
+                css={{
+                  scrollSnapAlign: 'start',
+                  minHeight: 'auto',
+                  gap: '2',
+                  cursor: 'pointer',
+                  px: '2',
+                  py: '2',
+                  transition: 'backdrop-filter 250ms linear',
+                  _hover: {
+                    backgroundColor: 'gray/10'
+                  },
+                  flexShrink: 0,
+                  alignContent: 'center',
+                  display: 'flex',
+                  width: '100%',
+                  '--focusColor': 'colors.focus-color',
+                  _focusVisible: {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  },
+                  '&[data-state="on"]': {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  },
+                  _active: {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  },
+                  _focusWithin: {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  }
+                }}
+              >
+                <ChainIcon
+                  chainId={chain.id}
+                  width={24}
+                  height={24}
+                  css={{ borderRadius: 4, overflow: 'hidden' }}
+                />
+                <Flex direction="column" align="start">
+                  <Text style="subtitle1">{chain.displayName}</Text>
 
-                {type === 'token' ? (
-                  <Text style="subtitle3" color="subtle">
-                    {truncateAddress(chain?.currency?.address)}
+                  {type === 'token' ? (
+                    <Text style="subtitle3" color="subtle">
+                      {truncateAddress(chain?.currency?.address)}
+                    </Text>
+                  ) : null}
+                </Flex>
+                {chain?.currency?.balance?.amount ? (
+                  <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
+                    {formatBN(
+                      BigInt(chain?.currency?.balance?.amount),
+                      5,
+                      decimals,
+                      compactBalance
+                    )}
                   </Text>
                 ) : null}
-              </Flex>
-              {chain?.currency?.balance?.amount ? (
-                <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
-                  {formatBN(
-                    BigInt(chain?.currency?.balance?.amount),
-                    5,
-                    decimals,
-                    compactBalance
-                  )}
-                </Text>
-              ) : null}
-            </Button>
+              </Button>
+            </AccessibleListItem>
           )
         })}
-      </Flex>
+      </AccessibleList>
     </>
   )
 }
