@@ -34,6 +34,7 @@ import { EventNames } from '../../../../constants/events.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
+  inputElement?: HTMLInputElement | null
   setInputElement: (
     value: React.SetStateAction<HTMLInputElement | null>
   ) => void
@@ -61,6 +62,7 @@ const fuseSearchOptions = {
 
 export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   size,
+  inputElement,
   setInputElement,
   tokenSearchInput,
   setTokenSearchInput,
@@ -136,6 +138,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                         chain: chain.name,
                         chain_id: chain.id
                       })
+                      inputElement?.focus()
                     }
                   }
                 }}
