@@ -180,7 +180,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           pb: '2',
           gap: isDesktop ? '0' : '2',
           width: '100%',
-          scrollSnapType: 'y mandatory'
+          scrollSnapType: 'y mandatory',
+          scrollPaddingTop: '40px'
         }}
       >
         <AccessibleListItem value="input" asChild>
