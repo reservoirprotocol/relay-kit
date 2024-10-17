@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.6
+
+### Patch Changes
+
+- cea3f43: Fix ux issues with canonical route selector
+
 ## 2.1.5
 
 ### Patch Changes
