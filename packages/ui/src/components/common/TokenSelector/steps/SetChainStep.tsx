@@ -7,7 +7,7 @@ import {
   Input,
   ChainIcon,
   AccessibleList,
-  ListItem
+  AccessibleListItem
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -27,7 +27,6 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { solana } from '../../../../utils/solana.js'
-import type { css } from '@reservoir0x/relay-design-system/css/css.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -184,7 +183,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           scrollSnapType: 'y mandatory'
         }}
       >
-        <ListItem value="input" asChild>
+        <AccessibleListItem value="input" asChild>
           <Input
             ref={setInputElement}
             placeholder="Search for a chain"
@@ -220,7 +219,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               setChainSearchInput((e.target as HTMLInputElement).value)
             }
           />
-        </ListItem>
+        </AccessibleListItem>
 
         {filteredChains?.map((chain) => {
           const decimals = chain?.currency?.balance?.decimals ?? 18
@@ -231,7 +230,11 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           )
 
           return (
-            <ListItem key={chain.id} value={chain.id.toString()} asChild>
+            <AccessibleListItem
+              key={chain.id}
+              value={chain.id.toString()}
+              asChild
+            >
               <Button
                 color="ghost"
                 css={{
@@ -284,7 +287,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   </Text>
                 ) : null}
               </Button>
-            </ListItem>
+            </AccessibleListItem>
           )
         })}
       </AccessibleList>
