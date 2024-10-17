@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.3.4
+
+### Patch Changes
+
+- 2134530: Replace exact_output with expected_output tradeType
+
 ## 1.3.3
 
 ### Patch Changes
