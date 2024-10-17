@@ -258,6 +258,12 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   },
                   '&[data-state="on"]': {
                     boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  },
+                  _active: {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                  },
+                  _focusWithin: {
+                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
                   }
                 }}
               >

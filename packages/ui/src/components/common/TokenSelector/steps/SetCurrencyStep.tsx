@@ -227,6 +227,12 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                           },
                           '&[data-state="on"]': {
                             boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          },
+                          _active: {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          },
+                          _focusWithin: {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
                           }
                         }}
                       >
@@ -292,7 +298,16 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               scrollPaddingTop: '40px'
             }}
           >
-            <Flex align="center" css={{ width: '100%', gap: '2' }}>
+            <Flex
+              align="center"
+              css={{
+                width: '100%',
+                gap: '2',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1
+              }}
+            >
               <AccessibleListItem value="input" asChild>
                 <Input
                   ref={setInputElement}
@@ -444,6 +459,12 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
             boxShadow: 'inset 0 0 0 2px var(--focusColor)'
           },
           '&[data-state="on"]': {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _active: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _focusWithin: {
             boxShadow: 'inset 0 0 0 2px var(--focusColor)'
           },
           scrollSnapAlign: 'start'
