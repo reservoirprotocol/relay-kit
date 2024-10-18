@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.8
+
+### Patch Changes
+
+- ac81750: Add input and output amount to max capacity event
+
 ## 2.1.7
 
 ### Patch Changes
