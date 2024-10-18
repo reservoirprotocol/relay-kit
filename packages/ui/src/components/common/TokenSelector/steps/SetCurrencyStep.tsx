@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type FC } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  forwardRef
+} from 'react'
 import {
   Flex,
   Text,
@@ -7,7 +14,9 @@ import {
   Skeleton,
   ChainIcon,
   Button,
-  ChainTokenIcon
+  ChainTokenIcon,
+  AccessibleList,
+  AccessibleListItem
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
@@ -25,6 +34,7 @@ import { EventNames } from '../../../../constants/events.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
+  inputElement?: HTMLInputElement | null
   setInputElement: (
     value: React.SetStateAction<HTMLInputElement | null>
   ) => void
@@ -52,6 +62,7 @@ const fuseSearchOptions = {
 
 export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   size,
+  inputElement,
   setInputElement,
   tokenSearchInput,
   setTokenSearchInput,
@@ -105,106 +116,145 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       >
         Select Token
       </Text>
-      <Flex css={{ width: '100%', gap: '3' }}>
+      <Flex css={{ width: '100%', gap: '3', height: '400px' }}>
         {isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
           <>
             <Flex
               direction="column"
               css={{ maxWidth: 170, flexShrink: 0, gap: '1' }}
             >
-              <Input
-                inputRef={(element) => {
-                  setInputElement(element)
-                }}
-                placeholder="Search chains"
-                icon={
-                  <Box css={{ color: 'gray9' }}>
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      width={16}
-                      height={16}
-                    />
-                  </Box>
-                }
-                containerCss={{ width: '100%', height: 40 }}
-                css={{
-                  width: '100%',
-                  _placeholder_parent: {
-                    textOverflow: 'ellipsis'
+              <AccessibleList
+                onSelect={(value) => {
+                  if (value) {
+                    const chain =
+                      value === 'all-chains'
+                        ? { id: undefined, name: 'All Chains' }
+                        : filteredChains.find(
+                            (chain) => chain.id?.toString() === value
+                          )
+                    if (chain) {
+                      setChainFilter(chain)
+                      onAnalyticEvent?.(EventNames.CURRENCY_STEP_CHAIN_FILTER, {
+                        chain: chain.name,
+                        chain_id: chain.id
+                      })
+                      inputElement?.focus()
+                    }
                   }
                 }}
-                value={chainSearchInput}
-                onChange={(e) =>
-                  setChainSearchInput((e.target as HTMLInputElement).value)
-                }
-              />
-              <Flex
-                direction="column"
                 css={{
+                  display: 'flex',
+                  flexDirection: 'column',
                   width: '100%',
                   gap: '1',
-                  height: 350,
-                  overflowY: 'auto'
+                  height: '100%',
+                  overflowY: 'auto',
+                  scrollSnapType: 'y mandatory',
+                  scrollPaddingTop: '40px'
                 }}
               >
+                <AccessibleListItem value="input" asChild>
+                  <Input
+                    placeholder="Search chains"
+                    icon={
+                      <Box css={{ color: 'gray9' }}>
+                        <FontAwesomeIcon
+                          icon={faMagnifyingGlass}
+                          width={16}
+                          height={16}
+                        />
+                      </Box>
+                    }
+                    containerCss={{
+                      width: '100%',
+                      height: 40,
+                      scrollSnapAlign: 'start'
+                    }}
+                    style={{
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}
+                    css={{
+                      width: '100%',
+                      _placeholder_parent: {
+                        textOverflow: 'ellipsis'
+                      }
+                    }}
+                    value={chainSearchInput}
+                    onChange={(e) =>
+                      setChainSearchInput((e.target as HTMLInputElement).value)
+                    }
+                  />
+                </AccessibleListItem>
                 {filteredChains?.map((chain) => {
                   const active = chainFilter.id === chain.id
                   return (
-                    <Button
-                      key={chain.id}
-                      color="ghost"
-                      size="none"
-                      ref={active ? activeChainRef : null}
-                      css={{
-                        p: '2',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2',
-                        position: 'relative',
-                        ...(active && {
-                          _before: {
-                            content: '""',
-                            position: 'absolute',
-                            borderRadius: 8,
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            opacity: 0.15,
-                            backgroundColor: 'primary-color',
-                            zIndex: -1
-                          }
-                        }),
-                        transition: 'backdrop-filter 250ms linear',
-                        _hover: {
-                          backgroundColor: active ? '' : 'gray/10'
-                        }
-                      }}
-                      onClick={() => {
-                        setChainFilter(chain)
-                        onAnalyticEvent?.(
-                          EventNames.CURRENCY_STEP_CHAIN_FILTER,
-                          {
-                            chain: chain.name,
-                            chain_id: chain.id
-                          }
-                        )
-                      }}
+                    <AccessibleListItem
+                      key={chain.id?.toString() ?? 'all-chains'}
+                      value={chain.id?.toString() ?? 'all-chains'}
+                      asChild
                     >
-                      <ChainIcon
-                        chainId={chain.id}
-                        square
-                        width={24}
-                        height={24}
-                      />
-                      <Text style="subtitle1" ellipsify>
-                        {('displayName' in chain && chain.displayName) ||
-                          chain.name}
-                      </Text>
-                    </Button>
+                      <Button
+                        color="ghost"
+                        size="none"
+                        ref={active ? activeChainRef : null}
+                        css={{
+                          scrollSnapAlign: 'start',
+                          p: '2',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2',
+                          position: 'relative',
+                          ...(active && {
+                            _before: {
+                              content: '""',
+                              position: 'absolute',
+                              borderRadius: 8,
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              opacity: 0.15,
+                              backgroundColor: 'primary-color',
+                              zIndex: -1
+                            }
+                          }),
+                          transition: 'backdrop-filter 250ms linear',
+                          _hover: {
+                            backgroundColor: active ? '' : 'gray/10'
+                          },
+                          '--focusColor': 'colors.focus-color',
+                          _focusVisible: {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          },
+                          '&[data-state="on"]': {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          },
+                          _active: {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          },
+                          _focusWithin: {
+                            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                          }
+                        }}
+                      >
+                        <ChainIcon
+                          chainId={chain.id}
+                          square
+                          width={24}
+                          height={24}
+                        />
+
+                        <Text style="subtitle1" ellipsify>
+                          {('displayName' in chain && chain.displayName) ||
+                            chain.name}
+                        </Text>
+                      </Button>
+                    </AccessibleListItem>
                   )
                 })}
-              </Flex>
+              </AccessibleList>
             </Flex>
             <Box
               css={{
@@ -222,53 +272,91 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
           align="center"
           css={{ width: '100%', gap: '1' }}
         >
-          <Flex align="center" css={{ width: '100%', gap: '2' }}>
-            <Input
-              inputRef={(element) => {
-                setInputElement(element)
-              }}
-              placeholder="Search for a token"
-              icon={
-                <Box css={{ color: 'gray9' }}>
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    width={16}
-                    height={16}
-                  />
-                </Box>
-              }
-              containerCss={{ width: '100%', height: 40 }}
-              css={{
-                width: '100%',
-                _placeholder_parent: {
-                  textOverflow: 'ellipsis'
+          <AccessibleList
+            onSelect={(value) => {
+              if (value && value !== 'input') {
+                const selectedCurrency = enhancedCurrencyList?.find((list) =>
+                  list?.chains.some((chain) => chain.address === value)
+                )
+                if (selectedCurrency) {
+                  if (selectedCurrency.chains.length === 1) {
+                    selectToken(
+                      selectedCurrency.chains[0],
+                      selectedCurrency.chains[0].chainId
+                    )
+                  } else {
+                    setCurrencyList(selectedCurrency)
+                  }
                 }
-              }}
-              value={tokenSearchInput}
-              onChange={(e) =>
-                setTokenSearchInput((e.target as HTMLInputElement).value)
               }
-            />
-            {!isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
-              <ChainFilter
-                options={allChains}
-                value={chainFilter}
-                onSelect={(value) => {
-                  setChainFilter(value)
-                }}
-              />
-            ) : null}
-          </Flex>
-          <Flex
-            direction="column"
+            }}
             css={{
-              height: 350,
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              gap: '1',
+              height: '100%',
               overflowY: 'auto',
-              pb: '2',
-              gap: '2',
-              width: '100%'
+              scrollSnapType: 'y mandatory',
+              scrollPaddingTop: '40px'
             }}
           >
+            <Flex
+              align="center"
+              css={{
+                width: '100%',
+                gap: '2',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1
+              }}
+            >
+              <AccessibleListItem value="input" asChild>
+                <Input
+                  ref={setInputElement}
+                  placeholder="Search for a token"
+                  icon={
+                    <Box css={{ color: 'gray9' }}>
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        width={16}
+                        height={16}
+                      />
+                    </Box>
+                  }
+                  containerCss={{
+                    width: '100%',
+                    height: 40,
+                    scrollSnapAlign: 'start'
+                  }}
+                  style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1
+                  }}
+                  css={{
+                    width: '100%',
+                    _placeholder_parent: {
+                      textOverflow: 'ellipsis'
+                    }
+                  }}
+                  value={tokenSearchInput}
+                  onChange={(e) =>
+                    setTokenSearchInput((e.target as HTMLInputElement).value)
+                  }
+                />
+              </AccessibleListItem>
+              {!isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
+                <ChainFilter
+                  options={allChains}
+                  value={chainFilter}
+                  onSelect={(value) => {
+                    setChainFilter(value)
+                  }}
+                />
+              ) : null}
+            </Flex>
+
             {/* Loading State*/}
             {isLoading ? (
               <Flex direction="column" align="center" css={{ py: '5' }}>
@@ -282,14 +370,19 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             enhancedCurrencyList &&
             enhancedCurrencyList?.length > 0
               ? enhancedCurrencyList?.map((list, idx) =>
-                  list ? (
-                    <CurrencyRow
-                      currencyList={list as EnhancedCurrencyList}
-                      setCurrencyList={setCurrencyList}
-                      selectToken={selectToken}
-                      isLoadingDuneBalances={isLoadingDuneBalances}
+                  list && list.chains[0].address ? (
+                    <AccessibleListItem
                       key={idx}
-                    />
+                      value={list.chains[0].address}
+                      asChild
+                    >
+                      <CurrencyRow
+                        currencyList={list as EnhancedCurrencyList}
+                        setCurrencyList={setCurrencyList}
+                        selectToken={selectToken}
+                        isLoadingDuneBalances={isLoadingDuneBalances}
+                      />
+                    </AccessibleListItem>
                   ) : null
                 )
               : null}
@@ -300,7 +393,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 No results found.
               </Text>
             ) : null}
-          </Flex>
+          </AccessibleList>
         </Flex>
       </Flex>
     </>
@@ -314,112 +407,134 @@ type CurrencyRowProps = {
   isLoadingDuneBalances: boolean
 }
 
-const CurrencyRow: FC<CurrencyRowProps> = ({
-  currencyList,
-  setCurrencyList,
-  selectToken,
-  isLoadingDuneBalances
-}) => {
-  const balance = currencyList.totalBalance
-  const decimals =
-    currencyList?.chains?.length > 0
-      ? currencyList?.chains?.[0].decimals ?? 18
-      : 18
-  const compactBalance = Boolean(
-    balance && decimals && balance.toString().length - decimals > 4
-  )
+const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
+  (
+    {
+      currencyList,
+      setCurrencyList,
+      selectToken,
+      isLoadingDuneBalances,
+      ...props
+    },
+    ref
+  ) => {
+    const balance = currencyList.totalBalance
+    const decimals =
+      currencyList?.chains?.length > 0
+        ? currencyList?.chains?.[0].decimals ?? 18
+        : 18
+    const compactBalance = Boolean(
+      balance && decimals && balance.toString().length - decimals > 4
+    )
 
-  const isSingleChainCurrency = currencyList?.chains?.length === 1
+    const isSingleChainCurrency = currencyList?.chains?.length === 1
 
-  return (
-    <Button
-      color="ghost"
-      onClick={() => {
-        if (!isSingleChainCurrency) {
-          setCurrencyList(currencyList)
-        } else {
-          selectToken(
-            currencyList?.chains?.[0],
-            currencyList?.chains?.[0].chainId
-          )
-          setCurrencyList(currencyList)
-        }
-      }}
-      css={{
-        gap: '2',
-        cursor: 'pointer',
-        px: '4',
-        py: '2',
-        transition: 'backdrop-filter 250ms linear',
-        _hover: {
-          backgroundColor: 'gray/10'
-        },
-        flexShrink: 0,
-        alignContent: 'center',
-        display: 'flex',
-        width: '100%'
-      }}
-    >
-      {isSingleChainCurrency ? (
-        <ChainTokenIcon
-          chainId={currencyList?.chains?.[0]?.chainId}
-          tokenlogoURI={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-          css={{
-            width: 32,
-            height: 32
-          }}
-        />
-      ) : (
-        <img
-          alt={currencyList?.chains?.[0]?.name ?? ''}
-          src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-          width={32}
-          height={32}
-          style={{ borderRadius: 9999 }}
-        />
-      )}
-      <Flex direction="column" align="start">
-        <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
+    return (
+      <Button
+        color="ghost"
+        ref={ref}
+        onClick={() => {
+          if (!isSingleChainCurrency) {
+            setCurrencyList(currencyList)
+          } else {
+            selectToken(
+              currencyList?.chains?.[0],
+              currencyList?.chains?.[0].chainId
+            )
+            setCurrencyList(currencyList)
+          }
+        }}
+        css={{
+          gap: '2',
+          cursor: 'pointer',
+          px: '4',
+          py: '2',
+          transition: 'backdrop-filter 250ms linear',
+          _hover: {
+            backgroundColor: 'gray/10'
+          },
+          flexShrink: 0,
+          alignContent: 'center',
+          display: 'flex',
+          width: '100%',
+          '--focusColor': 'colors.focus-color',
+          _focusVisible: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          '&[data-state="on"]': {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _active: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _focusWithin: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          scrollSnapAlign: 'start'
+        }}
+        {...props}
+      >
         {isSingleChainCurrency ? (
-          <Text style="subtitle3" color="subtle">
-            {truncateAddress(currencyList?.chains?.[0].address)}
-          </Text>
-        ) : null}
-      </Flex>
-
-      {!isSingleChainCurrency ? (
-        <Flex align="center" css={{ position: 'relative' }}>
-          {currencyList?.chains?.slice(0, 6).map((currency, index) => (
-            <ChainIcon
-              chainId={Number(currency.chainId)}
-              key={index}
-              width={18}
-              height={18}
-              css={{
-                ml: index > 0 ? '-4px' : 0,
-                '--borderColor': 'colors.modal-background',
-                border: '1px solid var(--borderColor)',
-                borderRadius: 4,
-                background: 'modal-background',
-                overflow: 'hidden'
-              }}
-            />
-          ))}
-          {currencyList?.chains?.length > 6 ? (
-            <Text style="tiny" css={{ ml: '1' }}>
-              + more
+          <ChainTokenIcon
+            chainId={currencyList?.chains?.[0]?.chainId}
+            tokenlogoURI={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+            css={{
+              width: 32,
+              height: 32
+            }}
+          />
+        ) : (
+          <img
+            alt={currencyList?.chains?.[0]?.name ?? ''}
+            src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+            width={32}
+            height={32}
+            style={{ borderRadius: 9999 }}
+          />
+        )}
+        <Flex direction="column" align="start">
+          <Text style="subtitle2">{currencyList?.chains?.[0]?.symbol}</Text>
+          {isSingleChainCurrency ? (
+            <Text style="subtitle3" color="subtle">
+              {truncateAddress(currencyList?.chains?.[0].address)}
             </Text>
           ) : null}
         </Flex>
-      ) : null}
-      {isLoadingDuneBalances && !balance ? (
-        <Skeleton css={{ ml: 'auto', width: 60 }} />
-      ) : null}
-      {balance ? (
-        <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
-          {formatBN(balance, 5, decimals, compactBalance)}
-        </Text>
-      ) : null}
-    </Button>
-  )
-}
+
+        {!isSingleChainCurrency ? (
+          <Flex align="center" css={{ position: 'relative' }}>
+            {currencyList?.chains?.slice(0, 6).map((currency, index) => (
+              <ChainIcon
+                chainId={Number(currency.chainId)}
+                key={index}
+                width={18}
+                height={18}
+                css={{
+                  ml: index > 0 ? '-4px' : 0,
+                  '--borderColor': 'colors.modal-background',
+                  border: '1px solid var(--borderColor)',
+                  borderRadius: 4,
+                  background: 'modal-background',
+                  overflow: 'hidden'
+                }}
+              />
+            ))}
+            {currencyList?.chains?.length > 6 ? (
+              <Text style="tiny" css={{ ml: '1' }}>
+                + more
+              </Text>
+            ) : null}
+          </Flex>
+        ) : null}
+        {isLoadingDuneBalances && !balance ? (
+          <Skeleton css={{ ml: 'auto', width: 60 }} />
+        ) : null}
+        {balance ? (
+          <Text color="subtle" style="subtitle3" css={{ ml: 'auto' }}>
+            {formatBN(balance, 5, decimals, compactBalance)}
+          </Text>
+        ) : null}
+      </Button>
+    )
+  }
+)
