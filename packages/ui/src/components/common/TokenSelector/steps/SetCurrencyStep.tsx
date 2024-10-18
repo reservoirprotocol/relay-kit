@@ -345,6 +345,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
   )
 
   const isSingleChainCurrency = currencyList?.chains?.length === 1
+  const isVerified = currencyList?.chains?.[0].metadata?.verified
 
   return (
     <Button
@@ -358,15 +359,11 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
             logoURI: currencyList?.chains?.[0].metadata?.logoURI
           }
 
-          // @TODO: check if not isVerified
-          if (true) {
+          if (!isVerified) {
             const relayUiKitData = getRelayUiKitData()
             const tokenKey = `${token.chainId}:${token.address}`
             const isAlreadyAccepted =
               relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
-
-            console.log('relayUiKitData: ', relayUiKitData)
-            console.log('isAlreadyAccepted: ', isAlreadyAccepted)
 
             if (isAlreadyAccepted) {
               // If already accepted, proceed with selection
@@ -376,9 +373,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
               setUnverifiedToken(token as Token)
               setUnverifiedTokenModalOpen(true)
             }
-          }
-          // if(token?.isVerified)
-          else {
+          } else {
             selectToken(token, token.chainId)
             setCurrencyList(currencyList)
           }
@@ -431,8 +426,7 @@ const CurrencyRow: FC<CurrencyRowProps> = ({
             </Text>
           ) : null}
 
-          {/* @TODO: update with isVerified variable */}
-          {Math.random() > 0.5 ? (
+          {!isVerified ? (
             <Box css={{ color: 'gray8' }}>
               <FontAwesomeIcon
                 icon={faExclamationTriangle}

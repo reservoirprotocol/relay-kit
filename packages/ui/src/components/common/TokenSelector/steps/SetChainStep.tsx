@@ -10,6 +10,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChevronLeft,
+  faExclamationTriangle,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../../utils/truncate.js'
@@ -34,6 +35,8 @@ type SetChainStepProps = {
   multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
+  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
+  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   chainSearchInput: string
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
@@ -73,6 +76,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
+  setUnverifiedToken,
+  setUnverifiedTokenModalOpen,
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
@@ -189,11 +194,16 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         {filteredChains?.map((chain) => {
           const isSupported = chain.isSupported
           const token = isSupported
-            ? (chain.currency as Currency)
+            ? {
+                ...chain.currency,
+                logoURI: chain.currency?.metadata?.logoURI
+              }
             : {
                 ...chain.relayChain.currency,
+                logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
                 metadata: {
-                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
+                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                  verified: true
                 }
               }
 
@@ -203,13 +213,19 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               decimals &&
               chain?.currency.balance.amount.toString().length - decimals > 4
           )
+          const isVerified = token?.metadata?.verified
 
           return (
             <Button
               key={chain.id}
               color="ghost"
               onClick={() => {
-                selectToken(token, chain.id)
+                if (!isVerified) {
+                  setUnverifiedToken(token as Token)
+                  setUnverifiedTokenModalOpen(true)
+                } else {
+                  selectToken(token, chain.id)
+                }
               }}
               css={{
                 minHeight: 'auto',
@@ -242,6 +258,15 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   </Text>
                 ) : null}
               </Flex>
+              {!isVerified ? (
+                <Box css={{ color: 'gray8' }}>
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    width={16}
+                    height={16}
+                  />
+                </Box>
+              ) : null}
               {chain?.currency?.balance?.amount ? (
                 <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
                   {formatBN(

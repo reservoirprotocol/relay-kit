@@ -157,6 +157,26 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   )
 
+  const { data: externalTokenList } = useTokenList(
+    relayClient?.baseApiUrl,
+    {
+      chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
+      address: isAddress(debouncedTokenSearchValue)
+        ? debouncedTokenSearchValue
+        : undefined,
+      term: !isAddress(debouncedTokenSearchValue)
+        ? debouncedTokenSearchValue
+        : undefined,
+      defaultList: false,
+      limit: 20,
+      ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
+      useExternalSearch: true
+    },
+    {
+      enabled: !!debouncedTokenSearchValue
+    }
+  )
+
   const {
     data: duneTokens,
     balanceMap: tokenBalances,
@@ -207,11 +227,43 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         enabled: duneTokenBalances ? true : false
       }
     )
+
+  const combinedTokenList = useMemo(() => {
+    if (!tokenList) return externalTokenList
+    if (!externalTokenList) return tokenList
+
+    const mergedList = [...tokenList]
+
+    externalTokenList.forEach((currencyList) => {
+      const existingListIndex = mergedList.findIndex(
+        (list) => list[0]?.chainId === currencyList[0]?.chainId
+      )
+
+      if (existingListIndex !== -1) {
+        // Merge with existing list
+        mergedList[existingListIndex] = [
+          ...mergedList[existingListIndex],
+          ...currencyList.filter(
+            (currency) =>
+              !mergedList[existingListIndex].some(
+                (c) => c.address === currency.address
+              )
+          )
+        ]
+      } else {
+        // Add new list
+        mergedList.push(currencyList)
+      }
+    })
+
+    return mergedList
+  }, [tokenList, externalTokenList])
+
   // Filter out unconfigured chains and append Relay Chain to each currency
   const enhancedCurrencyList = useMemo(() => {
     const _tokenList =
-      tokenList && (tokenList as any).length
-        ? (tokenList as CurrencyList[])
+      combinedTokenList && (combinedTokenList as any).length
+        ? (combinedTokenList as CurrencyList[])
         : undefined
     let list =
       context === 'from' &&
@@ -220,7 +272,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       suggestedTokens &&
       suggestedTokens.length > 0
         ? suggestedTokens
-        : tokenList
+        : combinedTokenList
 
     const ethTokens = _tokenList?.find(
       (list) => list[0] && list[0].groupID === 'ETH'
@@ -290,7 +342,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       .sort((a, b) => (b?.totalValueUsd ?? 0) - (a?.totalValueUsd ?? 0))
   }, [
     context,
-    tokenList,
+    combinedTokenList,
     suggestedTokens,
     useDefaultTokenList,
     configuredChains,
@@ -507,6 +559,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 chainSearchInput={chainSearchInput}
                 setChainSearchInput={setChainSearchInput}
                 selectToken={selectToken}
+                setUnverifiedToken={setUnverifiedToken}
+                setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
                 selectedCurrencyList={selectedCurrencyList}
                 type={type}
                 size={size}
@@ -527,12 +581,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               const currentData = getRelayUiKitData()
               const tokenIdentifier = `${token.chainId}:${token.address}`
 
-              console.log('currentData: ', currentData)
-              console.log('tokenIdentifier: ', tokenIdentifier)
               if (
                 !currentData.acceptedUnverifiedTokens.includes(tokenIdentifier)
               ) {
-                console.log('setting new token data')
                 setRelayUiKitData({
                   acceptedUnverifiedTokens: [
                     ...currentData.acceptedUnverifiedTokens,
