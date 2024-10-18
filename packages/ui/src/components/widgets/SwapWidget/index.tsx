@@ -26,9 +26,13 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
-import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/solana.js'
+import {
+  evmDeadAddress,
+  solDeadAddress,
+  bitcoinDeadAddress
+} from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type BaseSwapWidgetProps = {
@@ -163,6 +167,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isFromNative,
         timeEstimate,
         isSvmSwap,
+        isBvmSwap,
         isValidFromAddress,
         isValidToAddress,
         supportsExternalLiquidity,
@@ -452,6 +457,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isConnected={
                               address !== evmDeadAddress &&
                               address !== solDeadAddress &&
+                              address !== bitcoinDeadAddress &&
                               address !== undefined
                             }
                           />
@@ -512,7 +518,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     }}
                   >
                     {hasLockedToken ||
-                    (isSvmSwap && !multiWalletSupportEnabled) ? null : (
+                    ((isSvmSwap || isBvmSwap) &&
+                      !multiWalletSupportEnabled) ? null : (
                       <Button
                         size="none"
                         color="white"

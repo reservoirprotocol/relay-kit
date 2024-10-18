@@ -20,6 +20,8 @@ import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { useWalletFilter } from 'context/walletFilter'
+import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
+import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 
 const dynamicStaticAssetUrl =
   'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
@@ -31,16 +33,27 @@ const ChainWidgetPage: NextPage = () => {
 
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
-      const walletLogoId =
+      let walletLogoId =
         // @ts-ignore
         newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
+
+      if (walletLogoId.includes('phantom')) {
+        walletLogoId = 'phantom'
+      }
+
+      let walletChain = newWallet.chain.toLowerCase()
+      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
+
+      if (walletChain === 'sol') {
+        vmType = 'svm'
+      } else if (walletChain === 'btc') {
+        vmType = 'bvm'
+      }
+
       const linkedWallet = {
         address: newWallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType:
-          newWallet.chain.toLowerCase() === 'evm'
-            ? 'evm'
-            : ('svm' as 'evm' | 'svm')
+        vmType
       }
       linkWalletPromise.resolve(linkedWallet)
       setLinkWalletPromise(undefined)
@@ -63,16 +76,27 @@ const ChainWidgetPage: NextPage = () => {
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.map((wallet) => {
-      const walletLogoId =
+      let walletLogoId =
         // @ts-ignore
         wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
+
+      if (walletLogoId.includes('phantom')) {
+        walletLogoId = 'phantom'
+      }
+
+      let walletChain = wallet.chain.toLowerCase()
+
+      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
+
+      if (walletChain === 'sol') {
+        vmType = 'svm'
+      } else if (walletChain === 'btc') {
+        vmType = 'bvm'
+      }
       return {
         address: wallet.address,
         walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType:
-          wallet.chain.toLowerCase() === 'evm'
-            ? 'evm'
-            : ('svm' as 'evm' | 'svm')
+        vmType
       }
     })
     wallets.current = userWallets
@@ -101,6 +125,22 @@ const ChainWidgetPage: NextPage = () => {
           } else if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
+          } else if (isBitcoinWallet(primaryWallet)) {
+            adaptedWallet = adaptBitcoinWallet(
+              primaryWallet.address,
+              async (_address, _psbt, dynamicParams) => {
+                try {
+                  // Request the wallet to sign the PSBT
+                  const response = await primaryWallet.signPsbt(dynamicParams)
+                  if (!response) {
+                    throw 'Missing psbt response'
+                  }
+                  return response.signedPsbt
+                } catch (e) {
+                  throw e
+                }
+              }
+            )
           }
           setWallet(adaptedWallet)
         } else {
@@ -167,6 +207,8 @@ const ChainWidgetPage: NextPage = () => {
               setWalletFilter('EVM')
             } else if (chain?.id === 792703809) {
               setWalletFilter('SOL')
+            } else if (chain?.id === 8253038) {
+              setWalletFilter('BTC')
             } else {
               setWalletFilter(undefined)
             }
