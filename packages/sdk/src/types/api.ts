@@ -472,7 +472,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -491,6 +492,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -509,7 +511,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -528,6 +531,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -546,7 +550,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -565,6 +570,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -583,7 +589,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -602,6 +609,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -620,7 +628,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -639,6 +648,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               breakdown?: {
@@ -981,7 +991,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -1000,6 +1011,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -1018,7 +1030,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -1037,6 +1050,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -1055,7 +1069,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -1074,6 +1089,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -1092,7 +1108,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -1111,6 +1128,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -1129,7 +1147,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -1148,6 +1167,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               /**
@@ -1345,7 +1365,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -1364,6 +1385,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -1382,7 +1404,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -1401,6 +1424,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -1419,7 +1443,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -1438,6 +1463,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -1456,7 +1482,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -1475,6 +1502,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -1493,7 +1521,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -1512,6 +1541,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               breakdown?: {
@@ -1554,7 +1584,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyIn?: {
@@ -1573,6 +1604,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @example {
@@ -1590,7 +1622,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyOut?: {
@@ -1609,6 +1642,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /** @description The difference between the input and output values, including fees */
                 totalImpact?: {
@@ -1766,7 +1800,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -1785,6 +1820,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -1803,7 +1839,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -1822,6 +1859,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -1840,7 +1878,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -1859,6 +1898,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -1877,7 +1917,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -1896,6 +1937,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -1914,7 +1956,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -1933,6 +1976,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               breakdown?: {
@@ -1975,7 +2019,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyIn?: {
@@ -1994,6 +2039,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @example {
@@ -2011,7 +2057,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyOut?: {
@@ -2030,6 +2077,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /** @description The difference between the input and output values, including fees */
                 totalImpact?: {
@@ -2163,7 +2211,7 @@ export interface paths {
              * @description Whether to use the amount as the output or the input for the basis of the swap
              * @enum {string}
              */
-            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT" | "EXPECTED_OUTPUT";
             txs?: {
                 to?: string;
                 value?: string;
@@ -2274,7 +2322,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -2293,6 +2342,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -2311,7 +2361,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -2330,6 +2381,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -2348,7 +2400,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -2367,6 +2420,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -2385,7 +2439,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -2404,6 +2459,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -2422,7 +2478,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -2441,6 +2498,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
@@ -2467,7 +2525,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyIn?: {
@@ -2486,6 +2545,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @example {
@@ -2503,7 +2563,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyOut?: {
@@ -2522,6 +2583,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /** @description The difference between the input and output values, including fees */
                 totalImpact?: {
@@ -2603,7 +2665,7 @@ export interface paths {
              * @description Whether to use the amount as the output or the input for the basis of the swap
              * @enum {string}
              */
-            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT" | "EXPECTED_OUTPUT";
             txs?: {
                 to?: string;
                 value?: string;
@@ -2659,7 +2721,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 gas?: {
@@ -2678,6 +2741,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Combination of the relayerGas and relayerService to give you the full relayer fee
@@ -2696,7 +2760,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayer?: {
@@ -2715,6 +2780,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Destination chain gas fee
@@ -2733,7 +2799,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerGas?: {
@@ -2752,6 +2819,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the relay solver, note that this value can be negative (which represents network rewards for moving in a direction that optimizes liquidity distribution)
@@ -2770,7 +2838,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 relayerService?: {
@@ -2789,6 +2858,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @description Fees paid to the app. Currency will be the same as the relayer fee currency. This needs to be claimed later by the app owner and is not immediately distributed to the app
@@ -2807,7 +2877,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 app?: {
@@ -2826,6 +2897,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
               };
               /** @description A summary of the swap and what the user should expect to happen given an input */
@@ -2852,7 +2924,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyIn?: {
@@ -2871,6 +2944,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /**
                  * @example {
@@ -2888,7 +2962,8 @@ export interface paths {
                  *   },
                  *   "amount": "30754920",
                  *   "amountFormatted": "30.75492",
-                 *   "amountUsd": "30.901612"
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
                  * }
                  */
                 currencyOut?: {
@@ -2907,6 +2982,7 @@ export interface paths {
                   amount?: string;
                   amountFormatted?: string;
                   amountUsd?: string;
+                  minimumAmount?: string;
                 };
                 /** @description The difference between the input and output values, including fees */
                 totalImpact?: {
@@ -3208,7 +3284,8 @@ export interface paths {
                *   },
                *   "amount": "30754920",
                *   "amountFormatted": "30.75492",
-               *   "amountUsd": "30.901612"
+               *   "amountUsd": "30.901612",
+               *   "minimumAmount": "30454920"
                * }
                */
               currencyIn?: {
@@ -3227,6 +3304,7 @@ export interface paths {
                 amount?: string;
                 amountFormatted?: string;
                 amountUsd?: string;
+                minimumAmount?: string;
               };
               /**
                * @example {
@@ -3244,7 +3322,8 @@ export interface paths {
                *   },
                *   "amount": "30754920",
                *   "amountFormatted": "30.75492",
-               *   "amountUsd": "30.901612"
+               *   "amountUsd": "30.901612",
+               *   "minimumAmount": "30454920"
                * }
                */
               currencyOut?: {
@@ -3263,6 +3342,7 @@ export interface paths {
                 amount?: string;
                 amountFormatted?: string;
                 amountUsd?: string;
+                minimumAmount?: string;
               };
               relayerFee?: string;
               depositGasFee?: string;
@@ -3452,7 +3532,8 @@ export interface paths {
                        *   },
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
-                       *   "amountUsd": "30.901612"
+                       *   "amountUsd": "30.901612",
+                       *   "minimumAmount": "30454920"
                        * }
                        */
                       currencyIn?: {
@@ -3471,6 +3552,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        minimumAmount?: string;
                       };
                       /**
                        * @example {
@@ -3488,7 +3570,8 @@ export interface paths {
                        *   },
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
-                       *   "amountUsd": "30.901612"
+                       *   "amountUsd": "30.901612",
+                       *   "minimumAmount": "30454920"
                        * }
                        */
                       currencyOut?: {
@@ -3507,6 +3590,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        minimumAmount?: string;
                       };
                       rate?: string;
                     };
@@ -3692,7 +3776,8 @@ export interface paths {
                      *   },
                      *   "amount": "30754920",
                      *   "amountFormatted": "30.75492",
-                     *   "amountUsd": "30.901612"
+                     *   "amountUsd": "30.901612",
+                     *   "minimumAmount": "30454920"
                      * }
                      */
                     refundCurrencyData?: {
@@ -3711,6 +3796,7 @@ export interface paths {
                       amount?: string;
                       amountFormatted?: string;
                       amountUsd?: string;
+                      minimumAmount?: string;
                     };
                     appFees?: {
                         recipient?: string;
@@ -3735,7 +3821,8 @@ export interface paths {
                        *   },
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
-                       *   "amountUsd": "30.901612"
+                       *   "amountUsd": "30.901612",
+                       *   "minimumAmount": "30454920"
                        * }
                        */
                       currencyIn?: {
@@ -3754,6 +3841,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        minimumAmount?: string;
                       };
                       /**
                        * @example {
@@ -3771,7 +3859,8 @@ export interface paths {
                        *   },
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
-                       *   "amountUsd": "30.901612"
+                       *   "amountUsd": "30.901612",
+                       *   "minimumAmount": "30454920"
                        * }
                        */
                       currencyOut?: {
@@ -3790,6 +3879,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        minimumAmount?: string;
                       };
                       rate?: string;
                     };

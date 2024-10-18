@@ -15,7 +15,7 @@ const UsePrice: NextPage = () => {
   const [destinationCurrency, setDestinationCurrency] =
     useState<string>(zeroAddress)
   const [recipient, setRecipient] = useState<string | undefined>()
-  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
+  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXPECTED_OUTPUT'>(
     'EXACT_INPUT'
   )
   const [source, setSource] = useState<string | undefined>()
@@ -120,7 +120,7 @@ const UsePrice: NextPage = () => {
             }}
           >
             <option value="EXACT_INPUT">EXACT_INPUT</option>
-            <option value="EXACT_OUTPUT">EXACT_OUTPUT</option>
+            <option value="EXPECTED_OUTPUT">EXPECTED_OUTPUT</option>
           </select>
         </div>
         <div>

@@ -34,7 +34,7 @@ import { formatBN } from '../../utils/numbers.js'
 import { addressWithFallback, isValidAddress } from '../../utils/address.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 
-export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
+export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
@@ -147,7 +147,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     useState<boolean>(false)
   const address = useWalletAddress(wallet, linkedWallets)
 
-  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
+  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXPECTED_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
@@ -170,7 +170,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXACT_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
     500
   )
 
@@ -392,7 +392,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             debouncedInputAmountValue &&
             debouncedInputAmountValue.length > 0 &&
             Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXACT_OUTPUT' &&
+            (tradeType === 'EXPECTED_OUTPUT' &&
               debouncedOutputAmountValue &&
               debouncedOutputAmountValue.length > 0 &&
               Number(debouncedOutputAmountValue) !== 0)) &&
@@ -423,7 +423,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             )
           : ''
       )
-    } else if (tradeType === 'EXACT_OUTPUT') {
+    } else if (tradeType === 'EXPECTED_OUTPUT') {
       const amountIn = price?.details?.currencyIn?.amount ?? ''
       setAmountInputValue(
         amountIn !== ''
