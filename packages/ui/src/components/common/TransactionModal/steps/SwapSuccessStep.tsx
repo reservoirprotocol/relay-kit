@@ -68,7 +68,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     : null
   const delayedTxUrl = transaction?.data?.inTxs?.[0]?.hash
     ? `${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`
-    : `${baseTransactionUrl}/transactions?address=${details?.recipient ?? details?.sender}`
+    : null
   const timeEstimateMs =
     ((details?.timeEstimate ?? 0) +
       (fromChain && fromChain.id === bitcoin.id ? 600 : 0)) *
@@ -169,6 +169,26 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         </Text>
       </Flex>
 
+      {!delayedTxUrl ? (
+        <Flex justify="center">
+          {allTxHashes.map(({ txHash, chainId }) => {
+            const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+              chainId,
+              relayClient?.chains
+            )
+            return (
+              <Anchor
+                key={txHash}
+                href={`${blockExplorerBaseUrl}/tx/${txHash}`}
+                target="_blank"
+              >
+                View Tx: {truncateAddress(txHash)}
+              </Anchor>
+            )
+          })}
+        </Flex>
+      ) : null}
+
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         <Button
           color={'secondary'}
@@ -182,17 +202,19 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         >
           Done
         </Button>
-        <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
-          <Button
-            color={'primary'}
-            css={{
-              justifyContent: 'center',
-              width: 'max-content'
-            }}
-          >
-            Track Progress
-          </Button>
-        </a>
+        {delayedTxUrl ? (
+          <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
+            <Button
+              color={'primary'}
+              css={{
+                justifyContent: 'center',
+                width: 'max-content'
+              }}
+            >
+              Track Progress
+            </Button>
+          </a>
+        ) : null}
       </Flex>
     </>
   ) : (

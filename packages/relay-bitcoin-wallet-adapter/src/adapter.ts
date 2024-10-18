@@ -43,15 +43,17 @@ export const adaptBitcoinWallet = (
         network: bitcoin.networks.bitcoin
       })
 
+      const signature = psbt.txInputs.map((_input, index) => {
+        return {
+          address: walletAddress,
+          signingIndexes: [index]
+        }
+      })
+
       const dynamicParams: DynamicSignPsbtParams = {
         allowedSighash: [1], // Only allow SIGHASH_ALL
         unsignedPsbtBase64: psbt.toBase64(), // The unsigned PSBT in Base64 format
-        signature: [
-          {
-            address: walletAddress, // The address that is signing
-            signingIndexes: [0] // The index of the input being signed
-          }
-        ]
+        signature
       }
 
       const signedPsbt = bitcoin.Psbt.fromBase64(
@@ -59,14 +61,13 @@ export const adaptBitcoinWallet = (
       )
       signedPsbt.finalizeAllInputs()
 
-      console.log(psbt.extractTransaction().toHex(), 'HEX')
-      const rawTransaction = psbt.extractTransaction().toHex()
+      const rawTransaction = signedPsbt.extractTransaction().toHex()
       client.log(['BTC Transaction', rawTransaction], LogLevel.Verbose)
       const mempoolResponse = await axios
         .post('https://mempool.space/api/tx', rawTransaction)
         .then((r) => r.data)
       client.log(['Transaction Broadcasted', mempoolResponse], LogLevel.Verbose)
-      return rawTransaction
+      return mempoolResponse
     },
     //Bitcoin txs can take 10m or more to finalize, in the case of chains that have a long block time (2m+), the SDK will skip waiting for confirmation
     handleConfirmTransactionStep: async () => {
