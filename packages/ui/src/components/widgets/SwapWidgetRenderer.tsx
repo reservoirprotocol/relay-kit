@@ -312,8 +312,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? address
         : evmDeadAddress
       : address && isSolanaAddress(address)
-        ? address
-        : solDeadAddress
+      ? address
+      : solDeadAddress
 
   const isValidToAddress =
     toChain?.vmType === 'evm'
@@ -326,8 +326,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? recipient
         : evmDeadAddress
       : recipient && isSolanaAddress(recipient)
-        ? recipient
-        : solDeadAddress
+      ? recipient
+      : solDeadAddress
 
   const externalLiquiditySupport = usePrice(
     relayClient ? relayClient : undefined,
@@ -602,7 +602,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     !isFetchingPrice && !externalLiquiditySupport.isFetching,
     (capacityExceeded) => {
       if (capacityExceeded) {
-        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED)
+        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED, {
+          inputAmount: debouncedInputAmountValue,
+          outputAmount: debouncedOutputAmountValue
+        })
       }
     }
   )
