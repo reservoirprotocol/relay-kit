@@ -6,7 +6,8 @@ import {
   useRelayClient,
   useDebounceState,
   useWalletAddress,
-  useDisconnected
+  useDisconnected,
+  usePreviousValueChange
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, isAddress, parseUnits } from 'viem'
@@ -32,7 +33,7 @@ import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { formatBN } from '../../utils/numbers.js'
 
-export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
+export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
@@ -100,6 +101,7 @@ export type ChildrenProps = {
   hasInsufficientBalance: boolean
   isInsufficientLiquidityError?: boolean
   isCapacityExceededError?: boolean
+  isCouldNotExecuteError?: boolean
   maxCapacityWei?: string
   maxCapacityFormatted?: string
   ctaCopy: string
@@ -107,6 +109,7 @@ export type ChildrenProps = {
   useExternalLiquidity: boolean
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
+  canonicalTimeEstimate?: { time: number; formattedTime: string }
   fetchingExternalLiquiditySupport: boolean
   isSvmSwap: boolean
   isValidFromAddress: boolean
@@ -142,7 +145,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     useState<boolean>(false)
   const address = useWalletAddress(wallet, linkedWallets)
 
-  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
+  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXPECTED_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
@@ -165,7 +168,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXACT_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
     500
   )
 
@@ -406,7 +409,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             debouncedInputAmountValue &&
             debouncedInputAmountValue.length > 0 &&
             Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXACT_OUTPUT' &&
+            (tradeType === 'EXPECTED_OUTPUT' &&
               debouncedOutputAmountValue &&
               debouncedOutputAmountValue.length > 0 &&
               Number(debouncedOutputAmountValue) !== 0)) &&
@@ -437,7 +440,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             )
           : ''
       )
-    } else if (tradeType === 'EXACT_OUTPUT') {
+    } else if (tradeType === 'EXPECTED_OUTPUT') {
       const amountIn = price?.details?.currencyIn?.amount ?? ''
       setAmountInputValue(
         amountIn !== ''
@@ -501,9 +504,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isCapacityExceededError = fetchQuoteDataErrorMessage?.includes(
     'Amount is higher than the available liquidity'
   )
+  const isCouldNotExecuteError =
+    fetchQuoteDataErrorMessage?.includes('Could not execute')
   const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
   const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
   const timeEstimate = calculatePriceTimeEstimate(price?.details)
+  const canonicalTimeEstimate = calculatePriceTimeEstimate(
+    externalLiquiditySupport.data?.details
+  )
 
   const isFromNative = fromToken?.address === fromChain?.currency?.address
 
@@ -518,7 +526,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? fetchQuoteDataErrorMessage.match(/(\d+)/)?.[0]
       : undefined
   const maxCapacityFormatted = maxCapacityWei
-    ? formatBN(BigInt(maxCapacityWei), 5, toToken?.decimals ?? 18)
+    ? formatBN(BigInt(maxCapacityWei), 2, toToken?.decimals ?? 18)
     : undefined
 
   let ctaCopy: string = context || 'Swap'
@@ -589,6 +597,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   }
 
+  usePreviousValueChange(
+    isCapacityExceededError && supportsExternalLiquidity,
+    !isFetchingPrice && !externalLiquiditySupport.isFetching,
+    (capacityExceeded) => {
+      if (capacityExceeded) {
+        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED)
+      }
+    }
+  )
+
   return (
     <>
       {children({
@@ -628,6 +646,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         isCapacityExceededError,
+        isCouldNotExecuteError,
         maxCapacityFormatted,
         maxCapacityWei,
         ctaCopy,
@@ -635,6 +654,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         useExternalLiquidity,
         supportsExternalLiquidity,
         timeEstimate,
+        canonicalTimeEstimate,
         fetchingExternalLiquiditySupport: externalLiquiditySupport.isFetching,
         isSvmSwap,
         isValidFromAddress,

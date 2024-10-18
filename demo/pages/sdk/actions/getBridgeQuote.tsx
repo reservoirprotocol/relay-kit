@@ -134,7 +134,7 @@ const GetBridgeQuotePage: NextPage = () => {
             currency,
             toCurrency: zeroAddress,
             recipient: recipient ? (recipient as Address) : undefined,
-            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXACT_OUTPUT'
+            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXPECTED_OUTPUT'
           })
           setResponse(quote)
         }}

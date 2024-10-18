@@ -1,5 +1,5 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
-import { type FC } from 'react'
+import { useEffect, type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
@@ -16,6 +16,7 @@ type Props = {
   relayerFeeProportion?: bigint | 0
   isHighRelayerServiceFee?: boolean
   isCapacityExceededError?: boolean
+  isCouldNotExecuteError?: boolean
   maxCapacity?: string
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
@@ -29,6 +30,7 @@ export const WidgetErrorWell: FC<Props> = ({
   relayerFeeProportion,
   isHighRelayerServiceFee,
   isCapacityExceededError,
+  isCouldNotExecuteError,
   maxCapacity,
   supportsExternalLiquidity,
   containerCss
@@ -71,7 +73,32 @@ export const WidgetErrorWell: FC<Props> = ({
           <Text style="subtitle3" css={{ color: 'amber12' }}>
             Due to high demand, only {maxCapacity} {currency.symbol} can be
             bridged instantly. Set to max instant capacity or switch to the
-            standard route for unlimited capacity.
+            native route for unlimited capacity.
+          </Text>
+        </Flex>
+      )
+    } else if (
+      supportsExternalLiquidity &&
+      isCouldNotExecuteError &&
+      currency
+    ) {
+      return (
+        <Flex
+          align="center"
+          css={{
+            gap: '2',
+            p: '3',
+            backgroundColor: 'red2',
+            borderRadius: 12,
+            mb: '3',
+            ...containerCss
+          }}
+        >
+          <Box css={{ color: 'red10' }}>
+            <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+          </Box>
+          <Text style="subtitle3" css={{ color: 'red12' }}>
+            {fetchQuoteErrorMessage} Please switch to the native route.
           </Text>
         </Flex>
       )
