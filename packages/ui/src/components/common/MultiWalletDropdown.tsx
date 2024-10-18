@@ -12,8 +12,10 @@ import {
   solanaAddressRegex
 } from '../../utils/solana.js'
 import { isAddress } from 'viem'
+import type { ChainVM } from '@reservoir0x/relay-sdk'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
+import { isValidAddress } from '../../utils/address.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
@@ -54,13 +56,10 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
     })
   }, [wallets, chain])
 
-  const isSupportedSelectedWallet = useMemo(() => {
-    if (chain?.vmType === 'svm') {
-      return solanaAddressRegex.test(selectedWalletAddress)
-    } else {
-      return isAddress(selectedWalletAddress)
-    }
-  }, [selectedWalletAddress, chain])
+  const isSupportedSelectedWallet = useMemo(
+    () => isValidAddress(chain?.vmType, selectedWalletAddress),
+    [selectedWalletAddress, chain?.vmType]
+  )
 
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.address === selectedWalletAddress),

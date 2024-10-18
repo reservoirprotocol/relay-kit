@@ -13,15 +13,17 @@
     "trailingComma": "none"
   },
   "dependencies": {
-    "@dynamic-labs/ethereum": "3.0.0",
-    "@dynamic-labs/sdk-react-core": "3.0.0",
-    "@dynamic-labs/solana": "3.0.0",
-    "@dynamic-labs/wagmi-connector": "3.0.0",
+    "@dynamic-labs/bitcoin": "^3.3.0",
+    "@dynamic-labs/ethereum": "^3.3.0",
+    "@dynamic-labs/sdk-react-core": "^3.3.0",
+    "@dynamic-labs/solana": "^3.3.0",
+    "@dynamic-labs/wagmi-connector": "^3.3.0",
     "@radix-ui/colors": "^0.1.8",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
     "@reservoir0x/relay-kit-ui": "workspace:*",
     "@reservoir0x/relay-sdk": "workspace:*",
     "@reservoir0x/relay-solana-wallet-adapter": "workspace:*",
+    "@reservoir0x/relay-bitcoin-wallet-adapter": "workspace:*",
     "@solana/web3.js": "^1.95.3",
     "@tanstack/react-query": "^5.20.2",
     "@types/node": "^22.5.4",
@@ -34,7 +36,7 @@
     "wagmi": "~2.9.8"
   },
   "devDependencies": {
-    "@dynamic-labs/types": "3.0.0",
+    "@dynamic-labs/types": "^3.3.0",
     "@types/node": "^12.12.21",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

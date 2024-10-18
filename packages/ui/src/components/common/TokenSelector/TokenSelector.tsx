@@ -24,8 +24,11 @@ import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
-import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { solana } from '../../../utils/solana.js'
+import { bitcoin } from '../../../utils/bitcoin.js'
+import { evmDeadAddress } from '@reservoir0x/relay-sdk'
+import { solDeadAddress } from '@reservoir0x/relay-sdk'
+import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -98,10 +101,20 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     let chains =
       relayClient?.chains.sort((a, b) => a.name.localeCompare(b.name)) ?? []
     if (!multiWalletSupportEnabled && context === 'from') {
-      chains = chains.filter((chain) => chain.vmType !== 'svm')
+      chains = chains.filter((chain) => chain.vmType === 'evm')
     }
     return chains
   }, [relayClient?.chains, multiWalletSupportEnabled])
+
+  const chainFilterOptions =
+    context === 'from'
+      ? configuredChains?.filter(
+          (chain) =>
+            chain.vmType === 'evm' ||
+            chain.id === solana.id ||
+            chain.id === bitcoin.id
+        )
+      : configuredChains
 
   const configuredChainIds = useMemo(() => {
     if (chainIdsFilter) {
@@ -143,7 +156,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     balanceMap: tokenBalances,
     isLoading: isLoadingDuneBalances
   } = useDuneBalances(
-    address && address !== evmDeadAddress && address !== solDeadAddress
+    address &&
+      address !== evmDeadAddress &&
+      address !== solDeadAddress &&
+      address !== bitcoinDeadAddress
       ? address
       : undefined
   )
@@ -240,8 +256,16 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           (currency) =>
             currency !== undefined &&
             (context !== 'from' ||
+              currency.vmType !== 'svm' ||
+              //@ts-ignore: todo remove once we have api support
+              currency.vmType !== 'bvm' ||
+              currency.chainId === solana.id ||
+              currency.chainId === bitcoin.id) &&
+            (context !== 'from' ||
               multiWalletSupportEnabled ||
-              currency.vmType !== 'svm')
+              currency.vmType !== 'svm' ||
+              //@ts-ignore: todo remove once we have api support
+              currency.vmType !== 'bvm')
         )
       return filteredList.length > 0 ? filteredList : undefined
     })
@@ -451,7 +475,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             tokenSearchInput={tokenSearchInput}
             setTokenSearchInput={setTokenSearchInput}
             chainIdsFilter={chainIdsFilter}
-            chainFilterOptions={configuredChains}
+            chainFilterOptions={chainFilterOptions}
             chainFilter={chainFilter}
             setChainFilter={setChainFilter}
             isLoading={isLoading}

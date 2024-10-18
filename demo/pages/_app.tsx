@@ -21,6 +21,7 @@ import {
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
+import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
@@ -49,7 +50,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   }, [router.query.api])
 
   const { chains, viemChains } = useRelayChains(relayApi, {
-    includeChains: '9286185'
+    includeChains: '9286185,8253038'
   })
 
   useEffect(() => {
@@ -158,7 +159,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
             walletConnectors: [
               EthereumWalletConnectors,
-              SolanaWalletConnectors
+              SolanaWalletConnectors,
+              BitcoinWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

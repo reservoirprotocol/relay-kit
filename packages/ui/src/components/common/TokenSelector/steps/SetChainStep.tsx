@@ -25,6 +25,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { solana } from '../../../../utils/solana.js'
+import { bitcoin } from '../../../../utils/bitcoin.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -82,10 +83,14 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const supportedChains = selectedCurrencyList?.chains || []
   const allChains =
     client?.chains?.filter(
-      (chain) =>
-        context !== 'from' ||
-        multiWalletSupportEnabled ||
-        chain.vmType !== 'svm'
+      (chain: RelayChain) =>
+        (context !== 'from' ||
+          chain.vmType === 'evm' ||
+          chain.id === solana.id ||
+          chain.id === bitcoin.id) &&
+        (context !== 'from' ||
+          multiWalletSupportEnabled ||
+          chain.vmType === 'evm')
     ) || []
 
   const combinedChains: NormalizedChain[] = [
