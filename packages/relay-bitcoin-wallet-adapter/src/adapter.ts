@@ -1,4 +1,9 @@
-import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
+import {
+  LogLevel,
+  axios,
+  getClient,
+  type AdaptedWallet
+} from '@reservoir0x/relay-sdk'
 import * as bitcoin from 'bitcoinjs-lib'
 
 type DynamicSignPsbtParams = {
@@ -8,18 +13,6 @@ type DynamicSignPsbtParams = {
     address: string // The address that is signing
     signingIndexes: number[] // The index of the input being signed
   }>
-}
-
-function hexToBase64(hex: string) {
-  // Convert hex to bytes
-  const bytes = []
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes.push(parseInt(hex.substr(i, 2), 16))
-  }
-
-  // Convert bytes to base64
-  const binary = String.fromCharCode(...bytes)
-  return btoa(binary)
 }
 
 export const adaptBitcoinWallet = (
@@ -45,7 +38,6 @@ export const adaptBitcoinWallet = (
       const client = getClient()
 
       const psbtHex = stepItem.data.psbt as string
-      const psbtBase64 = hexToBase64(psbtHex)
 
       const psbt = bitcoin.Psbt.fromHex(psbtHex, {
         network: bitcoin.networks.bitcoin
@@ -53,7 +45,7 @@ export const adaptBitcoinWallet = (
 
       const dynamicParams: DynamicSignPsbtParams = {
         allowedSighash: [1], // Only allow SIGHASH_ALL
-        unsignedPsbtBase64: psbtBase64, // The unsigned PSBT in Base64 format
+        unsignedPsbtBase64: psbt.toBase64(), // The unsigned PSBT in Base64 format
         signature: [
           {
             address: walletAddress, // The address that is signing
@@ -61,12 +53,20 @@ export const adaptBitcoinWallet = (
           }
         ]
       }
-      debugger
-      const signedPsbt = await signPsbt(walletAddress, psbt, dynamicParams)
 
-      client.log(['PSBT Signed', signedPsbt], LogLevel.Verbose)
+      const signedPsbt = bitcoin.Psbt.fromBase64(
+        await signPsbt(walletAddress, psbt, dynamicParams)
+      )
+      signedPsbt.finalizeAllInputs()
+
       console.log(psbt.extractTransaction().toHex(), 'HEX')
-      return signedPsbt
+      const rawTransaction = psbt.extractTransaction().toHex()
+      client.log(['BTC Transaction', rawTransaction], LogLevel.Verbose)
+      const mempoolResponse = await axios
+        .post('https://mempool.space/api/tx', rawTransaction)
+        .then((r) => r.data)
+      client.log(['Transaction Broadcasted', mempoolResponse], LogLevel.Verbose)
+      return rawTransaction
     },
     //Bitcoin txs can take 10m or more to finalize, in the case of chains that have a long block time (2m+), the SDK will skip waiting for confirmation
     handleConfirmTransactionStep: async () => {

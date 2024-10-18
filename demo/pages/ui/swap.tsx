@@ -131,6 +131,7 @@ const SwapWidgetPage: NextPage = () => {
                 try {
                   // Request the wallet to sign the PSBT
                   const response = await primaryWallet.signPsbt(dynamicParams)
+
                   if (!response) {
                     throw 'Missing psbt response'
                   }
