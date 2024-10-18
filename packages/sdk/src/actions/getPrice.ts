@@ -8,9 +8,10 @@ import {
   type SimulateContractRequest
 } from '../utils/index.js'
 import { getClient } from '../client.js'
-import type { Execute, paths } from '../types/index.js'
+import type { ChainVM, Execute, paths } from '../types/index.js'
 import { getDeadAddress } from '../constants/address.js'
 import { svmChainIds } from '../constants/svm.js'
+import { bvmChainIds } from '../constants/bvm.js'
 
 export type PriceBody = NonNullable<
   paths['/price']['post']['requestBody']['content']['application/json']
@@ -75,9 +76,13 @@ export async function getPrice(
       return tx
     })
   }
-  const deadAddress = getDeadAddress(
-    svmChainIds.includes(originChainId) ? 'svm' : 'evm'
-  )
+  let vmType: ChainVM = 'evm'
+  if (svmChainIds.includes(originChainId)) {
+    vmType = 'svm'
+  } else if (bvmChainIds.includes(originChainId)) {
+    vmType = 'bvm'
+  }
+  const deadAddress = getDeadAddress(vmType)
 
   const query: PriceBody = {
     user: user ?? deadAddress,

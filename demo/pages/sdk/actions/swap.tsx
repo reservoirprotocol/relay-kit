@@ -8,7 +8,9 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -25,7 +27,7 @@ const SwapActionPage: NextPage = () => {
   const [tx, setTx] = useState<string>('')
   const client = useRelayClient()
 
-  const { primaryWallet } = useDynamicContext()
+  const { primaryWallet: primaryWallet } = useDynamicContext()
 
   return (
     <div
@@ -213,6 +215,22 @@ const SwapActionPage: NextPage = () => {
           } else if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             executionWallet = adaptViemWallet(walletClient)
+          } else if (isBitcoinWallet(primaryWallet)) {
+            executionWallet = adaptBitcoinWallet(
+              primaryWallet.address,
+              async (_address, _psbt, dynamicParams) => {
+                try {
+                  // Request the wallet to sign the PSBT
+                  const response = await primaryWallet.signPsbt(dynamicParams)
+                  if (!response) {
+                    throw 'Missing psbt response'
+                  }
+                  return response.signedPsbt
+                } catch (e) {
+                  throw e
+                }
+              }
+            )
           } else {
             throw 'Unable to configure wallet'
           }

@@ -7,7 +7,6 @@ import { useENSResolver, useWalletAddress } from '../../hooks/index.js'
 import { isENSName } from '../../utils/ens.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
 import { EventNames } from '../../constants/events.js'
-import { solanaAddressRegex } from '../../utils/solana.js'
 import type { Token } from '../../types/index.js'
 import {
   faCircleCheck,
@@ -17,6 +16,7 @@ import { AnchorButton } from '../primitives/Anchor.js'
 import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
+import { isValidAddress } from '../../utils/address.js'
 
 type Props = {
   open: boolean
@@ -50,19 +50,11 @@ export const CustomAddressModal: FC<Props> = ({
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
 
-  const isValidAddress = (input: string) => {
-    const ethereumRegex = /^(0x)?[0-9a-fA-F]{40}$/
-    if (toChain?.vmType === 'svm') {
-      return solanaAddressRegex.test(input)
-    } else if (toChain?.vmType === 'evm') {
-      return ethereumRegex.test(input)
-    } else {
-      return false
-    }
-  }
-
   const availableWallets = useMemo(
-    () => linkedWallets.filter((wallet) => isValidAddress(wallet.address)),
+    () =>
+      linkedWallets.filter((wallet) =>
+        isValidAddress(toChain?.vmType, wallet.address)
+      ),
     [toChain, linkedWallets]
   )
 
@@ -76,7 +68,7 @@ export const CustomAddressModal: FC<Props> = ({
       setAddress('')
       setInput('')
     } else {
-      if (isValidAddress(toAddress ?? '')) {
+      if (isValidAddress(toChain?.vmType, toAddress ?? '')) {
         setAddress(toAddress ? toAddress : '')
         setInput(toAddress ? toAddress : '')
       }
@@ -89,7 +81,7 @@ export const CustomAddressModal: FC<Props> = ({
   )
 
   useEffect(() => {
-    if (isValidAddress(input)) {
+    if (isValidAddress(toChain?.vmType, input)) {
       setAddress(input)
     } else if (resolvedENS?.address) {
       setAddress(resolvedENS.address)
@@ -137,9 +129,9 @@ export const CustomAddressModal: FC<Props> = ({
                 height: 48
               }}
               placeholder={
-                toChain?.vmType === 'svm'
-                  ? `Enter ${toChain?.displayName} address`
-                  : 'Address or ENS'
+                toChain?.vmType === 'evm'
+                  ? 'Address or ENS'
+                  : `Enter ${toChain?.displayName} address`
               }
               value={input}
               onChange={(e) => {
@@ -246,10 +238,10 @@ export const CustomAddressModal: FC<Props> = ({
           ) : null}
         </Flex>
         <Button
-          disabled={!isValidAddress(address)}
+          disabled={!isValidAddress(toChain?.vmType, address)}
           css={{ justifyContent: 'center' }}
           onClick={() => {
-            if (isValidAddress(address)) {
+            if (isValidAddress(toChain?.vmType, address)) {
               onConfirmed(address)
               onAnalyticEvent?.(EventNames.ADDRESS_MODAL_CONFIRMED, {
                 address: address,

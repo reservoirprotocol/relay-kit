@@ -25,13 +25,12 @@ import {
 import type { BridgeFee, Token } from '../../../types/index.js'
 import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
-import { getDeadAddress } from '../../../constants/address.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount, useWalletClient } from 'wagmi'
 import { extractQuoteId, parseFees } from '../../../utils/quote.js'
-import { adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 
 export enum TransactionProgressStep {
   ReviewQuote,

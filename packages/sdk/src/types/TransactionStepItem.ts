@@ -23,5 +23,6 @@ export type TransactionStepItem = Pick<
       data: string
     }[]
     addressLookupTableAddresses?: string[]
+    psbt?: string
   }
 }

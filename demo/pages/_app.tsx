@@ -21,6 +21,7 @@ import {
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
+import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
@@ -48,7 +49,9 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(relayApi)
+  const { chains, viemChains } = useRelayChains(relayApi, {
+    includeChains: '8253038'
+  })
 
   useEffect(() => {
     if (chains && viemChains && !wagmiConfig) {
@@ -156,7 +159,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
             walletConnectors: [
               EthereumWalletConnectors,
-              SolanaWalletConnectors
+              SolanaWalletConnectors,
+              BitcoinWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {
@@ -166,14 +170,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
-                return (
-                  chains
-                    //@ts-ignore: todo remove when api type is updated
-                    .filter((chain) => chain.vmType === 'evm')
-                    .map((chain) => {
-                      return convertRelayChainToDynamicNetwork(chain)
-                    })
-                )
+                return chains
+                  .filter((chain) => chain.vmType === 'evm')
+                  .map((chain) => {
+                    return convertRelayChainToDynamicNetwork(chain)
+                  })
               }
             },
             initialAuthenticationMode: 'connect-only',

@@ -10,7 +10,8 @@ import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
-import { solanaAddressRegex } from '../utils/solana.js'
+import useBitcoinBalance from './useBitcoinBalance.js'
+import { isValidAddress } from '../utils/address.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -85,13 +86,20 @@ const useCurrencyBalance = ({
     }
   })
 
-  const isValidSvmAddress = solanaAddressRegex.test(address ?? '')
+  const _isValidAddress = isValidAddress(chain?.vmType, address)
 
   const duneBalances = useDuneBalances(address, {
     enabled: Boolean(
-      chain && chain.vmType === 'svm' && address && isValidSvmAddress && enabled
+      chain && chain.vmType === 'svm' && address && _isValidAddress && enabled
     )
   })
+
+  const bitcoinBalances = useBitcoinBalance(address, {
+    enabled: Boolean(
+      chain && chain.vmType === 'bvm' && address && _isValidAddress && enabled
+    )
+  })
+
   if (chain?.vmType === 'evm') {
     const value = isErc20Currency ? erc20Balance : ethBalance?.value
     const error = isErc20Currency ? erc20Error : ethError
@@ -102,7 +110,7 @@ const useCurrencyBalance = ({
       : ethBalanceIsLoading
     return { value, queryKey, isLoading, isError, error, isDuneBalance: false }
   } else if (chain?.vmType === 'svm') {
-    if (isValidSvmAddress) {
+    if (_isValidAddress) {
       return {
         value:
           currency &&
@@ -126,6 +134,29 @@ const useCurrencyBalance = ({
         isError: duneBalances.isError,
         error: duneBalances.error,
         isDuneBalance: true
+      }
+    }
+  } else if (chain?.vmType === 'bvm') {
+    if (_isValidAddress) {
+      return {
+        value:
+          currency && bitcoinBalances.balance
+            ? bitcoinBalances.balance
+            : undefined,
+        queryKey: bitcoinBalances.queryKey,
+        isLoading: bitcoinBalances.isLoading,
+        isError: bitcoinBalances.isError,
+        error: bitcoinBalances.error,
+        isDuneBalance: false
+      }
+    } else {
+      return {
+        value: undefined,
+        queryKey: bitcoinBalances.queryKey,
+        isLoading: bitcoinBalances.isLoading,
+        isError: bitcoinBalances.isError,
+        error: bitcoinBalances.error,
+        isDuneBalance: false
       }
     }
   } else {

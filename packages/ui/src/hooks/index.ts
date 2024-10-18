@@ -7,6 +7,7 @@ import useDuneBalances from './useDuneBalances.js'
 import useWalletAddress from './useWalletAddress.js'
 import useDisconnected from './useDisconnected.js'
 import usePreviousValueChange from './usePreviousValueChange.js'
+import useBitcoinBalance from './useBitcoinBalance.js'
 
 export {
   useMounted,
@@ -17,5 +18,6 @@ export {
   useDuneBalances,
   useWalletAddress,
   useDisconnected,
-  usePreviousValueChange
+  usePreviousValueChange,
+  useBitcoinBalance
 }
