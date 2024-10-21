@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.9
+
+### Patch Changes
+
+- 29bb388: Added keyboard navigation to token selector
+
 ## 2.1.8
 
 ### Patch Changes
