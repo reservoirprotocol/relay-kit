@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.9
+
+### Patch Changes
+
+- 29bb388: Added keyboard navigation to token selector
+
+## 2.1.8
+
+### Patch Changes
+
+- ac81750: Add input and output amount to max capacity event
+
 ## 2.1.7
 
 ### Patch Changes

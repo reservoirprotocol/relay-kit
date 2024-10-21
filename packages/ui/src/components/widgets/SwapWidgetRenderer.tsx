@@ -584,7 +584,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     !isFetchingPrice && !externalLiquiditySupport.isFetching,
     (capacityExceeded) => {
       if (capacityExceeded) {
-        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED)
+        onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED, {
+          inputAmount: debouncedInputAmountValue,
+          outputAmount: debouncedOutputAmountValue
+        })
       }
     }
   )
