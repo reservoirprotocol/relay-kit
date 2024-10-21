@@ -212,7 +212,7 @@ export const TransactionModalRenderer: FC<Props> = ({
             debouncedInputAmountValue &&
             debouncedInputAmountValue.length > 0 &&
             Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXACT_OUTPUT' &&
+            (tradeType === 'EXPECTED_OUTPUT' &&
               debouncedOutputAmountValue &&
               debouncedOutputAmountValue.length > 0 &&
               Number(debouncedOutputAmountValue) !== 0)) &&

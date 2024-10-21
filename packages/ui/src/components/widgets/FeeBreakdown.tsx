@@ -20,6 +20,7 @@ type Props = Pick<
   | 'supportsExternalLiquidity'
   | 'useExternalLiquidity'
   | 'setUseExternalLiquidity'
+  | 'canonicalTimeEstimate'
 > & {
   toChain?: RelayChain
 }
@@ -38,7 +39,8 @@ const FeeBreakdown: FC<Props> = ({
   supportsExternalLiquidity,
   useExternalLiquidity,
   setUseExternalLiquidity,
-  timeEstimate
+  timeEstimate,
+  canonicalTimeEstimate
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -91,6 +93,7 @@ const FeeBreakdown: FC<Props> = ({
         onExternalLiquidityChange={(selected) => {
           setUseExternalLiquidity(selected)
         }}
+        canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
       />
       <Box css={{ height: 1, background: 'gray5', width: '100%' }} />
       <Flex

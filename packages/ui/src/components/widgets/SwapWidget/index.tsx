@@ -29,13 +29,14 @@ import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/solana.js'
+import SwapRouteSelector from '../SwapRouteSelector.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
   defaultToToken?: Token
   defaultToAddress?: Address
   defaultAmount?: string
-  defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
+  defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
   lockToToken?: boolean
   lockFromToken?: boolean
   lockChainId?: number
@@ -156,6 +157,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         hasInsufficientBalance,
         isInsufficientLiquidityError,
         isCapacityExceededError,
+        isCouldNotExecuteError,
         maxCapacityFormatted,
         ctaCopy,
         isFromNative,
@@ -165,6 +167,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isValidToAddress,
         supportsExternalLiquidity,
         useExternalLiquidity,
+        canonicalTimeEstimate,
         setUseExternalLiquidity,
         setDetails,
         setSwapError,
@@ -222,6 +225,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           onSetPrimaryWallet,
           isValidFromAddress
         ])
+
+        const promptSwitchRoute =
+          (isCapacityExceededError || isCouldNotExecuteError) &&
+          supportsExternalLiquidity
 
         return (
           <WidgetContainer
@@ -348,12 +355,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           lineHeight: '36px',
                           py: 0,
                           color:
-                            isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                            isFetchingPrice && tradeType === 'EXPECTED_OUTPUT'
                               ? 'text-subtle'
                               : 'input-color',
                           _placeholder: {
                             color:
-                              isFetchingPrice && tradeType === 'EXACT_OUTPUT'
+                              isFetchingPrice && tradeType === 'EXPECTED_OUTPUT'
                                 ? 'text-subtle'
                                 : 'input-color'
                           }
@@ -524,7 +531,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         onClick={() => {
                           if (fromToken || toToken) {
                             if (tradeType === 'EXACT_INPUT') {
-                              setTradeType('EXACT_OUTPUT')
+                              setTradeType('EXPECTED_OUTPUT')
                               setAmountInputValue('')
                               setAmountOutputValue(amountInputValue)
                             } else {
@@ -634,7 +641,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
                         value={
-                          tradeType === 'EXACT_OUTPUT'
+                          tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
                               ? formatFixedLength(amountOutputValue, 8)
@@ -642,7 +649,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
-                          setTradeType('EXACT_OUTPUT')
+                          setTradeType('EXPECTED_OUTPUT')
                           if (Number(e) === 0) {
                             setAmountInputValue('')
                             debouncedAmountOutputControls.flush()
@@ -798,6 +805,28 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
+                  {error && !isFetchingPrice ? (
+                    <Box
+                      css={{
+                        borderRadius: 'widget-card-border-radius',
+                        backgroundColor: 'widget-background',
+                        overflow: 'hidden',
+                        mb: '6px'
+                      }}
+                    >
+                      <SwapRouteSelector
+                        chain={toChain}
+                        supportsExternalLiquidity={supportsExternalLiquidity}
+                        externalLiquidtySelected={useExternalLiquidity}
+                        canonicalTimeEstimate={
+                          canonicalTimeEstimate?.formattedTime
+                        }
+                        onExternalLiquidityChange={(selected) => {
+                          setUseExternalLiquidity(selected)
+                        }}
+                      />
+                    </Box>
+                  ) : null}
                   <FeeBreakdown
                     feeBreakdown={feeBreakdown}
                     isFetchingPrice={isFetchingPrice}
@@ -814,6 +843,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         route: enabled ? 'canonical' : 'relay'
                       })
                     }}
+                    canonicalTimeEstimate={canonicalTimeEstimate}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
@@ -822,6 +852,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     currency={toToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
+                    isCouldNotExecuteError={isCouldNotExecuteError}
                     maxCapacity={maxCapacityFormatted}
                     relayerFeeProportion={relayerFeeProportion}
                     supportsExternalLiquidity={supportsExternalLiquidity}
@@ -829,25 +860,30 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       mb: '6px'
                     }}
                   />
-                  {isCapacityExceededError && supportsExternalLiquidity ? (
+                  {promptSwitchRoute ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
-                      <Button
-                        color="white"
-                        onClick={() => {
-                          if (maxCapacityFormatted) {
-                            setAmountInputValue(maxCapacityFormatted)
-                          } else {
-                            console.error('Missing max capacity')
-                          }
-                          onAnalyticEvent?.(
-                            EventNames.CTA_SET_MAX_CAPACITY_CLICKED
-                          )
-                        }}
-                      >
-                        Set to {maxCapacityFormatted} {toToken?.symbol}
-                      </Button>
+                      {isCapacityExceededError &&
+                      maxCapacityFormatted != '0' ? (
+                        <Button
+                          color="white"
+                          css={{ flexGrow: '1', justifyContent: 'center' }}
+                          onClick={() => {
+                            if (maxCapacityFormatted) {
+                              setAmountInputValue(maxCapacityFormatted)
+                            } else {
+                              console.error('Missing max capacity')
+                            }
+                            onAnalyticEvent?.(
+                              EventNames.CTA_SET_MAX_CAPACITY_CLICKED
+                            )
+                          }}
+                        >
+                          Set to {maxCapacityFormatted} {toToken?.symbol}
+                        </Button>
+                      ) : null}
                       <Button
                         color="primary"
+                        css={{ flexGrow: '1', justifyContent: 'center' }}
                         onClick={() => {
                           setUseExternalLiquidity(true)
                           onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)

@@ -1,5 +1,38 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.1.8
+
+### Patch Changes
+
+- ac81750: Add input and output amount to max capacity event
+
+## 2.1.7
+
+### Patch Changes
+
+- 2134530: Replace exact_output with expected_output tradeType
+- Updated dependencies [2134530]
+  - @reservoir0x/relay-sdk@1.3.4
+  - @reservoir0x/relay-kit-hooks@1.3.4
+
+## 2.1.6
+
+### Patch Changes
+
+- cea3f43: Fix ux issues with canonical route selector
+
+## 2.1.5
+
+### Patch Changes
+
+- af05332: Improve price impact, handle no instant liquidity ux
+
+## 2.1.4
+
+### Patch Changes
+
+- fbe5a41: Improvements on the canonical fallback ux
+
 ## 2.1.3
 
 ### Patch Changes
