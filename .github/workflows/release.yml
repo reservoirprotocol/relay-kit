@@ -73,7 +73,7 @@ jobs:
           while [ $random_index1 -eq $random_index2 ]; do
             random_index2=$(($RANDOM % length))
           done
-          word1=$(echo $responseAdj | jq -r ".[$random_index1].word")
+          word1=$(echo $responseAdj | jq -r ".[$random_index1].name")
           word2=$(echo $responseAnimal | jq -r ".[$random_index2].name")
           title="$word1 $word2"
           title="Release the: $(title_case "$title")!"
