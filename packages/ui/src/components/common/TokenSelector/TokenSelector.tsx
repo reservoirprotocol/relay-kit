@@ -474,6 +474,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
           <SetCurrencyStep
             size={size}
+            inputElement={inputElement}
             setInputElement={setInputElement}
             tokenSearchInput={tokenSearchInput}
             setTokenSearchInput={setTokenSearchInput}
