@@ -113,6 +113,37 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
     }
   }, [filteredChains, chainFilter])
 
+  const handleCurrencySelection = (currencyList: EnhancedCurrencyList) => {
+    if (currencyList.chains.length > 1) {
+      setCurrencyList(currencyList)
+    } else {
+      const token = {
+        ...currencyList.chains[0],
+        logoURI: currencyList.chains[0].metadata?.logoURI
+      }
+
+      const isVerified = currencyList.chains[0].metadata?.verified
+
+      if (!isVerified) {
+        const relayUiKitData = getRelayUiKitData()
+        const tokenKey = `${token.chainId}:${token.address}`
+        const isAlreadyAccepted =
+          relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
+
+        if (isAlreadyAccepted) {
+          selectToken(token, token.chainId)
+          setCurrencyList(currencyList)
+        } else {
+          setUnverifiedToken(token as Token)
+          setUnverifiedTokenModalOpen(true)
+        }
+      } else {
+        selectToken(token, token.chainId)
+        setCurrencyList(currencyList)
+      }
+    }
+  }
+
   return (
     <>
       <Text
@@ -287,14 +318,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   list?.chains.some((chain) => chain.address === value)
                 )
                 if (selectedCurrency) {
-                  if (selectedCurrency.chains.length === 1) {
-                    selectToken(
-                      selectedCurrency.chains[0],
-                      selectedCurrency.chains[0].chainId
-                    )
-                  } else {
-                    setCurrencyList(selectedCurrency)
-                  }
+                  handleCurrencySelection(selectedCurrency)
                 }
               }
             }}
@@ -421,164 +445,157 @@ type CurrencyRowProps = {
   isLoadingDuneBalances: boolean
 }
 
-const CurrencyRow: FC<CurrencyRowProps> = ({
-  currencyList,
-  setCurrencyList,
-  selectToken,
-  setUnverifiedTokenModalOpen,
-  setUnverifiedToken,
-  isLoadingDuneBalances
-}) => {
-  const totalValueUsd = currencyList.totalValueUsd
-  const balance = currencyList.totalBalance
-  const decimals =
-    currencyList?.chains?.length > 0
-      ? currencyList?.chains?.[0].decimals ?? 18
-      : 18
-  const compactBalance = Boolean(
-    balance && decimals && balance.toString().length - decimals > 4
-  )
+const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
+  (
+    {
+      currencyList,
+      setCurrencyList,
+      selectToken,
+      isLoadingDuneBalances,
+      setUnverifiedToken,
+      setUnverifiedTokenModalOpen,
+      ...props
+    },
+    ref
+  ) => {
+    const totalValueUsd = currencyList.totalValueUsd
+    const balance = currencyList.totalBalance
+    const decimals =
+      currencyList?.chains?.length > 0
+        ? currencyList?.chains?.[0].decimals ?? 18
+        : 18
+    const compactBalance = Boolean(
+      balance && decimals && balance.toString().length - decimals > 4
+    )
 
-  const isSingleChainCurrency = currencyList?.chains?.length === 1
-  const isVerified = currencyList?.chains?.[0].metadata?.verified
+    const isSingleChainCurrency = currencyList?.chains?.length === 1
+    const isVerified = currencyList?.chains?.[0].metadata?.verified
 
-  return (
-    <Button
-      color="ghost"
-      onClick={() => {
-        if (!isSingleChainCurrency) {
-          setCurrencyList(currencyList)
-        } else {
-          const token = {
-            ...currencyList?.chains?.[0],
-            logoURI: currencyList?.chains?.[0].metadata?.logoURI
-          }
-
-          if (!isVerified) {
-            const relayUiKitData = getRelayUiKitData()
-            const tokenKey = `${token.chainId}:${token.address}`
-            const isAlreadyAccepted =
-              relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
-
-            if (isAlreadyAccepted) {
-              // If already accepted, proceed with selection
-              selectToken(token, token.chainId)
-              setCurrencyList(currencyList)
-            } else {
-              setUnverifiedToken(token as Token)
-              setUnverifiedTokenModalOpen(true)
-            }
-          } else {
-            selectToken(token, token.chainId)
-            setCurrencyList(currencyList)
-          }
-        }
-      }}
-      css={{
-        gap: '2',
-        cursor: 'pointer',
-        px: '2',
-        py: '2',
-        transition: 'backdrop-filter 250ms linear',
-        _hover: {
-          backgroundColor: 'gray/10'
-        },
-        flexShrink: 0,
-        alignContent: 'center',
-        display: 'flex',
-        width: '100%'
-      }}
-    >
-      {isSingleChainCurrency ? (
-        <ChainTokenIcon
-          chainId={currencyList?.chains?.[0]?.chainId}
-          tokenlogoURI={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-          css={{
-            width: 32,
-            height: 32
-          }}
-        />
-      ) : (
-        <img
-          alt={currencyList?.chains?.[0]?.name ?? ''}
-          src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
-          width={32}
-          height={32}
-          style={{ borderRadius: 9999 }}
-        />
-      )}
-      <Flex direction="column" align="start" css={{ gap: '2px' }}>
-        <Text style="subtitle1" ellipsify css={{ maxWidth: '112px' }}>
-          {currencyList?.chains?.[0]?.name}
-        </Text>
-        <Flex align="center" css={{ gap: '1' }}>
-          <Text style="subtitle3" color="subtle">
-            {currencyList?.chains?.[0]?.symbol}
-          </Text>
-          {isSingleChainCurrency ? (
-            <Text style="subtitle3" color="subtle">
-              {truncateAddress(currencyList?.chains?.[0].address)}
-            </Text>
-          ) : null}
-
-          {!isVerified ? (
-            <Box css={{ color: 'gray8' }}>
-              <FontAwesomeIcon
-                icon={faExclamationTriangle}
-                width={16}
-                height={16}
-              />
-            </Box>
-          ) : null}
-        </Flex>
-      </Flex>
-
-      {!isSingleChainCurrency ? (
-        <Flex align="center" css={{ position: 'relative' }}>
-          {currencyList?.chains?.slice(0, 3).map((currency, index) => (
-            <ChainIcon
-              chainId={Number(currency.chainId)}
-              key={index}
-              width={18}
-              height={18}
-              css={{
-                ml: index > 0 ? '-4px' : 0,
-                '--borderColor': 'colors.modal-background',
-                border: '1px solid var(--borderColor)',
-                borderRadius: 4,
-                background: 'modal-background',
-                overflow: 'hidden'
-              }}
-            />
-          ))}
-          {currencyList?.chains?.length > 3 ? (
-            <Text style="tiny" css={{ ml: '1' }}>
-              + more
-            </Text>
-          ) : null}
-        </Flex>
-      ) : null}
-      <Flex direction="column" align="end" css={{ gap: '2px', ml: 'auto' }}>
-        {isLoadingDuneBalances ? (
-          <>
-            <Skeleton css={{ ml: 'auto', width: 60 }} />
-            <Skeleton css={{ ml: 'auto', width: 60 }} />
-          </>
+    return (
+      <Button
+        color="ghost"
+        ref={ref}
+        css={{
+          gap: '2',
+          cursor: 'pointer',
+          px: '2',
+          py: '2',
+          transition: 'backdrop-filter 250ms linear',
+          _hover: {
+            backgroundColor: 'gray/10'
+          },
+          flexShrink: 0,
+          alignContent: 'center',
+          display: 'flex',
+          width: '100%',
+          '--focusColor': 'colors.focus-color',
+          _focusVisible: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          '&[data-state="on"]': {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _active: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _focusWithin: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          scrollSnapAlign: 'start'
+        }}
+        {...props}
+      >
+        {isSingleChainCurrency ? (
+          <ChainTokenIcon
+            chainId={currencyList?.chains?.[0]?.chainId}
+            tokenlogoURI={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+            css={{
+              width: 32,
+              height: 32
+            }}
+          />
         ) : (
-          <>
-            {balance ? (
-              <Text style="subtitle1" css={{ ml: 'auto' }}>
-                {formatBN(balance, 4, decimals, compactBalance)}
-              </Text>
-            ) : null}
-            {totalValueUsd ? (
-              <Text color="subtle" style="body3">
-                {formatDollar(totalValueUsd)}
-              </Text>
-            ) : null}
-          </>
+          <img
+            alt={currencyList?.chains?.[0]?.name ?? ''}
+            src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
+            width={32}
+            height={32}
+            style={{ borderRadius: 9999 }}
+          />
         )}
-      </Flex>
-    </Button>
-  )
-}
+        <Flex direction="column" align="start" css={{ gap: '2px' }}>
+          <Text style="subtitle1" ellipsify css={{ maxWidth: '112px' }}>
+            {currencyList?.chains?.[0]?.name}
+          </Text>
+          <Flex align="center" css={{ gap: '1' }}>
+            <Text style="subtitle3" color="subtle">
+              {currencyList?.chains?.[0]?.symbol}
+            </Text>
+            {isSingleChainCurrency ? (
+              <Text style="subtitle3" color="subtle">
+                {truncateAddress(currencyList?.chains?.[0].address)}
+              </Text>
+            ) : null}
+
+            {!isVerified ? (
+              <Box css={{ color: 'gray8' }}>
+                <FontAwesomeIcon
+                  icon={faExclamationTriangle}
+                  width={16}
+                  height={16}
+                />
+              </Box>
+            ) : null}
+          </Flex>
+        </Flex>
+
+        {!isSingleChainCurrency ? (
+          <Flex align="center" css={{ position: 'relative' }}>
+            {currencyList?.chains?.slice(0, 3).map((currency, index) => (
+              <ChainIcon
+                chainId={Number(currency.chainId)}
+                key={index}
+                width={18}
+                height={18}
+                css={{
+                  ml: index > 0 ? '-4px' : 0,
+                  '--borderColor': 'colors.modal-background',
+                  border: '1px solid var(--borderColor)',
+                  borderRadius: 4,
+                  background: 'modal-background',
+                  overflow: 'hidden'
+                }}
+              />
+            ))}
+            {currencyList?.chains?.length > 3 ? (
+              <Text style="tiny" css={{ ml: '1' }}>
+                + more
+              </Text>
+            ) : null}
+          </Flex>
+        ) : null}
+        <Flex direction="column" align="end" css={{ gap: '2px', ml: 'auto' }}>
+          {isLoadingDuneBalances ? (
+            <>
+              <Skeleton css={{ ml: 'auto', width: 60 }} />
+              <Skeleton css={{ ml: 'auto', width: 60 }} />
+            </>
+          ) : (
+            <>
+              {balance ? (
+                <Text style="subtitle1" css={{ ml: 'auto' }}>
+                  {formatBN(balance, 4, decimals, compactBalance)}
+                </Text>
+              ) : null}
+              {totalValueUsd ? (
+                <Text color="subtle" style="body3">
+                  {formatDollar(totalValueUsd)}
+                </Text>
+              ) : null}
+            </>
+          )}
+        </Flex>
+      </Button>
+    )
+  }
+)

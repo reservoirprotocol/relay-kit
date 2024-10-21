@@ -28,6 +28,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { solana } from '../../../../utils/solana.js'
+import { getRelayUiKitData } from '../../../../utils/localStorage.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -168,18 +169,27 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                 : {
                     ...chain.relayChain.currency,
                     metadata: {
-                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
+                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                      verified: true
                     }
                   }
 
-              if (!token?.metadata?.verified) {
-                // @TODO: check if token has been accepted
-                setUnverifiedToken(token as Token)
-                setUnverifiedTokenModalOpen(true)
+              const isVerified = token?.metadata?.verified
+              if (!isVerified) {
+                const relayUiKitData = getRelayUiKitData()
+                const tokenKey = `${chain.id}:${token.address}`
+                const isAlreadyAccepted =
+                  relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
+
+                if (isAlreadyAccepted) {
+                  selectToken(token, chain.id)
+                } else {
+                  setUnverifiedToken(token as Token)
+                  setUnverifiedTokenModalOpen(true)
+                }
               } else {
                 selectToken(token, chain.id)
               }
-              selectToken(token, chain.id)
             }
           }
         }}
