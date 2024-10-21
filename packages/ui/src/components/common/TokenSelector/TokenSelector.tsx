@@ -40,6 +40,7 @@ export type TokenSelectorProps = {
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
   address?: Address | string
+  isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -69,6 +70,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   type = 'token',
   size = 'mobile',
   address,
+  isValidAddress,
   multiWalletSupportEnabled = false,
   setToken,
   onAnalyticEvent
@@ -159,7 +161,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     address &&
       address !== evmDeadAddress &&
       address !== solDeadAddress &&
-      address !== bitcoinDeadAddress
+      address !== bitcoinDeadAddress &&
+      isValidAddress
       ? address
       : undefined
   )

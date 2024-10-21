@@ -375,6 +375,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         openState={fromTokenSelectorOpenState}
                         type={fromTokenSelectorType}
                         address={address}
+                        isValidAddress={isValidFromAddress}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
@@ -691,6 +692,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         openState={toTokenSelectorOpenState}
                         type={toTokenSelectorType}
                         address={recipient}
+                        isValidAddress={isValidToAddress}
                         token={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
