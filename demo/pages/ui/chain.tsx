@@ -40,7 +40,6 @@ const ChainWidgetPage: NextPage = () => {
       if (walletLogoId.includes('phantom')) {
         walletLogoId = 'phantom'
       }
-
       let walletChain = newWallet.chain.toLowerCase()
       let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
 
@@ -75,14 +74,12 @@ const ChainWidgetPage: NextPage = () => {
   >()
 
   const linkedWallets = useMemo(() => {
-    const _wallets = userWallets.map((wallet) => {
+    const _wallets = userWallets.reduce((linkedWallets, wallet) => {
       let walletLogoId =
         // @ts-ignore
-        wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
-
-      if (walletLogoId.includes('phantom')) {
-        walletLogoId = 'phantom'
-      }
+        wallet?.connector?.wallet?.brand?.spriteId
+      // @ts-ignore
+      let walletIcon = wallet?.connector?.wallet?.icon
 
       let walletChain = wallet.chain.toLowerCase()
 
@@ -93,12 +90,32 @@ const ChainWidgetPage: NextPage = () => {
       } else if (walletChain === 'btc') {
         vmType = 'bvm'
       }
-      return {
-        address: wallet.address,
-        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType
+
+      if (wallet.additionalAddresses.length > 0) {
+        wallet.additionalAddresses.forEach((address) => {
+          if (address.type === 'ordinals') {
+            return
+          }
+          linkedWallets.push({
+            address: address.address,
+            walletLogoUrl: walletLogoId
+              ? `${dynamicStaticAssetUrl}#${walletLogoId}`
+              : walletIcon,
+            vmType
+          })
+        })
+      } else {
+        linkedWallets.push({
+          address: wallet.address,
+          walletLogoUrl: walletLogoId
+            ? `${dynamicStaticAssetUrl}#${walletLogoId}`
+            : walletIcon,
+          vmType
+        })
       }
-    })
+
+      return linkedWallets
+    }, [] as LinkedWallet[])
     wallets.current = userWallets
     return _wallets
   }, [userWallets])
@@ -126,8 +143,12 @@ const ChainWidgetPage: NextPage = () => {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
+            const address =
+              primaryWallet.additionalAddresses.find(
+                (address) => address.type !== 'ordinals'
+              )?.address ?? primaryWallet.address
             adaptedWallet = adaptBitcoinWallet(
-              primaryWallet.address,
+              address,
               async (_address, _psbt, dynamicParams) => {
                 try {
                   // Request the wallet to sign the PSBT

@@ -32,7 +32,6 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   setAddressModalOpen
 }) => {
   const [open, setOpen] = useState(false)
-
   const filteredWallets = useMemo(() => {
     if (!vmType) return wallets
     return wallets.filter((wallet) => wallet.vmType === vmType)
