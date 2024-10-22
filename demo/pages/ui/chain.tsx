@@ -127,6 +127,7 @@ const ChainWidgetPage: NextPage = () => {
       >
         <SwapWidget
           lockChainId={8453}
+          wallet={wallet}
           tokens={[
             {
               chainId: 8453,
@@ -189,7 +190,11 @@ const ChainWidgetPage: NextPage = () => {
             const timer = setInterval(async () => {
               attemptCount++
               const newPrimaryWallet = wallets.current?.find(
-                (wallet) => wallet.address === address
+                (wallet) =>
+                  wallet.address === address ||
+                  wallet.additionalAddresses.find(
+                    (_address) => _address.address === address
+                  )
               )
               if (attemptCount >= maxAttempts) {
                 clearInterval(timer)

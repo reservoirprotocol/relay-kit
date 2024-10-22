@@ -293,7 +293,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <Text style="subtitle2" color="subtle">
                         From
                       </Text>
-
                       {multiWalletSupportEnabled === true && address ? (
                         <MultiWalletDropdown
                           context="origin"
