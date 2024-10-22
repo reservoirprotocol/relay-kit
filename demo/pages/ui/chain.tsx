@@ -22,9 +22,7 @@ import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { useWalletFilter } from 'context/walletFilter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
-
-const dynamicStaticAssetUrl =
-  'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
+import { convertToLinkedWallet } from 'utils/dynamic'
 
 const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
@@ -33,28 +31,7 @@ const ChainWidgetPage: NextPage = () => {
 
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
-      let walletLogoId =
-        // @ts-ignore
-        newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
-
-      if (walletLogoId.includes('phantom')) {
-        walletLogoId = 'phantom'
-      }
-      let walletChain = newWallet.chain.toLowerCase()
-      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
-
-      if (walletChain === 'sol') {
-        vmType = 'svm'
-      } else if (walletChain === 'btc') {
-        vmType = 'bvm'
-      }
-
-      const linkedWallet = {
-        address: newWallet.address,
-        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType
-      }
-      linkWalletPromise.resolve(linkedWallet)
+      linkWalletPromise.resolve(convertToLinkedWallet(newWallet))
       setLinkWalletPromise(undefined)
     }
   })
@@ -75,45 +52,7 @@ const ChainWidgetPage: NextPage = () => {
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.reduce((linkedWallets, wallet) => {
-      let walletLogoId =
-        // @ts-ignore
-        wallet?.connector?.wallet?.brand?.spriteId
-      // @ts-ignore
-      let walletIcon = wallet?.connector?.wallet?.icon
-
-      let walletChain = wallet.chain.toLowerCase()
-
-      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
-
-      if (walletChain === 'sol') {
-        vmType = 'svm'
-      } else if (walletChain === 'btc') {
-        vmType = 'bvm'
-      }
-
-      if (wallet.additionalAddresses.length > 0) {
-        wallet.additionalAddresses.forEach((address) => {
-          if (address.type === 'ordinals') {
-            return
-          }
-          linkedWallets.push({
-            address: address.address,
-            walletLogoUrl: walletLogoId
-              ? `${dynamicStaticAssetUrl}#${walletLogoId}`
-              : walletIcon,
-            vmType
-          })
-        })
-      } else {
-        linkedWallets.push({
-          address: wallet.address,
-          walletLogoUrl: walletLogoId
-            ? `${dynamicStaticAssetUrl}#${walletLogoId}`
-            : walletIcon,
-          vmType
-        })
-      }
-
+      linkedWallets.push(convertToLinkedWallet(wallet))
       return linkedWallets
     }, [] as LinkedWallet[])
     wallets.current = userWallets
@@ -143,12 +82,9 @@ const ChainWidgetPage: NextPage = () => {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
-            const address =
-              primaryWallet.additionalAddresses.find(
-                (address) => address.type !== 'ordinals'
-              )?.address ?? primaryWallet.address
+            const wallet = convertToLinkedWallet(primaryWallet)
             adaptedWallet = adaptBitcoinWallet(
-              address,
+              wallet.address,
               async (_address, _psbt, dynamicParams) => {
                 try {
                   // Request the wallet to sign the PSBT
@@ -191,6 +127,7 @@ const ChainWidgetPage: NextPage = () => {
       >
         <SwapWidget
           lockChainId={8453}
+          wallet={wallet}
           tokens={[
             {
               chainId: 8453,
@@ -253,7 +190,11 @@ const ChainWidgetPage: NextPage = () => {
             const timer = setInterval(async () => {
               attemptCount++
               const newPrimaryWallet = wallets.current?.find(
-                (wallet) => wallet.address === address
+                (wallet) =>
+                  wallet.address === address ||
+                  wallet.additionalAddresses.find(
+                    (_address) => _address.address === address
+                  )
               )
               if (attemptCount >= maxAttempts) {
                 clearInterval(timer)
