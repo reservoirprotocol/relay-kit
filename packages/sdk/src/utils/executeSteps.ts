@@ -258,7 +258,8 @@ export async function executeSteps(
                           details: json?.details
                         })
                       }
-                    }
+                    },
+                    json?.details
                   )
                 } catch (e) {
                   throw e

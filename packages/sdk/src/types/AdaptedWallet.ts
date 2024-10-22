@@ -4,7 +4,7 @@ import type { SignatureStepItem } from './SignatureStepItem.js'
 import type { TransactionStepItem } from './TransactionStepItem.js'
 import type { ChainVM } from './RelayChain.js'
 
-export type SvmReciept = {
+export type SvmReceipt = {
   blockHash: string
   blockNumber: number
   txHash: string
@@ -29,7 +29,7 @@ export type AdaptedWallet = {
     onCancelled: () => void
   ) => Promise<
     | TransactionReceipt // evm
-    | SvmReciept // svm
+    | SvmReceipt // svm
   >
   address: () => Promise<string>
   switchChain: (chainId: number) => Promise<void>
