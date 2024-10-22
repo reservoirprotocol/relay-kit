@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.0
+
+### Minor Changes
+
+- 07917f6: Bitcoin support
+
+### Patch Changes
+
+- Updated dependencies [d3f975d]
+- Updated dependencies [07917f6]
+  - @reservoir0x/relay-kit-hooks@1.4.0
+  - @reservoir0x/relay-sdk@1.4.0
+
 ## 2.1.9
 
 ### Patch Changes
