@@ -98,10 +98,6 @@ export default function (
         onProgress
       })
 
-      promise?.then(() => {
-        response.refetch()
-      })
-
       return promise
     },
     [response.data, wallet, client]
