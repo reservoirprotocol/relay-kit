@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.0
+
+### Minor Changes
+
+- 07917f6: Bitcoin support
+
 ## 1.3.4
 
 ### Patch Changes
