@@ -10,11 +10,6 @@ export type SvmReceipt = {
   txHash: string
 }
 
-//todo
-export type BvmReceipt = {
-  todo: string
-}
-
 export type AdaptedWallet = {
   vmType: ChainVM
   getChainId: () => Promise<number>
@@ -35,7 +30,6 @@ export type AdaptedWallet = {
   ) => Promise<
     | TransactionReceipt // evm
     | SvmReceipt // svm
-    | BvmReceipt //bvm
   >
   address: () => Promise<string>
   switchChain: (chainId: number) => Promise<void>
