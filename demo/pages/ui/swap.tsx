@@ -27,8 +27,10 @@ import { convertToLinkedWallet } from 'utils/dynamic'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
-    linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
-    setLinkWalletPromise(undefined)
+    if (linkWalletPromise) {
+      linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
+      setLinkWalletPromise(undefined)
+    }
   })
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
