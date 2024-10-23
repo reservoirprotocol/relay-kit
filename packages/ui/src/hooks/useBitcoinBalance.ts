@@ -54,7 +54,8 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
             const balanceResponse = response as BitcoinBalanceResponse
             const fundedTxo = balanceResponse.chain_stats.funded_txo_sum
             const spentTxo = balanceResponse.chain_stats.spent_txo_sum
-            balance = BigInt(fundedTxo) - BigInt(spentTxo)
+            const inflightTxo = balanceResponse.mempool_stats.spent_txo_sum
+            balance = BigInt(fundedTxo) - BigInt(spentTxo) - BigInt(inflightTxo)
           }
           return balance
         })
