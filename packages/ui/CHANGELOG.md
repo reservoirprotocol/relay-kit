@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.1
+
+### Patch Changes
+
+- 6237949: Fix bugs with bitcoin implementation
+- Updated dependencies [6237949]
+  - @reservoir0x/relay-sdk@1.4.1
+  - @reservoir0x/relay-kit-hooks@1.4.1
+
 ## 2.2.0
 
 ### Minor Changes
