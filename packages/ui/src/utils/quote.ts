@@ -216,26 +216,15 @@ export const extractQuoteId = (steps?: Execute['steps']) => {
   return ''
 }
 
-export const calculateTimeEstimate = (breakdown?: Execute['breakdown']) => {
-  const time =
-    breakdown?.reduce((total, breakdown) => {
-      return total + (breakdown.timeEstimate ?? 0)
-    }, 0) ?? 0
-  const formattedTime = formatSeconds(time)
-
-  return {
-    time,
-    formattedTime
-  }
-}
-
 export const calculatePriceTimeEstimate = (
   details?: PriceResponse['details']
 ) => {
-  const isBitcoin = details?.currencyIn?.currency?.chainId === bitcoin.id
+  const isBitcoin =
+    details?.currencyIn?.currency?.chainId === bitcoin.id ||
+    details?.currencyOut?.currency?.chainId === bitcoin.id
 
-  //Add 10m origin because of the origin deposit time
-  const time = (details?.timeEstimate ?? 0) + (isBitcoin ? 600 : 0)
+  //If the relay is interacting with bitcoin we hardcode the time estime to 10m
+  const time = isBitcoin ? 600 : details?.timeEstimate ?? 0
   const formattedTime = formatSeconds(time)
 
   return {
