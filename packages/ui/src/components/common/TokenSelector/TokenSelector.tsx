@@ -24,13 +24,16 @@ import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
-import { evmDeadAddress, solDeadAddress } from '../../../constants/address.js'
 import { solana } from '../../../utils/solana.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import {
   getRelayUiKitData,
   setRelayUiKitData
 } from '../../../utils/localStorage.js'
+import { bitcoin } from '../../../utils/bitcoin.js'
+import { evmDeadAddress } from '@reservoir0x/relay-sdk'
+import { solDeadAddress } from '@reservoir0x/relay-sdk'
+import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -42,6 +45,7 @@ export type TokenSelectorProps = {
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
   address?: Address | string
+  isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -71,6 +75,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   type = 'token',
   size = 'mobile',
   address,
+  isValidAddress,
   multiWalletSupportEnabled = false,
   setToken,
   onAnalyticEvent
@@ -110,7 +115,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ) ?? []
 
     if (!multiWalletSupportEnabled && context === 'from') {
-      chains = chains.filter((chain) => chain.vmType !== 'svm')
+      chains = chains.filter((chain) => chain.vmType === 'evm')
     }
     return chains
   }, [relayClient?.chains, multiWalletSupportEnabled])
@@ -118,7 +123,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
-          (chain) => chain.vmType !== 'svm' || chain.id === solana.id
+          (chain) =>
+            chain.vmType === 'evm' ||
+            chain.id === solana.id ||
+            chain.id === bitcoin.id
         )
       : configuredChains
 
@@ -182,7 +190,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     balanceMap: tokenBalances,
     isLoading: isLoadingDuneBalances
   } = useDuneBalances(
-    address && address !== evmDeadAddress && address !== solDeadAddress
+    address &&
+      address !== evmDeadAddress &&
+      address !== solDeadAddress &&
+      address !== bitcoinDeadAddress &&
+      isValidAddress
       ? address
       : undefined
   )
@@ -316,10 +328,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             currency !== undefined &&
             (context !== 'from' ||
               currency.vmType !== 'svm' ||
-              currency.chainId === solana.id) &&
+              //@ts-ignore: todo remove once we have api support
+              currency.vmType !== 'bvm' ||
+              currency.chainId === solana.id ||
+              currency.chainId === bitcoin.id) &&
             (context !== 'from' ||
               multiWalletSupportEnabled ||
-              currency.vmType !== 'svm')
+              currency.vmType !== 'svm' ||
+              //@ts-ignore: todo remove once we have api support
+              currency.vmType !== 'bvm')
         )
       return filteredList.length > 0 ? filteredList : undefined
     })

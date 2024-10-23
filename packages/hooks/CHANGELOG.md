@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.0
+
+### Minor Changes
+
+- d3f975d: Remove automatic refresh of quote data after execution in useQuote hook
+
+### Patch Changes
+
+- Updated dependencies [07917f6]
+  - @reservoir0x/relay-sdk@1.4.0
+
 ## 1.3.4
 
 ### Patch Changes

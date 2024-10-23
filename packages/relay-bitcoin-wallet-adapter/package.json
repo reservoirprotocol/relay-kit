@@ -1,7 +1,7 @@
 {
-    "name": "@reservoir0x/relay-solana-wallet-adapter",
-    "version": "2.0.0",
-    "description": "A Solana adapter for use in @reservoir0x/relay-sdk",
+    "name": "@reservoir0x/relay-bitcoin-wallet-adapter",
+    "version": "1.0.0",
+    "description": "A Bitcoin adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
     "main": "./_cjs/src/index.js",
@@ -35,10 +35,10 @@
         "url": "https://github.com/reservoirprotocol/relay-sdk"
     },
     "keywords": [
-        "solana",
+        "bitcoin",
         "reservoir",
-        "relay-solana-wallet-adapter",
-        "reservoir-solana-wallet-adapter",
+        "relay-bitcoin-wallet-adapter",
+        "reservoir-bitcoin-wallet-adapter",
         "relay",
         "protocol",
         "sdk-adapter"
@@ -51,11 +51,11 @@
     },
     "dependencies": {
         "@types/node": "^22.5.4",
-        "axios": "^1.6.5"
+        "axios": "^1.6.5",
+        "bitcoinjs-lib": "7.0.0-rc.0"
     },
     "peerDependencies": {
         "@reservoir0x/relay-sdk": "workspace:*",
-        "@solana/web3.js": "^1.95.3",
         "viem": "^2.9.31"
     }
 }

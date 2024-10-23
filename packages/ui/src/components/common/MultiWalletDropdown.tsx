@@ -6,10 +6,9 @@ import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import type { ChainVM } from '@reservoir0x/relay-sdk'
-import { solanaAddressRegex } from '../../utils/solana.js'
-import { isAddress } from 'viem'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
+import { isValidAddress } from '../../utils/address.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
@@ -33,19 +32,15 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   setAddressModalOpen
 }) => {
   const [open, setOpen] = useState(false)
-
   const filteredWallets = useMemo(() => {
     if (!vmType) return wallets
     return wallets.filter((wallet) => wallet.vmType === vmType)
   }, [wallets, vmType])
 
-  const isSupportedSelectedWallet = useMemo(() => {
-    if (vmType === 'svm') {
-      return solanaAddressRegex.test(selectedWalletAddress)
-    } else {
-      return isAddress(selectedWalletAddress)
-    }
-  }, [selectedWalletAddress, vmType])
+  const isSupportedSelectedWallet = useMemo(
+    () => isValidAddress(vmType, selectedWalletAddress),
+    [selectedWalletAddress, vmType]
+  )
 
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.address === selectedWalletAddress),
