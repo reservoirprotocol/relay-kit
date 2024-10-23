@@ -49,6 +49,7 @@ type SetCurrencyProps = {
   chainFilter: ChainFilterValue
   setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
   isLoading: boolean
+  isLoadingExternalTokenList: boolean
   isLoadingDuneBalances: boolean
   enhancedCurrencyList?: EnhancedCurrencyList[]
   token?: Token
@@ -77,6 +78,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   chainFilter,
   setChainFilter,
   isLoading,
+  isLoadingExternalTokenList,
   isLoadingDuneBalances,
   enhancedCurrencyList,
   selectToken,
@@ -401,6 +403,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 />
               </Flex>
             ) : null}
+
             {/* Data State */}
             {!isLoading &&
             enhancedCurrencyList &&
@@ -429,8 +432,25 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   }
                 })
               : null}
+
+            {/* External Token List Loading State */}
+            {!isLoading && isLoadingExternalTokenList ? (
+              <Flex direction="column" align="center" css={{ py: '5' }}>
+                {enhancedCurrencyList && enhancedCurrencyList?.length > 0 ? (
+                  <Text style="subtitle2" css={{ color: 'primary-color' }}>
+                    Searching for additional tokens...
+                  </Text>
+                ) : (
+                  <LoadingSpinner
+                    css={{ height: 40, width: 40, fill: 'primary-color' }}
+                  />
+                )}
+              </Flex>
+            ) : null}
+
             {/* Empty State */}
             {!isLoading &&
+            !isLoadingExternalTokenList &&
             (!enhancedCurrencyList || enhancedCurrencyList?.length === 0) ? (
               <Text css={{ textAlign: 'center', py: '5' }}>
                 No results found.

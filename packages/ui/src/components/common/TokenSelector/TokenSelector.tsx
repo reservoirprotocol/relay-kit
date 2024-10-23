@@ -165,25 +165,26 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   )
 
-  const { data: externalTokenList } = useTokenList(
-    relayClient?.baseApiUrl,
-    {
-      chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
-      address: isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
-      term: !isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
-      defaultList: false,
-      limit: 20,
-      ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
-      useExternalSearch: true
-    },
-    {
-      enabled: !!debouncedTokenSearchValue
-    }
-  )
+  const { data: externalTokenList, isLoading: isLoadingExternalTokenList } =
+    useTokenList(
+      relayClient?.baseApiUrl,
+      {
+        chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
+        address: isAddress(debouncedTokenSearchValue)
+          ? debouncedTokenSearchValue
+          : undefined,
+        term: !isAddress(debouncedTokenSearchValue)
+          ? debouncedTokenSearchValue
+          : undefined,
+        defaultList: false,
+        limit: 20,
+        ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
+        useExternalSearch: true
+      },
+      {
+        enabled: !!debouncedTokenSearchValue
+      }
+    )
 
   const {
     data: duneTokens,
@@ -562,6 +563,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 chainFilter={chainFilter}
                 setChainFilter={setChainFilter}
                 isLoading={isLoading}
+                isLoadingExternalTokenList={isLoadingExternalTokenList}
                 isLoadingDuneBalances={isLoadingDuneBalances}
                 enhancedCurrencyList={
                   enhancedCurrencyList as EnhancedCurrencyList[]
