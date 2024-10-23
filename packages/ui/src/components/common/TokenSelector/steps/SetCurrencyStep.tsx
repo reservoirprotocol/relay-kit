@@ -315,7 +315,11 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             onSelect={(value) => {
               if (value && value !== 'input') {
                 const selectedCurrency = enhancedCurrencyList?.find((list) =>
-                  list?.chains.some((chain) => chain.address === value)
+                  list.chains.some((chain) =>
+                    value.includes(':')
+                      ? `${chain.chainId}:${chain.address}` === value
+                      : chain.address === value
+                  )
                 )
                 if (selectedCurrency) {
                   handleCurrencySelection(selectedCurrency)
@@ -401,26 +405,29 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             {!isLoading &&
             enhancedCurrencyList &&
             enhancedCurrencyList?.length > 0
-              ? enhancedCurrencyList?.map((list, idx) =>
-                  list && list.chains[0].address ? (
-                    <AccessibleListItem
-                      key={idx}
-                      value={list.chains[0].address}
-                      asChild
-                    >
-                      <CurrencyRow
-                        currencyList={list as EnhancedCurrencyList}
-                        setCurrencyList={setCurrencyList}
-                        selectToken={selectToken}
-                        isLoadingDuneBalances={isLoadingDuneBalances}
-                        setUnverifiedToken={setUnverifiedToken}
-                        setUnverifiedTokenModalOpen={
-                          setUnverifiedTokenModalOpen
-                        }
-                      />
-                    </AccessibleListItem>
-                  ) : null
-                )
+              ? enhancedCurrencyList?.map((list, idx) => {
+                  if (list && list.chains[0]?.address) {
+                    const value =
+                      list.chains.length === 1
+                        ? `${list.chains[0].chainId}:${list.chains[0].address}`
+                        : list.chains[0].address
+
+                    return (
+                      <AccessibleListItem key={idx} value={value} asChild>
+                        <CurrencyRow
+                          currencyList={list as EnhancedCurrencyList}
+                          setCurrencyList={setCurrencyList}
+                          selectToken={selectToken}
+                          isLoadingDuneBalances={isLoadingDuneBalances}
+                          setUnverifiedToken={setUnverifiedToken}
+                          setUnverifiedTokenModalOpen={
+                            setUnverifiedTokenModalOpen
+                          }
+                        />
+                      </AccessibleListItem>
+                    )
+                  }
+                })
               : null}
             {/* Empty State */}
             {!isLoading &&

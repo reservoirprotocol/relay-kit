@@ -307,40 +307,32 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   }
                 }}
               >
-                <ChainIcon
-                  chainId={chain.id}
-                  width={24}
-                  height={24}
-                  css={{ borderRadius: 4, overflow: 'hidden' }}
-                />
-                <Flex direction="column" align="start">
-                  <Text style="subtitle1">{chain.displayName}</Text>
-                  {type === 'token' ? (
-                    <Text style="subtitle3" color="subtle">
-                      {truncateAddress(chain?.currency?.address)}
-                    </Text>
+                <Flex css={{ gap: '2', alignItems: 'center' }}>
+                  <ChainIcon
+                    chainId={chain.id}
+                    width={24}
+                    height={24}
+                    css={{ borderRadius: 4, overflow: 'hidden' }}
+                  />
+                  <Flex direction="column" align="start">
+                    <Text style="subtitle1">{chain.displayName}</Text>
+                    {type === 'token' ? (
+                      <Text style="subtitle3" color="subtle">
+                        {truncateAddress(chain?.currency?.address)}
+                      </Text>
+                    ) : null}
+                  </Flex>
+                  {!isVerified ? (
+                    <Box css={{ color: 'gray8' }}>
+                      <FontAwesomeIcon
+                        icon={faExclamationTriangle}
+                        width={16}
+                        height={16}
+                      />
+                    </Box>
                   ) : null}
                 </Flex>
-                {chain?.currency?.balance?.amount ? (
-                  <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
-                    {formatBN(
-                      BigInt(chain?.currency?.balance?.amount),
-                      5,
-                      decimals,
-                      compactBalance
-                    )}
-                  </Text>
-                ) : null}
 
-                {!isVerified ? (
-                  <Box css={{ color: 'gray8' }}>
-                    <FontAwesomeIcon
-                      icon={faExclamationTriangle}
-                      width={16}
-                      height={16}
-                    />
-                  </Box>
-                ) : null}
                 {chain?.currency?.balance?.amount ? (
                   <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
                     {formatBN(

@@ -25,6 +25,7 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
 }) => {
   const client = useRelayClient()
   const chain = client?.chains?.find((chain) => chain.id === token?.chainId)
+  const isValidTokenLogo = token?.logoURI && token?.logoURI !== 'missing.png'
 
   return (
     <Modal
@@ -51,21 +52,22 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
         <Text style="h6">Unverified Token</Text>
         <Flex align="center" direction="column" css={{ gap: '4' }}>
           <Flex align="center" justify="center">
-            <img
-              src={token?.logoURI}
-              alt={token?.name}
-              style={{ width: '48px', height: '48px', borderRadius: 9999 }}
-            />
+            {isValidTokenLogo ? (
+              <img
+                src={token.logoURI}
+                alt={token?.name}
+                style={{ width: '48px', height: '48px', borderRadius: 9999 }}
+              />
+            ) : null}
             <Flex
               align="center"
               css={{
                 width: '48px',
                 height: '48px',
-                zIndex: -1,
                 background: 'amber3',
                 borderRadius: 9999,
                 p: '3',
-                marginLeft: '-20px'
+                marginLeft: isValidTokenLogo ? '-20px' : '0'
               }}
             >
               <Box css={{ color: 'amber9' }}>

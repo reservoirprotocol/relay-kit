@@ -235,24 +235,20 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     const mergedList = [...tokenList]
 
     externalTokenList.forEach((currencyList) => {
-      const existingListIndex = mergedList.findIndex(
-        (list) => list[0]?.chainId === currencyList[0]?.chainId
-      )
+      const externalCurrency = currencyList[0]
 
-      if (existingListIndex !== -1) {
-        // Merge with existing list
-        mergedList[existingListIndex] = [
-          ...mergedList[existingListIndex],
-          ...currencyList.filter(
-            (currency) =>
-              !mergedList[existingListIndex].some(
-                (c) => c.address === currency.address
-              )
+      if (externalCurrency) {
+        const alreadyExists = mergedList.some((list) =>
+          list.some(
+            (existingCurrency) =>
+              existingCurrency.chainId === externalCurrency.chainId &&
+              existingCurrency?.address?.toLowerCase() ===
+                externalCurrency?.address?.toLowerCase()
           )
-        ]
-      } else {
-        // Add new list
-        mergedList.push(currencyList)
+        )
+        if (!alreadyExists) {
+          mergedList.push(currencyList)
+        }
       }
     })
 
@@ -265,13 +261,20 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       combinedTokenList && (combinedTokenList as any).length
         ? (combinedTokenList as CurrencyList[])
         : undefined
+
+    const filteredSuggestedTokens = chainFilter.id
+      ? suggestedTokens
+          ?.map((tokenList) =>
+            tokenList.filter((token) => token.chainId === chainFilter.id)
+          )
+          .filter((tokenList) => tokenList.length > 0)
+      : suggestedTokens
+
     let list =
-      context === 'from' &&
       useDefaultTokenList &&
-      chainFilter.id === undefined &&
-      suggestedTokens &&
-      suggestedTokens.length > 0
-        ? suggestedTokens
+      filteredSuggestedTokens &&
+      filteredSuggestedTokens.length > 0
+        ? filteredSuggestedTokens
         : combinedTokenList
 
     const ethTokens = _tokenList?.find(
@@ -289,6 +292,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       )
       list = [ethTokens ?? [], usdcTokens ?? []].concat(list)
     }
+
     const mappedList = list?.map((currencyList) => {
       const filteredList = currencyList
         .map((currency) => {
@@ -347,7 +351,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     useDefaultTokenList,
     configuredChains,
     tokenBalances,
-    multiWalletSupportEnabled
+    multiWalletSupportEnabled,
+    chainFilter
   ])
 
   const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
@@ -444,7 +449,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           symbol: currency.symbol,
           name: currency.name,
           decimals: currency.decimals,
-          logoURI: currency.metadata?.logoURI ?? ''
+          logoURI: currency.metadata?.logoURI ?? '',
+          verified: currency.metadata?.verified
         })
         setOpen(false)
 
@@ -594,6 +600,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               }
 
               selectToken(token, token.chainId)
+              onAnalyticEvent?.(EventNames.UNVERIFIED_TOKEN_ACCEPTED, { token })
             }
             resetState()
             setOpen(false)
