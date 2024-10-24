@@ -22,7 +22,7 @@ import {
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { usePrice } from '@reservoir0x/relay-kit-hooks'
+import { usePrice, useQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
@@ -343,12 +343,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? true
       : false
 
-  const {
-    data: price,
-    isLoading: isFetchingPrice,
-    error
-  } = usePrice(
-    relayClient ? relayClient : undefined,
+  const quoteParameters =
     fromToken && toToken
       ? {
           user: fromAddressWithFallback,
@@ -372,33 +367,56 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity
         }
-      : undefined,
-    ({ details }) => {
-      onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
-        wallet_connector: connector?.name,
-        amount_in: details?.currencyIn?.amountFormatted,
-        currency_in: details?.currencyIn?.currency?.symbol,
-        chain_id_in: details?.currencyIn?.currency?.chainId,
-        amount_out: details?.currencyOut?.amountFormatted,
-        currency_out: details?.currencyOut?.currency?.symbol,
-        chain_id_out: details?.currencyOut?.currency?.chainId,
-        is_canonical: useExternalLiquidity
-      })
-    },
+      : undefined
+
+  const onQuoteReceived: Parameters<typeof usePrice>['2'] = ({ details }) => {
+    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+      wallet_connector: connector?.name,
+      amount_in: details?.currencyIn?.amountFormatted,
+      currency_in: details?.currencyIn?.currency?.symbol,
+      chain_id_in: details?.currencyIn?.currency?.chainId,
+      amount_out: details?.currencyOut?.amountFormatted,
+      currency_out: details?.currencyOut?.currency?.symbol,
+      chain_id_out: details?.currencyOut?.currency?.chainId,
+      is_canonical: useExternalLiquidity
+    })
+  }
+
+  const quoteFetchingEnabled = Boolean(
+    relayClient &&
+      ((tradeType === 'EXACT_INPUT' &&
+        debouncedInputAmountValue &&
+        debouncedInputAmountValue.length > 0 &&
+        Number(debouncedInputAmountValue) !== 0) ||
+        (tradeType === 'EXPECTED_OUTPUT' &&
+          debouncedOutputAmountValue &&
+          debouncedOutputAmountValue.length > 0 &&
+          Number(debouncedOutputAmountValue) !== 0)) &&
+      fromToken !== undefined &&
+      toToken !== undefined
+  )
+
+  const {
+    data: _priceData,
+    isLoading: isFetchingPrice,
+    error: priceError
+  } = usePrice(
+    relayClient ? relayClient : undefined,
+    quoteParameters,
+    onQuoteReceived,
     {
-      enabled: Boolean(
-        relayClient &&
-          ((tradeType === 'EXACT_INPUT' &&
-            debouncedInputAmountValue &&
-            debouncedInputAmountValue.length > 0 &&
-            Number(debouncedInputAmountValue) !== 0) ||
-            (tradeType === 'EXPECTED_OUTPUT' &&
-              debouncedOutputAmountValue &&
-              debouncedOutputAmountValue.length > 0 &&
-              Number(debouncedOutputAmountValue) !== 0)) &&
-          fromToken !== undefined &&
-          toToken !== undefined
-      ),
+      enabled: quoteFetchingEnabled
+    }
+  )
+
+  const { data: _quoteData, error: quoteError } = useQuote(
+    relayClient ? relayClient : undefined,
+    wallet,
+    quoteParameters,
+    undefined,
+    onQuoteReceived,
+    {
+      enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&
         debouncedInputAmountValue === amountInputValue &&
@@ -407,6 +425,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : undefined
     }
   )
+
+  //Here we fetch the price data and quote data in parallel and then merge into one data model
+  const error = quoteError ?? priceError
+  const price = _quoteData ?? _priceData
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
