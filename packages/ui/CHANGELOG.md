@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.5
+
+### Patch Changes
+
+- 47c6c04: Fix parallel quoting when quote returns errror but price does not
+- fc902d3: Remove stroke from route selector when focused
+
 ## 2.2.4
 
 ### Patch Changes
