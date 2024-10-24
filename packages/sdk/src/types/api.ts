@@ -4084,6 +4084,8 @@ export interface paths {
             limit?: number;
             /** @description Include all chains for a currency when filtering by chainId and address */
             includeAllChains?: boolean;
+            /** @description Uses 3rd party API's to search for a token, in case relay does not have it indexed */
+            useExternalSearch?: boolean;
           };
         };
       };

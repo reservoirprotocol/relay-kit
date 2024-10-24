@@ -15,6 +15,7 @@ import { AnimatePresence } from 'framer-motion'
 type ModalProps = {
   trigger?: ReactNode
   css?: SystemStyleObject
+  overlayZIndex?: number
   showCloseButton?: boolean
   children: ReactNode
 }
@@ -26,7 +27,14 @@ export const Modal: FC<
       ComponentPropsWithoutRef<typeof AnimatedContent>,
       'onPointerDownOutside'
     >
-> = ({ trigger, css, showCloseButton = true, children, ...props }) => {
+> = ({
+  trigger,
+  css,
+  overlayZIndex = 9999,
+  showCloseButton = true,
+  children,
+  ...props
+}) => {
   return (
     <DialogRoot modal={true} {...props}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -41,9 +49,9 @@ export const Modal: FC<
                 left: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 9999,
                 backgroundColor: 'blackA10'
               }}
+              style={{ zIndex: overlayZIndex }}
             >
               <AnimatedContent
                 forceMount

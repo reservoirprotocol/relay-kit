@@ -57,6 +57,7 @@ export const Colors = {
   // Amber
   amber2: { value: '{colors.amber.2}' },
   amber3: { value: '{colors.amber.3}' },
+  amber4: { value: '{colors.amber.4}' },
   amber9: { value: '{colors.amber.9}' },
   amber10: { value: '{colors.amber.10}' },
   amber11: { value: '{colors.amber.11}' },
