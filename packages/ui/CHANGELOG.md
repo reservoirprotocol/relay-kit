@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.3
+
+### Patch Changes
+
+- 104fe18: Expand bitcoin address validation to taproot and base58
+
 ## 2.2.2
 
 ### Patch Changes
