@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.2
+
+### Patch Changes
+
+- f18951c: Fetch price and quote in parallel to improve price accuracy in SwapWidget
+- Updated dependencies [f18951c]
+  - @reservoir0x/relay-kit-hooks@1.4.2
+
 ## 2.2.1
 
 ### Patch Changes
