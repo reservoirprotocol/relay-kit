@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.4
+
+### Patch Changes
+
+- 321a64e: Fix double route ui issue where price error shows up alongside valid quote data
+
 ## 2.2.3
 
 ### Patch Changes
