@@ -398,7 +398,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const {
     data: _priceData,
-    isLoading: isFetchingPrice,
+    isLoading: _isFetchingPrice,
     error: priceError
   } = usePrice(
     relayClient ? relayClient : undefined,
@@ -409,7 +409,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
-  const { data: _quoteData, error: quoteError } = useQuote(
+  const {
+    data: _quoteData,
+    error: quoteError,
+    isLoading: isFetchingQuote
+  } = useQuote(
     relayClient ? relayClient : undefined,
     wallet,
     quoteParameters,
@@ -427,8 +431,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   //Here we fetch the price data and quote data in parallel and then merge into one data model
-  const error = _quoteData ? null : quoteError ?? priceError
-  const price = _quoteData ?? _priceData
+  const isFetchingPrice = isFetchingQuote ?? _isFetchingPrice
+  const error = _quoteData || isFetchingQuote ? null : quoteError ?? priceError
+  const price = error ? undefined : _quoteData ?? _priceData
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
