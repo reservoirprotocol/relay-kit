@@ -553,7 +553,13 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
           />
         )}
         <Flex direction="column" align="start" css={{ gap: '2px' }}>
-          <Text style="subtitle1" ellipsify css={{ maxWidth: '112px' }}>
+          <Text
+            style="subtitle1"
+            ellipsify
+            css={{
+              maxWidth: balance && !isSingleChainCurrency ? '112px' : '200px'
+            }}
+          >
             {currencyList?.chains?.[0]?.name}
           </Text>
           <Flex align="center" css={{ gap: '1' }}>
