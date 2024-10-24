@@ -165,7 +165,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           style="body2"
         >
           You can close this modal while it finalizes on the blockchain. The
-          Transaction will continue in the background.
+          transaction will continue in the background.
         </Text>
       </Flex>
 
