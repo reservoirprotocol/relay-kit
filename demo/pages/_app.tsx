@@ -169,11 +169,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
                 display: none;
               }
             `,
-            walletsFilter: walletFilter
-              ? pipe(FilterChain(walletFilter)).pipe(
-                  RemoveWallets(['okxwalletbtc', 'xverse'])
-                )
-              : pipe(RemoveWallets(['okxwalletbtc', 'xverse'])),
+            walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
                 return chains
