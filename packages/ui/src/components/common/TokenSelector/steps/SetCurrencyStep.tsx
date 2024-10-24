@@ -395,15 +395,6 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               ) : null}
             </Flex>
 
-            {/* Loading State*/}
-            {isLoading ? (
-              <Flex direction="column" align="center" css={{ py: '5' }}>
-                <LoadingSpinner
-                  css={{ height: 40, width: 40, fill: 'primary-color' }}
-                />
-              </Flex>
-            ) : null}
-
             {/* Data State */}
             {!isLoading &&
             enhancedCurrencyList &&
@@ -433,19 +424,30 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 })
               : null}
 
-            {/* External Token List Loading State */}
-            {!isLoading && isLoadingExternalTokenList ? (
-              <Flex direction="column" align="center" css={{ py: '5' }}>
-                {enhancedCurrencyList && enhancedCurrencyList?.length > 0 ? (
-                  <Text style="subtitle2" css={{ color: 'primary-color' }}>
-                    Searching for additional tokens...
-                  </Text>
-                ) : (
-                  <LoadingSpinner
-                    css={{ height: 40, width: 40, fill: 'primary-color' }}
-                  />
-                )}
-              </Flex>
+            {/* Loading State*/}
+            {isLoading || isLoadingExternalTokenList ? (
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Flex
+                    key={index}
+                    align="center"
+                    css={{ gap: '2', p: '2', width: '100%' }}
+                  >
+                    <Skeleton
+                      css={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Flex direction="column" css={{ gap: '2px', flexGrow: 1 }}>
+                      <Skeleton css={{ width: '60%', height: 16 }} />
+                      <Skeleton css={{ width: '40%', height: 16 }} />
+                    </Flex>
+                  </Flex>
+                ))}
+              </>
             ) : null}
 
             {/* Empty State */}
