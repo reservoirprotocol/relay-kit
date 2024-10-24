@@ -427,7 +427,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   //Here we fetch the price data and quote data in parallel and then merge into one data model
-  const error = quoteError ?? priceError
+  const error = _quoteData ? null : quoteError ?? priceError
   const price = _quoteData ?? _priceData
 
   useDisconnected(address, () => {
@@ -506,9 +506,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
     'No quotes available'
   )
-  const isCapacityExceededError = fetchQuoteDataErrorMessage?.includes(
-    'Amount is higher than the available liquidity'
-  )
+  const isCapacityExceededError =
+    fetchQuoteDataErrorMessage?.includes(
+      'Amount is higher than the available liquidity'
+    ) || fetchQuoteDataErrorMessage?.includes('Insufficient relayer liquidity')
   const isCouldNotExecuteError =
     fetchQuoteDataErrorMessage?.includes('Could not execute')
   const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
