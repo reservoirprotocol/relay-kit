@@ -112,6 +112,12 @@ export const themeOverrides: ThemeOverridesMap = {
       background: '--relay-colors-widget-card-background',
       borderRadius: '--relay-radii-widget-card-border-radius'
     },
+    selector: {
+      background: '--relay-colors-widget-selector-background',
+      hover: {
+        background: '--relay-colors-widget-selector-hover-background'
+      }
+    },
     swapCurrencyButtonBorderColor: '--widget-swap-currency-button-border-color'
   },
   modal: {
