@@ -44,6 +44,7 @@ type ReviewQuoteProps = {
   address?: Address | string
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  useExternalLiquidity?: boolean
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -62,7 +63,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   toAmountFormatted,
   address,
   linkedWallets,
-  multiWalletSupportEnabled
+  multiWalletSupportEnabled,
+  useExternalLiquidity
 }) => {
   const client = useRelayClient()
   const details = quote?.details
@@ -354,6 +356,29 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                 item.value
               )}
             </Flex>
+            {item.title === 'Estimated Time' &&
+            useExternalLiquidity &&
+            timeEstimate.time > 86400 ? (
+              <Flex
+                align="center"
+                css={{
+                  gap: '2',
+                  py: '2',
+                  px: '3',
+                  backgroundColor: 'red2',
+                  borderRadius: 12,
+                  mb: '3'
+                }}
+              >
+                <Box css={{ color: 'red9' }}>
+                  <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+                </Box>
+                <Text style="subtitle3" css={{ color: 'amber12' }}>
+                  Unexpected delays may occur when using the native bridge
+                  route.
+                </Text>
+              </Flex>
+            ) : null}
           </React.Fragment>
         ))}
       </Flex>
