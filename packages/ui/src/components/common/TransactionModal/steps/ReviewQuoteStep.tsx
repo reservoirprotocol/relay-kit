@@ -356,7 +356,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                 item.value
               )}
             </Flex>
-            {item.title === 'Estimated Time' &&
+            {item.title === 'Estimated time' &&
             useExternalLiquidity &&
             timeEstimate.time > 86400 ? (
               <Flex
@@ -365,17 +365,17 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                   gap: '2',
                   py: '2',
                   px: '3',
-                  backgroundColor: 'red2',
-                  borderRadius: 12,
-                  mb: '3'
+                  backgroundColor: 'amber2',
+                  borderRadius: 12
                 }}
               >
-                <Box css={{ color: 'red9' }}>
+                <Box css={{ color: 'amber9' }}>
                   <FontAwesomeIcon icon={faExclamationCircle} width={16} />
                 </Box>
                 <Text style="subtitle3" css={{ color: 'amber12' }}>
-                  Unexpected delays may occur when using the native bridge
-                  route.
+                  Native bridge routes are expected to take{' '}
+                  {timeEstimate.formattedTime} but could be longer due to
+                  unexpected delays
                 </Text>
               </Flex>
             ) : null}
