@@ -189,7 +189,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   feeBreakdown,
   quoteUpdatedAt,
   linkedWallets,
-  multiWalletSupportEnabled
+  multiWalletSupportEnabled,
+  useExternalLiquidity
 }) => {
   useEffect(() => {
     if (!open) {
@@ -271,6 +272,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             address={address}
             linkedWallets={linkedWallets}
             multiWalletSupportEnabled={multiWalletSupportEnabled}
+            useExternalLiquidity={useExternalLiquidity}
           />
         ) : null}
 
