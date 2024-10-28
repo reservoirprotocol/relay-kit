@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.8
+
+### Patch Changes
+
+- 742a49a: Double time estimate for bitcoin
+
 ## 2.2.7
 
 ### Patch Changes
