@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.6
+
+### Patch Changes
+
+- a1e9418: Add disclaimer messaging in confirmation modal with long canonical relays
+- bd1ec82: Add widget selector theme variable
+- b68e6c1: Fix 0 price impact
+
 ## 2.2.5
 
 ### Patch Changes
