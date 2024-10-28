@@ -234,6 +234,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         ? {
             tokens: suggestedTokenQuery,
             limit: 20
+            // chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
+            // defaultList: useDefaultTokenList
           }
         : undefined,
       {

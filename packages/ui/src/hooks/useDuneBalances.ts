@@ -40,9 +40,9 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all`
+      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all&exclude_spam_tokens=true`
       if (isSvmAddress) {
-        url = `https://api.dune.com/api/beta/balance/solana/${address}?chain_ids=all`
+        url = `https://api.dune.com/api/beta/balance/solana/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       return fetch(url, {
@@ -98,24 +98,21 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
     }
   })
 
-  const balanceMap = response.data?.balances?.reduce(
-    (balanceMap, balance) => {
-      if (balance.address === 'native') {
-        balance.address =
-          balance.chain === 'solana'
-            ? '11111111111111111111111111111111'
-            : zeroAddress
-      }
-      let chainId = balance.chain_id
-      if (!chainId && balance.chain === 'solana') {
-        chainId = solana.id
-      }
+  const balanceMap = response.data?.balances?.reduce((balanceMap, balance) => {
+    if (balance.address === 'native') {
+      balance.address =
+        balance.chain === 'solana'
+          ? '11111111111111111111111111111111'
+          : zeroAddress
+    }
+    let chainId = balance.chain_id
+    if (!chainId && balance.chain === 'solana') {
+      chainId = solana.id
+    }
 
-      balanceMap[`${chainId}:${balance.address}`] = balance
-      return balanceMap
-    },
-    {} as Record<string, DuneBalanceResponse['balances'][0]>
-  )
+    balanceMap[`${chainId}:${balance.address}`] = balance
+    return balanceMap
+  }, {} as Record<string, DuneBalanceResponse['balances'][0]>)
 
   return { ...response, balanceMap, queryKey } as ReturnType<QueryType> & {
     balanceMap: typeof balanceMap
