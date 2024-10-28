@@ -548,7 +548,7 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
             src={currencyList?.chains?.[0].metadata?.logoURI ?? ''}
             width={32}
             height={32}
-            style={{ borderRadius: 9999 }}
+            style={{ borderRadius: 9999, overflow: 'hidden' }}
           />
         )}
         <Flex direction="column" align="start" css={{ gap: '2px' }}>
@@ -562,7 +562,7 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
             {currencyList?.chains?.[0]?.name}
           </Text>
           <Flex align="center" css={{ gap: '1' }}>
-            <Text style="body3" color="subtle" ellipsify css={{ maxWidth: 40 }}>
+            <Text style="body3" color="subtle" ellipsify css={{ maxWidth: 70 }}>
               {currencyList?.chains?.[0]?.symbol}
             </Text>
             {isSingleChainCurrency ? (
