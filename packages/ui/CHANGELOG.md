@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.7
+
+### Patch Changes
+
+- 87b0bca: Make selector theme optional
+
 ## 2.2.6
 
 ### Patch Changes
