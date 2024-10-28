@@ -190,7 +190,6 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   gap: '1',
                   height: '100%',
                   overflowY: 'auto',
-                  scrollSnapType: 'y mandatory',
                   scrollPaddingTop: '40px'
                 }}
               >
@@ -335,7 +334,6 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               gap: '1',
               height: '100%',
               overflowY: 'auto',
-              scrollSnapType: 'y mandatory',
               scrollPaddingTop: '40px'
             }}
           >
@@ -499,6 +497,7 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
 
     const isSingleChainCurrency = currencyList?.chains?.length === 1
     const isVerified = currencyList?.chains?.[0].metadata?.verified
+    const chain = currencyList?.chains?.[0]?.relayChain
 
     return (
       <Button
@@ -563,13 +562,25 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
             {currencyList?.chains?.[0]?.name}
           </Text>
           <Flex align="center" css={{ gap: '1' }}>
-            <Text style="subtitle3" color="subtle">
+            <Text style="body3" color="subtle" ellipsify css={{ maxWidth: 40 }}>
               {currencyList?.chains?.[0]?.symbol}
             </Text>
             {isSingleChainCurrency ? (
-              <Text style="subtitle3" color="subtle">
-                {truncateAddress(currencyList?.chains?.[0].address)}
-              </Text>
+              <a
+                target="_blank"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.open(
+                    `${chain?.explorerUrl}/address/${currencyList?.chains?.[0].address}`,
+                    '_blank'
+                  )
+                }}
+              >
+                <Text style="body3" color="subtle">
+                  {truncateAddress(currencyList?.chains?.[0].address)}
+                </Text>
+              </a>
             ) : null}
 
             {!isVerified ? (
