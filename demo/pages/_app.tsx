@@ -108,52 +108,60 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           //   }
           // ]
         }}
-        theme={{
-          // primaryColor: 'red',
-          // anchor: {
-          //   color: 'red'
-          // }
-          // focusColor: 'green',
-          // subtleBorderColor: 'green',
-          // text: {
-          //   default: 'red',
-          //   subtle: 'purple'
-          // },
-          // input: {
-          //   background: 'red'
-          // },
-          // buttons: {
-          //   tertiary: {
-          //     background: 'orange',
-          //     color: 'red',
-          //     hover: {
-          //       color: 'blue',
-          //       background: 'purple'
-          //     }
-          //   },
-          //   disabled: {
-          //     background: 'green',
-          //     color: 'red'
-          //   }
-          // },
-          widget: {
-            // boxShadow:
-            //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
-            // background: 'pink',
-            // borderRadius: '0px',
-            // border: '2px solid orange',
-            // card: {
-            //   background: 'pink'
-            // }
-          }
-          // modal: {
-          //   background: 'orange'
-          // },
-          // dropdown: {
-          //   background: 'red',
-          //   borderRadius: '0px'
-          // }
-        }}
+        // theme={
+        //   {
+        // primaryColor: 'red',
+        // anchor: {
+        //   color: 'red'
+        // }
+        // focusColor: 'green',
+        // subtleBorderColor: 'green',
+        // text: {
+        //   default: 'red',
+        //   subtle: 'purple'
+        // },
+        // input: {
+        //   background: 'red'
+        // },
+        // buttons: {
+        //   tertiary: {
+        //     background: 'orange',
+        //     color: 'red',
+        //     hover: {
+        //       color: 'blue',
+        //       background: 'purple'
+        //     }
+        //   },
+        //   disabled: {
+        //     background: 'green',
+        //     color: 'red'
+        //   }
+        // },
+        // widget: {
+        // boxShadow:
+        //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
+        // background: 'pink',
+        // borderRadius: '0px',
+        // border: '2px solid orange',
+        // card: {
+        //   background: 'pink'
+        // }
+        // selector: {
+        //   background: 'red',
+        //   hover: {
+        //     background: 'green'
+        //   }
+        // }
+        // }
+        // modal: {
+        //   background: 'orange'
+        // },
+        // dropdown: {
+        //   background: 'red',
+        //   borderRadius: '0px'
+        // }
+        //   }
+        // }
       >
         <DynamicContextProvider
           settings={{

@@ -33,13 +33,13 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
         overflow: 'hidden',
         px: '3',
         py: '2',
-        backgroundColor: 'gray2',
+        backgroundColor: 'widget-selector-background',
         border: 'none',
         _hover: {
-          backgroundColor: 'gray3'
+          backgroundColor: 'widget-selector-hover-background'
         },
         _disabled: {
-          backgroundColor: 'gray2'
+          backgroundColor: 'widget-selector-background'
         }
       }}
     >

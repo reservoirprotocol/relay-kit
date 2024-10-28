@@ -216,6 +216,10 @@ export default defineConfig({
           value: { base: 'white', _dark: '{colors.gray.1}' }
         },
         'widget-card-background': { value: { base: '{colors.gray.1}' } },
+        'widget-selector-background': { value: { base: '{colors.gray.2}' } },
+        'widget-selector-hover-background': {
+          value: { base: '{colors.gray.3}' }
+        },
         'widget-swap-currency-button-border-color': {
           value: { base: '{colors.primary3}' }
         },
