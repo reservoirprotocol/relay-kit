@@ -228,7 +228,7 @@ export const calculatePriceTimeEstimate = (
     details?.currencyOut?.currency?.chainId === bitcoin.id
 
   //If the relay is interacting with bitcoin we hardcode the time estime to 10m
-  const time = isBitcoin ? 600 : details?.timeEstimate ?? 0
+  const time = isBitcoin ? 1200 : details?.timeEstimate ?? 0
   const formattedTime = formatSeconds(time)
 
   return {
