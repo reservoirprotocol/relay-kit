@@ -55,9 +55,9 @@ export interface RelayKitTheme {
       background?: string
       borderRadius?: string
     }
-    selector: {
+    selector?: {
       background?: string
-      hover: {
+      hover?: {
         background?: string
       }
     }
