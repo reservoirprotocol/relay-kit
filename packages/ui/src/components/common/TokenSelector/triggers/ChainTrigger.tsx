@@ -35,10 +35,10 @@ export const ChainTrigger: FC<ChainTriggerProps> = ({
         borderRadius: '8px',
         width: '100%',
         height: 48,
-        backgroundColor: 'gray2',
+        backgroundColor: 'widget-selector-background',
         pointerEvents: locked ? 'none' : 'all',
         _hover: {
-          backgroundColor: 'gray3'
+          backgroundColor: 'widget-selector-hover-background'
         }
       }}
     >
