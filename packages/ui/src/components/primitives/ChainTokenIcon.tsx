@@ -29,6 +29,7 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
           height={32}
           style={{
             borderRadius: 9999,
+            overflow: 'hidden',
             width: 32,
             height: 32
           }}
