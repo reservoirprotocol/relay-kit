@@ -19,8 +19,7 @@ import {
   faClock,
   faExclamationCircle,
   faGasPump,
-  faInfoCircle,
-  faTriangleExclamation
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import type { ChildrenProps } from '../TransactionModalRenderer.js'
 import { PriceImpactTooltip } from '../../../widgets/PriceImpactTooltip.js'

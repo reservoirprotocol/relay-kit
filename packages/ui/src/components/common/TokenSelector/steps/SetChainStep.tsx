@@ -12,6 +12,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChevronLeft,
+  faExclamationTriangle,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../../utils/truncate.js'
@@ -27,6 +28,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { solana } from '../../../../utils/solana.js'
+import { getRelayUiKitData } from '../../../../utils/localStorage.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 
 type SetChainStepProps = {
@@ -37,6 +39,8 @@ type SetChainStepProps = {
   multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
+  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
+  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   chainSearchInput: string
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
@@ -76,6 +80,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
+  setUnverifiedToken,
+  setUnverifiedTokenModalOpen,
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
@@ -165,10 +171,27 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                 : {
                     ...chain.relayChain.currency,
                     metadata: {
-                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`
+                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                      verified: true
                     }
                   }
-              selectToken(token, chain.id)
+
+              const isVerified = token?.metadata?.verified
+              if (!isVerified) {
+                const relayUiKitData = getRelayUiKitData()
+                const tokenKey = `${chain.id}:${token.address}`
+                const isAlreadyAccepted =
+                  relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
+
+                if (isAlreadyAccepted) {
+                  selectToken(token, chain.id)
+                } else {
+                  setUnverifiedToken(token as Token)
+                  setUnverifiedTokenModalOpen(true)
+                }
+              } else {
+                selectToken(token, chain.id)
+              }
             }
           }
         }}
@@ -182,7 +205,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           pb: '2',
           gap: isDesktop ? '0' : '2',
           width: '100%',
-          scrollSnapType: 'y mandatory',
           scrollPaddingTop: '40px'
         }}
       >
@@ -225,12 +247,28 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         </AccessibleListItem>
 
         {filteredChains?.map((chain) => {
+          const isSupported = chain.isSupported
+          const token = isSupported
+            ? {
+                ...chain.currency,
+                logoURI: chain.currency?.metadata?.logoURI
+              }
+            : {
+                ...chain.relayChain.currency,
+                logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                metadata: {
+                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                  verified: true
+                }
+              }
+
           const decimals = chain?.currency?.balance?.decimals ?? 18
           const compactBalance = Boolean(
             chain?.currency?.balance?.amount &&
               decimals &&
               chain?.currency.balance.amount.toString().length - decimals > 4
           )
+          const isVerified = token?.metadata?.verified
 
           return (
             <AccessibleListItem
@@ -270,21 +308,32 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   }
                 }}
               >
-                <ChainIcon
-                  chainId={chain.id}
-                  width={24}
-                  height={24}
-                  css={{ borderRadius: 4, overflow: 'hidden' }}
-                />
-                <Flex direction="column" align="start">
-                  <Text style="subtitle1">{chain.displayName}</Text>
-
-                  {type === 'token' ? (
-                    <Text style="subtitle3" color="subtle">
-                      {truncateAddress(chain?.currency?.address)}
-                    </Text>
+                <Flex css={{ gap: '2', alignItems: 'center' }}>
+                  <ChainIcon
+                    chainId={chain.id}
+                    width={24}
+                    height={24}
+                    css={{ borderRadius: 4, overflow: 'hidden' }}
+                  />
+                  <Flex direction="column" align="start">
+                    <Text style="subtitle1">{chain.displayName}</Text>
+                    {type === 'token' ? (
+                      <Text style="subtitle3" color="subtle">
+                        {truncateAddress(chain?.currency?.address)}
+                      </Text>
+                    ) : null}
+                  </Flex>
+                  {!isVerified ? (
+                    <Box css={{ color: 'gray8' }}>
+                      <FontAwesomeIcon
+                        icon={faExclamationTriangle}
+                        width={14}
+                        height={14}
+                      />
+                    </Box>
                   ) : null}
                 </Flex>
+
                 {chain?.currency?.balance?.amount ? (
                   <Text css={{ ml: 'auto' }} style="subtitle3" color="subtle">
                     {formatBN(
