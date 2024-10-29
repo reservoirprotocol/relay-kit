@@ -290,7 +290,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               <ChainTokenIcon
                 chainId={fromToken.chainId}
                 tokenlogoURI={fromToken.logoURI}
-                css={{ height: 20, width: 20 }}
+                css={{ height: 32, width: 32 }}
               />
               <Text style="subtitle1" ellipsify>
                 {fromAmountFormatted} {fromToken.symbol}
@@ -310,7 +310,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               <ChainTokenIcon
                 chainId={toToken.chainId}
                 tokenlogoURI={toToken.logoURI}
-                css={{ height: 20, width: 20 }}
+                css={{ height: 32, width: 32 }}
               />
               <Text style="subtitle1" ellipsify>
                 {toAmountFormatted} {toToken.symbol}
