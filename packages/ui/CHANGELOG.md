@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.9
+
+### Patch Changes
+
+- 631f997: Add support for unverified tokens
+- e8681aa: Display pending balance when bitcoin tx is inflight
+- 73525f1: Remove logic to prefill address with connected address in custom address modal
+- Updated dependencies [631f997]
+  - @reservoir0x/relay-sdk@1.4.2
+  - @reservoir0x/relay-kit-hooks@1.4.3
+
 ## 2.2.8
 
 ### Patch Changes
