@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.2
+
+### Patch Changes
+
+- 631f997: Add support for unverified tokens
+
 ## 1.4.1
 
 ### Patch Changes
