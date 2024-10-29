@@ -54,7 +54,7 @@ export type TokenSelectorProps = {
 export type EnhancedCurrencyList = {
   chains: (CurrencyList[number] & {
     relayChain: RelayChain
-    balance?: DuneBalanceResponse['balances'][0]
+    balance?: NonNullable<DuneBalanceResponse>['balances'][0]
   })[]
   totalValueUsd?: number
   totalBalance?: bigint

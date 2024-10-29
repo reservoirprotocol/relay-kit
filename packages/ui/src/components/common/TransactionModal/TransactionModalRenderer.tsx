@@ -203,6 +203,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       })
     },
     {
+      staleTime: 10000,
       enabled: Boolean(
         open &&
           progressStep === TransactionProgressStep.ReviewQuote &&

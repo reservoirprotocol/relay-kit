@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.1
+
+### Patch Changes
+
+- 6237949: Fix bugs with bitcoin implementation
+
 ## 1.4.0
 
 ### Minor Changes

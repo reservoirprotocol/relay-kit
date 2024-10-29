@@ -1,5 +1,61 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.8
+
+### Patch Changes
+
+- 742a49a: Double time estimate for bitcoin
+
+## 2.2.7
+
+### Patch Changes
+
+- 87b0bca: Make selector theme optional
+
+## 2.2.6
+
+### Patch Changes
+
+- a1e9418: Add disclaimer messaging in confirmation modal with long canonical relays
+- bd1ec82: Add widget selector theme variable
+- b68e6c1: Fix 0 price impact
+
+## 2.2.5
+
+### Patch Changes
+
+- 47c6c04: Fix parallel quoting when quote returns errror but price does not
+- fc902d3: Remove stroke from route selector when focused
+
+## 2.2.4
+
+### Patch Changes
+
+- 321a64e: Fix double route ui issue where price error shows up alongside valid quote data
+
+## 2.2.3
+
+### Patch Changes
+
+- 104fe18: Expand bitcoin address validation to taproot and base58
+
+## 2.2.2
+
+### Patch Changes
+
+- f18951c: Fetch price and quote in parallel to improve price accuracy in SwapWidget
+- Updated dependencies [f18951c]
+  - @reservoir0x/relay-kit-hooks@1.4.2
+
+## 2.2.1
+
+### Patch Changes
+
+- 6237949: Fix bugs with bitcoin implementation
+- Updated dependencies [6237949]
+  - @reservoir0x/relay-sdk@1.4.1
+  - @reservoir0x/relay-kit-hooks@1.4.1
+
 ## 2.2.0
 
 ### Minor Changes

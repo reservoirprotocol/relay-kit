@@ -55,6 +55,12 @@ export interface RelayKitTheme {
       background?: string
       borderRadius?: string
     }
+    selector?: {
+      background?: string
+      hover?: {
+        background?: string
+      }
+    }
     swapCurrencyButtonBorderColor?: string
   }
   modal?: {
@@ -132,6 +138,12 @@ export const defaultTheme: RelayKitTheme = {
     card: {
       background: 'gray1',
       borderRadius: '12px'
+    },
+    selector: {
+      background: 'gray2',
+      hover: {
+        background: 'gray3'
+      }
     },
     swapCurrencyButtonBorderColor: 'primary3'
   },
