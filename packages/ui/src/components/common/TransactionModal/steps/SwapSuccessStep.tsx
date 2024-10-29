@@ -285,7 +285,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           {fromToken ? (
             <Pill
               color="gray"
-              css={{ align: 'center', py: '2', px: '3', gap: '2' }}
+              css={{ alignItems: 'center', py: '2', px: '3', gap: '2' }}
             >
               <ChainTokenIcon
                 chainId={fromToken.chainId}
