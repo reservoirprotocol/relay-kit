@@ -25,7 +25,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { formatBN, formatDollar } from '../../../../utils/numbers.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
-import { LoadingSpinner } from '../../LoadingSpinner.js'
 import type { EnhancedCurrencyList } from '../TokenSelector.js'
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import ChainFilter, { type ChainFilterValue } from '../../ChainFilter.js'
@@ -408,13 +407,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                       <AccessibleListItem key={idx} value={value} asChild>
                         <CurrencyRow
                           currencyList={list as EnhancedCurrencyList}
-                          setCurrencyList={setCurrencyList}
-                          selectToken={selectToken}
                           isLoadingDuneBalances={isLoadingDuneBalances}
-                          setUnverifiedToken={setUnverifiedToken}
-                          setUnverifiedTokenModalOpen={
-                            setUnverifiedTokenModalOpen
-                          }
+                          handleCurrencySelection={handleCurrencySelection}
                         />
                       </AccessibleListItem>
                     )
@@ -465,24 +459,13 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
 
 type CurrencyRowProps = {
   currencyList: EnhancedCurrencyList
-  setCurrencyList: (currencyList: EnhancedCurrencyList) => void
-  selectToken: (currency: Currency, chainId?: number) => void
-  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
   isLoadingDuneBalances: boolean
+  handleCurrencySelection: (currencyList: EnhancedCurrencyList) => void
 }
 
 const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
   (
-    {
-      currencyList,
-      setCurrencyList,
-      selectToken,
-      isLoadingDuneBalances,
-      setUnverifiedToken,
-      setUnverifiedTokenModalOpen,
-      ...props
-    },
+    { currencyList, isLoadingDuneBalances, handleCurrencySelection, ...props },
     ref
   ) => {
     const totalValueUsd = currencyList.totalValueUsd
@@ -497,7 +480,6 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
 
     const isSingleChainCurrency = currencyList?.chains?.length === 1
     const isVerified = currencyList?.chains?.[0].metadata?.verified
-    const chain = currencyList?.chains?.[0]?.relayChain
 
     return (
       <Button
@@ -532,6 +514,9 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
           scrollSnapAlign: 'start'
         }}
         {...props}
+        onClick={() => {
+          handleCurrencySelection(currencyList)
+        }}
       >
         {isSingleChainCurrency ? (
           <ChainTokenIcon
@@ -566,29 +551,17 @@ const CurrencyRow = forwardRef<HTMLButtonElement, CurrencyRowProps>(
               {currencyList?.chains?.[0]?.symbol}
             </Text>
             {isSingleChainCurrency ? (
-              <a
-                target="_blank"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  window.open(
-                    `${chain?.explorerUrl}/address/${currencyList?.chains?.[0].address}`,
-                    '_blank'
-                  )
-                }}
-              >
-                <Text style="body3" color="subtle">
-                  {truncateAddress(currencyList?.chains?.[0].address)}
-                </Text>
-              </a>
+              <Text style="body3" color="subtle">
+                {truncateAddress(currencyList?.chains?.[0].address)}
+              </Text>
             ) : null}
 
             {!isVerified ? (
               <Box css={{ color: 'gray8' }}>
                 <FontAwesomeIcon
                   icon={faExclamationTriangle}
-                  width={16}
-                  height={16}
+                  width={14}
+                  height={14}
                 />
               </Box>
             ) : null}

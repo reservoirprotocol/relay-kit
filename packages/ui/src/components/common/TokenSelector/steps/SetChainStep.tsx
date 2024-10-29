@@ -327,8 +327,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                     <Box css={{ color: 'gray8' }}>
                       <FontAwesomeIcon
                         icon={faExclamationTriangle}
-                        width={16}
-                        height={16}
+                        width={14}
+                        height={14}
                       />
                     </Box>
                   ) : null}
