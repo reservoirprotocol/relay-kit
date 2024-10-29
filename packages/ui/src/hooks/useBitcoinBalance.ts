@@ -23,16 +23,21 @@ type MempoolStats = {
 }
 
 // Define the main type that includes address, chain_stats, and mempool_stats
-type BitcoinBalanceResponse = {
+type MempoolResponse = {
   address: string
   chain_stats: ChainStats
   mempool_stats: MempoolStats
 }
 
+type BitcoinBalanceResponse = {
+  balance: bigint
+  pendingBalance: bigint
+}
+
 type QueryType = typeof useQuery<
-  bigint | undefined,
+  BitcoinBalanceResponse | undefined,
   DefaultError,
-  bigint | undefined,
+  BitcoinBalanceResponse | undefined,
   QueryKey
 >
 type QueryOptions = Parameters<QueryType>['0']
@@ -50,14 +55,18 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
         .then((response) => response.json())
         .then((response) => {
           let balance = BigInt(0)
+          let inflightTxo = BigInt(0)
           if (response) {
-            const balanceResponse = response as BitcoinBalanceResponse
+            const balanceResponse = response as MempoolResponse
             const fundedTxo = balanceResponse.chain_stats.funded_txo_sum
             const spentTxo = balanceResponse.chain_stats.spent_txo_sum
-            const inflightTxo = balanceResponse.mempool_stats.spent_txo_sum
-            balance = BigInt(fundedTxo) - BigInt(spentTxo) - BigInt(inflightTxo)
+            inflightTxo = BigInt(balanceResponse.mempool_stats.spent_txo_sum)
+            balance = BigInt(fundedTxo) - BigInt(spentTxo) - inflightTxo
           }
-          return balance
+          return {
+            balance,
+            pendingBalance: inflightTxo
+          }
         })
     },
     enabled: address !== undefined && providerOptions.duneApiKey !== undefined,

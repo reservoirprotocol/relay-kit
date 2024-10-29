@@ -28,6 +28,7 @@ type UseCurrencyBalanceData = {
   isError: boolean | GetBalanceErrorType | null
   error: boolean | ReadContractErrorType | Error | null
   isDuneBalance: boolean
+  hasPendingBalance?: boolean
 }
 
 // Handle fetching the balance of both native eth and erc20s
@@ -147,7 +148,12 @@ const useCurrencyBalance = ({
         isLoading: bitcoinBalances.isLoading,
         isError: bitcoinBalances.isError,
         error: bitcoinBalances.error,
-        isDuneBalance: false
+        isDuneBalance: false,
+        hasPendingBalance:
+          bitcoinBalances.data?.pendingBalance &&
+          bitcoinBalances.data?.pendingBalance > 0n
+            ? true
+            : false
       }
     } else {
       return {
@@ -156,7 +162,8 @@ const useCurrencyBalance = ({
         isLoading: bitcoinBalances.isLoading,
         isError: bitcoinBalances.isError,
         error: bitcoinBalances.error,
-        isDuneBalance: false
+        isDuneBalance: false,
+        hasPendingBalance: false
       }
     }
   } else {

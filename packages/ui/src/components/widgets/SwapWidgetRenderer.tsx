@@ -93,7 +93,9 @@ export type ChildrenProps = {
   setAmountOutputValue: (value: string) => void
   debouncedAmountOutputControls: DebouncedState<(value: string) => void>
   toBalance?: bigint
+  toBalancePending?: boolean
   fromBalance?: bigint
+  fromBalancePending?: boolean
   isFetchingPrice: boolean
   isLoadingToBalance: boolean
   isLoadingFromBalance: boolean
@@ -228,7 +230,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     queryKey: fromBalanceQueryKey,
     isLoading: isLoadingFromBalance,
     isError: fromBalanceErrorFetching,
-    isDuneBalance: fromBalanceIsDune
+    isDuneBalance: fromBalanceIsDune,
+    hasPendingBalance: fromBalancePending
   } = useCurrencyBalance({
     chain: fromChain,
     address: address,
@@ -240,7 +243,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     value: toBalance,
     queryKey: toBalanceQueryKey,
     isLoading: isLoadingToBalance,
-    isDuneBalance: toBalanceIsDune
+    isDuneBalance: toBalanceIsDune,
+    hasPendingBalance: toBalancePending
   } = useCurrencyBalance({
     chain: toChain,
     address: recipient,
@@ -650,10 +654,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         debouncedAmountOutputControls,
         setAmountOutputValue,
         toBalance,
+        toBalancePending,
         isLoadingToBalance,
         isFetchingPrice,
         isLoadingFromBalance,
         fromBalance,
+        fromBalancePending,
         highRelayerServiceFee,
         relayerFeeProportion,
         hasInsufficientBalance,
