@@ -70,7 +70,7 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
             <FontAwesomeIcon icon={faCoins} width={12} height={12} />
           </Box>
         )}
-        <Text style="subtitle1" ellipsify>
+        <Text style="subtitle1" ellipsify css={{ maxWidth: 100 }}>
           {token.symbol}
         </Text>
       </Flex>
