@@ -71,9 +71,13 @@ export const WidgetErrorWell: FC<Props> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'amber12' }}>
-            Due to high demand, only {maxCapacity} {currency.symbol} can be
+            {maxCapacity
+              ? `Due to high demand, only ${maxCapacity} ${currency.symbol} can be
             bridged instantly. Set to max instant capacity or switch to the
-            native route for unlimited capacity.
+            native route for unlimited capacity.`
+              : `Due to high demand the input amount can only be
+            bridged natively. Reduce the amount to bridge instantly or switch to the
+            native route for unlimited capacity.`}
           </Text>
         </Flex>
       )
@@ -120,7 +124,9 @@ export const WidgetErrorWell: FC<Props> = ({
           </Box>
           <Text style="subtitle3" css={{ color: 'red12' }}>
             {isCapacityExceededError
-              ? `Amount is higher than the available liquidity. Max amount is ${maxCapacity} ${currency?.symbol}`
+              ? maxCapacity
+                ? `Amount is higher than the available liquidity. Max amount is ${maxCapacity} ${currency?.symbol}`
+                : `Amount is higher than the available liquidity.`
               : fetchQuoteErrorMessage}
           </Text>
         </Flex>
