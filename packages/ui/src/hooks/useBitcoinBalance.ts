@@ -75,7 +75,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
 
   return {
     ...response,
-    balance: response.data,
+    balance: response.data?.balance,
     queryKey
   } as ReturnType<QueryType> & {
     balance: bigint | undefined

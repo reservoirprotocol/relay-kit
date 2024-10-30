@@ -326,7 +326,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
           destinationCurrency: toToken.address,
-          recipient: getDeadAddress(fromChain?.vmType),
+          recipient: getDeadAddress(toChain?.vmType),
           tradeType,
           appFees: providerOptionsContext.appFees,
           amount: '10000000000000000000000', //Hardcode an extremely high number
