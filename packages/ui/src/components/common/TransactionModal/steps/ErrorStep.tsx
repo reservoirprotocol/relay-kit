@@ -23,12 +23,14 @@ import {
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 type ErrorStepProps = {
   error?: Error | null
   address?: Address | string
   allTxHashes: TxHashes
   transaction?: ReturnType<typeof useRequests>['data']['0']
+  fromChain?: RelayChain
   onOpenChange: (open: boolean) => void
 }
 
@@ -37,6 +39,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
   address,
   allTxHashes,
   transaction,
+  fromChain,
   onOpenChange
 }) => {
   const errorMessage = transaction?.data?.failReason ?? error?.message
@@ -127,7 +130,11 @@ export const ErrorStep: FC<ErrorStepProps> = ({
             : `It looks like an unknown issue occurred during the transaction. We apologize for the inconvenience, a refund has been sent to your wallet address.`}
         </Text>
       ) : (
-        <ErrorWell error={mergedError} hasTxHashes={hasTxHashes} />
+        <ErrorWell
+          error={mergedError}
+          hasTxHashes={hasTxHashes}
+          fromChain={fromChain}
+        />
       )}
       {depositTx || fillTx ? (
         <>
