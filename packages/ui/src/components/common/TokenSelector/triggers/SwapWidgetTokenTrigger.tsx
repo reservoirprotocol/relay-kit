@@ -60,8 +60,8 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
               width: 20,
               height: 20,
               borderRadius: '50%',
-              backgroundColor: 'gray2',
-              color: 'gray9',
+              backgroundColor: 'primary4',
+              color: 'primary8',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
