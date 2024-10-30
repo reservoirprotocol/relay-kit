@@ -39,8 +39,6 @@ type SetChainStepProps = {
   multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
-  setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
-  setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   chainSearchInput: string
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
@@ -80,8 +78,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
-  setUnverifiedToken,
-  setUnverifiedTokenModalOpen,
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
@@ -166,32 +162,17 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               (chain) => chain.id.toString() === value
             )
             if (chain) {
-              const token = chain.isSupported
-                ? (chain.currency as Currency)
-                : {
-                    ...chain.relayChain.currency,
-                    metadata: {
-                      logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
-                      verified: true
+              const token =
+                chain.isSupported && chain.currency?.metadata?.verified
+                  ? (chain.currency as Currency)
+                  : {
+                      ...chain.relayChain.currency,
+                      metadata: {
+                        logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                        verified: true
+                      }
                     }
-                  }
-
-              const isVerified = token?.metadata?.verified
-              if (!isVerified) {
-                const relayUiKitData = getRelayUiKitData()
-                const tokenKey = `${chain.id}:${token.address}`
-                const isAlreadyAccepted =
-                  relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
-
-                if (isAlreadyAccepted) {
-                  selectToken(token, chain.id)
-                } else {
-                  setUnverifiedToken(token as Token)
-                  setUnverifiedTokenModalOpen(true)
-                }
-              } else {
-                selectToken(token, chain.id)
-              }
+              selectToken(token, chain.id)
             }
           }
         }}
@@ -268,7 +249,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               decimals &&
               chain?.currency.balance.amount.toString().length - decimals > 4
           )
-          const isVerified = token?.metadata?.verified
 
           return (
             <AccessibleListItem
@@ -323,15 +303,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                       </Text>
                     ) : null}
                   </Flex>
-                  {!isVerified ? (
-                    <Box css={{ color: 'gray8' }}>
-                      <FontAwesomeIcon
-                        icon={faExclamationTriangle}
-                        width={14}
-                        height={14}
-                      />
-                    </Box>
-                  ) : null}
                 </Flex>
 
                 {chain?.currency?.balance?.amount ? (
