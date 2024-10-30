@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.10
+
+### Patch Changes
+
+- 6c52029: Update unverified token modal to link out to block explorer's token page
+- 40aece0: Fix token selector trigger overflow
+- aceb483: Fix pending balance bug breaking ui
+
 ## 2.2.9
 
 ### Patch Changes
