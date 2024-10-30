@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.3
+
+### Patch Changes
+
+- 3dd7177: Update solana dead address
+
 ## 1.4.2
 
 ### Patch Changes
