@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.11
+
+### Patch Changes
+
+- f9b6975: Remove support for setting unverified tokens from the chain selector
+- 5745538: Update token uri fallback styling
+
 ## 2.2.10
 
 ### Patch Changes
