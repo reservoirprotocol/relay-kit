@@ -35,6 +35,7 @@ type ReviewQuoteProps = {
   isFetchingQuote: boolean
   isRefetchingQuote: boolean
   waitingForSteps?: boolean
+  isExecuting?: boolean
   swap?: () => void
   quoteUpdatedAt: number
   feeBreakdown: ChildrenProps['feeBreakdown']

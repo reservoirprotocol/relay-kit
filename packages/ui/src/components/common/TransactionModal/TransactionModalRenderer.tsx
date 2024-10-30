@@ -230,6 +230,52 @@ export const TransactionModalRenderer: FC<Props> = ({
   )
 
   const swap = useCallback(async () => {
+    const swapErrorHandler = (error: any) => {
+      if (
+        error &&
+        ((typeof error.message === 'string' &&
+          error.message.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('rejected')))
+      ) {
+        onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
+        setProgressStep(TransactionProgressStep.ReviewQuote)
+        return
+      }
+
+      const errorMessage = error?.response?.data?.message
+        ? new Error(error?.response?.data?.message)
+        : error
+
+      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+        error_message: errorMessage,
+        wallet_connector: connector?.name,
+        quote_id: steps ? extractQuoteId(steps) : undefined,
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        is_canonical: useExternalLiquidity,
+        txHashes: steps
+          ?.map((step) => {
+            let txHashes: { chainId: number; txHash: string }[] = []
+            step.items?.forEach((item) => {
+              if (item.txHashes) {
+                txHashes = txHashes.concat([
+                  ...(item.txHashes ?? []),
+                  ...(item.internalTxHashes ?? [])
+                ])
+              }
+            })
+            return txHashes
+          })
+          .flat()
+      })
+      setSwapError(errorMessage)
+      onSwapError?.(errorMessage, quote as Execute)
+    }
+
     try {
       onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
       setWaitingForSteps(true)
@@ -258,83 +304,15 @@ export const TransactionModalRenderer: FC<Props> = ({
         setSteps(currentSteps)
       })
         ?.catch((error: any) => {
-          if (
-            error &&
-            ((typeof error.message === 'string' &&
-              error.message.includes('rejected')) ||
-              (typeof error === 'string' && error.includes('rejected')))
-          ) {
-            onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
-            setProgressStep(TransactionProgressStep.ReviewQuote)
-            return
-          }
-
-          const errorMessage = error?.response?.data?.message
-            ? new Error(error?.response?.data?.message)
-            : error
-
-          onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-            error_message: errorMessage,
-            wallet_connector: connector?.name,
-            quote_id: steps ? extractQuoteId(steps) : undefined,
-            amount_in: parseFloat(`${debouncedInputAmountValue}`),
-            currency_in: fromToken?.symbol,
-            chain_id_in: fromToken?.chainId,
-            amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-            currency_out: toToken?.symbol,
-            chain_id_out: toToken?.chainId,
-            is_canonical: useExternalLiquidity,
-            txHashes: steps
-              ?.map((step) => {
-                let txHashes: { chainId: number; txHash: string }[] = []
-                step.items?.forEach((item) => {
-                  if (item.txHashes) {
-                    txHashes = txHashes.concat([
-                      ...(item.txHashes ?? []),
-                      ...(item.internalTxHashes ?? [])
-                    ])
-                  }
-                })
-                return txHashes
-              })
-              .flat()
-          })
-          setSwapError(errorMessage)
-          onSwapError?.(errorMessage, quote as Execute)
+          swapErrorHandler(error)
         })
         .finally(() => {
           setWaitingForSteps(false)
           invalidateBalanceQueries()
         })
-    } catch (e) {
+    } catch (error: any) {
+      swapErrorHandler(error)
       setWaitingForSteps(false)
-      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-        error_message: e,
-        wallet_connector: connector?.name,
-        quote_id: steps ? extractQuoteId(steps) : undefined,
-        amount_in: parseFloat(`${debouncedInputAmountValue}`),
-        currency_in: fromToken?.symbol,
-        chain_id_in: fromToken?.chainId,
-        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-        currency_out: toToken?.symbol,
-        chain_id_out: toToken?.chainId,
-        is_canonical: useExternalLiquidity,
-        txHashes: steps
-          ?.map((step) => {
-            let txHashes: { chainId: number; txHash: string }[] = []
-            step.items?.forEach((item) => {
-              if (item.txHashes) {
-                txHashes = txHashes.concat([
-                  ...(item.txHashes ?? []),
-                  ...(item.internalTxHashes ?? [])
-                ])
-              }
-            })
-            return txHashes
-          })
-          .flat()
-      })
-      onSwapError?.(e as any, quote as Execute)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -351,6 +329,7 @@ export const TransactionModalRenderer: FC<Props> = ({
     debouncedOutputAmountValue,
     tradeType,
     useExternalLiquidity,
+    waitingForSteps,
     executeSwap,
     setSteps,
     invalidateBalanceQueries
