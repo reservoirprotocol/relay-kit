@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.12
+
+### Patch Changes
+
+- 3dd7177: Update solana dead address
+- Updated dependencies [3dd7177]
+  - @reservoir0x/relay-sdk@1.4.3
+  - @reservoir0x/relay-kit-hooks@1.4.4
+
 ## 2.2.11
 
 ### Patch Changes
