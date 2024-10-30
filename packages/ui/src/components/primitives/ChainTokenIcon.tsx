@@ -38,8 +38,8 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
             width: 32,
             height: 32,
             borderRadius: '50%',
-            backgroundColor: 'gray2',
-            color: 'gray9',
+            backgroundColor: 'primary4',
+            color: 'primary8',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
