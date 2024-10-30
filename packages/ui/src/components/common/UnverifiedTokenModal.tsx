@@ -101,7 +101,7 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
             <CopyToClipBoard text={token?.address ?? ''} />
 
             <Anchor
-              href={`${chain?.explorerUrl}/address/${token?.address}`}
+              href={`${chain?.explorerUrl}/token/${token?.address}`}
               target="_blank"
               css={{ height: '14px' }}
             >
