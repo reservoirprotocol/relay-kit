@@ -190,7 +190,9 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   quoteUpdatedAt,
   linkedWallets,
   multiWalletSupportEnabled,
-  useExternalLiquidity
+  useExternalLiquidity,
+  fromChain,
+  waitingForSteps
 }) => {
   useEffect(() => {
     if (!open) {
@@ -273,6 +275,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             linkedWallets={linkedWallets}
             multiWalletSupportEnabled={multiWalletSupportEnabled}
             useExternalLiquidity={useExternalLiquidity}
+            waitingForSteps={waitingForSteps}
           />
         ) : null}
 
@@ -313,6 +316,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             address={address}
             onOpenChange={onOpenChange}
             transaction={transaction}
+            fromChain={fromChain}
           />
         ) : null}
       </Flex>

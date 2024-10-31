@@ -124,7 +124,16 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           id: chainId
         })
         return
-      } catch (e) {
+      } catch (e: any) {
+        if (e && e?.message) {
+          if (e.message.includes('does not support the requested chain')) {
+            throw new Error('Wallet does not support chain')
+          } else if (e.message.includes('rejected')) {
+            throw e
+          } else if (e.message.includes('already pending')) {
+            return
+          }
+        }
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         if (!chain) {
