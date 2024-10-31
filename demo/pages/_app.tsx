@@ -29,6 +29,7 @@ import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { pipe } from '@dynamic-labs/utils'
+import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -170,7 +171,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletConnectors: [
               EthereumWalletConnectors,
               SolanaWalletConnectors,
-              BitcoinWalletConnectors
+              BitcoinWalletConnectors,
+              EclipseWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

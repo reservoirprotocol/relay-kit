@@ -167,6 +167,8 @@ const ChainWidgetPage: NextPage = () => {
               setWalletFilter('SOL')
             } else if (chain?.id === 8253038) {
               setWalletFilter('BTC')
+            } else if (chain?.id === 9286185) {
+              setWalletFilter('ECLIPSE')
             } else {
               setWalletFilter(undefined)
             }
