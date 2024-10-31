@@ -34,6 +34,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { EventNames } from '../../../../constants/events.js'
 import { getRelayUiKitData } from '../../../../utils/localStorage.js'
+import { SuggestedTokens } from '../SuggestedTokens.js'
 
 type SetCurrencyProps = {
   size: 'mobile' | 'desktop'
@@ -391,6 +392,19 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 />
               ) : null}
             </Flex>
+
+            {/* Suggested Tokens */}
+            {chainFilter.id && tokenSearchInput.length === 0 ? (
+              <>
+                <SuggestedTokens
+                  chainId={chainFilter.id}
+                  onSelect={selectToken}
+                />
+                <Text style="subtitle3" color="subtle">
+                  Popular Tokens
+                </Text>
+              </>
+            ) : null}
 
             {/* Data State */}
             {!isLoading &&
