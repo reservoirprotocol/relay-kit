@@ -3,7 +3,7 @@ import { Box, Button, Flex, Pill, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-import { type RelayChain } from '@reservoir0x/relay-sdk'
+import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
 
 type Props = {
   supportsExternalLiquidity: boolean
@@ -110,7 +110,7 @@ const SwapRouteSelector: FC<Props> = ({
           <img
             width="26"
             height="26"
-            src="https://assets.relay.link/icons/square/1357/light.png"
+            src={`${ASSETS_RELAY_API}/icons/square/1357/light.png`}
             style={{ borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}
           />
           <Flex direction="column">
