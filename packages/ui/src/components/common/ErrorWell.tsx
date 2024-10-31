@@ -23,7 +23,7 @@ const ErrorWell: React.FC<Props> = ({ error, hasTxHashes, fromChain }) => {
       error?.name &&
       error?.message?.includes('does not support chain')
     ) {
-      return `Your wallet does not support ${fromChain?.displayName}`
+      return `Your wallet does not support ${fromChain?.displayName ?? 'this chain'}`
     }
     if (!hasTxHashes) {
       return 'Oops, something went wrong while initiating the bridge. Your request was not submitted. Please try again.'
