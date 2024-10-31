@@ -322,6 +322,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                       : chain.address === value
                   )
                 )
+
                 if (selectedCurrency) {
                   handleCurrencySelection(selectedCurrency)
                 }
@@ -398,7 +399,9 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               <>
                 <SuggestedTokens
                   chainId={chainFilter.id}
-                  onSelect={selectToken}
+                  onSelect={(token) => {
+                    selectToken(token, token.chainId)
+                  }}
                 />
                 <Text style="subtitle3" color="subtle">
                   Popular Tokens
