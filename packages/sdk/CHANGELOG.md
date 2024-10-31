@@ -1,5 +1,29 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.3
+
+### Patch Changes
+
+- 3dd7177: Update solana dead address
+
+## 1.4.2
+
+### Patch Changes
+
+- 631f997: Add support for unverified tokens
+
+## 1.4.1
+
+### Patch Changes
+
+- 6237949: Fix bugs with bitcoin implementation
+
+## 1.4.0
+
+### Minor Changes
+
+- 07917f6: Bitcoin support
+
 ## 1.3.4
 
 ### Patch Changes

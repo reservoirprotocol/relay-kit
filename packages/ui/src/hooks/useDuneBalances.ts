@@ -6,9 +6,8 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { solana, solanaAddressRegex } from '../utils/solana.js'
-import { useRelayClient } from '../hooks/index.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { isSolanaAddress, solana } from '../utils/solana.js'
+import { isBitcoinAddress } from '../utils/bitcoin.js'
 
 export type DuneBalanceResponse = {
   request_time: string
@@ -24,7 +23,7 @@ export type DuneBalanceResponse = {
     price_usd?: number
     value_usd?: number
   }>
-}
+} | null
 
 type QueryType = typeof useQuery<
   DuneBalanceResponse,
@@ -37,15 +36,19 @@ type QueryOptions = Parameters<QueryType>['0']
 export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const providerOptions = useContext(ProviderOptionsContext)
   const queryKey = ['useDuneBalances', address]
-  const isSvmAddress = address && solanaAddressRegex.test(address)
-  const client = useRelayClient()
+  const isSvmAddress = isSolanaAddress(address ?? '')
+  const isBvmAddress = isBitcoinAddress(address ?? '')
 
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all`
+      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all&exclude_spam_tokens=true`
       if (isSvmAddress) {
-        url = `https://api.dune.com/api/beta/balance/svm/${address}`
+        url = `https://api.dune.com/api/beta/balance/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+      }
+
+      if (isBvmAddress) {
+        return null
       }
 
       return fetch(url, {
@@ -57,7 +60,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
         .then((response) => {
           if (response.balances) {
             const balances =
-              response.balances as DuneBalanceResponse['balances']
+              response.balances as NonNullable<DuneBalanceResponse>['balances']
             if (balances) {
               balances
                 .filter((balance) => {
@@ -91,44 +94,37 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
           return response
         })
     },
-    enabled: address !== undefined && providerOptions.duneApiKey !== undefined,
-    ...queryOptions
+    ...queryOptions,
+    enabled:
+      address !== undefined &&
+      providerOptions.duneApiKey !== undefined &&
+      queryOptions?.enabled &&
+      !isBvmAddress
   })
 
-  response.data?.balances?.forEach((balance) => {
+  response?.data?.balances?.forEach((balance) => {
     if (!balance.chain_id && balance.chain === 'solana') {
       balance.chain_id = solana.id
     }
   })
 
-  const chainMap =
-    client?.chains.reduce(
-      (map, chain) => {
-        map[chain.name] = chain
-        map[chain.id] = chain
-        return map
-      },
-      {} as Record<string, RelayChain>
-    ) ?? {}
-
-  const balanceMap = response.data?.balances?.reduce(
+  const balanceMap = response?.data?.balances?.reduce(
     (balanceMap, balance) => {
-      const relayChain = chainMap[balance.chain_id]
-        ? chainMap[balance.chain_id]
-        : chainMap[balance.chain]
-      let chainId = balance.chain_id
-      if (!chainId && relayChain) {
-        chainId = relayChain.id
-        balance.chain_id = relayChain.id
+      if (balance.address === 'native') {
+        balance.address =
+          balance.chain === 'solana'
+            ? '11111111111111111111111111111111'
+            : zeroAddress
       }
-      if (balance.address === 'native' && relayChain) {
-        balance.address = relayChain.currency?.address ?? zeroAddress
+      let chainId = balance.chain_id
+      if (!chainId && balance.chain === 'solana') {
+        chainId = solana.id
       }
 
       balanceMap[`${chainId}:${balance.address}`] = balance
       return balanceMap
     },
-    {} as Record<string, DuneBalanceResponse['balances'][0]>
+    {} as Record<string, NonNullable<DuneBalanceResponse>['balances'][0]>
   )
 
   return { ...response, balanceMap, queryKey } as ReturnType<QueryType> & {

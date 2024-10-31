@@ -1,5 +1,121 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.12
+
+### Patch Changes
+
+- 3dd7177: Update solana dead address
+- Updated dependencies [3dd7177]
+  - @reservoir0x/relay-sdk@1.4.3
+  - @reservoir0x/relay-kit-hooks@1.4.4
+
+## 2.2.11
+
+### Patch Changes
+
+- f9b6975: Remove support for setting unverified tokens from the chain selector
+- 5745538: Update token uri fallback styling
+
+## 2.2.10
+
+### Patch Changes
+
+- 6c52029: Update unverified token modal to link out to block explorer's token page
+- 40aece0: Fix token selector trigger overflow
+- aceb483: Fix pending balance bug breaking ui
+
+## 2.2.9
+
+### Patch Changes
+
+- 631f997: Add support for unverified tokens
+- e8681aa: Display pending balance when bitcoin tx is inflight
+- 73525f1: Remove logic to prefill address with connected address in custom address modal
+- Updated dependencies [631f997]
+  - @reservoir0x/relay-sdk@1.4.2
+  - @reservoir0x/relay-kit-hooks@1.4.3
+
+## 2.2.8
+
+### Patch Changes
+
+- 742a49a: Double time estimate for bitcoin
+
+## 2.2.7
+
+### Patch Changes
+
+- 87b0bca: Make selector theme optional
+
+## 2.2.6
+
+### Patch Changes
+
+- a1e9418: Add disclaimer messaging in confirmation modal with long canonical relays
+- bd1ec82: Add widget selector theme variable
+- b68e6c1: Fix 0 price impact
+
+## 2.2.5
+
+### Patch Changes
+
+- 47c6c04: Fix parallel quoting when quote returns errror but price does not
+- fc902d3: Remove stroke from route selector when focused
+
+## 2.2.4
+
+### Patch Changes
+
+- 321a64e: Fix double route ui issue where price error shows up alongside valid quote data
+
+## 2.2.3
+
+### Patch Changes
+
+- 104fe18: Expand bitcoin address validation to taproot and base58
+
+## 2.2.2
+
+### Patch Changes
+
+- f18951c: Fetch price and quote in parallel to improve price accuracy in SwapWidget
+- Updated dependencies [f18951c]
+  - @reservoir0x/relay-kit-hooks@1.4.2
+
+## 2.2.1
+
+### Patch Changes
+
+- 6237949: Fix bugs with bitcoin implementation
+- Updated dependencies [6237949]
+  - @reservoir0x/relay-sdk@1.4.1
+  - @reservoir0x/relay-kit-hooks@1.4.1
+
+## 2.2.0
+
+### Minor Changes
+
+- 07917f6: Bitcoin support
+
+### Patch Changes
+
+- Updated dependencies [d3f975d]
+- Updated dependencies [07917f6]
+  - @reservoir0x/relay-kit-hooks@1.4.0
+  - @reservoir0x/relay-sdk@1.4.0
+
+## 2.1.9
+
+### Patch Changes
+
+- 29bb388: Added keyboard navigation to token selector
+
+## 2.1.8
+
+### Patch Changes
+
+- ac81750: Add input and output amount to max capacity event
+
 ## 2.1.7
 
 ### Patch Changes

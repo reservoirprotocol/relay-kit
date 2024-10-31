@@ -152,10 +152,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         debouncedAmountOutputControls,
         setAmountOutputValue,
         toBalance,
+        toBalancePending,
         isLoadingToBalance,
         isFetchingPrice,
         isLoadingFromBalance,
         fromBalance,
+        fromBalancePending,
         highRelayerServiceFee,
         relayerFeeProportion,
         hasInsufficientBalance,
@@ -293,7 +295,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <Text style="subtitle2" color="subtle">
                         From
                       </Text>
-
                       {multiWalletSupportEnabled === true && address ? (
                         <MultiWalletDropdown
                           context="origin"
@@ -375,6 +376,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         openState={fromTokenSelectorOpenState}
                         type={fromTokenSelectorType}
                         address={address}
+                        isValidAddress={isValidFromAddress}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         setToken={(token) => {
@@ -460,6 +462,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               address !== bitcoinDeadAddress &&
                               address !== undefined
                             }
+                            pending={fromBalancePending}
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -691,6 +694,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         openState={toTokenSelectorOpenState}
                         type={toTokenSelectorType}
                         address={recipient}
+                        isValidAddress={isValidToAddress}
                         token={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -805,6 +809,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               address !== solDeadAddress &&
                               address !== undefined
                             }
+                            pending={toBalancePending}
                           />
                         ) : (
                           <Flex css={{ height: 18 }} />
@@ -856,7 +861,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     hasInsufficientBalance={hasInsufficientBalance}
                     error={error}
                     quote={price}
-                    currency={toToken}
+                    currency={fromToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
                     isCouldNotExecuteError={isCouldNotExecuteError}

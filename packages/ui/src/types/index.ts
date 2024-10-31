@@ -9,6 +9,7 @@ type Token = {
   symbol: string
   decimals: number
   logoURI: string
+  verified?: boolean
 }
 
 type LinkedWallet = {

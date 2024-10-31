@@ -1,6 +1,6 @@
 {
   "name": "@reservoir0x/relay-sdk",
-  "version": "1.3.4",
+  "version": "1.4.3",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",

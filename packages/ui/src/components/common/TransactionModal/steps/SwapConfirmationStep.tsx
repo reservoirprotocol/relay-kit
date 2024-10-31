@@ -49,7 +49,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             <ChainTokenIcon
               chainId={fromToken?.chainId}
               tokenlogoURI={fromToken?.logoURI}
-              css={{ height: 20, width: 20 }}
+              css={{ height: 32, width: 32 }}
             />
 
             <Text style="subtitle1" ellipsify>
@@ -84,7 +84,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             <ChainTokenIcon
               chainId={toToken?.chainId}
               tokenlogoURI={toToken?.logoURI}
-              css={{ height: 20, width: 20 }}
+              css={{ height: 32, width: 32 }}
             />
             <Text style="subtitle1" ellipsify>
               {toAmountFormatted} {toToken?.symbol}

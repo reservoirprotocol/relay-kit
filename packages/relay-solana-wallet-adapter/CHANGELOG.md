@@ -1,5 +1,33 @@
 # @reservoir0x/relay-solana-wallet-adapter
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [3dd7177]
+  - @reservoir0x/relay-sdk@1.4.3
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [631f997]
+  - @reservoir0x/relay-sdk@1.4.2
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [6237949]
+  - @reservoir0x/relay-sdk@1.4.1
+
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [07917f6]
+  - @reservoir0x/relay-sdk@1.4.0
+
 ## 1.0.4
 
 ### Patch Changes

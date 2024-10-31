@@ -115,8 +115,12 @@ export const parseFees = (
   let priceImpactColor: ComponentPropsWithoutRef<typeof Text>['color'] =
     'subtle'
 
+  if (quote?.details?.totalImpact?.percent === '-0.00') {
+    quote.details.totalImpact.percent = '-0.01'
+  }
+
   if (quote?.details?.totalImpact?.percent) {
-    const percent = Number(quote.details.totalImpact.percent)
+    let percent = Number(quote.details.totalImpact.percent)
     if (percent <= -3) {
       priceImpactColor = 'red'
     } else if (percent > 0) {
@@ -216,26 +220,15 @@ export const extractQuoteId = (steps?: Execute['steps']) => {
   return ''
 }
 
-export const calculateTimeEstimate = (breakdown?: Execute['breakdown']) => {
-  const time =
-    breakdown?.reduce((total, breakdown) => {
-      return total + (breakdown.timeEstimate ?? 0)
-    }, 0) ?? 0
-  const formattedTime = formatSeconds(time)
-
-  return {
-    time,
-    formattedTime
-  }
-}
-
 export const calculatePriceTimeEstimate = (
   details?: PriceResponse['details']
 ) => {
-  const isBitcoin = details?.currencyIn?.currency?.chainId === bitcoin.id
+  const isBitcoin =
+    details?.currencyIn?.currency?.chainId === bitcoin.id ||
+    details?.currencyOut?.currency?.chainId === bitcoin.id
 
-  //Add 10m origin because of the origin deposit time
-  const time = (details?.timeEstimate ?? 0) + (isBitcoin ? 600 : 0)
+  //If the relay is interacting with bitcoin we hardcode the time estime to 10m
+  const time = isBitcoin ? 1200 : details?.timeEstimate ?? 0
   const formattedTime = formatSeconds(time)
 
   return {

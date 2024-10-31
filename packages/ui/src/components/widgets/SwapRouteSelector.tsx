@@ -62,6 +62,9 @@ const SwapRouteSelector: FC<Props> = ({
               '&:hover': {
                 backgroundColor: 'transparent'
               }
+            },
+            _focusVisible: {
+              boxShadow: 'none'
             }
           }}
           disabled={!(supportsExternalLiquidity || externalLiquidtySelected)}

@@ -5,8 +5,7 @@ import type {
   AdaptedWallet,
   TransactionStepItem,
   paths,
-  SvmReceipt,
-  BvmReceipt
+  SvmReceipt
 } from '../types/index.js'
 import { axios } from '../utils/axios.js'
 import type {
@@ -44,7 +43,7 @@ export async function sendTransactionSafely(
   if (chainId !== walletChainId) {
     throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
   }
-  let receipt: TransactionReceipt | SvmReceipt | BvmReceipt | undefined
+  let receipt: TransactionReceipt | SvmReceipt | undefined
   let transactionCancelled = false
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
@@ -205,19 +204,31 @@ export async function sendTransactionSafely(
     }
   }
 
-  //If the time estimate of the tx is greater than the maximum attempts we should skip polling confirmation
-  const timeEstimateMs =
-    ((details?.timeEstimate ?? 0) + (chainId === 8253038 ? 600 : 0)) * 1000
-  const maximumWaitTimeInMs = maximumAttempts * pollingInterval
-
-  if (timeEstimateMs > maximumWaitTimeInMs) {
+  //If the origin chain is bitcoin, skip polling for confirmation, because the deposit will take too long
+  if (chainId === 8253038) {
     return true
   }
 
   //Sequence internal functions
-  if (step.id === 'approve') {
+  // We want synchronous execution in the following cases:
+  // - Approval Signature step required first
+  // - Bitcoin is the destination
+  // - Canonical route used
+  if (
+    step.id === 'approve' ||
+    details?.currencyOut?.currency?.chainId === 8253038 ||
+    request?.data?.useExternalLiquidity
+  ) {
     await waitForTransaction().promise
-    await pollForConfirmation()
+    //In the following cases we want to skip polling for confirmation:
+    // - Bitcoin destination chain, we want to skip polling for confirmation as the block times are lengthy
+    // - Canonical route, also lengthy fill time
+    if (
+      details?.currencyOut?.currency?.chainId !== 8253038 &&
+      !request?.data?.useExternalLiquidity
+    ) {
+      await pollForConfirmation()
+    }
   } else {
     const { promise: receiptPromise, controller: receiptController } =
       waitForTransaction()

@@ -86,10 +86,10 @@ const ButtonCss = cva({
         }
       },
       warning: {
-        backgroundColor: 'amber2',
+        backgroundColor: 'amber3',
         color: 'amber11',
         '&:hover': {
-          backgroundColor: 'amber3',
+          backgroundColor: 'amber4',
           color: 'amber11'
         }
       }

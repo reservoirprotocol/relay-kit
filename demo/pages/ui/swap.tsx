@@ -23,35 +23,12 @@ import { useWalletFilter } from 'context/walletFilter'
 import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
-
-const dynamicStaticAssetUrl =
-  'https://iconic.dynamic-static-assets.com/icons/sprite.svg'
+import { convertToLinkedWallet } from 'utils/dynamic'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
-      let walletLogoId =
-        // @ts-ignore
-        newWallet?.connector?.wallet?.brand?.spriteId ?? newWallet.key
-
-      if (walletLogoId.includes('phantom')) {
-        walletLogoId = 'phantom'
-      }
-      let walletChain = newWallet.chain.toLowerCase()
-      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
-
-      if (walletChain === 'sol') {
-        vmType = 'svm'
-      } else if (walletChain === 'btc') {
-        vmType = 'bvm'
-      }
-
-      const linkedWallet = {
-        address: newWallet.address,
-        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        vmType
-      }
-      linkWalletPromise.resolve(linkedWallet)
+      linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
       setLinkWalletPromise(undefined)
     }
   })
@@ -74,31 +51,10 @@ const SwapWidgetPage: NextPage = () => {
   >()
 
   const linkedWallets = useMemo(() => {
-    const _wallets = userWallets.map((wallet) => {
-      let walletLogoId =
-        // @ts-ignore
-        wallet?.connector?.wallet?.brand?.spriteId ?? wallet.key
-
-      if (walletLogoId.includes('phantom')) {
-        walletLogoId = 'phantom'
-      }
-
-      let walletChain = wallet.chain.toLowerCase()
-
-      let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
-
-      if (walletChain === 'sol') {
-        vmType = 'svm'
-      } else if (walletChain === 'btc') {
-        vmType = 'bvm'
-      }
-      return {
-        address: wallet.address,
-        walletLogoUrl: `${dynamicStaticAssetUrl}#${walletLogoId}`,
-        connector: wallet.connector.name.toLowerCase(),
-        vmType
-      }
-    })
+    const _wallets = userWallets.reduce((linkedWallets, wallet) => {
+      linkedWallets.push(convertToLinkedWallet(wallet))
+      return linkedWallets
+    }, [] as LinkedWallet[])
     wallets.current = userWallets
     return _wallets
   }, [userWallets])
@@ -126,8 +82,9 @@ const SwapWidgetPage: NextPage = () => {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
+            const wallet = convertToLinkedWallet(primaryWallet)
             adaptedWallet = adaptBitcoinWallet(
-              primaryWallet.address,
+              wallet.address,
               async (_address, _psbt, dynamicParams) => {
                 try {
                   // Request the wallet to sign the PSBT
@@ -235,7 +192,11 @@ const SwapWidgetPage: NextPage = () => {
             const timer = setInterval(async () => {
               attemptCount++
               const newPrimaryWallet = wallets.current?.find(
-                (wallet) => wallet.address === address
+                (wallet) =>
+                  wallet.address === address ||
+                  wallet.additionalAddresses.find(
+                    (_address) => _address.address === address
+                  )
               )
               if (attemptCount >= maxAttempts) {
                 clearInterval(timer)

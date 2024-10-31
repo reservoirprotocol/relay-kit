@@ -11,6 +11,7 @@ type BalanceDisplayProps = {
   hasInsufficientBalance?: boolean
   displaySymbol?: boolean
   isConnected?: boolean
+  pending?: boolean
 }
 
 export const BalanceDisplay: FC<BalanceDisplayProps> = ({
@@ -20,11 +21,22 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
   isLoading,
   hasInsufficientBalance,
   displaySymbol = true,
-  isConnected
+  isConnected,
+  pending
 }) => {
   const compactBalance = Boolean(
     balance && decimals && balance.toString().length - decimals > 4
   )
+
+  if (pending) {
+    return (
+      <Flex css={{ height: 18 }}>
+        <Text style="subtitle3" color={'red'}>
+          Balance: pending
+        </Text>
+      </Flex>
+    )
+  }
 
   return (
     <Flex css={{ height: 18 }}>

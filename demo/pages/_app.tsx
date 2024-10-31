@@ -17,7 +17,8 @@ import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
 import {
   DynamicContextProvider,
-  FilterChain
+  FilterChain,
+  RemoveWallets
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
@@ -27,6 +28,7 @@ import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
+import { pipe } from '@dynamic-labs/utils'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -106,52 +108,60 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           //   }
           // ]
         }}
-        theme={{
-          // primaryColor: 'red',
-          // anchor: {
-          //   color: 'red'
-          // }
-          // focusColor: 'green',
-          // subtleBorderColor: 'green',
-          // text: {
-          //   default: 'red',
-          //   subtle: 'purple'
-          // },
-          // input: {
-          //   background: 'red'
-          // },
-          // buttons: {
-          //   tertiary: {
-          //     background: 'orange',
-          //     color: 'red',
-          //     hover: {
-          //       color: 'blue',
-          //       background: 'purple'
-          //     }
-          //   },
-          //   disabled: {
-          //     background: 'green',
-          //     color: 'red'
-          //   }
-          // },
-          widget: {
-            // boxShadow:
-            //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
-            // background: 'pink',
-            // borderRadius: '0px',
-            // border: '2px solid orange',
-            // card: {
-            //   background: 'pink'
-            // }
-          }
-          // modal: {
-          //   background: 'orange'
-          // },
-          // dropdown: {
-          //   background: 'red',
-          //   borderRadius: '0px'
-          // }
-        }}
+        // theme={
+        //   {
+        // primaryColor: 'red',
+        // anchor: {
+        //   color: 'red'
+        // }
+        // focusColor: 'green',
+        // subtleBorderColor: 'green',
+        // text: {
+        //   default: 'red',
+        //   subtle: 'purple'
+        // },
+        // input: {
+        //   background: 'red'
+        // },
+        // buttons: {
+        //   tertiary: {
+        //     background: 'orange',
+        //     color: 'red',
+        //     hover: {
+        //       color: 'blue',
+        //       background: 'purple'
+        //     }
+        //   },
+        //   disabled: {
+        //     background: 'green',
+        //     color: 'red'
+        //   }
+        // },
+        // widget: {
+        // boxShadow:
+        //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
+        // background: 'pink',
+        // borderRadius: '0px',
+        // border: '2px solid orange',
+        // card: {
+        //   background: 'pink'
+        // }
+        // selector: {
+        //   background: 'red',
+        //   hover: {
+        //     background: 'green'
+        //   }
+        // }
+        // }
+        // modal: {
+        //   background: 'orange'
+        // },
+        // dropdown: {
+        //   background: 'red',
+        //   borderRadius: '0px'
+        // }
+        //   }
+        // }
       >
         <DynamicContextProvider
           settings={{
