@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.13
+
+### Patch Changes
+
+- ab5bc9b: Handle max capacity error when maximum not returned in error message
+- 2ea4fde: Impprove wallet switch error handling
+- Updated dependencies [2ea4fde]
+  - @reservoir0x/relay-sdk@1.4.4
+  - @reservoir0x/relay-kit-hooks@1.4.5
+
 ## 2.2.12
 
 ### Patch Changes

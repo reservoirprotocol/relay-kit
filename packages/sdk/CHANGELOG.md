@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.4
+
+### Patch Changes
+
+- 2ea4fde: Impprove wallet switch error handling
+
 ## 1.4.3
 
 ### Patch Changes
