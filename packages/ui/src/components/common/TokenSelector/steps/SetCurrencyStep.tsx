@@ -345,7 +345,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                 gap: '2',
                 position: 'sticky',
                 top: 0,
-                zIndex: 1
+                zIndex: 1,
+                background: 'modal-background'
               }}
             >
               <AccessibleListItem value="input" asChild>

@@ -81,12 +81,13 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
           value={`${token.chainId}:${token.address}`}
         >
           <Button
-            onClick={() =>
+            onClick={(e) => {
+              e.preventDefault()
               onSelect({
                 ...token,
-                metadata: { logoURI: token.logoURI, verified: token.verified }
+                metadata: { logoURI: token.logoURI, verified: true }
               })
-            }
+            }}
             color="ghost"
             size="none"
             css={{
