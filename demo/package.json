@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@dynamic-labs/bitcoin": "4.0.0-alpha.21",
-    "@dynamic-labs/eclipse": "4.0.0-alpha.17",
+    "@dynamic-labs/eclipse": "4.0.0-alpha.21",
     "@dynamic-labs/ethereum": "4.0.0-alpha.21",
     "@dynamic-labs/sdk-react-core": "4.0.0-alpha.21",
     "@dynamic-labs/solana": "4.0.0-alpha.21",

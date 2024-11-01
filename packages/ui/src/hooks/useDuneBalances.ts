@@ -6,7 +6,7 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { isSolanaAddress, solana } from '../utils/solana.js'
+import { eclipse, isSolanaAddress, solana } from '../utils/solana.js'
 import { isBitcoinAddress } from '../utils/bitcoin.js'
 
 export type DuneBalanceResponse = {
@@ -106,19 +106,25 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
     if (!balance.chain_id && balance.chain === 'solana') {
       balance.chain_id = solana.id
     }
+    if (!balance.chain_id && balance.chain === 'eclipse') {
+      balance.chain_id = eclipse.id
+    }
   })
 
   const balanceMap = response?.data?.balances?.reduce(
     (balanceMap, balance) => {
       if (balance.address === 'native') {
         balance.address =
-          balance.chain === 'solana'
+          balance.chain === 'solana' || balance.chain === 'eclipse'
             ? '11111111111111111111111111111111'
             : zeroAddress
       }
       let chainId = balance.chain_id
       if (!chainId && balance.chain === 'solana') {
         chainId = solana.id
+      }
+      if (!chainId && balance.chain === 'eclipse') {
+        chainId = eclipse.id
       }
 
       balanceMap[`${chainId}:${balance.address}`] = balance

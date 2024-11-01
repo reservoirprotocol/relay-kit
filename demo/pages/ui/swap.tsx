@@ -24,6 +24,8 @@ import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
+import { isEclipseWallet } from '@dynamic-labs/eclipse'
+import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -68,17 +70,7 @@ const SwapWidgetPage: NextPage = () => {
       try {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
-          if (isSolanaWallet(primaryWallet)) {
-            const connection = await primaryWallet.getConnection()
-            const signer = await primaryWallet.getSigner()
-            let _chainId = 792703809
-            adaptedWallet = adaptSolanaWallet(
-              primaryWallet.address,
-              _chainId,
-              connection,
-              signer.signAndSendTransaction
-            )
-          } else if (isEthereumWallet(primaryWallet)) {
+          if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
@@ -98,6 +90,21 @@ const SwapWidgetPage: NextPage = () => {
                   throw e
                 }
               }
+            )
+          } else if (
+            isSolanaWallet(primaryWallet) ||
+            isEclipseWallet(primaryWallet)
+          ) {
+            const connection = await (primaryWallet as any).getConnection()
+            const signer = await (primaryWallet as any).getSigner()
+            const _chainId = isEclipseWallet(primaryWallet)
+              ? 9286185
+              : 792703809
+            adaptedWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              _chainId,
+              connection,
+              signer.signAndSendTransaction
             )
           }
           setWallet(adaptedWallet)

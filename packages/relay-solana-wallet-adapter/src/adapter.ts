@@ -23,7 +23,6 @@ export const adaptSolanaWallet = (
   }>
 ): AdaptedWallet => {
   let _chainId = chainId
-  const _originalRpcEndpoint = connection.rpcEndpoint
   const getChainId = async () => {
     return _chainId
   }
@@ -39,15 +38,6 @@ export const adaptSolanaWallet = (
     },
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const client = getClient()
-      const chainId = await getChainId()
-      debugger
-      if (chainId === 9286185) {
-        //@ts-ignore: Hacky patch for updating eclipse rpc endpoint
-        connection._rpcEndpoint = 'https://mainnetbeta-rpc.eclipse.xyz'
-      } else {
-        //@ts-ignore
-        connection._rpcEndpoint = _originalRpcEndpoint
-      }
 
       const instructions =
         stepItem?.data?.instructions?.map(
