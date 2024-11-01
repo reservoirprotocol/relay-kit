@@ -27,7 +27,7 @@ import useRelayClient from '../../../../hooks/useRelayClient.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
-import { solana } from '../../../../utils/solana.js'
+import { eclipse, solana } from '../../../../utils/solana.js'
 import { getRelayUiKitData } from '../../../../utils/localStorage.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 
@@ -91,6 +91,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         (context !== 'from' ||
           chain.vmType === 'evm' ||
           chain.id === solana.id ||
+          chain.id === eclipse.id ||
           chain.id === bitcoin.id) &&
         (context !== 'from' ||
           multiWalletSupportEnabled ||
