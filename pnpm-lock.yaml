@@ -65,9 +65,9 @@ importers:
       '@reservoir0x/relay-sdk':
         specifier: workspace:*
         version: link:../packages/sdk
-      '@reservoir0x/relay-solana-wallet-adapter':
+      '@reservoir0x/relay-svm-wallet-adapter':
         specifier: workspace:*
-        version: link:../packages/relay-solana-wallet-adapter
+        version: link:../packages/relay-svm-wallet-adapter
       '@solana/web3.js':
         specifier: ^1.95.3
         version: 1.95.3
@@ -219,7 +219,7 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
 
-  packages/relay-solana-wallet-adapter:
+  packages/relay-svm-wallet-adapter:
     dependencies:
       '@reservoir0x/relay-sdk':
         specifier: workspace:*
@@ -232,7 +232,7 @@ importers:
         version: 22.5.4
       axios:
         specifier: ^1.6.5
-        version: 1.7.2
+        version: 1.7.4
       viem:
         specifier: ^2.9.31
         version: 2.9.32(typescript@5.4.5)
