@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
