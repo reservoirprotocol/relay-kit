@@ -2,7 +2,7 @@
   "name": "relay",
   "private": true,
   "engines": {
-    "node": "^18.x",
+    "node": "^20.x",
     "pnpm": ">=8.15.1"
   },
   "type": "module",
