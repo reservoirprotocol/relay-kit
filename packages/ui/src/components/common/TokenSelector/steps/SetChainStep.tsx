@@ -24,7 +24,7 @@ import {
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
 import Fuse from 'fuse.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { solana } from '../../../../utils/solana.js'
@@ -168,7 +168,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   : {
                       ...chain.relayChain.currency,
                       metadata: {
-                        logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                        logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
                         verified: true
                       }
                     }
@@ -228,21 +228,6 @@ export const SetChainStep: FC<SetChainStepProps> = ({
         </AccessibleListItem>
 
         {filteredChains?.map((chain) => {
-          const isSupported = chain.isSupported
-          const token = isSupported
-            ? {
-                ...chain.currency,
-                logoURI: chain.currency?.metadata?.logoURI
-              }
-            : {
-                ...chain.relayChain.currency,
-                logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
-                metadata: {
-                  logoURI: `https://assets.relay.link/icons/currencies/${chain.relayChain.currency?.id}.png`,
-                  verified: true
-                }
-              }
-
           const decimals = chain?.currency?.balance?.decimals ?? 18
           const compactBalance = Boolean(
             chain?.currency?.balance?.amount &&
