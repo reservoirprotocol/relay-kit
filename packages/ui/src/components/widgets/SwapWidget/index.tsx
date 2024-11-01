@@ -31,7 +31,8 @@ import { findSupportedWallet } from '../../../utils/solana.js'
 import {
   evmDeadAddress,
   solDeadAddress,
-  bitcoinDeadAddress
+  bitcoinDeadAddress,
+  ASSETS_RELAY_API
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 
@@ -107,7 +108,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     name: 'ETH',
     symbol: 'ETH',
     decimals: 18,
-    logoURI: 'https://assets.relay.link/icons/1/light.png'
+    logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
   }
   return (
     <SwapWidgetRenderer
@@ -341,8 +342,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -654,8 +655,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -875,6 +876,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   {promptSwitchRoute ? (
                     <Flex css={{ mt: '6px', gap: '3' }}>
                       {isCapacityExceededError &&
+                      maxCapacityFormatted &&
                       maxCapacityFormatted != '0' ? (
                         <Button
                           color="white"
