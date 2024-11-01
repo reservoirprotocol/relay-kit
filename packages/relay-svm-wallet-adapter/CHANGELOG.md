@@ -1,4 +1,4 @@
-# @reservoir0x/relay-solana-wallet-adapter
+# @reservoir0x/relay-svm-wallet-adapter
 
 ## 2.0.4
 

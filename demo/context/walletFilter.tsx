@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 
 interface WalletFilterContextState {
-  walletFilter?: 'EVM' | 'SOL' | 'BTC'
-  setWalletFilter: (value: 'EVM' | 'SOL' | 'BTC' | undefined) => void
+  walletFilter?: 'EVM' | 'SOL' | 'ECLIPSE' | 'BTC'
+  setWalletFilter: (
+    value: 'EVM' | 'SOL' | 'BTC' | 'ECLIPSE' | undefined
+  ) => void
 }
 
 const WalletFilterContext = createContext<WalletFilterContextState | undefined>(
@@ -13,7 +15,7 @@ export const WalletFilterProvider: React.FC<{ children: ReactNode }> = ({
   children
 }) => {
   const [walletFilter, setWalletFilter] = useState<
-    'EVM' | 'SOL' | 'BTC' | undefined
+    'EVM' | 'SOL' | 'ECLIPSE' | 'BTC' | undefined
   >(undefined)
 
   return (

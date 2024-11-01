@@ -17,7 +17,7 @@ import {
   RelayChain
 } from '@reservoir0x/relay-sdk'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { useWalletFilter } from 'context/walletFilter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
@@ -167,6 +167,8 @@ const ChainWidgetPage: NextPage = () => {
               setWalletFilter('SOL')
             } else if (chain?.id === 8253038) {
               setWalletFilter('BTC')
+            } else if (chain?.id === 9286185) {
+              setWalletFilter('ECLIPSE')
             } else {
               setWalletFilter(undefined)
             }
