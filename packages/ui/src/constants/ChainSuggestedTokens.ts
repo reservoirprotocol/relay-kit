@@ -228,7 +228,28 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.WORLD_CHAIN]: [],
+  [ChainId.WORLD_CHAIN]: [
+    {
+      chainId: ChainId.WORLD_CHAIN,
+      address: '0x4200000000000000000000000000000000000006',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+      verified: true
+    },
+    {
+      chainId: ChainId.WORLD_CHAIN,
+      address: '0x79a02482a880bce3f13e09da970dc34db4cd24d1',
+      name: 'Bridged USDC (world-chain-mainnet)',
+      symbol: 'USDC.e',
+      decimals: 6,
+      logoURI:
+        'https://coin-images.coingecko.com/coins/images/50792/large/usdc.png?1729233082',
+      verified: true
+    }
+  ],
   [ChainId.REDSTONE]: [
     {
       chainId: ChainId.REDSTONE,
