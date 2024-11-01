@@ -228,7 +228,28 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.WORLD_CHAIN]: [],
+  [ChainId.WORLD_CHAIN]: [
+    {
+      chainId: ChainId.WORLD_CHAIN,
+      address: '0x4200000000000000000000000000000000000006',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+      verified: true
+    },
+    {
+      chainId: ChainId.WORLD_CHAIN,
+      address: '0x79a02482a880bce3f13e09da970dc34db4cd24d1',
+      name: 'Bridged USDC (world-chain-mainnet)',
+      symbol: 'USDC.e',
+      decimals: 6,
+      logoURI:
+        'https://coin-images.coingecko.com/coins/images/50792/large/usdc.png?1729233082',
+      verified: true
+    }
+  ],
   [ChainId.REDSTONE]: [
     {
       chainId: ChainId.REDSTONE,
@@ -265,7 +286,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.HYCHAIN]: [],
   [ChainId.HAM]: [
     {
       chainId: ChainId.HAM,
@@ -324,7 +344,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.ONCHAIN_POINTS]: [],
   [ChainId.APE_CHAIN]: [
     {
       chainId: ChainId.APE_CHAIN,
@@ -345,7 +364,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.FUNKICHAIN]: [],
   [ChainId.MODE]: [
     {
       chainId: ChainId.MODE,
@@ -433,7 +451,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.SUPERPOSITION]: [],
   [ChainId.LINEA]: [
     {
       chainId: ChainId.LINEA,
@@ -446,7 +463,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.BOB]: [],
   [ChainId.PROOF_OF_PLAY_APEX]: [
     {
       chainId: ChainId.PROOF_OF_PLAY_APEX,
@@ -495,8 +511,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.XAI]: [],
-  [ChainId.FORMA]: [],
   [ChainId.ZORA]: [
     {
       chainId: ChainId.ZORA,
@@ -509,7 +523,6 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       verified: true
     }
   ],
-  [ChainId.BITCOIN]: [],
   [ChainId.DEGEN]: [
     {
       chainId: ChainId.DEGEN,
@@ -544,39 +557,7 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
         'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
       verified: true
     }
-  ],
-  [ChainId.RARI]: [],
-
-  // Testnets
-  [ChainId.BOBA_TESTNET]: [],
-  [ChainId.MODE_TESTNET]: [],
-  [ChainId.UNICHAIN_SEPOLIA]: [],
-  [ChainId.ATLAS_RELAY_TESTNET]: [],
-  [ChainId.B3_SEPOLIA]: [],
-  [ChainId.LISK_SEPOLIA]: [],
-  [ChainId.ARENA_Z_TESTNET]: [],
-  [ChainId.SHAPE_SEPOLIA]: [],
-  [ChainId.ABSTRACT_TESTNET]: [],
-  [ChainId.GAME7_TESTNET]: [],
-  [ChainId.HOLESKY]: [],
-  [ChainId.GARNET]: [],
-  [ChainId.APEX_TESTNET]: [],
-  [ChainId.POP_CLOUD_TESTNET]: [],
-  [ChainId.AMOY]: [],
-  [ChainId.BASE_SEPOLIA]: [],
-  [ChainId.TAIKO_HEKLA]: [],
-  [ChainId.ARBITRUM_SEPOLIA]: [],
-  [ChainId.ALIGN_TESTNET_V2]: [],
-  [ChainId.ODYSSEY]: [],
-  [ChainId.ECLIPSE_TESTNET]: [],
-  [ChainId.FUNKICHAIN_TESTNET]: [],
-  [ChainId.ZERO_TESTNET]: [],
-  [ChainId.BITCOIN_TESTNET_4]: [],
-  [ChainId.SEPOLIA]: [],
-  [ChainId.OP_SEPOLIA]: [],
-  [ChainId.ZORA_SEPOLIA]: [],
-  [ChainId.SOLANA_DEVNET]: [],
-  [ChainId.ARBITRUM_BLUEBERRY]: []
+  ]
 }
 
 export default ChainSuggestedTokens
