@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.5
+
+### Patch Changes
+
+- 0292590: Add suggested tokens to token selector
+
 ## 1.4.4
 
 ### Patch Changes
