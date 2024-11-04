@@ -17,6 +17,7 @@ const DepositAddressesPage: NextPage = () => {
   >()
   const [quote, setQuote] = useState<Execute>()
   const [depositAddress, setDepositAddress] = useState<string | undefined>()
+  const [depositAmount, setDepositAmount] = useState<string | undefined>()
   return (
     <Layout
       styles={{
@@ -127,14 +128,17 @@ const DepositAddressesPage: NextPage = () => {
             }
             const data = await getQuote(quoteData)
             setQuote(data)
-            const _depositAddress =
+            const depositStepData =
               data.steps &&
               data.steps[0] &&
               data.steps[0].items &&
               data.steps[0].items[0]
-                ? data.steps[0].items[0].data.to
+                ? data.steps[0].items[0].data
                 : undefined
-            setDepositAddress(_depositAddress)
+            if (depositStepData) {
+              setDepositAddress(depositStepData.to)
+              setDepositAmount(depositStepData.value)
+            }
           }}
         >
           Get Quote
@@ -146,7 +150,7 @@ const DepositAddressesPage: NextPage = () => {
               Instructions to relay:
             </div>
             <div>
-              Send {amount} wei to this address: {depositAddress}
+              Send {depositAmount} wei to this address: {depositAddress}
             </div>
             <br />
             <div style={{ fontSize: 22, fontWeight: 600 }}>Quote Response:</div>
