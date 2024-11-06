@@ -27,7 +27,7 @@ import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/Swap
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
-import { findSupportedWallet } from '../../../utils/solana.js'
+import { findSupportedWallet } from '../../../utils/address.js'
 import {
   evmDeadAddress,
   solDeadAddress,
@@ -342,8 +342,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -655,8 +655,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
