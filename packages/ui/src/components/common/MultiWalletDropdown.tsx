@@ -6,13 +6,7 @@ import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
-import {
-  eclipse,
-  eclipseWallets,
-  solanaAddressRegex
-} from '../../utils/solana.js'
-import { isAddress } from 'viem'
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import { eclipse, eclipseWallets, solana } from '../../utils/solana.js'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
 import { isValidAddress } from '../../utils/address.js'
@@ -50,19 +44,30 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
         !eclipseWallets.includes(wallet.connector.toLowerCase())
       ) {
         return false
+      } else if (
+        chain.id === solana.id &&
+        eclipseWallets.includes(wallet.connector.toLowerCase())
+      ) {
+        return false
       }
       return true
     })
   }, [wallets, chain])
 
-  const isSupportedSelectedWallet = useMemo(
-    () => isValidAddress(chain?.vmType, selectedWalletAddress),
-    [selectedWalletAddress, chain?.vmType]
-  )
-
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.address === selectedWalletAddress),
     [wallets, selectedWalletAddress]
+  )
+
+  const isSupportedSelectedWallet = useMemo(
+    () =>
+      isValidAddress(
+        chain?.vmType,
+        selectedWalletAddress,
+        chain?.id,
+        selectedWallet?.connector
+      ),
+    [selectedWalletAddress, selectedWallet, chain?.vmType, chain?.id]
   )
 
   const showDropdown = context !== 'origin' || filteredWallets.length > 0

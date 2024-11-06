@@ -75,7 +75,7 @@ export async function getPrice(
     })
   }
   const originChain = client.chains.find((chain) => chain.id === originChainId)
-  const deadAddress = getDeadAddress(originChain?.vmType)
+  const deadAddress = getDeadAddress(originChain?.vmType, originChain?.id)
 
   const query: PriceBody = {
     user: user ?? deadAddress,

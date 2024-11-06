@@ -70,6 +70,6 @@ export const convertToLinkedWallet = (wallet: Wallet): LinkedWallet => {
     address,
     walletLogoUrl: walletIcon,
     vmType,
-    connector: wallet.connector.name
+    connector: wallet.connector.key
   }
 }
