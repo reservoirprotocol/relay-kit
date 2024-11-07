@@ -17,6 +17,7 @@ import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { isValidAddress } from '../../utils/address.js'
+import { eclipse, eclipseWallets } from '../../utils/solana.js'
 
 type Props = {
   open: boolean
@@ -53,7 +54,12 @@ export const CustomAddressModal: FC<Props> = ({
   const availableWallets = useMemo(
     () =>
       linkedWallets.filter((wallet) =>
-        isValidAddress(toChain?.vmType, wallet.address)
+        isValidAddress(
+          toChain?.vmType,
+          wallet.address,
+          toChain?.id,
+          wallet.connector
+        )
       ),
     [toChain, linkedWallets]
   )

@@ -22,11 +22,14 @@ export const adaptSolanaWallet = (
     signature: TransactionSignature
   }>
 ): AdaptedWallet => {
+  let _chainId = chainId
+  const getChainId = async () => {
+    return _chainId
+  }
+
   return {
     vmType: 'svm',
-    getChainId: async () => {
-      return chainId
-    },
+    getChainId,
     address: async () => {
       return walletAddress
     },
@@ -100,9 +103,9 @@ export const adaptSolanaWallet = (
         txHash
       }
     },
-    //@ts-ignore
     switchChain: (chainId: number) => {
-      throw 'Not yet implemented'
+      _chainId = chainId
+      return new Promise((res) => res())
     }
   }
 }

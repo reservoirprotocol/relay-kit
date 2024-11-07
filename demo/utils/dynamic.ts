@@ -56,7 +56,7 @@ export const convertToLinkedWallet = (wallet: Wallet): LinkedWallet => {
   let walletChain = wallet.chain.toLowerCase()
   let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
 
-  if (walletChain === 'sol') {
+  if (walletChain === 'sol' || walletChain === 'eclipse') {
     vmType = 'svm'
   } else if (walletChain === 'btc') {
     vmType = 'bvm'
@@ -69,6 +69,7 @@ export const convertToLinkedWallet = (wallet: Wallet): LinkedWallet => {
   return {
     address,
     walletLogoUrl: walletIcon,
-    vmType
+    vmType,
+    connector: wallet.connector.key
   }
 }

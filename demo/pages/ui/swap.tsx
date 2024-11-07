@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
@@ -24,6 +24,7 @@ import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
+import { isEclipseWallet } from '@dynamic-labs/eclipse'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -68,17 +69,7 @@ const SwapWidgetPage: NextPage = () => {
       try {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
-          if (isSolanaWallet(primaryWallet)) {
-            const connection = await primaryWallet.getConnection()
-            const signer = await primaryWallet.getSigner()
-
-            adaptedWallet = adaptSolanaWallet(
-              primaryWallet.address,
-              792703809,
-              connection,
-              signer.signAndSendTransaction
-            )
-          } else if (isEthereumWallet(primaryWallet)) {
+          if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
@@ -98,6 +89,21 @@ const SwapWidgetPage: NextPage = () => {
                   throw e
                 }
               }
+            )
+          } else if (
+            isSolanaWallet(primaryWallet) ||
+            isEclipseWallet(primaryWallet)
+          ) {
+            const connection = await (primaryWallet as any).getConnection()
+            const signer = await (primaryWallet as any).getSigner()
+            const _chainId = isEclipseWallet(primaryWallet)
+              ? 9286185
+              : 792703809
+            adaptedWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              _chainId,
+              connection,
+              signer.signAndSendTransaction
             )
           }
           setWallet(adaptedWallet)
@@ -169,6 +175,8 @@ const SwapWidgetPage: NextPage = () => {
               setWalletFilter('SOL')
             } else if (chain?.id === 8253038) {
               setWalletFilter('BTC')
+            } else if (chain?.id === 9286185) {
+              setWalletFilter('ECLIPSE')
             } else {
               setWalletFilter(undefined)
             }

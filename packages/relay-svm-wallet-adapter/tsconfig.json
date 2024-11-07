@@ -6,7 +6,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~relay-solana-wallet-adapter/*": ["./src/*"],
+      "~relay-svm-wallet-adapter/*": ["./src/*"],
     },
   },
   "watchOptions": {

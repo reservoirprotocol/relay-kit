@@ -152,7 +152,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const walletClient = useWalletClient()
   const { connector } = useAccount()
-  const deadAddress = getDeadAddress(fromChain?.vmType)
+  const deadAddress = getDeadAddress(fromChain?.vmType, fromChain?.id)
 
   const {
     data: quote,
