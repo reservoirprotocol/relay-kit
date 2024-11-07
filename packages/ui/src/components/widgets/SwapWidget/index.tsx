@@ -45,6 +45,7 @@ type BaseSwapWidgetProps = {
   lockToToken?: boolean
   lockFromToken?: boolean
   lockChainId?: number
+  singleChainMode?: boolean
   tokens?: Token[]
   wallet?: AdaptedWallet
   onFromTokenChange?: (token?: Token) => void
@@ -83,6 +84,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   lockToToken = false,
   lockFromToken = false,
   lockChainId,
+  singleChainMode = false,
   tokens,
   wallet,
   multiWalletSupportEnabled = false,
@@ -110,6 +112,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     decimals: 18,
     logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
   }
+  const isSingleChainLocked = singleChainMode && lockChainId !== undefined
+
   return (
     <SwapWidgetRenderer
       context="Swap"
@@ -318,24 +322,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       ) : null}
                     </Flex>
-                    <ChainTrigger
-                      token={fromToken}
-                      chain={fromChain}
-                      locked={
-                        lockChainId !== undefined &&
-                        lockChainId === fromToken?.chainId
-                      }
-                      onClick={() => {
-                        setFromTokenSelectorType('chain')
-                        fromTokenSelectorOpenState[1](
-                          !fromTokenSelectorOpenState[0]
-                        )
-                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
-                          type: 'chain',
-                          direction: 'input'
-                        })
-                      }}
-                    />
+                    {!isSingleChainLocked && (
+                      <ChainTrigger
+                        token={fromToken}
+                        chain={fromChain}
+                        locked={
+                          lockChainId !== undefined &&
+                          lockChainId === fromToken?.chainId
+                        }
+                        onClick={() => {
+                          setFromTokenSelectorType('chain')
+                          fromTokenSelectorOpenState[1](
+                            !fromTokenSelectorOpenState[0]
+                          )
+                          onAnalyticEvent?.(
+                            EventNames.SWAP_START_TOKEN_SELECT,
+                            {
+                              type: 'chain',
+                              direction: 'input'
+                            }
+                          )
+                        }}
+                      />
+                    )}
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
                         value={
@@ -399,9 +408,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         context="from"
                         multiWalletSupportEnabled={multiWalletSupportEnabled}
                         chainIdsFilter={
-                          lockChainId !== undefined &&
-                          fromToken?.chainId === lockChainId
-                            ? [fromToken.chainId]
+                          isSingleChainLocked
+                            ? [lockChainId]
+                            : fromToken?.chainId !== undefined &&
+                              fromToken?.chainId === lockChainId
+                            ? [fromToken?.chainId]
                             : undefined
                         }
                         restrictedTokensList={tokens?.filter(
@@ -631,24 +642,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         </AnchorButton>
                       ) : null}
                     </Flex>
-                    <ChainTrigger
-                      token={toToken}
-                      chain={toChain}
-                      locked={
-                        lockChainId !== undefined &&
-                        lockChainId === toToken?.chainId
-                      }
-                      onClick={() => {
-                        setToTokenSelectorType('chain')
-                        toTokenSelectorOpenState[1](
-                          !toTokenSelectorOpenState[0]
-                        )
-                        onAnalyticEvent?.(EventNames.SWAP_START_TOKEN_SELECT, {
-                          type: 'chain',
-                          direction: 'output'
-                        })
-                      }}
-                    />
+                    {!isSingleChainLocked && (
+                      <ChainTrigger
+                        token={toToken}
+                        chain={toChain}
+                        locked={
+                          lockChainId !== undefined &&
+                          lockChainId === toToken?.chainId
+                        }
+                        onClick={() => {
+                          setToTokenSelectorType('chain')
+                          toTokenSelectorOpenState[1](
+                            !toTokenSelectorOpenState[0]
+                          )
+                          onAnalyticEvent?.(
+                            EventNames.SWAP_START_TOKEN_SELECT,
+                            {
+                              type: 'chain',
+                              direction: 'output'
+                            }
+                          )
+                        }}
+                      />
+                    )}
                     <Flex align="center" justify="between" css={{ gap: '4' }}>
                       <AmountInput
                         value={
@@ -738,9 +754,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         onAnalyticEvent={onAnalyticEvent}
                         chainIdsFilter={
-                          lockChainId !== undefined &&
-                          toToken?.chainId === lockChainId
-                            ? [toToken.chainId]
+                          isSingleChainLocked
+                            ? [lockChainId]
+                            : toToken?.chainId !== undefined &&
+                              toToken?.chainId === lockChainId
+                            ? [toToken?.chainId]
                             : undefined
                         }
                         restrictedTokensList={tokens?.filter(
