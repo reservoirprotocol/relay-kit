@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.8
+
+### Patch Changes
+
+- 1c68705: Fix usePrice error handling
+
 ## 1.4.7
 
 ### Patch Changes

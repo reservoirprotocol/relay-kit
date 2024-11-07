@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.16
+
+### Patch Changes
+
+- 0c92f0e: Add single chain mode to swap widget
+- Updated dependencies [1c68705]
+  - @reservoir0x/relay-kit-hooks@1.4.8
+
 ## 2.2.15
 
 ### Patch Changes
