@@ -1,5 +1,13 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 2.0.6
+
+### Patch Changes
+
+- 69df434: Support for eclipse svm
+- Updated dependencies [69df434]
+  - @reservoir0x/relay-sdk@1.4.6
+
 ## 2.0.5
 
 ### Patch Changes
