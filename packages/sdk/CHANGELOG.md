@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.6
+
+### Patch Changes
+
+- 69df434: Support for eclipse svm
+
 ## 1.4.5
 
 ### Patch Changes

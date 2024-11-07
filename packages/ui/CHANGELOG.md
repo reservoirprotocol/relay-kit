@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.15
+
+### Patch Changes
+
+- 69df434: Support for eclipse svm
+- Updated dependencies [69df434]
+  - @reservoir0x/relay-sdk@1.4.6
+  - @reservoir0x/relay-kit-hooks@1.4.7
+
 ## 2.2.14
 
 ### Patch Changes
