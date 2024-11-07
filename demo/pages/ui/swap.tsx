@@ -36,6 +36,7 @@ const SwapWidgetPage: NextPage = () => {
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
+  const [singleChainMode, setSingleChainMode] = useState(false)
   const _switchWallet = useSwitchWallet()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
@@ -133,14 +134,37 @@ const SwapWidgetPage: NextPage = () => {
         }}
       >
         <SwapWidget
-          defaultToToken={{
-            chainId: 10,
-            address: '0x0000000000000000000000000000000000000000',
-            decimals: 18,
-            name: 'ETH',
-            symbol: 'ETH',
-            logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-          }}
+          key={`swap-widget-${singleChainMode ? 'single' : 'multi'}-chain`}
+          lockChainId={singleChainMode ? 8453 : undefined}
+          singleChainMode={singleChainMode}
+          defaultToToken={
+            singleChainMode
+              ? {
+                  chainId: 8453,
+                  address: '0x4200000000000000000000000000000000000006',
+                  decimals: 18,
+                  name: 'WETH',
+                  symbol: 'WETH',
+                  logoURI:
+                    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+                }
+              : {
+                  chainId: 10,
+                  address: '0x0000000000000000000000000000000000000000',
+                  decimals: 18,
+                  name: 'ETH',
+                  symbol: 'ETH',
+                  logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+                }
+          }
+          // defaultToToken={{
+          //   chainId: 10,
+          //   address: '0x0000000000000000000000000000000000000000',
+          //   decimals: 18,
+          //   name: 'ETH',
+          //   symbol: 'ETH',
+          //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+          // }}
           // lockToToken={true}
           // lockFromToken={true}
           defaultFromToken={{
@@ -238,6 +262,23 @@ const SwapWidgetPage: NextPage = () => {
             console.log('onSwapSuccess Triggered', data)
           }}
         />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: '40px'
+        }}
+      >
+        <div>
+          <label>Single Chain Mode: </label>
+          <input
+            type="checkbox"
+            checked={singleChainMode}
+            onChange={(e) => setSingleChainMode(e.target.checked)}
+          />
+        </div>
       </div>
     </Layout>
   )
