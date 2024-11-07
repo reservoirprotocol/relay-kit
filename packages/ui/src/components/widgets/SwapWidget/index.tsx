@@ -874,7 +874,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     }}
                   />
                   {promptSwitchRoute ? (
-                    <Flex css={{ mt: '6px', gap: '3' }}>
+                    <Flex css={{ gap: '3' }}>
                       {isCapacityExceededError &&
                       maxCapacityFormatted &&
                       maxCapacityFormatted != '0' ? (

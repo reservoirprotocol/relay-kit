@@ -19,6 +19,7 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
+  extractMaxCapacity,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
@@ -456,8 +457,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   //Here we fetch the price data and quote data in parallel and then merge into one data model
   const isFetchingPrice = isFetchingQuote ?? _isFetchingPrice
-  const error = _quoteData || isFetchingQuote ? null : quoteError ?? priceError
-  const price = error ? undefined : _quoteData ?? _priceData
+  let error = _quoteData || isFetchingQuote ? null : quoteError ?? priceError
+  let price = error ? undefined : _quoteData ?? _priceData
+  //The only exception to the rule is a capacity exceeded error, in that case we want to use the error from the price api instead
+  if (
+    priceError &&
+    ((priceError as any)?.response?.data?.message?.includes(
+      'Insufficient relayer liquidity'
+    ) ||
+      (priceError as any)?.response?.data?.message?.includes(
+        'Amount is higher than the available liquidity'
+      ))
+  ) {
+    error = priceError
+    price = undefined
+  }
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -556,13 +570,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     address === recipient
 
   const operation = price?.details?.operation || 'swap'
-  const maxCapacityWei =
-    isCapacityExceededError && fetchQuoteDataErrorMessage
-      ? fetchQuoteDataErrorMessage.match(/(\d+)/)?.[0]
-      : undefined
-  const maxCapacityFormatted = maxCapacityWei
-    ? formatBN(BigInt(maxCapacityWei), 2, toToken?.decimals ?? 18)
+  const maxCapacity = isCapacityExceededError
+    ? extractMaxCapacity(
+        fetchQuoteDataErrorMessage ?? undefined,
+        toToken?.decimals
+      )
     : undefined
+  const maxCapacityWei = maxCapacity?.value
+  const maxCapacityFormatted = maxCapacity?.formatted
 
   let ctaCopy: string = context || 'Swap'
 

@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.14
+
+### Patch Changes
+
+- bbad717: Fix capacity exceeded error to find max capacity
+- 0292590: Add suggested tokens to token selector
+- Updated dependencies [0292590]
+  - @reservoir0x/relay-sdk@1.4.5
+  - @reservoir0x/relay-kit-hooks@1.4.6
+
 ## 2.2.13
 
 ### Patch Changes
