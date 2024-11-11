@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.19
+
+### Patch Changes
+
+- fa63f61: Hide route selector in fee breakdown in single chain mode
+
 ## 2.2.18
 
 ### Patch Changes
