@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.18
+
+### Patch Changes
+
+- 4fffded: Allow overriding chain to connector list
+
 ## 2.2.17
 
 ### Patch Changes
