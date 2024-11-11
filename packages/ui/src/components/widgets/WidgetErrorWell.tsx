@@ -44,8 +44,7 @@ export const WidgetErrorWell: FC<Props> = ({
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const totalImpactUsd = quote?.details?.totalImpact?.usd
   const showHighPriceImpactWarning =
-    isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= 10
-
+    isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
   const isInsufficientLiquidityError =
     fetchQuoteErrorMessage?.includes('No quotes found')
 
