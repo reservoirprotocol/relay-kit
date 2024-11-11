@@ -417,9 +417,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                                fromToken?.chainId === lockChainId
-                              ? [fromToken?.chainId]
-                              : undefined
+                              fromToken?.chainId === lockChainId
+                            ? [fromToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -765,9 +765,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                                toToken?.chainId === lockChainId
-                              ? [toToken?.chainId]
-                              : undefined
+                              toToken?.chainId === lockChainId
+                            ? [toToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
@@ -883,6 +883,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       })
                     }}
                     canonicalTimeEstimate={canonicalTimeEstimate}
+                    isSingleChainLocked={isSingleChainLocked}
                   />
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
