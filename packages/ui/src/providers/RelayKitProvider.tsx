@@ -1,28 +1,41 @@
 import { createContext, useMemo } from 'react'
 import type { FC, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
-import type { RelayClientOptions, paths } from '@reservoir0x/relay-sdk'
+import type { ChainVM, RelayClientOptions, paths } from '@reservoir0x/relay-sdk'
 import type { RelayKitTheme } from '../themes/index.js'
 import { generateCssVars } from '../utils/theme.js'
-
-export type CoinId = {
-  [key: string]: string
-}
-export type CoinGecko = {
-  proxy?: string
-  apiKey?: string
-  coinIds?: CoinId
-}
 
 export type AppFees =
   paths['/quote']['post']['requestBody']['content']['application/json']['appFees']
 
 type RelayKitProviderOptions = {
+  /**
+   * The name of the application
+   */
   appName?: string
+  /**
+   * An array of fee objects composing of a recipient address and the fee in BPS
+   */
   appFees?: AppFees
+  /**
+   * This key is used to fetch token balances, to improve the general UX and suggest relevant tokens
+   * Can be omitted and the ui will continue to function. Refer to the dune docs on how to get an api key
+   */
   duneApiKey?: string
+  /**
+   * Disable the powered by reservoir footer
+   */
   disablePoweredByReservoir?: boolean
+  /**
+   * An objecting mapping either a VM type (evm, svm, bvm) or a chain id to a connector key (metamask, backpacksol, etc).
+   * Connector keys are used for differentiating which wallet maps to which vm/chain.
+   * Only relevant for eclipse/solana at the moment.
+   */
+  vmConnectorKeyOverrides?: {
+    [key in number | 'evm' | 'svm' | 'bvm']?: string[]
+  }
 }
+
 export interface RelayKitProviderProps {
   children: ReactNode
   options: RelayClientOptions & RelayKitProviderOptions
@@ -138,7 +151,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       appName: options.appName,
       appFees: options.appFees,
       duneApiKey: options.duneApiKey,
-      disablePoweredByReservoir: options.disablePoweredByReservoir
+      disablePoweredByReservoir: options.disablePoweredByReservoir,
+      vmConnectorKeyOverrides: options.vmConnectorKeyOverrides
     }),
     [options]
   )
