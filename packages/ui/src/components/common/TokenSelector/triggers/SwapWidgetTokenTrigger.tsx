@@ -4,7 +4,8 @@ import {
   Button,
   Flex,
   Text,
-  Box
+  Box,
+  ChainTokenIcon
 } from '../../../../components/primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faCoins } from '@fortawesome/free-solid-svg-icons'
@@ -12,11 +13,13 @@ import { faChevronDown, faCoins } from '@fortawesome/free-solid-svg-icons'
 type SwapWidgetTokenTriggerProps = {
   token?: Token
   locked?: boolean
+  isSingleChainLocked?: boolean
 }
 
 export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
   token,
-  locked
+  locked,
+  isSingleChainLocked
 }) => {
   const isValidTokenLogo = token?.logoURI && token.logoURI !== 'missing.png'
 
@@ -44,7 +47,13 @@ export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
       }}
     >
       <Flex align="center" css={{ gap: '2' }}>
-        {isValidTokenLogo ? (
+        {isSingleChainLocked ? (
+          <ChainTokenIcon
+            chainId={token.chainId}
+            tokenlogoURI={token.logoURI}
+            css={{ width: 24, height: 24 }}
+          />
+        ) : isValidTokenLogo ? (
           <img
             alt={token.name}
             src={token.logoURI}
