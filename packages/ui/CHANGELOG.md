@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.17
+
+### Patch Changes
+
+- d1fd8ae: Remove route selector from single chain mode
+- 604b9f6: Add chain icon to token selector in single chain mode
+- ce675ba: Fix switch tokens button border theme
+
 ## 2.2.16
 
 ### Patch Changes
