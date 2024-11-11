@@ -23,6 +23,7 @@ type Props = Pick<
   | 'canonicalTimeEstimate'
 > & {
   toChain?: RelayChain
+  isSingleChainLocked?: boolean
 }
 
 const formatSwapRate = (rate: number) => {
@@ -40,7 +41,8 @@ const FeeBreakdown: FC<Props> = ({
   useExternalLiquidity,
   setUseExternalLiquidity,
   timeEstimate,
-  canonicalTimeEstimate
+  canonicalTimeEstimate,
+  isSingleChainLocked
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -86,16 +88,20 @@ const FeeBreakdown: FC<Props> = ({
         mb: '6px'
       }}
     >
-      <SwapRouteSelector
-        chain={toChain}
-        supportsExternalLiquidity={supportsExternalLiquidity}
-        externalLiquidtySelected={useExternalLiquidity}
-        onExternalLiquidityChange={(selected) => {
-          setUseExternalLiquidity(selected)
-        }}
-        canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
-      />
-      <Box css={{ height: 1, background: 'gray5', width: '100%' }} />
+      {!isSingleChainLocked ? (
+        <>
+          <SwapRouteSelector
+            chain={toChain}
+            supportsExternalLiquidity={supportsExternalLiquidity}
+            externalLiquidtySelected={useExternalLiquidity}
+            onExternalLiquidityChange={(selected) => {
+              setUseExternalLiquidity(selected)
+            }}
+            canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
+          />
+          <Box css={{ height: 1, background: 'gray5', width: '100%' }} />
+        </>
+      ) : null}
       <Flex
         justify="between"
         css={{
