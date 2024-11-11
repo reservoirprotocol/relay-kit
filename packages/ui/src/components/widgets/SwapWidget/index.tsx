@@ -439,6 +439,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       token.chainId === fromToken?.chainId
                                   ).length === 1)
                               }
+                              isSingleChainLocked={isSingleChainLocked}
                             />
                           </div>
                         }
@@ -750,6 +751,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       token.chainId === toToken?.chainId
                                   ).length === 1)
                               }
+                              isSingleChainLocked={isSingleChainLocked}
                             />
                           </div>
                         }
