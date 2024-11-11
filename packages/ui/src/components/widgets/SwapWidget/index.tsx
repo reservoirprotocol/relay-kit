@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useEffect, useState, type FC } from 'react'
+import { useContext, useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
@@ -35,6 +35,7 @@ import {
   ASSETS_RELAY_API
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
+import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -99,6 +100,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onSwapError
 }) => {
   const relayClient = useRelayClient()
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const isMounted = useMounted()
@@ -223,7 +226,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             const supportedAddress = findSupportedWallet(
               fromChain,
               address,
-              linkedWallets
+              linkedWallets,
+              connectorKeyOverrides
             )
             if (supportedAddress) {
               onSetPrimaryWallet?.(supportedAddress)
@@ -235,7 +239,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           address,
           linkedWallets,
           onSetPrimaryWallet,
-          isValidFromAddress
+          isValidFromAddress,
+          connectorKeyOverrides
         ])
 
         const promptSwitchRoute =
@@ -412,9 +417,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                              fromToken?.chainId === lockChainId
-                            ? [fromToken?.chainId]
-                            : undefined
+                                fromToken?.chainId === lockChainId
+                              ? [fromToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -760,9 +765,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                              toToken?.chainId === lockChainId
-                            ? [toToken?.chainId]
-                            : undefined
+                                toToken?.chainId === lockChainId
+                              ? [toToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId

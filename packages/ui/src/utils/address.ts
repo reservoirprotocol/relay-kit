@@ -12,13 +12,22 @@ import {
   solana
 } from '../utils/solana.js'
 import type { LinkedWallet } from '../types/index.js'
+import type { RelayKitProviderProps } from '../providers/RelayKitProvider.js'
 
 export const isValidAddress = (
   vmType?: ChainVM,
   address?: string,
   chainId?: number,
-  connector?: string
+  connector?: string,
+  connectorKeyOverrides?: RelayKitProviderProps['options']['vmConnectorKeyOverrides']
 ) => {
+  let eclipseConnectorKeys: string[] | undefined = undefined
+  if (connectorKeyOverrides && connectorKeyOverrides[eclipse.id]) {
+    eclipseConnectorKeys = connectorKeyOverrides[eclipse.id]
+  } else if (vmType === 'svm') {
+    eclipseConnectorKeys = eclipseWallets
+  }
+
   if (address) {
     if (vmType === 'evm' || !vmType) {
       return isAddress(address)
@@ -26,18 +35,18 @@ export const isValidAddress = (
       if (chainId && connector) {
         if (
           chainId === eclipse.id &&
-          !eclipseWallets.includes(connector.toLowerCase())
+          !eclipseConnectorKeys!.includes(connector.toLowerCase())
         ) {
           return false
         }
         if (
           chainId === solana.id &&
-          eclipseWallets.includes(connector.toLowerCase())
+          eclipseConnectorKeys!.includes(connector.toLowerCase())
         ) {
           return false
         }
       }
-      //tood solana
+
       return isSolanaAddress(address)
     } else if (vmType === 'bvm') {
       return isBitcoinAddress(address)
@@ -50,9 +59,17 @@ export const addressWithFallback = (
   vmType?: ChainVM,
   address?: string,
   chainId?: number,
-  connector?: string
+  connector?: string,
+  connectorKeyOverrides?: Parameters<typeof isValidAddress>['4']
 ) => {
-  return address && isValidAddress(vmType ?? 'evm', address, chainId, connector)
+  return address &&
+    isValidAddress(
+      vmType ?? 'evm',
+      address,
+      chainId,
+      connector,
+      connectorKeyOverrides
+    )
     ? address
     : getDeadAddress(vmType, chainId)
 }
@@ -60,7 +77,8 @@ export const addressWithFallback = (
 export function findSupportedWallet(
   chain: RelayChain,
   currentAddress: string | undefined,
-  linkedWallets: LinkedWallet[]
+  linkedWallets: LinkedWallet[],
+  connectorKeyOverrides?: Parameters<typeof isValidAddress>['4']
 ): string | undefined {
   const currentWallet = linkedWallets.find(
     (wallet) => wallet.address === currentAddress
@@ -72,11 +90,18 @@ export function findSupportedWallet(
         chain.vmType,
         currentWallet.address,
         chain.id,
-        currentWallet.connector
+        currentWallet.connector,
+        connectorKeyOverrides
       ))
   ) {
     const supportedWallet = linkedWallets.find((wallet) =>
-      isValidAddress(chain.vmType, wallet.address, chain.id, wallet.connector)
+      isValidAddress(
+        chain.vmType,
+        wallet.address,
+        chain.id,
+        wallet.connector,
+        connectorKeyOverrides
+      )
     )
     return supportedWallet?.address
   }
