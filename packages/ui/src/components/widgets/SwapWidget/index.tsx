@@ -240,7 +240,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         const promptSwitchRoute =
           (isCapacityExceededError || isCouldNotExecuteError) &&
-          supportsExternalLiquidity
+          supportsExternalLiquidity &&
+          !isSingleChainLocked
 
         return (
           <WidgetContainer
@@ -351,8 +352,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -671,8 +672,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -836,7 +837,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
-                  {error && !isFetchingPrice ? (
+                  {error && !isFetchingPrice && !isSingleChainLocked ? (
                     <Box
                       css={{
                         borderRadius: 'widget-card-border-radius',
