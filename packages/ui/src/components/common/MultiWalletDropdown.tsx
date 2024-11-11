@@ -1,4 +1,4 @@
-import { useMemo, useState, type FC } from 'react'
+import { useContext, useMemo, useState, type FC } from 'react'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { LinkedWallet } from '../../types/index.js'
@@ -10,6 +10,7 @@ import { eclipse, eclipseWallets, solana } from '../../utils/solana.js'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
 import { isValidAddress } from '../../utils/address.js'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
@@ -33,20 +34,30 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   setAddressModalOpen
 }) => {
   const [open, setOpen] = useState(false)
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const filteredWallets = useMemo(() => {
     if (!chain) return wallets
+
+    let eclipseConnectorKeys: string[] | undefined = undefined
+    if (connectorKeyOverrides && connectorKeyOverrides[eclipse.id]) {
+      eclipseConnectorKeys = connectorKeyOverrides[eclipse.id]
+    } else if (chain.vmType === 'svm') {
+      eclipseConnectorKeys = eclipseWallets
+    }
+
     return wallets.filter((wallet) => {
       if (wallet.vmType !== chain.vmType) {
         return false
       }
       if (
         chain.id === eclipse.id &&
-        !eclipseWallets.includes(wallet.connector.toLowerCase())
+        !eclipseConnectorKeys!.includes(wallet.connector.toLowerCase())
       ) {
         return false
       } else if (
         chain.id === solana.id &&
-        eclipseWallets.includes(wallet.connector.toLowerCase())
+        eclipseConnectorKeys!.includes(wallet.connector.toLowerCase())
       ) {
         return false
       }
@@ -65,9 +76,16 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
         chain?.vmType,
         selectedWalletAddress,
         chain?.id,
-        selectedWallet?.connector
+        selectedWallet?.connector,
+        connectorKeyOverrides
       ),
-    [selectedWalletAddress, selectedWallet, chain?.vmType, chain?.id]
+    [
+      selectedWalletAddress,
+      selectedWallet,
+      chain?.vmType,
+      chain?.id,
+      connectorKeyOverrides
+    ]
   )
 
   const showDropdown = context !== 'origin' || filteredWallets.length > 0

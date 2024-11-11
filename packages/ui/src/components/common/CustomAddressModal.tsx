@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect, useMemo } from 'react'
+import { type FC, useState, useEffect, useMemo, useContext } from 'react'
 import { Text, Flex, Button, Input, Pill } from '../primitives/index.js'
 import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
@@ -17,7 +17,7 @@ import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { isValidAddress } from '../../utils/address.js'
-import { eclipse, eclipseWallets } from '../../utils/solana.js'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 type Props = {
   open: boolean
@@ -50,6 +50,8 @@ export const CustomAddressModal: FC<Props> = ({
   const connectedAddress = useWalletAddress(wallet, linkedWallets)
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
 
   const availableWallets = useMemo(
     () =>
@@ -58,7 +60,8 @@ export const CustomAddressModal: FC<Props> = ({
           toChain?.vmType,
           wallet.address,
           toChain?.id,
-          wallet.connector
+          wallet.connector,
+          connectorKeyOverrides
         )
       ),
     [toChain, linkedWallets]

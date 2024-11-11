@@ -144,6 +144,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const relayClient = useRelayClient()
   const { connector } = useAccount()
   const [customToAddress, setCustomToAddress] = useState<
@@ -207,7 +208,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       toChain?.id,
       !customToAddress && _linkedWallet?.address === address
         ? _linkedWallet?.connector
-        : undefined
+        : undefined,
+      connectorKeyOverrides
     )
     if (
       multiWalletSupportEnabled &&
@@ -218,7 +220,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const supportedAddress = findSupportedWallet(
         toChain,
         customToAddress,
-        linkedWallets
+        linkedWallets,
+        connectorKeyOverrides
       )
 
       return supportedAddress
@@ -326,13 +329,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromChain?.vmType,
     address ?? '',
     fromChain?.id,
-    linkedWallet?.connector
+    linkedWallet?.connector,
+    connectorKeyOverrides
   )
   const fromAddressWithFallback = addressWithFallback(
     fromChain?.vmType,
     address,
     fromChain?.id,
-    linkedWallet?.connector
+    linkedWallet?.connector,
+    connectorKeyOverrides
   )
 
   const isValidToAddress = isValidAddress(toChain?.vmType, recipient ?? '')
