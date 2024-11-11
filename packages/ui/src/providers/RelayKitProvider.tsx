@@ -118,7 +118,8 @@ export const themeOverrides: ThemeOverridesMap = {
         background: '--relay-colors-widget-selector-hover-background'
       }
     },
-    swapCurrencyButtonBorderColor: '--widget-swap-currency-button-border-color'
+    swapCurrencyButtonBorderColor:
+      '--relay-colors-widget-swap-currency-button-border-color'
   },
   modal: {
     background: '--relay-colors-modal-background',
