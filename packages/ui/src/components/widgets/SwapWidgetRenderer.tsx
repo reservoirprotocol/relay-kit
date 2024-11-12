@@ -340,8 +340,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     connectorKeyOverrides
   )
 
-  const isValidToAddress = isValidAddress(toChain?.vmType, recipient ?? '')
-  const toAddressWithFallback = addressWithFallback(toChain?.vmType, recipient)
+  const isValidToAddress = isValidAddress(
+    toChain?.vmType,
+    recipient ?? '',
+    toChain?.id
+  )
+  const toAddressWithFallback = addressWithFallback(
+    toChain?.vmType,
+    recipient,
+    toChain?.id
+  )
 
   const externalLiquiditySupport = usePrice(
     relayClient ? relayClient : undefined,

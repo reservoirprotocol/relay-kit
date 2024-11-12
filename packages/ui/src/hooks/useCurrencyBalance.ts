@@ -87,7 +87,7 @@ const useCurrencyBalance = ({
     }
   })
 
-  const _isValidAddress = isValidAddress(chain?.vmType, address)
+  const _isValidAddress = isValidAddress(chain?.vmType, address, chain?.id)
 
   const duneBalances = useDuneBalances(address, {
     enabled: Boolean(
