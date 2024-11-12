@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.21
+
+### Patch Changes
+
+- dce3b7b: Ensure dead address is properly generated
+
 ## 2.2.20
 
 ### Patch Changes
