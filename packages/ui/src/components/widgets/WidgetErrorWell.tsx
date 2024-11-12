@@ -38,7 +38,9 @@ export const WidgetErrorWell: FC<Props> = ({
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
     ? error?.response?.data?.message
-      ? (error?.response?.data.message as string)
+      ? error?.response?.data.message === 'processing response error'
+        ? 'Amount is higher than the available liquidity.'
+        : (error?.response?.data.message as string)
       : 'Unknown Error'
     : null
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
