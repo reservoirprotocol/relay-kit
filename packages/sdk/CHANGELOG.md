@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.7
+
+### Patch Changes
+
+- a52745f: Update zero address for zero chain
+
 ## 1.4.6
 
 ### Patch Changes
