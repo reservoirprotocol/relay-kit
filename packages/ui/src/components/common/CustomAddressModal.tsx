@@ -77,7 +77,7 @@ export const CustomAddressModal: FC<Props> = ({
       setAddress('')
       setInput('')
     } else {
-      if (isValidAddress(toChain?.vmType, toAddress ?? '')) {
+      if (isValidAddress(toChain?.vmType, toAddress ?? '', toChain?.id)) {
         setAddress(toAddress ? toAddress : '')
         setInput(toAddress ? toAddress : '')
       }
@@ -90,7 +90,7 @@ export const CustomAddressModal: FC<Props> = ({
   )
 
   useEffect(() => {
-    if (isValidAddress(toChain?.vmType, input)) {
+    if (isValidAddress(toChain?.vmType, input, toChain?.id)) {
       setAddress(input)
     } else if (resolvedENS?.address) {
       setAddress(resolvedENS.address)
@@ -247,10 +247,10 @@ export const CustomAddressModal: FC<Props> = ({
           ) : null}
         </Flex>
         <Button
-          disabled={!isValidAddress(toChain?.vmType, address)}
+          disabled={!isValidAddress(toChain?.vmType, address, toChain?.id)}
           css={{ justifyContent: 'center' }}
           onClick={() => {
-            if (isValidAddress(toChain?.vmType, address)) {
+            if (isValidAddress(toChain?.vmType, address, toChain?.id)) {
               onConfirmed(address)
               onAnalyticEvent?.(EventNames.ADDRESS_MODAL_CONFIRMED, {
                 address: address,
