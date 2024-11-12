@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.20
+
+### Patch Changes
+
+- 04ba9cf: Fix zero quote api error message
+- 31b754f: Fix high price impact warning
+- Updated dependencies [a52745f]
+  - @reservoir0x/relay-sdk@1.4.7
+  - @reservoir0x/relay-kit-hooks@1.4.9
+
 ## 2.2.19
 
 ### Patch Changes
