@@ -1,20 +1,22 @@
-import { useMemo, useState, type FC } from 'react'
+import { useContext, useMemo, useState, type FC } from 'react'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { eclipse, eclipseWallets, solana } from '../../utils/solana.js'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
 import { isValidAddress } from '../../utils/address.js'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
   wallets: LinkedWallet[]
   selectedWalletAddress: string
-  vmType: ChainVM | undefined
+  chain?: RelayChain
   onSelect: (wallet: LinkedWallet) => void
   onLinkNewWallet: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -25,32 +27,71 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   context,
   wallets,
   selectedWalletAddress,
-  vmType,
+  chain,
   onSelect,
   onAnalyticEvent,
   onLinkNewWallet,
   setAddressModalOpen
 }) => {
   const [open, setOpen] = useState(false)
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const filteredWallets = useMemo(() => {
-    if (!vmType) return wallets
-    return wallets.filter((wallet) => wallet.vmType === vmType)
-  }, [wallets, vmType])
+    if (!chain) return wallets
 
-  const isSupportedSelectedWallet = useMemo(
-    () => isValidAddress(vmType, selectedWalletAddress),
-    [selectedWalletAddress, vmType]
-  )
+    let eclipseConnectorKeys: string[] | undefined = undefined
+    if (connectorKeyOverrides && connectorKeyOverrides[eclipse.id]) {
+      eclipseConnectorKeys = connectorKeyOverrides[eclipse.id]
+    } else if (chain.vmType === 'svm') {
+      eclipseConnectorKeys = eclipseWallets
+    }
+
+    return wallets.filter((wallet) => {
+      if (wallet.vmType !== chain.vmType) {
+        return false
+      }
+      if (
+        chain.id === eclipse.id &&
+        !eclipseConnectorKeys!.includes(wallet.connector.toLowerCase())
+      ) {
+        return false
+      } else if (
+        chain.id === solana.id &&
+        eclipseConnectorKeys!.includes(wallet.connector.toLowerCase())
+      ) {
+        return false
+      }
+      return true
+    })
+  }, [wallets, chain])
 
   const selectedWallet = useMemo(
     () => wallets.find((wallet) => wallet.address === selectedWalletAddress),
     [wallets, selectedWalletAddress]
   )
 
+  const isSupportedSelectedWallet = useMemo(
+    () =>
+      isValidAddress(
+        chain?.vmType,
+        selectedWalletAddress,
+        chain?.id,
+        selectedWallet?.connector,
+        connectorKeyOverrides
+      ),
+    [
+      selectedWalletAddress,
+      selectedWallet,
+      chain?.vmType,
+      chain?.id,
+      connectorKeyOverrides
+    ]
+  )
+
   const showDropdown = context !== 'origin' || filteredWallets.length > 0
 
   const { displayName } = useENSResolver(selectedWalletAddress, {
-    enabled: vmType === 'evm'
+    enabled: chain?.vmType === 'evm'
   })
 
   return (
@@ -112,7 +153,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               }}
             >
               {isSupportedSelectedWallet
-                ? displayName && vmType === 'evm'
+                ? displayName && chain?.vmType === 'evm'
                   ? displayName
                   : truncateAddress(selectedWalletAddress)
                 : 'Select wallet'}

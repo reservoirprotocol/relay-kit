@@ -6,7 +6,6 @@ import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createConfig, http, WagmiProvider } from 'wagmi'
 import { Chain, mainnet } from 'wagmi/chains'
-import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import {
   LogLevel,
@@ -29,6 +28,8 @@ import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { pipe } from '@dynamic-labs/utils'
+import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
+import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -52,7 +53,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   }, [router.query.api])
 
   const { chains, viemChains } = useRelayChains(relayApi, {
-    includeChains: '8253038'
+    includeChains: '9286185,8253038'
   })
 
   useEffect(() => {
@@ -170,7 +171,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletConnectors: [
               EthereumWalletConnectors,
               SolanaWalletConnectors,
-              BitcoinWalletConnectors
+              BitcoinWalletConnectors,
+              EclipseWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

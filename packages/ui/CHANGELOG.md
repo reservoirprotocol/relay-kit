@@ -1,5 +1,58 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.21
+
+### Patch Changes
+
+- dce3b7b: Ensure dead address is properly generated
+
+## 2.2.20
+
+### Patch Changes
+
+- 04ba9cf: Fix zero quote api error message
+- 31b754f: Fix high price impact warning
+- Updated dependencies [a52745f]
+  - @reservoir0x/relay-sdk@1.4.7
+  - @reservoir0x/relay-kit-hooks@1.4.9
+
+## 2.2.19
+
+### Patch Changes
+
+- fa63f61: Hide route selector in fee breakdown in single chain mode
+
+## 2.2.18
+
+### Patch Changes
+
+- 4fffded: Allow overriding chain to connector list
+
+## 2.2.17
+
+### Patch Changes
+
+- d1fd8ae: Remove route selector from single chain mode
+- 604b9f6: Add chain icon to token selector in single chain mode
+- ce675ba: Fix switch tokens button border theme
+
+## 2.2.16
+
+### Patch Changes
+
+- 0c92f0e: Add single chain mode to swap widget
+- Updated dependencies [1c68705]
+  - @reservoir0x/relay-kit-hooks@1.4.8
+
+## 2.2.15
+
+### Patch Changes
+
+- 69df434: Support for eclipse svm
+- Updated dependencies [69df434]
+  - @reservoir0x/relay-sdk@1.4.6
+  - @reservoir0x/relay-kit-hooks@1.4.7
+
 ## 2.2.14
 
 ### Patch Changes

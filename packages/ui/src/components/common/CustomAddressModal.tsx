@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect, useMemo } from 'react'
+import { type FC, useState, useEffect, useMemo, useContext } from 'react'
 import { Text, Flex, Button, Input, Pill } from '../primitives/index.js'
 import { Modal } from '../common/Modal.js'
 import { type Address } from 'viem'
@@ -17,6 +17,7 @@ import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { isValidAddress } from '../../utils/address.js'
+import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 type Props = {
   open: boolean
@@ -49,11 +50,19 @@ export const CustomAddressModal: FC<Props> = ({
   const connectedAddress = useWalletAddress(wallet, linkedWallets)
   const [address, setAddress] = useState('')
   const [input, setInput] = useState('')
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
 
   const availableWallets = useMemo(
     () =>
       linkedWallets.filter((wallet) =>
-        isValidAddress(toChain?.vmType, wallet.address)
+        isValidAddress(
+          toChain?.vmType,
+          wallet.address,
+          toChain?.id,
+          wallet.connector,
+          connectorKeyOverrides
+        )
       ),
     [toChain, linkedWallets]
   )
@@ -68,7 +77,7 @@ export const CustomAddressModal: FC<Props> = ({
       setAddress('')
       setInput('')
     } else {
-      if (isValidAddress(toChain?.vmType, toAddress ?? '')) {
+      if (isValidAddress(toChain?.vmType, toAddress ?? '', toChain?.id)) {
         setAddress(toAddress ? toAddress : '')
         setInput(toAddress ? toAddress : '')
       }
@@ -81,7 +90,7 @@ export const CustomAddressModal: FC<Props> = ({
   )
 
   useEffect(() => {
-    if (isValidAddress(toChain?.vmType, input)) {
+    if (isValidAddress(toChain?.vmType, input, toChain?.id)) {
       setAddress(input)
     } else if (resolvedENS?.address) {
       setAddress(resolvedENS.address)
@@ -238,10 +247,10 @@ export const CustomAddressModal: FC<Props> = ({
           ) : null}
         </Flex>
         <Button
-          disabled={!isValidAddress(toChain?.vmType, address)}
+          disabled={!isValidAddress(toChain?.vmType, address, toChain?.id)}
           css={{ justifyContent: 'center' }}
           onClick={() => {
-            if (isValidAddress(toChain?.vmType, address)) {
+            if (isValidAddress(toChain?.vmType, address, toChain?.id)) {
               onConfirmed(address)
               onAnalyticEvent?.(EventNames.ADDRESS_MODAL_CONFIRMED, {
                 address: address,

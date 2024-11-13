@@ -1,7 +1,7 @@
 {
-    "name": "@reservoir0x/relay-solana-wallet-adapter",
-    "version": "2.0.5",
-    "description": "A Solana adapter for use in @reservoir0x/relay-sdk",
+    "name": "@reservoir0x/relay-svm-wallet-adapter",
+    "version": "2.0.7",
+    "description": "An SVM (Solana Virtual Machine) adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
     "main": "./_cjs/src/index.js",
@@ -36,12 +36,16 @@
     },
     "keywords": [
         "solana",
+        "eclipse",
         "reservoir",
         "relay-solana-wallet-adapter",
+        "relay-svm-wallet-adapter",
         "reservoir-solana-wallet-adapter",
         "relay",
         "protocol",
-        "sdk-adapter"
+        "sdk-adapter",
+        "svm",
+        "solana-virtual-machine"
     ],
     "publishConfig": {
         "access": "public"

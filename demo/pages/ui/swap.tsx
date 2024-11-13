@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
@@ -24,6 +24,7 @@ import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
+import { isEclipseWallet } from '@dynamic-labs/eclipse'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -35,6 +36,7 @@ const SwapWidgetPage: NextPage = () => {
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
+  const [singleChainMode, setSingleChainMode] = useState(false)
   const _switchWallet = useSwitchWallet()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
@@ -68,17 +70,7 @@ const SwapWidgetPage: NextPage = () => {
       try {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
-          if (isSolanaWallet(primaryWallet)) {
-            const connection = await primaryWallet.getConnection()
-            const signer = await primaryWallet.getSigner()
-
-            adaptedWallet = adaptSolanaWallet(
-              primaryWallet.address,
-              792703809,
-              connection,
-              signer.signAndSendTransaction
-            )
-          } else if (isEthereumWallet(primaryWallet)) {
+          if (isEthereumWallet(primaryWallet)) {
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
           } else if (isBitcoinWallet(primaryWallet)) {
@@ -98,6 +90,21 @@ const SwapWidgetPage: NextPage = () => {
                   throw e
                 }
               }
+            )
+          } else if (
+            isSolanaWallet(primaryWallet) ||
+            isEclipseWallet(primaryWallet)
+          ) {
+            const connection = await (primaryWallet as any).getConnection()
+            const signer = await (primaryWallet as any).getSigner()
+            const _chainId = isEclipseWallet(primaryWallet)
+              ? 9286185
+              : 792703809
+            adaptedWallet = adaptSolanaWallet(
+              primaryWallet.address,
+              _chainId,
+              connection,
+              signer.signAndSendTransaction
             )
           }
           setWallet(adaptedWallet)
@@ -127,14 +134,37 @@ const SwapWidgetPage: NextPage = () => {
         }}
       >
         <SwapWidget
-          defaultToToken={{
-            chainId: 10,
-            address: '0x0000000000000000000000000000000000000000',
-            decimals: 18,
-            name: 'ETH',
-            symbol: 'ETH',
-            logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-          }}
+          key={`swap-widget-${singleChainMode ? 'single' : 'multi'}-chain`}
+          lockChainId={singleChainMode ? 8453 : undefined}
+          singleChainMode={singleChainMode}
+          defaultToToken={
+            singleChainMode
+              ? {
+                  chainId: 8453,
+                  address: '0x4200000000000000000000000000000000000006',
+                  decimals: 18,
+                  name: 'WETH',
+                  symbol: 'WETH',
+                  logoURI:
+                    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+                }
+              : {
+                  chainId: 10,
+                  address: '0x0000000000000000000000000000000000000000',
+                  decimals: 18,
+                  name: 'ETH',
+                  symbol: 'ETH',
+                  logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+                }
+          }
+          // defaultToToken={{
+          //   chainId: 10,
+          //   address: '0x0000000000000000000000000000000000000000',
+          //   decimals: 18,
+          //   name: 'ETH',
+          //   symbol: 'ETH',
+          //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+          // }}
           // lockToToken={true}
           // lockFromToken={true}
           defaultFromToken={{
@@ -169,6 +199,8 @@ const SwapWidgetPage: NextPage = () => {
               setWalletFilter('SOL')
             } else if (chain?.id === 8253038) {
               setWalletFilter('BTC')
+            } else if (chain?.id === 9286185) {
+              setWalletFilter('ECLIPSE')
             } else {
               setWalletFilter(undefined)
             }
@@ -230,6 +262,23 @@ const SwapWidgetPage: NextPage = () => {
             console.log('onSwapSuccess Triggered', data)
           }}
         />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: '40px'
+        }}
+      >
+        <div>
+          <label>Single Chain Mode: </label>
+          <input
+            type="checkbox"
+            checked={singleChainMode}
+            onChange={(e) => setSingleChainMode(e.target.checked)}
+          />
+        </div>
       </div>
     </Layout>
   )

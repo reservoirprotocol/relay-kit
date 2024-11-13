@@ -28,11 +28,14 @@ import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import { findSupportedWallet } from '../../utils/solana.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { formatBN } from '../../utils/numbers.js'
-import { addressWithFallback, isValidAddress } from '../../utils/address.js'
+import {
+  addressWithFallback,
+  isValidAddress,
+  findSupportedWallet
+} from '../../utils/address.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
@@ -141,6 +144,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   onAnalyticEvent
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const relayClient = useRelayClient()
   const { connector } = useAccount()
   const [customToAddress, setCustomToAddress] = useState<
@@ -195,9 +199,17 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const defaultRecipient = useMemo(() => {
+    const _linkedWallet = linkedWallets?.find(
+      (linkedWallet) => address === linkedWallet.address
+    )
     const _isValidToAddress = isValidAddress(
       toChain?.vmType,
-      customToAddress ?? address ?? ''
+      customToAddress ?? address ?? '',
+      toChain?.id,
+      !customToAddress && _linkedWallet?.address === address
+        ? _linkedWallet?.connector
+        : undefined,
+      connectorKeyOverrides
     )
     if (
       multiWalletSupportEnabled &&
@@ -206,9 +218,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       !_isValidToAddress
     ) {
       const supportedAddress = findSupportedWallet(
-        toChain.vmType,
+        toChain,
         customToAddress,
-        linkedWallets
+        linkedWallets,
+        connectorKeyOverrides
       )
 
       return supportedAddress
@@ -308,26 +321,46 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const isSvmSwap = fromChain?.vmType === 'svm' || toChain?.vmType === 'svm'
   const isBvmSwap = fromChain?.vmType === 'bvm' || toChain?.vmType === 'bvm'
-
-  const isValidFromAddress = isValidAddress(fromChain?.vmType, address ?? '')
-  const fromAddressWithFallback = addressWithFallback(
-    fromChain?.vmType,
-    address
+  const linkedWallet = linkedWallets?.find(
+    (linkedWallet) => address === linkedWallet.address
   )
 
-  const isValidToAddress = isValidAddress(toChain?.vmType, recipient ?? '')
-  const toAddressWithFallback = addressWithFallback(toChain?.vmType, recipient)
+  const isValidFromAddress = isValidAddress(
+    fromChain?.vmType,
+    address ?? '',
+    fromChain?.id,
+    linkedWallet?.connector,
+    connectorKeyOverrides
+  )
+  const fromAddressWithFallback = addressWithFallback(
+    fromChain?.vmType,
+    address,
+    fromChain?.id,
+    linkedWallet?.connector,
+    connectorKeyOverrides
+  )
+
+  const isValidToAddress = isValidAddress(
+    toChain?.vmType,
+    recipient ?? '',
+    toChain?.id
+  )
+  const toAddressWithFallback = addressWithFallback(
+    toChain?.vmType,
+    recipient,
+    toChain?.id
+  )
 
   const externalLiquiditySupport = usePrice(
     relayClient ? relayClient : undefined,
     fromToken && toToken
       ? {
-          user: getDeadAddress(fromChain?.vmType),
+          user: getDeadAddress(fromChain?.vmType, fromChain?.id),
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
           destinationCurrency: toToken.address,
-          recipient: getDeadAddress(toChain?.vmType),
+          recipient: getDeadAddress(toChain?.vmType, toChain?.id),
           tradeType,
           appFees: providerOptionsContext.appFees,
           amount: '10000000000000000000000', //Hardcode an extremely high number

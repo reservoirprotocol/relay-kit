@@ -24,7 +24,7 @@ import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
-import { solana } from '../../../utils/solana.js'
+import { eclipse, solana } from '../../../utils/solana.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import {
   getRelayUiKitData,
@@ -126,6 +126,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           (chain) =>
             chain.vmType === 'evm' ||
             chain.id === solana.id ||
+            chain.id === eclipse.id ||
             chain.id === bitcoin.id
         )
       : configuredChains
@@ -334,6 +335,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               //@ts-ignore: todo remove once we have api support
               currency.vmType !== 'bvm' ||
               currency.chainId === solana.id ||
+              currency.chainId === eclipse.id ||
               currency.chainId === bitcoin.id) &&
             (context !== 'from' ||
               multiWalletSupportEnabled ||
