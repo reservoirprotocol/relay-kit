@@ -29,7 +29,7 @@ type SwapSuccessStepProps = {
   fromAmountFormatted: string
   toAmountFormatted: string
   allTxHashes: TxHashes
-  transaction: ReturnType<typeof useRequests>['data']['0']
+  transaction?: ReturnType<typeof useRequests>['data']['0']
   seconds: number
   fillTime: string
   timeEstimate?: string

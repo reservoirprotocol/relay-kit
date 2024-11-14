@@ -103,6 +103,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
+  const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
@@ -140,7 +141,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         setFromToken,
         toToken,
         setToToken,
-        swapError,
         error,
         toDisplayName,
         address,
@@ -149,7 +149,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         setCustomToAddress,
         tradeType,
         setTradeType,
-        details,
         isSameCurrencySameRecipientSwap,
         debouncedInputAmountValue,
         debouncedAmountInputControls,
@@ -184,7 +183,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         useExternalLiquidity,
         canonicalTimeEstimate,
         setUseExternalLiquidity,
-        setDetails,
         setSwapError,
         invalidateBalanceQueries
       }) => {
@@ -252,14 +250,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
+            depositAddressModalOpen={depositAddressModalOpen}
+            setDepositAddressModalOpen={setDepositAddressModalOpen}
             addressModalOpen={addressModalOpen}
             setAddressModalOpen={setAddressModalOpen}
             fromToken={fromToken}
             fromChain={fromChain}
             toToken={toToken}
             toChain={toChain}
-            swapError={swapError}
-            price={price}
             address={address}
             recipient={recipient}
             amountInputValue={amountInputValue}
@@ -268,6 +266,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             debouncedOutputAmountValue={debouncedOutputAmountValue}
             tradeType={tradeType}
             onSwapModalOpenChange={(open) => {
+              if (!open) {
+                setSwapError(null)
+              }
+            }}
+            onDepositAddressModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
               }
@@ -357,8 +360,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -417,9 +420,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                              fromToken?.chainId === lockChainId
-                            ? [fromToken?.chainId]
-                            : undefined
+                                fromToken?.chainId === lockChainId
+                              ? [fromToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -678,8 +681,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -765,9 +768,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                              toToken?.chainId === lockChainId
-                            ? [toToken?.chainId]
-                            : undefined
+                                toToken?.chainId === lockChainId
+                              ? [toToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
@@ -953,6 +956,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
+                        //TEMPORARY
+                        //TODO remove this test code
+                        setDepositAddressModalOpen(true)
+                        return
+
                         // If either address is not valid, open the link wallet modal
                         if (!isValidToAddress || !isValidFromAddress) {
                           if (multiWalletSupportEnabled) {
