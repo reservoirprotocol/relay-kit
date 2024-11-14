@@ -138,9 +138,11 @@ export const CustomAddressModal: FC<Props> = ({
                 height: 48
               }}
               placeholder={
-                toChain?.vmType === 'evm'
+                !toChain
+                  ? 'Enter address'
+                  : toChain.vmType === 'evm'
                   ? 'Address or ENS'
-                  : `Enter ${toChain?.displayName} address`
+                  : `Enter ${toChain.displayName} address`
               }
               value={input}
               onChange={(e) => {
