@@ -25,7 +25,7 @@ import { useRelayClient } from '../../../hooks/index.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount } from 'wagmi'
-import { extractQuoteId } from '../../../utils/quote.js'
+import { extractDepositAddress, extractQuoteId } from '../../../utils/quote.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 
 export enum TransactionProgressStep {
@@ -43,7 +43,6 @@ export type ChildrenProps = {
   setProgressStep: Dispatch<SetStateAction<TransactionProgressStep>>
   quote: ReturnType<typeof useQuote>['data']
   isFetchingQuote: boolean
-  isRefetchingQuote: boolean
   quoteError: Error | null
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
@@ -53,7 +52,7 @@ export type ChildrenProps = {
   seconds: number
   fillTime: string
   requestId: string | null
-  quoteUpdatedAt: number
+  depositAddress?: string
 }
 
 type Props = {
@@ -75,7 +74,6 @@ type Props = {
   onSuccess?: (quote: ReturnType<typeof useQuote>['data']) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
-  onValidating?: (quote: Execute) => void
 }
 
 export const DepositAddressModalRenderer: FC<Props> = ({
@@ -95,8 +93,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   children,
   onSuccess,
   onAnalyticEvent,
-  onSwapError,
-  onValidating
+  onSwapError
 }) => {
   const [progressStep, setProgressStep] = useState(
     TransactionProgressStep.WaitingForDeposit
@@ -112,9 +109,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const {
     data: quote,
     isLoading: isFetchingQuote,
-    isRefetching: isRefetchingQuote,
-    error: quoteError,
-    dataUpdatedAt: quoteUpdatedAt
+    error: quoteError
   } = useQuote(
     relayClient ? relayClient : undefined,
     undefined,
@@ -134,7 +129,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           ).toString(),
           referrer: relayClient?.source ?? undefined,
           useDepositAddress: true,
-          refundTo: refundAddress
+          // refundTo: refundAddress
+          refundTo: '0x03508bB71268BBA25ECaCC8F620e01866650532c'
         }
       : undefined,
     () => {},
@@ -153,7 +149,6 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       })
     },
     {
-      staleTime: 10000,
       enabled: Boolean(
         open &&
           progressStep === TransactionProgressStep.WaitingForDeposit &&
@@ -371,6 +366,11 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     [quote]
   )
 
+  const depositAddress = useMemo(
+    () => extractDepositAddress(quote?.steps as Execute['steps']),
+    [quote]
+  )
+
   return (
     <>
       {children({
@@ -378,7 +378,6 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         setProgressStep,
         quote,
         isFetchingQuote,
-        isRefetchingQuote,
         quoteError,
         swapError,
         setSwapError,
@@ -387,8 +386,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         transaction: undefined,
         fillTime,
         seconds,
-        quoteUpdatedAt,
-        requestId
+        requestId,
+        depositAddress
       })}
     </>
   )

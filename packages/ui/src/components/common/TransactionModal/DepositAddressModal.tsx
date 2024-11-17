@@ -16,6 +16,7 @@ import { type Token } from '../../../types/index.js'
 import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import { extractQuoteId } from '../../../utils/quote.js'
+import { WaitingForDepositStep } from './steps/WaitingForDepositStep.js'
 
 type DepositAddressModalProps = {
   open: boolean
@@ -47,6 +48,7 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
     fromToken,
     toToken,
     recipient,
+    refundAddress,
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     amountInputValue,
@@ -68,14 +70,9 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
       debouncedOutputAmountValue={debouncedOutputAmountValue}
       address={address}
       recipient={recipient}
+      refundAddress={refundAddress}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onAnalyticEvent={onAnalyticEvent}
-      onValidating={(quote) => {
-        const steps = quote?.steps
-        onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
-          quote_id: steps ? extractQuoteId(steps) : undefined
-        })
-      }}
       onSuccess={(quote) => {
         const details = quote?.details
         const fees = quote?.fees
@@ -152,7 +149,6 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   toToken,
   quote,
   isFetchingQuote,
-  isRefetchingQuote,
   quoteError,
   address,
   swapError,
@@ -166,7 +162,10 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   timeEstimate,
   fillTime,
   seconds,
-  fromChain
+  fromChain,
+  recipient,
+  refundAddress,
+  depositAddress
 }) => {
   useEffect(() => {
     if (!open) {
@@ -230,27 +229,18 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
           {isWaitingForDeposit ? 'Send Funds' : 'Trade Details'}
         </Text>
 
-        {/* {progressStep === TransactionProgressStep.ReviewQuote ? (
-          <ReviewQuoteStep
+        {progressStep === TransactionProgressStep.WaitingForDeposit ? (
+          <WaitingForDepositStep
             fromToken={fromToken}
             toToken={toToken}
+            fromChain={fromChain}
             fromAmountFormatted={fromAmountFormatted}
             toAmountFormatted={toAmountFormatted}
-            feeBreakdown={feeBreakdown}
             isFetchingQuote={isFetchingQuote}
-            isRefetchingQuote={isRefetchingQuote}
-            quoteUpdatedAt={quoteUpdatedAt}
-            quote={quote}
-            swap={swap}
-            address={address}
-            linkedWallets={linkedWallets}
-            multiWalletSupportEnabled={multiWalletSupportEnabled}
-            useExternalLiquidity={useExternalLiquidity}
-            waitingForSteps={waitingForSteps}
+            recipientAddress={recipient}
+            refundAddress={refundAddress}
+            depositAddress={depositAddress}
           />
-        ) : null} */}
-        {progressStep === TransactionProgressStep.WaitingForDeposit ? (
-          <div></div>
         ) : null}
 
         {progressStep === TransactionProgressStep.WalletConfirmation ? (
