@@ -6,8 +6,7 @@ import {
   type ReactNode,
   type SetStateAction,
   type Dispatch,
-  useContext,
-  useCallback
+  useContext
 } from 'react'
 import { parseUnits, type Address } from 'viem'
 import {
@@ -20,17 +19,21 @@ import {
   extractDepositRequestId
 } from '../../../utils/relayTransaction.js'
 import type { Token } from '../../../types/index.js'
-import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
+import {
+  useQuote,
+  useRequests,
+  useExecutionStatus
+} from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount } from 'wagmi'
 import { extractDepositAddress, extractQuoteId } from '../../../utils/quote.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
+import { useQueryClient } from '@tanstack/react-query'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
-  WalletConfirmation,
   Validating,
   Success,
   Error
@@ -47,12 +50,12 @@ export type ChildrenProps = {
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   allTxHashes: TxHashes
-  setAllTxHashes: Dispatch<SetStateAction<TxHashes>>
   transaction?: ReturnType<typeof useRequests>['data']['0']
   seconds: number
   fillTime: string
   requestId: string | null
   depositAddress?: string
+  executionStatus?: ReturnType<typeof useExecutionStatus>['data']
 }
 
 type Props = {
@@ -71,7 +74,10 @@ type Props = {
   wallet?: AdaptedWallet
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
-  onSuccess?: (quote: ReturnType<typeof useQuote>['data']) => void
+  onSuccess?: (
+    quote: ReturnType<typeof useQuote>['data'],
+    executionStatus: ReturnType<typeof useExecutionStatus>['data']
+  ) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
 }
@@ -84,8 +90,6 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   toToken,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
-  amountInputValue,
-  amountOutputValue,
   recipient,
   customToAddress,
   refundAddress,
@@ -95,10 +99,10 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   onAnalyticEvent,
   onSwapError
 }) => {
+  const queryClient = useQueryClient()
   const [progressStep, setProgressStep] = useState(
     TransactionProgressStep.WaitingForDeposit
   )
-  const [allTxHashes, setAllTxHashes] = useState<TxHashes>([])
   const [swapError, setSwapError] = useState<Error | null>(null)
 
   const relayClient = useRelayClient()
@@ -107,9 +111,11 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const deadAddress = getDeadAddress(fromChain?.vmType, fromChain?.id)
 
   const {
-    data: quote,
+    data: quoteData,
     isLoading: isFetchingQuote,
-    error: quoteError
+    isRefetching,
+    error: quoteError,
+    queryKey
   } = useQuote(
     relayClient ? relayClient : undefined,
     undefined,
@@ -158,208 +164,17 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           Number(debouncedInputAmountValue) !== 0 &&
           fromToken !== undefined &&
           toToken !== undefined
-      )
+      ),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: false,
+      refetchOnMount: false,
+      retryOnMount: false,
+      staleTime: Infinity
     }
   )
 
-  // const swap = useCallback(async () => {
-  //   const swapErrorHandler = (error: any) => {
-  //     if (
-  //       error &&
-  //       ((typeof error.message === 'string' &&
-  //         error.message.includes('rejected')) ||
-  //         (typeof error === 'string' && error.includes('rejected')))
-  //     ) {
-  //       onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
-  //       setProgressStep(TransactionProgressStep.ReviewQuote)
-  //       return
-  //     }
-
-  //     const errorMessage = error?.response?.data?.message
-  //       ? new Error(error?.response?.data?.message)
-  //       : error
-
-  //     onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-  //       error_message: errorMessage,
-  //       wallet_connector: connector?.name,
-  //       quote_id: steps ? extractQuoteId(steps) : undefined,
-  //       amount_in: parseFloat(`${debouncedInputAmountValue}`),
-  //       currency_in: fromToken?.symbol,
-  //       chain_id_in: fromToken?.chainId,
-  //       amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-  //       currency_out: toToken?.symbol,
-  //       chain_id_out: toToken?.chainId,
-  //       is_canonical: useExternalLiquidity,
-  //       txHashes: steps
-  //         ?.map((step) => {
-  //           let txHashes: { chainId: number; txHash: string }[] = []
-  //           step.items?.forEach((item) => {
-  //             if (item.txHashes) {
-  //               txHashes = txHashes.concat([
-  //                 ...(item.txHashes ?? []),
-  //                 ...(item.internalTxHashes ?? [])
-  //               ])
-  //             }
-  //           })
-  //           return txHashes
-  //         })
-  //         .flat()
-  //     })
-  //     setSwapError(errorMessage)
-  //     onSwapError?.(errorMessage, quote as Execute)
-  //   }
-
-  //   try {
-  //     onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
-  //     setWaitingForSteps(true)
-
-  //     if (!executeSwap) {
-  //       throw 'Missing a quote'
-  //     }
-
-  //     if (!wallet && !walletClient.data) {
-  //       throw 'Missing a wallet'
-  //     }
-
-  //     const _wallet =
-  //       wallet ?? adaptViemWallet(walletClient.data as WalletClient)
-
-  //     const activeWalletChainId = await _wallet?.getChainId()
-
-  //     if (fromToken && fromToken?.chainId !== activeWalletChainId) {
-  //       onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
-  //       await _wallet?.switchChain(fromToken.chainId)
-  //     }
-
-  //     setProgressStep(TransactionProgressStep.WalletConfirmation)
-
-  //     executeSwap(({ steps: currentSteps }) => {
-  //       setSteps(currentSteps)
-  //     })
-  //       ?.catch((error: any) => {
-  //         swapErrorHandler(error)
-  //       })
-  //       .finally(() => {
-  //         setWaitingForSteps(false)
-  //         invalidateBalanceQueries()
-  //       })
-  //   } catch (error: any) {
-  //     swapErrorHandler(error)
-  //     setWaitingForSteps(false)
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [
-  //   relayClient,
-  //   address,
-  //   connector,
-  //   wallet,
-  //   walletClient,
-  //   fromToken,
-  //   toToken,
-  //   customToAddress,
-  //   recipient,
-  //   debouncedInputAmountValue,
-  //   debouncedOutputAmountValue,
-  //   useExternalLiquidity,
-  //   waitingForSteps,
-  //   executeSwap,
-  //   setSteps,
-  //   invalidateBalanceQueries
-  // ])
-
-  // useEffect(() => {
-  //   if (swapError || (quoteError && !isRefetchingQuote)) {
-  //     setProgressStep(TransactionProgressStep.Error)
-  //     return
-  //   }
-  //   if (!steps) {
-  //     return
-  //   }
-
-  //   const executableSteps = steps.filter(
-  //     (step) => step.items && step.items.length > 0
-  //   )
-
-  //   let stepCount = executableSteps.length
-  //   let txHashes: TxHashes = []
-  //   let currentStep: NonNullable<Execute['steps']>['0'] | null = null
-  //   let currentStepItem:
-  //     | NonNullable<Execute['steps'][0]['items']>[0]
-  //     | undefined
-
-  //   for (const step of executableSteps) {
-  //     for (const item of step.items || []) {
-  //       if (item.txHashes && item.txHashes.length > 0) {
-  //         txHashes = item.txHashes.concat([...txHashes])
-  //       }
-  //       if (item.internalTxHashes && item.internalTxHashes.length > 0) {
-  //         txHashes = item.internalTxHashes.concat([...txHashes])
-  //       }
-  //       if (item.status === 'incomplete') {
-  //         currentStep = step
-  //         currentStepItem = item
-
-  //         break // Exit the inner loop once the first incomplete item is found
-  //       }
-  //     }
-  //     if (currentStep && currentStepItem) break // Exit the outer loop if the current step and item have been found
-  //   }
-
-  //   setAllTxHashes(txHashes)
-
-  //   if (
-  //     (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
-  //     progressStep === TransactionProgressStep.WalletConfirmation
-  //   ) {
-  //     onValidating?.(quote as Execute)
-  //     setProgressStep(TransactionProgressStep.Validating)
-  //     setStartTimestamp(new Date().getTime())
-  //   }
-
-  //   if (!currentStep) {
-  //     currentStep = executableSteps[stepCount - 1]
-  //   }
-
-  //   setCurrentStep(currentStep)
-  //   setCurrentStepItem(currentStepItem)
-  //   if (
-  //     steps.every(
-  //       (step) =>
-  //         !step.items ||
-  //         step.items.length == 0 ||
-  //         step.items?.every((item) => item.status === 'complete')
-  //     ) &&
-  //     progressStep !== TransactionProgressStep.Success
-  //   ) {
-  //     setProgressStep(TransactionProgressStep.Success)
-  //     onSuccess?.(quote, steps)
-  //   }
-  // }, [steps, quoteError, swapError])
-
-  // Fetch Success Tx
-  // const { data: transactions } = useRequests(
-  //   (progressStep === TransactionProgressStep.Success ||
-  //     progressStep === TransactionProgressStep.Error) &&
-  //     allTxHashes[0]
-  //     ? {
-  //         user: address,
-  //         hash: allTxHashes[0]?.txHash
-  //       }
-  //     : undefined,
-  //   relayClient?.baseApiUrl,
-  //   {
-  //     enabled:
-  //       (progressStep === TransactionProgressStep.Success ||
-  //         progressStep === TransactionProgressStep.Error) &&
-  //       allTxHashes[0]
-  //         ? true
-  //         : false
-  //   }
-  // )
-
-  //TODO
-  const transaction = null
-  const { fillTime, seconds } = calculateFillTime(transaction)
+  const quote = isFetchingQuote || isRefetching ? undefined : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
@@ -371,23 +186,140 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     [quote]
   )
 
+  useEffect(() => {
+    if (!open) {
+      if (quote) {
+        onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_MODAL_CLOSED)
+      }
+      setSwapError(null)
+      queryClient.invalidateQueries({ queryKey })
+    } else {
+      setProgressStep(TransactionProgressStep.WaitingForDeposit)
+      onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_MODAL_OPEN)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  const { data: executionStatus } = useExecutionStatus(
+    relayClient ? relayClient : undefined,
+    {
+      requestId: requestId ?? undefined
+    },
+    undefined,
+    undefined,
+    {
+      enabled: requestId !== null && open,
+      refetchInterval(query) {
+        const observableStates = ['waiting', 'pending', 'delayed']
+
+        if (
+          !query.state.data?.status ||
+          (requestId && observableStates.includes(query.state.data?.status))
+        ) {
+          return 1000
+        }
+        return 0
+      }
+    }
+  )
+
+  useEffect(() => {
+    if (
+      executionStatus?.status === 'failure' ||
+      executionStatus?.status === 'refund'
+    ) {
+      const swapError = new Error(
+        executionStatus?.details ??
+          'Oops! Something went wrong while processing your transaction.'
+      )
+      if (progressStep !== TransactionProgressStep.Error) {
+        onSwapError?.(swapError.message, quote as Execute)
+      }
+      setProgressStep(TransactionProgressStep.Error)
+      onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_SWAP_ERROR, {
+        error_message: executionStatus.details,
+        wallet_connector: connector?.name,
+        quote_id: requestId,
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        txHashes: executionStatus.txHashes ?? []
+      })
+      setSwapError(swapError)
+      invalidateBalanceQueries()
+    } else if (executionStatus?.status === 'success') {
+      if (progressStep !== TransactionProgressStep.Success) {
+        onSuccess?.(quote, executionStatus)
+      }
+      setProgressStep(TransactionProgressStep.Success)
+      invalidateBalanceQueries()
+    } else if (executionStatus?.status === 'pending') {
+      setProgressStep(TransactionProgressStep.Validating)
+    }
+  }, [executionStatus?.status])
+
+  const allTxHashes = useMemo(() => {
+    const _allTxHashes: TxHashes = []
+    executionStatus?.txHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: toToken?.chainId as number
+      })
+    })
+
+    executionStatus?.inTxHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: fromToken?.chainId as number
+      })
+    })
+    return _allTxHashes
+  }, [executionStatus?.txHashes, executionStatus?.inTxHashes])
+
+  const { data: transactions } = useRequests(
+    (progressStep === TransactionProgressStep.Success ||
+      progressStep === TransactionProgressStep.Error) &&
+      allTxHashes[0]
+      ? {
+          user: address,
+          hash: allTxHashes[0]?.txHash
+        }
+      : undefined,
+    relayClient?.baseApiUrl,
+    {
+      enabled:
+        (progressStep === TransactionProgressStep.Success ||
+          progressStep === TransactionProgressStep.Error) &&
+        allTxHashes[0]
+          ? true
+          : false
+    }
+  )
+
+  const transaction = transactions[0]
+
+  const { fillTime, seconds } = calculateFillTime(transaction)
+
   return (
     <>
       {children({
         progressStep,
         setProgressStep,
         quote,
-        isFetchingQuote,
+        isFetchingQuote: isFetchingQuote || isRefetching,
         quoteError,
         swapError,
         setSwapError,
         allTxHashes,
-        setAllTxHashes,
         transaction: undefined,
         fillTime,
         seconds,
         requestId,
-        depositAddress
+        depositAddress,
+        executionStatus
       })}
     </>
   )

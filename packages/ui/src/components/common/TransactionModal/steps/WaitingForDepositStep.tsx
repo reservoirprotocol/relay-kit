@@ -177,13 +177,18 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
         color="gray"
         css={{ display: 'flex', alignItems: 'center', gap: '3', p: '3' }}
       >
-        <Text style="subtitle2" ellipsify>
-          {depositAddress}
-        </Text>
+        {isFetchingQuote ? (
+          <Skeleton css={{ height: 16, width: '100%' }} />
+        ) : (
+          <Text style="subtitle2" ellipsify>
+            {depositAddress}
+          </Text>
+        )}
         <CopyToClipBoard text={depositAddress ?? ''} />
         <Anchor
           href={`${blockExplorerBase}/address/${depositAddress}`}
           target="_blank"
+          color="gray"
           css={{ display: 'flex', alignItems: 'center', gap: '1' }}
         >
           <FontAwesomeIcon

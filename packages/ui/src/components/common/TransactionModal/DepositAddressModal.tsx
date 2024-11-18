@@ -9,14 +9,13 @@ import {
 import { Modal } from '../Modal.js'
 import { Flex, Text } from '../../primitives/index.js'
 import { ErrorStep } from './steps/ErrorStep.js'
-import { ValidatingStep } from './steps/ValidatingStep.js'
 import { EventNames } from '../../../constants/events.js'
-import { SwapConfirmationStep } from './steps/SwapConfirmationStep.js'
 import { type Token } from '../../../types/index.js'
 import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import { WaitingForDepositStep } from './steps/WaitingForDepositStep.js'
+import { DepositAddressValidatingStep } from './steps/DepositAddressValidatingStep.js'
 
 type DepositAddressModalProps = {
   open: boolean
@@ -73,7 +72,7 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
       refundAddress={refundAddress}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onAnalyticEvent={onAnalyticEvent}
-      onSuccess={(quote) => {
+      onSuccess={(quote, executionStatus) => {
         const details = quote?.details
         const fees = quote?.fees
 
@@ -101,22 +100,11 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
           currency_in: fromToken?.symbol,
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
-          quote_id: quoteId
-          //TODO
-          // txHashes: steps
-          //   ?.map((step) => {
-          //     let txHashes: { chainId: number; txHash: string }[] = []
-          //     step.items?.forEach((item) => {
-          //       if (item.txHashes) {
-          //         txHashes = txHashes.concat([
-          //           ...(item.txHashes ?? []),
-          //           ...(item.internalTxHashes ?? [])
-          //         ])
-          //       }
-          //     })
-          //     return txHashes
-          //   })
-          //   .flat()
+          quote_id: quoteId,
+          txHashes: [
+            ...(executionStatus?.inTxHashes ?? []),
+            ...(executionStatus?.txHashes ?? [])
+          ]
         })
         onSuccess?.({
           steps: quote?.steps as Execute['steps'],
@@ -152,35 +140,18 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   quoteError,
   address,
   swapError,
-  setSwapError,
   progressStep,
-  setProgressStep,
   allTxHashes,
-  setAllTxHashes,
   transaction,
-  onAnalyticEvent,
   timeEstimate,
   fillTime,
   seconds,
   fromChain,
   recipient,
   refundAddress,
-  depositAddress
+  depositAddress,
+  executionStatus
 }) => {
-  useEffect(() => {
-    if (!open) {
-      if (quote) {
-        onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_MODAL_CLOSED)
-      }
-      setAllTxHashes([])
-      setSwapError(null)
-    } else {
-      setProgressStep(TransactionProgressStep.WaitingForDeposit)
-      onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_MODAL_OPEN)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
-
   const details = quote?.details
 
   const fromAmountFormatted = details?.currencyIn?.amount
@@ -243,20 +214,12 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
           />
         ) : null}
 
-        {progressStep === TransactionProgressStep.WalletConfirmation ? (
-          <SwapConfirmationStep
-            fromToken={fromToken}
-            toToken={toToken}
-            fromAmountFormatted={fromAmountFormatted}
-            toAmountFormatted={toAmountFormatted}
+        {progressStep === TransactionProgressStep.Validating ? (
+          <DepositAddressValidatingStep
+            status={executionStatus?.status}
+            txHashes={executionStatus?.txHashes ?? []}
           />
         ) : null}
-        {/* {progressStep === TransactionProgressStep.Validating ? (
-          <ValidatingStep
-            currentStep={currentStep}
-            currentStepItem={currentStepItem}
-          />
-        ) : null} */}
         {progressStep === TransactionProgressStep.Success ? (
           <SwapSuccessStep
             fromToken={fromToken}
