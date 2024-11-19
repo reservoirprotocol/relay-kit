@@ -277,7 +277,7 @@ const SwapWidgetPage: NextPage = () => {
       >
         <button
           disabled={!primaryWallet?.address}
-          onClick={async () => {
+          onClick={() => {
             try {
               console.log('Minting to: ', primaryWallet?.address)
               writeContract({
