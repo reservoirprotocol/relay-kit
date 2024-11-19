@@ -25,8 +25,12 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
+import { useWriteContract } from 'wagmi'
+import { abi } from './abi'
 
 const SwapWidgetPage: NextPage = () => {
+  const { writeContract } = useWriteContract()
+
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
       linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
@@ -271,6 +275,25 @@ const SwapWidgetPage: NextPage = () => {
           marginTop: '40px'
         }}
       >
+        <button
+          disabled={!primaryWallet?.address}
+          onClick={async () => {
+            try {
+              console.log('Minting to: ', primaryWallet?.address)
+              writeContract({
+                abi,
+                address: '0x2021e7aeb131acf6d103f182f665cd0272c37b7d',
+                functionName: 'mint',
+                chainId: 8453,
+                args: [primaryWallet?.address as `0x${string}`, 1]
+              })
+            } catch (e) {
+              console.log(e)
+            }
+          }}
+        >
+          Mint on Base
+        </button>
         <div>
           <label>Single Chain Mode: </label>
           <input
