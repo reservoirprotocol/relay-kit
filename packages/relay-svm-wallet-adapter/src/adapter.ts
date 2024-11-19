@@ -97,7 +97,7 @@ export const adaptSolanaWallet = (
       })
 
       if (result.value.err) {
-        throw new Error(`Transaction failed: ${ result.value.err }`)
+        throw new Error(`Transaction failed: ${result.value.err}`)
       }
 
       return {
