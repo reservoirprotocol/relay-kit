@@ -26,7 +26,7 @@ import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
 import { useWriteContract } from 'wagmi'
-import { abi } from './abi'
+import { abi } from '../../components/abi'
 
 const SwapWidgetPage: NextPage = () => {
   const { writeContract } = useWriteContract()
