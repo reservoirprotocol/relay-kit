@@ -77,6 +77,9 @@ export const adaptSolanaWallet = (
         ['Transaction Signature obtained', signature],
         LogLevel.Verbose
       )
+      if (signature && typeof signature === 'string') {
+        return signature;
+      }
 
       return signature.signature
     },
@@ -94,7 +97,7 @@ export const adaptSolanaWallet = (
       })
 
       if (result.value.err) {
-        throw new Error(`Transaction failed: ${result.value.err}`)
+        throw new Error(`Transaction failed: ${ result.value.err }`)
       }
 
       return {
