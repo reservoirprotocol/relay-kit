@@ -262,11 +262,14 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   }, [executionStatus?.status])
 
   const allTxHashes = useMemo(() => {
+    const isRefund = executionStatus?.status === 'refund'
     const _allTxHashes: TxHashes = []
     executionStatus?.txHashes?.forEach((txHash) => {
       _allTxHashes.push({
         txHash,
-        chainId: toToken?.chainId as number
+        chainId: isRefund
+          ? (fromToken?.chainId as number)
+          : (toToken?.chainId as number)
       })
     })
 

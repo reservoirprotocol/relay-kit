@@ -1,4 +1,4 @@
-import { Flex, Button, Text, Box } from '../../primitives/index.js'
+import { Flex, Button, Text, Box, Pill } from '../../primitives/index.js'
 import { useContext, useEffect, useState, type FC } from 'react'
 import { useMounted, useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -11,7 +11,7 @@ import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -36,6 +36,9 @@ import {
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+import Tooltip from '../../primitives/Tooltip.js'
+import RefundAddressSection from '../RefundAddressSection.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -49,6 +52,7 @@ type BaseSwapWidgetProps = {
   singleChainMode?: boolean
   tokens?: Token[]
   wallet?: AdaptedWallet
+  supportedWalletVMs: ChainVM[]
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -90,6 +94,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
+  supportedWalletVMs,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
@@ -133,6 +138,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       checkExternalLiquiditySupport={true}
+      supportedWalletVMs={supportedWalletVMs}
     >
       {({
         price,
@@ -182,6 +188,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         supportsExternalLiquidity,
         useExternalLiquidity,
         canonicalTimeEstimate,
+        fromChainWalletVMSupported,
+        toChainWalletVMSupported,
+        isValidRefundAddress,
+        refundAddress,
+        setRefundAddress,
         setUseExternalLiquidity,
         setSwapError,
         invalidateBalanceQueries
@@ -189,6 +200,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const handleSetFromToken = (token?: Token) => {
           setFromToken(token)
           onFromTokenChange?.(token)
+          const newFromChain = relayClient?.chains.find(
+            (chain) => token?.chainId == chain.id
+          )
+          if (
+            newFromChain?.vmType &&
+            !supportedWalletVMs.includes(newFromChain?.vmType)
+          ) {
+            setTradeType('EXACT_INPUT')
+          }
         }
         const handleSetToToken = (token?: Token) => {
           setToToken(token)
@@ -309,7 +329,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       <Text style="subtitle2" color="subtle">
                         From
                       </Text>
-                      {multiWalletSupportEnabled === true && address ? (
+                      {multiWalletSupportEnabled === true &&
+                      fromChainWalletVMSupported &&
+                      address ? (
                         <MultiWalletDropdown
                           context="origin"
                           selectedWalletAddress={address}
@@ -532,6 +554,50 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         ) : null}
                       </Flex>
                     </Flex>
+                    {!fromChainWalletVMSupported ? (
+                      <Pill
+                        color="amber"
+                        css={{
+                          display: 'flex',
+                          p: '2',
+                          alignItems: 'center',
+                          width: '100%'
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faCircleExclamation}
+                          width={16}
+                          height={16}
+                        />
+                        <Text
+                          style="subtitle3"
+                          css={{ display: 'flex', gap: '2px', ml: '2' }}
+                        >
+                          This route supports bridging via{' '}
+                          <Tooltip
+                            content={
+                              <Text
+                                style="subtitle2"
+                                css={{ maxWidth: 215, display: 'inline-block' }}
+                              >
+                                Send funds to a deposit address to automatically
+                                bridge to another chain.
+                              </Text>
+                            }
+                          >
+                            <div>
+                              <Text
+                                style="subtitle3"
+                                css={{ textDecoration: 'underline' }}
+                              >
+                                deposit address
+                              </Text>
+                            </div>
+                          </Tooltip>
+                          .
+                        </Text>
+                      </Pill>
+                    ) : null}
                   </TokenSelectorContainer>
                   <Box
                     css={{
@@ -599,7 +665,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         To
                       </Text>
 
-                      {multiWalletSupportEnabled === true && recipient ? (
+                      {multiWalletSupportEnabled === true &&
+                      toChainWalletVMSupported &&
+                      recipient ? (
                         <MultiWalletDropdown
                           context="destination"
                           selectedWalletAddress={recipient}
@@ -621,9 +689,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       ) : null}
 
-                      {multiWalletSupportEnabled === false &&
-                      isMounted &&
-                      (address || customToAddress) ? (
+                      {multiWalletSupportEnabled === false ||
+                      (toChain?.vmType &&
+                        !supportedWalletVMs.includes(toChain.vmType) &&
+                        isMounted &&
+                        (address || customToAddress)) ? (
                         <AnchorButton
                           css={{
                             display: 'flex',
@@ -638,7 +708,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
-                            {toChain?.vmType === 'svm' && !isValidToAddress
+                            {!isValidToAddress
                               ? `Enter ${toChain?.displayName} Address`
                               : toDisplayName}
                           </Text>
@@ -692,7 +762,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             debouncedAmountOutputControls.flush()
                           }
                         }}
-                        disabled={!toToken}
+                        disabled={!toToken || !fromChainWalletVMSupported}
                         onFocus={() => {
                           onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
                         }}
@@ -713,7 +783,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             cursor: 'not-allowed',
                             _placeholder: {
                               color: 'gray10'
-                            }
+                            },
+                            color: 'gray10'
                           }
                         }}
                       />
@@ -847,7 +918,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Flex>
                     </Flex>
                   </TokenSelectorContainer>
-                  {error && !isFetchingPrice && !isSingleChainLocked ? (
+                  {error &&
+                  !isFetchingPrice &&
+                  !isSingleChainLocked &&
+                  fromChainWalletVMSupported ? (
                     <Box
                       css={{
                         borderRadius: 'widget-card-border-radius',
@@ -887,7 +961,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     }}
                     canonicalTimeEstimate={canonicalTimeEstimate}
                     isSingleChainLocked={isSingleChainLocked}
+                    fromChainWalletVMSupported={fromChainWalletVMSupported}
                   />
+                  {!fromChainWalletVMSupported ? (
+                    <RefundAddressSection
+                      refundAddress={refundAddress}
+                      setRefundAddress={setRefundAddress}
+                      fromChain={fromChain}
+                      refundAddressValid={isValidRefundAddress}
+                    />
+                  ) : null}
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     error={error}
@@ -941,6 +1024,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       transactionModalOpen={transactionModalOpen}
                       isValidFromAddress={isValidFromAddress}
                       isValidToAddress={isValidToAddress}
+                      isValidRefundAddress={isValidRefundAddress}
                       context={'Swap'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
@@ -956,32 +1040,47 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         isSameCurrencySameRecipientSwap
                       }
                       onClick={() => {
-                        //TEMPORARY
-                        //TODO remove this test code
-                        setDepositAddressModalOpen(true)
-                        return
-
-                        // If either address is not valid, open the link wallet modal
-                        if (!isValidToAddress || !isValidFromAddress) {
-                          if (multiWalletSupportEnabled) {
-                            const chain = !isValidFromAddress
-                              ? fromChain
-                              : toChain
-                            onLinkNewWallet?.({
-                              chain: chain,
-                              direction: !isValidFromAddress ? 'from' : 'to'
-                            })?.then((wallet) => {
-                              if (!isValidFromAddress) {
-                                onSetPrimaryWallet?.(wallet.address)
-                              } else {
-                                setCustomToAddress(wallet.address)
-                              }
-                            })
+                        if (fromChainWalletVMSupported) {
+                          // If either address is not valid, open the link wallet modal
+                          if (!isValidToAddress || !isValidFromAddress) {
+                            if (
+                              multiWalletSupportEnabled &&
+                              (isValidToAddress ||
+                                (!isValidToAddress && toChainWalletVMSupported))
+                            ) {
+                              const chain = !isValidFromAddress
+                                ? fromChain
+                                : toChain
+                              onLinkNewWallet?.({
+                                chain: chain,
+                                direction: !isValidFromAddress ? 'from' : 'to'
+                              })?.then((wallet) => {
+                                if (!isValidFromAddress) {
+                                  onSetPrimaryWallet?.(wallet.address)
+                                } else {
+                                  setCustomToAddress(wallet.address)
+                                }
+                              })
+                            } else {
+                              setAddressModalOpen(true)
+                            }
                           } else {
-                            setAddressModalOpen(true)
+                            setTransactionModalOpen(true)
                           }
                         } else {
-                          setTransactionModalOpen(true)
+                          if (!isValidToAddress) {
+                            if (multiWalletSupportEnabled) {
+                              onLinkNewWallet?.({
+                                chain: toChain,
+                                direction: 'to'
+                              })?.then((wallet) => {
+                                setCustomToAddress(wallet.address)
+                              })
+                            } else {
+                              setAddressModalOpen(true)
+                            }
+                          }
+                          setDepositAddressModalOpen(true)
                         }
                       }}
                       ctaCopy={ctaCopy}
