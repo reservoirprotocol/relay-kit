@@ -22,6 +22,7 @@ type SwapButtonProps = {
   | 'ctaCopy'
   | 'isValidFromAddress'
   | 'isValidToAddress'
+  | 'isValidRefundAddress'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
@@ -37,6 +38,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
+  isValidRefundAddress,
   onClick,
   ctaCopy,
   onAnalyticEvent
@@ -49,15 +51,16 @@ const SwapButton: FC<SwapButtonProps> = ({
         css={{ justifyContent: 'center' }}
         aria-label={context}
         disabled={
-          isValidToAddress &&
-          isValidFromAddress &&
-          (!price ||
-            hasInsufficientBalance ||
-            isInsufficientLiquidityError ||
-            transactionModalOpen ||
-            Number(debouncedInputAmountValue) === 0 ||
-            Number(debouncedOutputAmountValue) === 0 ||
-            isSameCurrencySameRecipientSwap)
+          !isValidRefundAddress ||
+          (isValidToAddress &&
+            isValidFromAddress &&
+            (!price ||
+              hasInsufficientBalance ||
+              isInsufficientLiquidityError ||
+              transactionModalOpen ||
+              Number(debouncedInputAmountValue) === 0 ||
+              Number(debouncedOutputAmountValue) === 0 ||
+              isSameCurrencySameRecipientSwap))
         }
         onClick={() => {
           onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {

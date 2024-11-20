@@ -24,6 +24,7 @@ type Props = Pick<
 > & {
   toChain?: RelayChain
   isSingleChainLocked?: boolean
+  fromChainWalletVMSupported?: boolean
 }
 
 const formatSwapRate = (rate: number) => {
@@ -42,7 +43,8 @@ const FeeBreakdown: FC<Props> = ({
   setUseExternalLiquidity,
   timeEstimate,
   canonicalTimeEstimate,
-  isSingleChainLocked
+  isSingleChainLocked,
+  fromChainWalletVMSupported
 }) => {
   const swapRate = price?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
@@ -88,7 +90,7 @@ const FeeBreakdown: FC<Props> = ({
         mb: '6px'
       }}
     >
-      {!isSingleChainLocked ? (
+      {!isSingleChainLocked && fromChainWalletVMSupported ? (
         <>
           <SwapRouteSelector
             chain={toChain}

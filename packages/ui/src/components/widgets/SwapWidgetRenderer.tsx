@@ -15,7 +15,7 @@ import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import type { Execute } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
@@ -30,7 +30,6 @@ import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
-import { formatBN } from '../../utils/numbers.js'
 import {
   addressWithFallback,
   isValidAddress,
@@ -53,6 +52,7 @@ type SwapWidgetRendererProps = {
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  supportedWalletVMs: ChainVM[]
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -122,6 +122,12 @@ export type ChildrenProps = {
   isBvmSwap: boolean
   isValidFromAddress: boolean
   isValidToAddress: boolean
+  supportedWalletVMs: ChainVM[]
+  fromChainWalletVMSupported: boolean
+  toChainWalletVMSupported: boolean
+  isValidRefundAddress: boolean
+  refundAddress?: string
+  setRefundAddress: Dispatch<React.SetStateAction<string | undefined>>
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -140,6 +146,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
+  supportedWalletVMs,
   children,
   onAnalyticEvent
 }) => {
@@ -150,6 +157,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [customToAddress, setCustomToAddress] = useState<
     Address | string | undefined
   >(defaultToAddress)
+  const [refundAddress, setRefundAddress] = useState<
+    Address | string | undefined
+  >()
   const [useExternalLiquidity, setUseExternalLiquidity] =
     useState<boolean>(false)
   const address = useWalletAddress(wallet, linkedWallets)
@@ -197,6 +207,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const fromChain = relayClient?.chains?.find(
     (chain) => chain.id === fromToken?.chainId
   )
+
+  const fromChainWalletVMSupported =
+    !fromChain?.vmType || supportedWalletVMs.includes(fromChain?.vmType)
+  const toChainWalletVMSupported =
+    !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
@@ -349,6 +364,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     toChain?.vmType,
     recipient,
     toChain?.id
+  )
+
+  const isValidRefundAddress = isValidAddress(
+    fromChain?.vmType,
+    refundAddress,
+    fromChain?.id
   )
 
   const externalLiquiditySupport = usePrice(
@@ -546,7 +567,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       totalAmount &&
       address &&
       (fromBalance ?? 0n) < totalAmount &&
-      !hasAuxiliaryFundsSupport
+      !hasAuxiliaryFundsSupport &&
+      fromChainWalletVMSupported
   )
 
   const fetchQuoteErrorMessage = error
@@ -619,7 +641,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
-  } else if (multiWalletSupportEnabled && !isValidFromAddress) {
+  } else if (
+    multiWalletSupportEnabled &&
+    !isValidFromAddress &&
+    fromChainWalletVMSupported
+  ) {
     ctaCopy = `Select ${fromChain?.displayName} Wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
     ctaCopy = `Select ${toChain?.displayName} Wallet`
@@ -633,6 +659,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
+  } else if (!isValidRefundAddress) {
+    ctaCopy = 'Enter Refund Address'
   } else if (transactionModalOpen) {
     switch (operation) {
       case 'wrap': {
@@ -727,6 +755,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isBvmSwap,
         isValidFromAddress,
         isValidToAddress,
+        supportedWalletVMs,
+        fromChainWalletVMSupported,
+        toChainWalletVMSupported,
+        isValidRefundAddress,
+        refundAddress,
+        setRefundAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
