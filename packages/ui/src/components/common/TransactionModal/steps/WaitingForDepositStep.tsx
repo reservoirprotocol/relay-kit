@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from 'react'
+import { type FC } from 'react'
 import {
   Anchor,
   Button,
@@ -43,7 +43,6 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
   refundAddress,
   depositAddress
 }) => {
-  const [qrIcon, setQrIcon] = useState<string | undefined>()
   const relayClient = useRelayClient()
   const blockExplorerBase = getChainBlockExplorerUrl(
     fromChain?.id,
@@ -55,23 +54,6 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
     depositAddress,
     fromChain?.id
   )
-
-  // useEffect(() => {
-  //   debugger
-  //   if (fromChain?.icon?.light && fromToken?.logoURI) {
-  //     setQrIcon(undefined)
-  //     debugger
-  //     generateQrIcon(fromChain.icon.light, fromToken.logoURI, 34)
-  //       .then((image) => {
-  //         setQrIcon(image)
-  //       })
-  //       .catch(() => {
-  //         setQrIcon(undefined)
-  //       })
-  //   } else {
-  //     setQrIcon(undefined)
-  //   }
-  // }, [fromToken, fromChain])
 
   return (
     <>
