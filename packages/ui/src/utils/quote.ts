@@ -113,7 +113,7 @@ export const parseFees = (
   }
 
   let priceImpactColor: ComponentPropsWithoutRef<typeof Text>['color'] =
-    'subtle'
+    'subtleSecondary'
 
   if (quote?.details?.totalImpact?.percent === '-0.00') {
     quote.details.totalImpact.percent = '-0.01'

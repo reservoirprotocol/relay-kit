@@ -320,6 +320,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 >
                   <TokenSelectorContainer
                     css={{ backgroundColor: 'widget-background' }}
+                    id={'from-token-section'}
                   >
                     <Flex
                       align="center"
@@ -376,7 +377,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                       />
                     )}
-                    <Flex align="center" justify="between" css={{ gap: '4' }}>
+                    <Flex
+                      align="center"
+                      justify="between"
+                      css={{ gap: '4', width: '100%' }}
+                    >
                       <AmountInput
                         value={
                           tradeType === 'EXACT_INPUT'
@@ -482,7 +487,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     >
                       {price?.details?.currencyIn?.amountUsd &&
                       Number(price.details.currencyIn.amountUsd) > 0 ? (
-                        <Text style="subtitle3" color="subtle">
+                        <Text style="subtitle3" color="subtleSecondary">
                           {formatDollar(
                             Number(price.details.currencyIn.amountUsd)
                           )}
@@ -621,10 +626,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           justifyContent: 'center',
                           width: '100%',
                           height: '100%',
+                          '--borderWidth':
+                            'borders.widget-swap-currency-button-border-width',
                           '--borderColor':
                             'colors.widget-swap-currency-button-border-color',
-                          border: '4px solid var(--borderColor)',
-                          zIndex: 10
+                          border: `var(--borderWidth) solid var(--borderColor)`,
+                          zIndex: 10,
+                          borderRadius:
+                            'widget-swap-currency-button-border-radius'
                         }}
                         onClick={() => {
                           if (fromToken || toToken) {
@@ -654,7 +663,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     )}
                   </Box>
                   <TokenSelectorContainer
-                    css={{ backgroundColor: 'widget-background', mb: '6px' }}
+                    css={{
+                      backgroundColor: 'widget-background',
+                      mb: 'widget-card-section-gutter'
+                    }}
+                    id={'to-token-section'}
                   >
                     <Flex
                       css={{ width: '100%' }}
@@ -745,7 +758,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                       />
                     )}
-                    <Flex align="center" justify="between" css={{ gap: '4' }}>
+                    <Flex
+                      align="center"
+                      justify="between"
+                      css={{ gap: '4', width: '100%' }}
+                    >
                       <AmountInput
                         value={
                           tradeType === 'EXPECTED_OUTPUT'
@@ -856,7 +873,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       {price?.details?.currencyOut?.amountUsd &&
                       Number(price.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
-                          <Text style="subtitle3" color="subtle">
+                          <Text style="subtitle3" color="subtleSecondary">
                             {formatDollar(
                               Number(price.details.currencyOut.amountUsd)
                             )}
@@ -926,9 +943,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       css={{
                         borderRadius: 'widget-card-border-radius',
                         backgroundColor: 'widget-background',
+                        border: 'widget-card-border',
                         overflow: 'hidden',
-                        mb: '6px'
+                        mb: 'widget-card-section-gutter'
                       }}
+                      id={'swap-route-selection-section'}
                     >
                       <SwapRouteSelector
                         chain={toChain}
@@ -983,7 +1002,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     relayerFeeProportion={relayerFeeProportion}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     containerCss={{
-                      mb: '6px'
+                      mb: 'widget-card-section-gutter'
                     }}
                   />
                   {promptSwitchRoute ? (

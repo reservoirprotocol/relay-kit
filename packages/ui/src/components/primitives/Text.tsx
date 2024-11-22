@@ -66,6 +66,9 @@ const TextCss = cva({
       subtle: {
         color: 'text-subtle'
       },
+      subtleSecondary: {
+        color: 'text-subtle-secondary'
+      },
       error: {
         color: 'text-error'
       },
