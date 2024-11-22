@@ -67,6 +67,7 @@ export const WidgetErrorWell: FC<Props> = ({
             mb: '3',
             ...containerCss
           }}
+          id={'widget-error-well-section'}
         >
           <Box css={{ color: 'amber9' }}>
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
@@ -98,6 +99,7 @@ export const WidgetErrorWell: FC<Props> = ({
             mb: '3',
             ...containerCss
           }}
+          id={'widget-error-well-section'}
         >
           <Box css={{ color: 'red10' }}>
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
@@ -119,6 +121,7 @@ export const WidgetErrorWell: FC<Props> = ({
             mb: '3',
             ...containerCss
           }}
+          id={'widget-error-well-section'}
         >
           <Box css={{ color: 'red10' }}>
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
@@ -164,6 +167,7 @@ export const WidgetErrorWell: FC<Props> = ({
             mb: '3',
             ...containerCss
           }}
+          id={'widget-error-well-section'}
         >
           <Box css={{ color: 'amber10' }}>
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
@@ -189,6 +193,7 @@ export const WidgetErrorWell: FC<Props> = ({
           mb: '3',
           ...containerCss
         }}
+        id={'widget-error-well-section'}
       >
         <Box css={{ color: 'red9' }}>
           <FontAwesomeIcon icon={faExclamationCircle} width={16} />
@@ -214,6 +219,7 @@ export const WidgetErrorWell: FC<Props> = ({
           mb: '3',
           ...containerCss
         }}
+        id={'widget-error-well-section'}
       >
         <Box css={{ color: 'amber10' }}>
           <FontAwesomeIcon icon={faExclamationCircle} width={16} />

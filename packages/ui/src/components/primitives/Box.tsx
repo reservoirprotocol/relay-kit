@@ -9,13 +9,11 @@ const BoxCss = cva({})
 
 type BoxCssProps = Parameters<typeof BoxCss>['0']
 
-const Box: FC<{ css?: Styles } & BoxCssProps & PropsWithChildren> = ({
-  css,
-  children,
-  ...props
-}) => {
+const Box: FC<
+  { css?: Styles; id?: string } & BoxCssProps & PropsWithChildren
+> = ({ css, children, id, ...props }) => {
   return (
-    <div className={designCss(BoxCss.raw(props), designCss.raw(css))}>
+    <div className={designCss(BoxCss.raw(props), designCss.raw(css))} id={id}>
       {children}
     </div>
   )
