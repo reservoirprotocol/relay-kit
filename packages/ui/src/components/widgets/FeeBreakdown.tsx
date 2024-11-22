@@ -54,11 +54,13 @@ const FeeBreakdown: FC<Props> = ({
     if (isFetchingPrice) {
       return (
         <Box
+          id={'fee-breakdown-section'}
           css={{
             borderRadius: 'widget-card-border-radius',
             backgroundColor: 'widget-background',
+            border: 'widget-card-border',
             overflow: 'hidden',
-            mb: '6px'
+            mb: 'widget-card-section-gutter'
           }}
         >
           <FetchingQuoteLoader
@@ -84,9 +86,11 @@ const FeeBreakdown: FC<Props> = ({
       css={{
         borderRadius: 'widget-card-border-radius',
         backgroundColor: 'widget-background',
+        border: 'widget-card-border',
         overflow: 'hidden',
-        mb: '6px'
+        mb: 'widget-card-section-gutter'
       }}
+      id={'fee-breakdown-section'}
     >
       {!isSingleChainLocked ? (
         <>
@@ -108,8 +112,7 @@ const FeeBreakdown: FC<Props> = ({
           flexDirection: 'row',
           gap: '2',
           width: '100%',
-          px: '4',
-          py: '3'
+          p: '3'
         }}
       >
         <button
@@ -146,7 +149,7 @@ const FeeBreakdown: FC<Props> = ({
             <>
               <FontAwesomeIcon icon={faClock} width={16} />
               <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
-              <Box css={{ width: 1, background: 'gray6', height: 20 }} />
+              <Box css={{ color: 'gray6' }}>&#8226;</Box>
             </>
           ) : null}
           <FontAwesomeIcon

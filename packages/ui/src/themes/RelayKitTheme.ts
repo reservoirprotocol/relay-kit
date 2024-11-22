@@ -54,6 +54,8 @@ export interface RelayKitTheme {
     card?: {
       background?: string
       borderRadius?: string
+      border?: string
+      gutter?: string
     }
     selector?: {
       background?: string
@@ -62,6 +64,8 @@ export interface RelayKitTheme {
       }
     }
     swapCurrencyButtonBorderColor?: string
+    swapCurrencyButtonBorderWidth?: string
+    swapCurrencyButtonBorderRadius?: string
   }
   modal?: {
     background?: string
@@ -145,7 +149,9 @@ export const defaultTheme: RelayKitTheme = {
         background: 'gray3'
       }
     },
-    swapCurrencyButtonBorderColor: 'primary3'
+    swapCurrencyButtonBorderColor: 'primary3',
+    swapCurrencyButtonBorderWidth: '4px',
+    swapCurrencyButtonBorderRadius: '8px'
   },
   modal: {
     background: 'gray1',

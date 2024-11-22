@@ -136,7 +136,8 @@ export default defineConfig({
         3: { value: '12px' },
         4: { value: '16px' },
         5: { value: '32px' },
-        6: { value: '64px' }
+        6: { value: '64px' },
+        'widget-card-section-gutter': { value: '6px' }
       },
       fonts: {
         body: { value: 'var(--font-inter), sans-serif' }
@@ -157,6 +158,7 @@ export default defineConfig({
         // Text
         'text-default': { value: { base: '{colors.gray.12}' } },
         'text-subtle': { value: { base: '{colors.gray.11}' } },
+        'text-subtle-secondary': { value: { base: '{colors.gray.11}' } },
         'text-error': { value: { base: '{colors.red.12}' } },
         'text-success': { value: { base: '{colors.green.11}' } },
 
@@ -237,11 +239,18 @@ export default defineConfig({
         'widget-card-border-radius': { value: '12px' },
         'modal-border-radius': { value: { base: '16px' } },
         'input-border-radius': { value: { base: '8px' } },
-        'dropdown-border-radius': { value: { base: '8px' } }
+        'dropdown-border-radius': { value: { base: '8px' } },
+        'widget-swap-currency-button-border-radius': { value: { base: '8px' } }
       },
       borders: {
         'widget-border': { value: { base: '0x solid white' } },
-        'modal-border': { value: { base: '0x solid white' } }
+        'modal-border': { value: { base: '0x solid white' } },
+        'widget-swap-currency-button-border-width': {
+          value: { base: '4px' }
+        },
+        'widget-card-border': {
+          value: { base: '0 solid transparent' }
+        }
       },
       shadows: {
         'widget-box-shadow': {

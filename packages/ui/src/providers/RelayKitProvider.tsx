@@ -123,7 +123,9 @@ export const themeOverrides: ThemeOverridesMap = {
     boxShadow: '--relay-shadows-widget-box-shadow',
     card: {
       background: '--relay-colors-widget-card-background',
-      borderRadius: '--relay-radii-widget-card-border-radius'
+      borderRadius: '--relay-radii-widget-card-border-radius',
+      border: '--relay-borders-widget-card-border',
+      gutter: '--relay-spacing-widget-card-section-gutter'
     },
     selector: {
       background: '--relay-colors-widget-selector-background',
@@ -132,7 +134,11 @@ export const themeOverrides: ThemeOverridesMap = {
       }
     },
     swapCurrencyButtonBorderColor:
-      '--relay-colors-widget-swap-currency-button-border-color'
+      '--relay-colors-widget-swap-currency-button-border-color',
+    swapCurrencyButtonBorderWidth:
+      '--relay-borders-widget-swap-currency-button-border-width',
+    swapCurrencyButtonBorderRadius:
+      '--relay-radii-widget-swap-currency-button-border-radius'
   },
   modal: {
     background: '--relay-colors-modal-background',
