@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.22
+
+### Patch Changes
+
+- 68ad52a: Add new theme tokens and section ids
+- 372fcd4: Fix undefined placeholder in custom address model when toChain is undefined
+
 ## 2.2.21
 
 ### Patch Changes
