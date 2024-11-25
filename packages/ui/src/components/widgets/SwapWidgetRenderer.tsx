@@ -662,6 +662,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Liquidity'
   } else if (!isValidRefundAddress) {
     ctaCopy = 'Enter Refund Address'
+  } else if (!toChainWalletVMSupported && !isValidToAddress) {
+    ctaCopy = 'Enter Address'
   } else if (transactionModalOpen) {
     switch (operation) {
       case 'wrap': {

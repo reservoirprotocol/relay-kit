@@ -23,6 +23,7 @@ type SwapButtonProps = {
   | 'isValidFromAddress'
   | 'isValidToAddress'
   | 'isValidRefundAddress'
+  | 'fromChainWalletVMSupported'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
@@ -39,13 +40,14 @@ const SwapButton: FC<SwapButtonProps> = ({
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
   isValidRefundAddress,
+  fromChainWalletVMSupported,
   onClick,
   ctaCopy,
   onAnalyticEvent
 }) => {
   const isMounted = useMounted()
 
-  if (isMounted && address) {
+  if (isMounted && (address || !fromChainWalletVMSupported)) {
     return (
       <Button
         css={{ justifyContent: 'center' }}
