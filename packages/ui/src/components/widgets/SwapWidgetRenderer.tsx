@@ -41,6 +41,7 @@ export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
+  depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   defaultFromToken?: Token
   defaultToToken?: Token
@@ -136,6 +137,7 @@ export type ChildrenProps = {
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   transactionModalOpen,
+  depositAddressModalOpen,
   defaultFromToken,
   defaultToToken,
   defaultToAddress,
@@ -482,6 +484,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&
+        !depositAddressModalOpen &&
         debouncedInputAmountValue === amountInputValue &&
         debouncedOutputAmountValue === amountOutputValue
           ? 12000

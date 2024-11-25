@@ -127,6 +127,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     <SwapWidgetRenderer
       context="Swap"
       transactionModalOpen={transactionModalOpen}
+      depositAddressModalOpen={depositAddressModalOpen}
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
