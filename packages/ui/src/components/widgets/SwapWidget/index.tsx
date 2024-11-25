@@ -383,8 +383,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -443,9 +443,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                                fromToken?.chainId === lockChainId
-                              ? [fromToken?.chainId]
-                              : undefined
+                              fromToken?.chainId === lockChainId
+                            ? [fromToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -691,15 +691,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       ) : null}
 
                       {multiWalletSupportEnabled === false ||
-                      (toChain?.vmType &&
-                        !supportedWalletVMs.includes(toChain.vmType) &&
+                      (!toChainWalletVMSupported &&
                         isMounted &&
                         (address || customToAddress)) ? (
-                        <AnchorButton
+                        <Button
+                          color={
+                            !toChainWalletVMSupported && !isValidToAddress
+                              ? 'primary'
+                              : 'secondary'
+                          }
+                          corners="pill"
+                          size="none"
                           css={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '2'
+                            px: '2',
+                            py: '1'
                           }}
                           onClick={() => {
                             setAddressModalOpen(true)
@@ -710,17 +717,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         >
                           <Text style="subtitle2" css={{ color: 'inherit' }}>
                             {!isValidToAddress
-                              ? `Enter ${toChain?.displayName} Address`
+                              ? `Enter Address`
                               : toDisplayName}
                           </Text>
-                          <Box css={{ color: 'gray8' }}>
-                            <FontAwesomeIcon
-                              icon={faPenToSquare}
-                              width={16}
-                              height={16}
-                            />
-                          </Box>
-                        </AnchorButton>
+                        </Button>
                       ) : null}
                     </Flex>
                     {!isSingleChainLocked && (
@@ -752,8 +752,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -840,9 +840,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                                toToken?.chainId === lockChainId
-                              ? [toToken?.chainId]
-                              : undefined
+                              toToken?.chainId === lockChainId
+                            ? [toToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
@@ -1026,6 +1026,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isValidFromAddress={isValidFromAddress}
                       isValidToAddress={isValidToAddress}
                       isValidRefundAddress={isValidRefundAddress}
+                      fromChainWalletVMSupported={fromChainWalletVMSupported}
                       context={'Swap'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
@@ -1080,8 +1081,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             } else {
                               setAddressModalOpen(true)
                             }
+                          } else {
+                            setDepositAddressModalOpen(true)
                           }
-                          setDepositAddressModalOpen(true)
                         }
                       }}
                       ctaCopy={ctaCopy}
