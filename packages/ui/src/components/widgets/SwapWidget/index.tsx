@@ -331,8 +331,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         From
                       </Text>
                       {multiWalletSupportEnabled === true &&
-                      fromChainWalletVMSupported &&
-                      address ? (
+                      fromChainWalletVMSupported ? (
                         <MultiWalletDropdown
                           context="origin"
                           selectedWalletAddress={address}
@@ -383,8 +382,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -443,9 +442,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                              fromToken?.chainId === lockChainId
-                            ? [fromToken?.chainId]
-                            : undefined
+                                fromToken?.chainId === lockChainId
+                              ? [fromToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -666,9 +665,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         To
                       </Text>
 
-                      {multiWalletSupportEnabled === true &&
-                      toChainWalletVMSupported &&
-                      recipient ? (
+                      {multiWalletSupportEnabled && toChainWalletVMSupported ? (
                         <MultiWalletDropdown
                           context="destination"
                           selectedWalletAddress={recipient}
@@ -690,16 +687,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       ) : null}
 
-                      {multiWalletSupportEnabled === false ||
-                      (!toChainWalletVMSupported &&
-                        isMounted &&
-                        (address || customToAddress)) ? (
+                      {!multiWalletSupportEnabled ||
+                      !toChainWalletVMSupported ? (
                         <Button
-                          color={
-                            !toChainWalletVMSupported && !isValidToAddress
-                              ? 'primary'
-                              : 'secondary'
-                          }
+                          color={'secondary'}
                           corners="pill"
                           size="none"
                           css={{
@@ -752,8 +743,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -840,9 +831,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                              toToken?.chainId === lockChainId
-                            ? [toToken?.chainId]
-                            : undefined
+                                toToken?.chainId === lockChainId
+                              ? [toToken?.chainId]
+                              : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
@@ -1023,6 +1014,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   ) : (
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}
+                      depositAddressModalOpen={depositAddressModalOpen}
                       isValidFromAddress={isValidFromAddress}
                       isValidToAddress={isValidToAddress}
                       isValidRefundAddress={isValidRefundAddress}
@@ -1071,7 +1063,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         } else {
                           if (!isValidToAddress) {
-                            if (multiWalletSupportEnabled) {
+                            if (
+                              multiWalletSupportEnabled &&
+                              toChainWalletVMSupported
+                            ) {
                               onLinkNewWallet?.({
                                 chain: toChain,
                                 direction: 'to'

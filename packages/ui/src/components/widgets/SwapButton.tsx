@@ -6,6 +6,7 @@ import { EventNames } from '../../constants/events.js'
 
 type SwapButtonProps = {
   transactionModalOpen: boolean
+  depositAddressModalOpen: boolean
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onClick: () => void
@@ -28,6 +29,7 @@ type SwapButtonProps = {
 
 const SwapButton: FC<SwapButtonProps> = ({
   transactionModalOpen,
+  depositAddressModalOpen,
   isValidFromAddress,
   isValidToAddress,
   context,
@@ -48,21 +50,25 @@ const SwapButton: FC<SwapButtonProps> = ({
   const isMounted = useMounted()
 
   if (isMounted && (address || !fromChainWalletVMSupported)) {
+    const invalidAmount =
+      !price ||
+      Number(debouncedInputAmountValue) === 0 ||
+      Number(debouncedOutputAmountValue) === 0
+
     return (
       <Button
         css={{ justifyContent: 'center' }}
         aria-label={context}
         disabled={
-          !isValidRefundAddress ||
-          (isValidToAddress &&
-            isValidFromAddress &&
-            (!price ||
-              hasInsufficientBalance ||
-              isInsufficientLiquidityError ||
-              transactionModalOpen ||
-              Number(debouncedInputAmountValue) === 0 ||
-              Number(debouncedOutputAmountValue) === 0 ||
-              isSameCurrencySameRecipientSwap))
+          isValidToAddress &&
+          (isValidFromAddress || !fromChainWalletVMSupported) &&
+          (invalidAmount ||
+            hasInsufficientBalance ||
+            isInsufficientLiquidityError ||
+            transactionModalOpen ||
+            depositAddressModalOpen ||
+            isSameCurrencySameRecipientSwap ||
+            (!isValidRefundAddress && !fromChainWalletVMSupported))
         }
         onClick={() => {
           onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {

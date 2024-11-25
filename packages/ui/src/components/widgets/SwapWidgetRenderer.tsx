@@ -221,7 +221,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     )
     const _isValidToAddress = isValidAddress(
       toChain?.vmType,
-      customToAddress ?? address ?? '',
+      customToAddress ?? '',
       toChain?.id,
       !customToAddress && _linkedWallet?.address === address
         ? _linkedWallet?.connector
@@ -252,9 +252,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCustomToAddress
   ])
 
-  const recipient = customToAddress ?? defaultRecipient ?? address
+  const recipient = customToAddress ?? defaultRecipient
 
-  const { displayName: toDisplayName } = useENSResolver(recipient)
+  const { displayName: toDisplayName } = useENSResolver(recipient, {
+    enabled: toChain?.vmType === 'evm'
+  })
 
   const {
     value: fromBalance,
@@ -400,7 +402,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
   const supportsExternalLiquidity =
-    tokenPairIsCanonical && externalLiquiditySupport.status === 'success'
+    tokenPairIsCanonical &&
+    externalLiquiditySupport.status === 'success' &&
+    fromChainWalletVMSupported
       ? true
       : false
 
@@ -652,7 +656,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   ) {
     ctaCopy = `Select ${fromChain?.displayName} Wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = `Select ${toChain?.displayName} Wallet`
+    ctaCopy = toChainWalletVMSupported
+      ? `Select ${toChain?.displayName} Wallet`
+      : `Enter ${toChain?.displayName} Address`
   } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
@@ -663,10 +669,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
-  } else if (!isValidRefundAddress) {
+  } else if (!fromChainWalletVMSupported && !isValidRefundAddress) {
     ctaCopy = 'Enter Refund Address'
   } else if (!toChainWalletVMSupported && !isValidToAddress) {
-    ctaCopy = 'Enter Address'
+    ctaCopy = `Enter ${toChain.displayName} Address`
   } else if (transactionModalOpen) {
     switch (operation) {
       case 'wrap': {

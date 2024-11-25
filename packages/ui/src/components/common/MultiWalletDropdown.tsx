@@ -15,7 +15,7 @@ import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 type MultiWalletDropdownProps = {
   context: 'origin' | 'destination'
   wallets: LinkedWallet[]
-  selectedWalletAddress: string
+  selectedWalletAddress?: string
   chain?: RelayChain
   onSelect: (wallet: LinkedWallet) => void
   onLinkNewWallet: () => void
