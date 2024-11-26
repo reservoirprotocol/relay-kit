@@ -96,6 +96,35 @@ export interface paths {
       };
     };
   };
+  "/chains/health": {
+    get: {
+      parameters: {
+        query?: {
+          chainId?: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /** @description A boolean indicating if the chain is healthy (true) or not (false) */
+              healthy?: boolean;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/config": {
     get: {
       parameters: {
@@ -144,7 +173,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
         };
       };
       responses: {
@@ -197,7 +226,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -307,10 +336,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -372,7 +401,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -817,10 +846,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
               };
               /**
                * @example {
@@ -2241,6 +2270,11 @@ export interface paths {
                 /** @description App fees to be charged for execution in basis points, e.g. 100 = 1% */
                 fee?: string;
               }[];
+            /**
+             * @description Enable this to use the Relay protocol for insuring the request - use with caution, this is an experimental flag
+             * @default true
+             */
+            useCommitment?: boolean;
           };
         };
       };
@@ -2290,6 +2324,8 @@ export interface paths {
                   kind?: string;
                   /** @description A unique identifier for this step, tying all related transactions together */
                   requestId?: string;
+                  /** @description The deposit address for the bridge request */
+                  depositAddress?: string;
                   /** @description While uncommon it is possible for steps to contain multiple items of the same kind (transaction/signature) grouped together that can be executed simultaneously. */
                   items?: {
                       /** @description Can either be complete or incomplete, this can be locally controlled once the step item is completed (depending on the kind) and the check object (if returned) has been verified. Once all step items are complete, the bridge is complete */
@@ -2624,6 +2660,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              errorCode?: string;
             };
           };
         };
@@ -2632,6 +2669,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              errorCode?: string;
             };
           };
         };
@@ -2640,6 +2678,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              errorCode?: string;
             };
           };
         };
@@ -3023,6 +3062,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              errorCode?: string;
             };
           };
         };
@@ -3031,6 +3071,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
+              errorCode?: string;
             };
           };
         };
@@ -3039,83 +3080,7 @@ export interface paths {
           content: {
             "application/json": {
               message?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/execute/user-op/{chainId}": {
-    post: {
-      parameters: {
-        path: {
-          chainId: string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            id: number;
-            jsonrpc: string;
-            method: string;
-            params: [{
-                sender: string;
-                nonce: string;
-                factory?: string | null;
-                factoryData?: string | null;
-                callData: string;
-                callGasLimit: string;
-                verificationGasLimit: string;
-                preVerificationGas: string;
-                maxFeePerGas: string;
-                maxPriorityFeePerGas: string;
-                paymaster?: string | null;
-                paymasterVerificationGasLimit?: string | null;
-                paymasterPostOpGasLimit?: string | null;
-                paymasterData?: string | null;
-                signature: string;
-              }, string];
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          content: {
-            "application/json": {
-              jsonrpc?: string;
-              id?: number;
-              result?: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          content: {
-            "application/json": {
-              jsonrpc?: string;
-              id?: number;
-              error?: unknown;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          content: {
-            "application/json": {
-              jsonrpc?: string;
-              id?: number;
-              error?: unknown;
-            };
-          };
-        };
-        /** @description Default Response */
-        500: {
-          content: {
-            "application/json": {
-              jsonrpc?: string;
-              id?: number;
-              error?: unknown;
+              errorCode?: string;
             };
           };
         };
@@ -3380,6 +3345,42 @@ export interface paths {
                 originTransferDestination?: string;
                 destinationChainId?: number;
                 destinationUser?: string;
+              };
+              signature?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/requests/{requestId}/signature/v2": {
+    get: {
+      parameters: {
+        path: {
+          requestId: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              requestData?: {
+                originChainId?: number;
+                originUser?: string;
+                originCurrency?: string;
+                destinationChainId?: number;
+                destinationUser?: string;
+                destinationCurrency?: string;
               };
               signature?: string;
             };
@@ -4055,6 +4056,7 @@ export interface paths {
               OMI?: number;
               TOPIA?: number;
               ANIME?: number;
+              APE?: number;
             };
           };
         };
@@ -4086,6 +4088,8 @@ export interface paths {
             includeAllChains?: boolean;
             /** @description Uses 3rd party API's to search for a token, in case relay does not have it indexed */
             useExternalSearch?: boolean;
+            /** @description Returns only currencies supported with deposit address bridging */
+            depositAddressOnly?: boolean;
           };
         };
       };
@@ -4101,7 +4105,7 @@ export interface paths {
                   name?: string;
                   decimals?: number;
                   /** @enum {string} */
-                  vmType?: "bvm" | "evm" | "svm";
+                  vmType?: "bvm" | "evm" | "svm" | "tvm";
                   metadata?: {
                     logoURI?: string;
                     verified?: boolean;

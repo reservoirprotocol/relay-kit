@@ -47,6 +47,7 @@ export type TokenSelectorProps = {
   address?: Address | string
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
+  depositAddressOnly?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -77,6 +78,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   address,
   isValidAddress,
   multiWalletSupportEnabled = false,
+  depositAddressOnly,
   setToken,
   onAnalyticEvent
 }) => {
@@ -162,6 +164,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         : undefined,
       defaultList: useDefaultTokenList,
       limit: 20,
+      depositAddressOnly,
       ...(tokenListQuery ? { tokens: tokenListQuery } : {})
     }
   )
@@ -180,7 +183,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         defaultList: false,
         limit: 20,
         ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
-        useExternalSearch: true
+        useExternalSearch: true,
+        depositAddressOnly
       },
       {
         enabled: !!debouncedTokenSearchValue
@@ -234,7 +238,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       suggestedTokenQuery
         ? {
             tokens: suggestedTokenQuery,
-            limit: 20
+            limit: 20,
+            depositAddressOnly
           }
         : undefined,
       {

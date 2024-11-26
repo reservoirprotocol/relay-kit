@@ -128,6 +128,7 @@ export type ChildrenProps = {
   toChainWalletVMSupported: boolean
   isValidRefundAddress: boolean
   refundAddress?: string
+  isRecipientLinked?: boolean
   setRefundAddress: Dispatch<React.SetStateAction<string | undefined>>
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -343,6 +344,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const linkedWallet = linkedWallets?.find(
     (linkedWallet) => address === linkedWallet.address
   )
+  const isRecipientLinked =
+    (recipient
+      ? linkedWallets?.find((wallet) => wallet.address === recipient)
+      : undefined) !== undefined
 
   const isValidFromAddress = isValidAddress(
     fromChain?.vmType,
@@ -771,6 +776,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toChainWalletVMSupported,
         isValidRefundAddress,
         refundAddress,
+        isRecipientLinked,
         setRefundAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,

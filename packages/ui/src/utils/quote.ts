@@ -235,12 +235,7 @@ export const extractQuoteId = (steps?: Execute['steps']) => {
 
 export const extractDepositAddress = (steps?: Execute['steps']) => {
   const depositStep = steps?.find((step) => step.id === 'deposit')
-  return depositStep?.items &&
-    depositStep.items?.[0] &&
-    depositStep.items?.[0].data &&
-    depositStep.items?.[0].data.to
-    ? (depositStep.items?.[0].data.to as string)
-    : undefined
+  return depositStep?.depositAddress
 }
 
 export const calculatePriceTimeEstimate = (

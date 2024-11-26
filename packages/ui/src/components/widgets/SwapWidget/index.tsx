@@ -22,7 +22,7 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faClipboard, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
@@ -193,6 +193,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         toChainWalletVMSupported,
         isValidRefundAddress,
         refundAddress,
+        isRecipientLinked,
         setRefundAddress,
         setUseExternalLiquidity,
         setSwapError,
@@ -425,6 +426,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         isValidAddress={isValidFromAddress}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
+                        depositAddressOnly={!fromChainWalletVMSupported}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
@@ -703,7 +705,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       {!multiWalletSupportEnabled ||
                       !toChainWalletVMSupported ? (
                         <Button
-                          color={'secondary'}
+                          color={
+                            isValidToAddress && !isRecipientLinked
+                              ? 'warning'
+                              : 'secondary'
+                          }
                           corners="pill"
                           size="none"
                           css={{
@@ -719,7 +725,24 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             )
                           }}
                         >
-                          <Text style="subtitle2" css={{ color: 'inherit' }}>
+                          {isValidToAddress && !isRecipientLinked ? (
+                            <Box css={{ color: 'amber11' }}>
+                              <FontAwesomeIcon
+                                icon={faClipboard}
+                                width={16}
+                                height={16}
+                              />
+                            </Box>
+                          ) : null}
+                          <Text
+                            style="subtitle2"
+                            css={{
+                              color:
+                                isValidToAddress && !isRecipientLinked
+                                  ? 'amber11'
+                                  : 'secondary-button-color'
+                            }}
+                          >
                             {!isValidToAddress
                               ? `Enter Address`
                               : toDisplayName}
@@ -803,6 +826,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         address={recipient}
                         isValidAddress={isValidToAddress}
                         token={toToken}
+                        depositAddressOnly={!fromChainWalletVMSupported}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
