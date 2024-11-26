@@ -1,6 +1,6 @@
 import { Flex, Button, Text, Box, Pill } from '../../primitives/index.js'
 import { useContext, useEffect, useState, type FC } from 'react'
-import { useMounted, useRelayClient } from '../../../hooks/index.js'
+import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, zeroAddress } from 'viem'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
@@ -39,6 +39,7 @@ import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import Tooltip from '../../primitives/Tooltip.js'
 import RefundAddressSection from '../RefundAddressSection.js'
+import { findBridgableToken } from '../../../utils/tokens.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -110,7 +111,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const isMounted = useMounted()
   const hasLockedToken = lockFromToken || lockToToken
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
   const initialFromToken = defaultFromToken ?? {
@@ -200,8 +200,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries
       }) => {
         const handleSetFromToken = (token?: Token) => {
-          setFromToken(token)
-          onFromTokenChange?.(token)
+          let _token = token
           const newFromChain = relayClient?.chains.find(
             (chain) => token?.chainId == chain.id
           )
@@ -210,11 +209,36 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             !supportedWalletVMs.includes(newFromChain?.vmType)
           ) {
             setTradeType('EXACT_INPUT')
+
+            const _toToken = findBridgableToken(toChain, toToken)
+
+            if (_toToken && _toToken?.address != toToken?.address) {
+              handleSetToToken(_toToken)
+            }
+
+            const _fromToken = findBridgableToken(newFromChain, _token)
+            if (_fromToken && _fromToken.address != _token?.address) {
+              _token = _fromToken
+            }
           }
+          setFromToken(_token)
+          onFromTokenChange?.(_token)
         }
         const handleSetToToken = (token?: Token) => {
-          setToToken(token)
-          onToTokenChange?.(token)
+          let _token = token
+          if (!fromChainWalletVMSupported) {
+            const newToChain = relayClient?.chains.find(
+              (chain) => token?.chainId == chain.id
+            )
+            if (newToChain) {
+              const _toToken = findBridgableToken(newToChain, _token)
+              if (_toToken && _toToken.address != _token?.address) {
+                _token = _toToken
+              }
+            }
+          }
+          setToToken(_token)
+          onToTokenChange?.(_token)
         }
 
         const fromChain = relayClient?.chains?.find(
