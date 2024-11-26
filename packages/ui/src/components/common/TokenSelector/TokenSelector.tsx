@@ -162,7 +162,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       term: !isAddress(debouncedTokenSearchValue)
         ? debouncedTokenSearchValue
         : undefined,
-      defaultList: useDefaultTokenList,
+      defaultList: useDefaultTokenList && !depositAddressOnly,
       limit: 20,
       depositAddressOnly,
       ...(tokenListQuery ? { tokens: tokenListQuery } : {})
@@ -409,7 +409,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     {
       chainIds: token?.chainId ? [token.chainId] : [],
       address: token?.address,
-      limit: 1
+      limit: 1,
+      depositAddressOnly
     },
     {
       enabled:
@@ -583,6 +584,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 onAnalyticEvent={onAnalyticEvent}
                 setUnverifiedToken={setUnverifiedToken}
                 setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
+                depositAddressOnly={depositAddressOnly}
               />
             ) : null}
             {tokenSelectorStep === TokenSelectorStep.SetChain ? (

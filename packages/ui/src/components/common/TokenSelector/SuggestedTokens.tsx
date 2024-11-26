@@ -15,11 +15,13 @@ import { type Currency } from '@reservoir0x/relay-kit-hooks'
 
 type SuggestedTokensProps = {
   chainId: number
+  depositAddressOnly?: boolean
   onSelect: (token: Currency) => void
 }
 
 export const SuggestedTokens: FC<SuggestedTokensProps> = ({
   chainId,
+  depositAddressOnly,
   onSelect
 }) => {
   const client = useRelayClient()
@@ -36,14 +38,17 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
     return chain.erc20Currencies
       .filter(
         (currency) =>
-          currency.id?.toUpperCase().includes('USD') ||
-          currency.id?.toUpperCase().includes('WETH')
+          (currency.id?.toUpperCase().includes('USD') ||
+            currency.id?.toUpperCase().includes('WETH')) &&
+          (depositAddressOnly ? currency.supportsBridging : true)
       )
       .map((currency) => convertApiCurrencyToToken(currency, chainId))
   }, [chain?.erc20Currencies, chainId])
 
   // Get additional static suggested tokens for this chain
-  const staticSuggestedTokens = ChainSuggestedTokens[chainId] || []
+  const staticSuggestedTokens = !depositAddressOnly
+    ? ChainSuggestedTokens[chainId] || []
+    : []
 
   // Combine all tokens and remove duplicates
   const allSuggestedTokens = useMemo(() => {
