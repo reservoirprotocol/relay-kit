@@ -226,7 +226,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   useEffect(() => {
     if (
       executionStatus?.status === 'failure' ||
-      executionStatus?.status === 'refund'
+      executionStatus?.status === 'refund' ||
+      quoteError
     ) {
       const swapError = new Error(
         executionStatus?.details ??
@@ -237,7 +238,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       }
       setProgressStep(TransactionProgressStep.Error)
       onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_SWAP_ERROR, {
-        error_message: executionStatus.details,
+        error_message: executionStatus?.details ?? quoteError,
         wallet_connector: connector?.name,
         quote_id: requestId,
         amount_in: parseFloat(`${debouncedInputAmountValue}`),
@@ -246,7 +247,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         amount_out: parseFloat(`${debouncedOutputAmountValue}`),
         currency_out: toToken?.symbol,
         chain_id_out: toToken?.chainId,
-        txHashes: executionStatus.txHashes ?? []
+        txHashes: executionStatus?.txHashes ?? []
       })
       setSwapError(swapError)
       invalidateBalanceQueries()
@@ -259,7 +260,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     } else if (executionStatus?.status === 'pending') {
       setProgressStep(TransactionProgressStep.Validating)
     }
-  }, [executionStatus?.status])
+  }, [executionStatus?.status, quoteError])
 
   const allTxHashes = useMemo(() => {
     const isRefund = executionStatus?.status === 'refund'
