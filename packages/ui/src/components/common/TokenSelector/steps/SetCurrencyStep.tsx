@@ -53,6 +53,7 @@ type SetCurrencyProps = {
   isLoadingDuneBalances: boolean
   enhancedCurrencyList?: EnhancedCurrencyList[]
   token?: Token
+  depositAddressOnly?: boolean
   selectToken: (currency: Currency, chainId?: number) => void
   setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
@@ -81,6 +82,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   isLoadingExternalTokenList,
   isLoadingDuneBalances,
   enhancedCurrencyList,
+  depositAddressOnly,
   selectToken,
   setUnverifiedTokenModalOpen,
   setUnverifiedToken,
@@ -400,6 +402,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               <>
                 <SuggestedTokens
                   chainId={chainFilter.id}
+                  depositAddressOnly={depositAddressOnly}
                   onSelect={(token) => {
                     selectToken(token, token.chainId)
                   }}
