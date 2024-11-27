@@ -55,11 +55,15 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
     const uniqueTokens: Record<string, Token> = {}
 
     ;[
-      nativeCurrency,
+      depositAddressOnly && !chainCurrency?.supportsBridging
+        ? undefined
+        : nativeCurrency,
       ...suggestedErc20Tokens,
       ...staticSuggestedTokens
     ].forEach((token) => {
-      uniqueTokens[token.address] = token
+      if (token) {
+        uniqueTokens[token.address] = token
+      }
     })
 
     return Object.values(uniqueTokens)
