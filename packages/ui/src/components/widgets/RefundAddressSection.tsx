@@ -31,20 +31,20 @@ const RefundAddressSection: FC<RefundAddressSectionProps> = ({
         gap: '2'
       }}
     >
-      <Flex align="center" css={{ color: 'gray8', gap: '1' }}>
-        <Text style="subtitle2">Refund Address</Text>
-        <Tooltip
-          content={
-            <Text
-              style="subtitle2"
-              css={{ maxWidth: 215, display: 'inline-block' }}
-            >
-              If anything goes wrong during the process, we’ll issue a refund to
-              this wallet.
-            </Text>
-          }
-        >
-          <div>
+      <Tooltip
+        content={
+          <Text
+            style="subtitle2"
+            css={{ maxWidth: 215, display: 'inline-block' }}
+          >
+            If anything goes wrong during the process, we’ll issue a refund to
+            this wallet.
+          </Text>
+        }
+      >
+        <div>
+          <Flex align="center" css={{ color: 'gray8', gap: '1' }}>
+            <Text style="subtitle2">Refund Address</Text>
             <FontAwesomeIcon
               icon={faInfoCircle}
               width={14}
@@ -54,9 +54,9 @@ const RefundAddressSection: FC<RefundAddressSectionProps> = ({
                 marginLeft: 4
               }}
             />
-          </div>
-        </Tooltip>
-      </Flex>
+          </Flex>
+        </div>
+      </Tooltip>
       <Input
         type="text"
         inputMode="text"
