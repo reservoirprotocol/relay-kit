@@ -135,8 +135,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           ).toString(),
           referrer: relayClient?.source ?? undefined,
           useDepositAddress: true,
-          // refundTo: refundAddress
-          refundTo: '0x03508bB71268BBA25ECaCC8F620e01866650532c'
+          refundTo: refundAddress
         }
       : undefined,
     () => {},
