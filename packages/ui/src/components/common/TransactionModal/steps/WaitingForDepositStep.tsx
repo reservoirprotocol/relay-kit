@@ -57,45 +57,6 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
 
   return (
     <>
-      <Flex direction="column" align="center" justify="between">
-        <Flex align="center" css={{ gap: '1' }}>
-          <Text style="body1" color="subtle">
-            Send
-          </Text>
-          <Text style="h6">
-            {isFetchingQuote ? (
-              <Skeleton css={{ width: 50, height: 24 }} />
-            ) : (
-              fromAmountFormatted
-            )}
-          </Text>
-          <Pill
-            color="gray"
-            css={{ display: 'flex', alignItems: 'center' }}
-            radius="squared"
-          >
-            <img
-              alt={fromToken?.name}
-              src={fromToken?.logoURI}
-              width={20}
-              height={20}
-              style={{
-                borderRadius: 9999
-              }}
-            />
-            <Text style="h6">{fromToken?.symbol}</Text>
-          </Pill>
-          <Text style="body1" color="subtle">
-            to this address
-          </Text>
-        </Flex>
-        <Flex css={{ gap: '1' }}>
-          <Text style="body1" color="subtle">
-            on
-          </Text>
-          <Text style="h6">{fromChain?.displayName} network</Text>
-        </Flex>
-      </Flex>
       {isFetchingQuote ? (
         <Skeleton css={{ width: 105, height: 105, margin: '0 auto' }} />
       ) : qrcodeUrl ? (
@@ -155,7 +116,47 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
           </Flex>
         </div>
       ) : null}
+      <Flex direction="column" align="center" justify="between">
+        <Flex align="center" css={{ gap: '1' }}>
+          <Text style="body1" color="subtle">
+            Send
+          </Text>
+          <Text style="h6">
+            {isFetchingQuote ? (
+              <Skeleton css={{ width: 50, height: 24 }} />
+            ) : (
+              fromAmountFormatted
+            )}
+          </Text>
+          <Pill
+            color="gray"
+            css={{ display: 'flex', alignItems: 'center' }}
+            radius="squared"
+          >
+            <img
+              alt={fromToken?.name}
+              src={fromToken?.logoURI}
+              width={20}
+              height={20}
+              style={{
+                borderRadius: 9999
+              }}
+            />
+            <Text style="h6">{fromToken?.symbol}</Text>
+          </Pill>
+          <Text style="body1" color="subtle">
+            to this address
+          </Text>
+        </Flex>
+        <Flex css={{ gap: '1' }}>
+          <Text style="body1" color="subtle">
+            on
+          </Text>
+          <Text style="h6">{fromChain?.displayName} network</Text>
+        </Flex>
+      </Flex>
       <Pill
+        radius="rounded"
         color="gray"
         css={{ display: 'flex', alignItems: 'center', gap: '3', p: '3' }}
       >
