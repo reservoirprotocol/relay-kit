@@ -47,7 +47,7 @@ export const BalanceDisplay: FC<BalanceDisplayProps> = ({
           ) : (
             <Text
               style="subtitle3"
-              color={hasInsufficientBalance ? 'red' : 'subtle'}
+              color={hasInsufficientBalance ? 'red' : 'subtleSecondary'}
             >
               Balance:{' '}
               {balance !== undefined

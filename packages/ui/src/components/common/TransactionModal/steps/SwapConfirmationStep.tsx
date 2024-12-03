@@ -9,10 +9,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
+import type { useQuote } from '@reservoir0x/relay-kit-hooks'
+import { formatDollar } from '../../../../utils/numbers.js'
 
 type SwapConfirmationStepProps = {
   fromToken?: Token
   toToken?: Token
+  quote?: ReturnType<typeof useQuote>['data']
   fromAmountFormatted: string
   toAmountFormatted: string
 }
@@ -20,9 +23,11 @@ type SwapConfirmationStepProps = {
 export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
   fromToken,
   toToken,
+  quote,
   fromAmountFormatted,
   toAmountFormatted
 }) => {
+  const details = quote?.details
   return (
     <>
       <Flex
@@ -41,19 +46,21 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             width: '100%'
           }}
         >
-          <Text style="subtitle2" color="subtle">
-            From
-          </Text>
-
-          <Flex align="center" css={{ gap: '2', cursor: 'pointer' }}>
+          <Flex
+            direction="column"
+            align="start"
+            css={{ gap: '1', cursor: 'pointer' }}
+          >
             <ChainTokenIcon
               chainId={fromToken?.chainId}
               tokenlogoURI={fromToken?.logoURI}
               css={{ height: 32, width: 32 }}
             />
-
-            <Text style="subtitle1" ellipsify>
+            <Text style="h6" ellipsify>
               {fromAmountFormatted} {fromToken?.symbol}
+            </Text>
+            <Text style="subtitle3" color="subtle">
+              {formatDollar(Number(details?.currencyIn?.amountUsd))}
             </Text>
           </Flex>
         </Flex>
@@ -77,17 +84,21 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             width: '100%'
           }}
         >
-          <Text style="subtitle2" color="subtle">
-            To
-          </Text>
-          <Flex align="center" css={{ gap: '2', cursor: 'pointer' }}>
+          <Flex
+            direction="column"
+            align="start"
+            css={{ gap: '1', cursor: 'pointer' }}
+          >
             <ChainTokenIcon
               chainId={toToken?.chainId}
               tokenlogoURI={toToken?.logoURI}
               css={{ height: 32, width: 32 }}
             />
-            <Text style="subtitle1" ellipsify>
+            <Text style="h6" ellipsify>
               {toAmountFormatted} {toToken?.symbol}
+            </Text>
+            <Text style="subtitle3" color="subtle">
+              {formatDollar(Number(details?.currencyOut?.amountUsd))}
             </Text>
           </Flex>
         </Flex>

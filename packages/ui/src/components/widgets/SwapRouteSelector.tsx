@@ -51,10 +51,8 @@ const SwapRouteSelector: FC<Props> = ({
             flexDirection: 'row',
             alignItems: 'center',
             gap: '3',
-            px: '4',
-            py: '3',
+            p: '12',
             borderRadius: 'widget-card-border-radius',
-            border: 'widget-card-border',
 
             '&:disabled': {
               cursor: 'default',

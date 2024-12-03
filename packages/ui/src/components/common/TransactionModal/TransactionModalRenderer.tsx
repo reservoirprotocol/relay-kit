@@ -81,6 +81,7 @@ export type ChildrenProps = {
       swapImpact?: string
     }
   } | null
+  isLoadingTransaction: boolean
 }
 
 type Props = {
@@ -405,7 +406,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   }, [steps, quoteError, swapError])
 
   // Fetch Success Tx
-  const { data: transactions } = useRequests(
+  const { data: transactions, isFetching: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
       progressStep === TransactionProgressStep.Error) &&
       allTxHashes[0]
@@ -470,7 +471,8 @@ export const TransactionModalRenderer: FC<Props> = ({
         setStartTimestamp,
         quoteUpdatedAt,
         requestId,
-        feeBreakdown
+        feeBreakdown,
+        isLoadingTransaction
       })}
     </>
   )

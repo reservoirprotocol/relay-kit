@@ -1,5 +1,20 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.23
+
+### Patch Changes
+
+- 8d62614: Add onSwapValidating callback
+- 25d17fa: Use transaction data rather than quote data on success screen
+- 9a34e7e: Update SwapConfirmationStep ui to fix overflow
+
+## 2.2.22
+
+### Patch Changes
+
+- 68ad52a: Add new theme tokens and section ids
+- 372fcd4: Fix undefined placeholder in custom address model when toChain is undefined
+
 ## 2.2.21
 
 ### Patch Changes

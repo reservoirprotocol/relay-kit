@@ -75,12 +75,14 @@ export const FlexCss = cva({
 type FlexCssProps = Parameters<typeof FlexCss>['0']
 
 const Flex: FC<
-  { css?: Styles; style?: CSSProperties } & FlexCssProps & PropsWithChildren
-> = ({ css, style, children, ...props }) => {
+  { css?: Styles; style?: CSSProperties; id?: string } & FlexCssProps &
+    PropsWithChildren
+> = ({ css, style, children, id, ...props }) => {
   return (
     <div
       className={designCss(FlexCss.raw(props), designCss.raw(css))}
       style={style}
+      id={id}
     >
       {children}
     </div>

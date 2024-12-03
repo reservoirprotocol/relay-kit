@@ -43,6 +43,7 @@ type SwapModalProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onSuccess?: (data: Execute) => void
+  onSwapValidating?: (data: Execute) => void
 }
 
 export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
@@ -64,7 +65,8 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     wallet,
     invalidateBalanceQueries,
     onAnalyticEvent,
-    onSuccess
+    onSuccess,
+    onSwapValidating
   } = swapModalProps
   return (
     <TransactionModalRenderer
@@ -85,8 +87,15 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       onAnalyticEvent={onAnalyticEvent}
       onValidating={(quote) => {
         const steps = quote?.steps
+        const details = quote?.details
+        const fees = quote?.fees
         onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
           quote_id: steps ? extractQuoteId(steps) : undefined
+        })
+        onSwapValidating?.({
+          steps: steps,
+          fees: fees,
+          details: details
         })
       }}
       onSuccess={(quote, steps) => {
@@ -192,7 +201,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   multiWalletSupportEnabled,
   useExternalLiquidity,
   fromChain,
-  waitingForSteps
+  waitingForSteps,
+  isLoadingTransaction
 }) => {
   useEffect(() => {
     if (!open) {
@@ -285,6 +295,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             toToken={toToken}
             fromAmountFormatted={fromAmountFormatted}
             toAmountFormatted={toAmountFormatted}
+            quote={quote}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Validating ? (
@@ -307,6 +318,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             timeEstimate={timeEstimate?.formattedTime}
             isCanonical={isCanonical}
             details={details}
+            isLoadingTransaction={isLoadingTransaction}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (
