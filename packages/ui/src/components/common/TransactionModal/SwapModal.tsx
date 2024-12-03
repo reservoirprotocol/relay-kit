@@ -285,6 +285,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             toToken={toToken}
             fromAmountFormatted={fromAmountFormatted}
             toAmountFormatted={toAmountFormatted}
+            quote={quote}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Validating ? (
