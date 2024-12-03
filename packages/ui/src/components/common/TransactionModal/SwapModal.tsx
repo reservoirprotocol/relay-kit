@@ -201,7 +201,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   multiWalletSupportEnabled,
   useExternalLiquidity,
   fromChain,
-  waitingForSteps
+  waitingForSteps,
+  isLoadingTransaction
 }) => {
   useEffect(() => {
     if (!open) {
@@ -316,6 +317,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             timeEstimate={timeEstimate?.formattedTime}
             isCanonical={isCanonical}
             details={details}
+            isLoadingTransaction={isLoadingTransaction}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (
