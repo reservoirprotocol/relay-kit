@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.23
+
+### Patch Changes
+
+- 8d62614: Add onSwapValidating callback
+- 25d17fa: Use transaction data rather than quote data on success screen
+- 9a34e7e: Update SwapConfirmationStep ui to fix overflow
+
 ## 2.2.22
 
 ### Patch Changes
