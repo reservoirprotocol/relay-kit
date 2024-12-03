@@ -179,81 +179,6 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
           />
         </Anchor>
       </Pill>
-      <Pill color="amber" css={{ padding: '12px 32px' }} radius="squared">
-        <Text color="warning" style="body3">
-          Don't send {fromToken?.symbol} on any other network or it may be lost
-        </Text>
-      </Pill>
-      <Flex
-        direction="column"
-        align="center"
-        css={{
-          '--borderColor': 'colors.subtle-border-color',
-          border: '1px solid var(--borderColor)',
-          borderRadius: 12,
-          p: '3',
-          gap: '3',
-          width: '100%'
-        }}
-      >
-        <Flex
-          justify="between"
-          align="center"
-          css={{ width: '100%', gap: '4' }}
-        >
-          <Text style="subtitle2" color="subtle">
-            You Get
-          </Text>
-          {isFetchingQuote ? (
-            <Skeleton css={{ width: 80, height: 21 }} />
-          ) : (
-            <Flex
-              align="center"
-              css={{
-                gap: '2'
-              }}
-            >
-              <Text style="subtitle2">~ {toAmountFormatted}</Text>
-              <Pill
-                color="gray"
-                css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-              >
-                <img
-                  alt={toToken?.name}
-                  src={toToken?.logoURI}
-                  width={20}
-                  height={20}
-                  style={{
-                    borderRadius: 9999
-                  }}
-                />{' '}
-                <Text style="subtitle2">{toToken?.symbol}</Text>
-              </Pill>
-            </Flex>
-          )}
-        </Flex>
-
-        <Flex
-          justify="between"
-          align="center"
-          css={{ width: '100%', gap: '4' }}
-        >
-          <Text style="subtitle2" color="subtle">
-            Recipient Wallet
-          </Text>
-          <Text style="subtitle2">{truncateAddress(recipientAddress)}</Text>
-        </Flex>
-        <Flex
-          justify="between"
-          align="center"
-          css={{ width: '100%', gap: '4' }}
-        >
-          <Text style="subtitle2" color="subtle">
-            Refund Wallet
-          </Text>
-          <Text style="subtitle2">{truncateAddress(refundAddress)}</Text>
-        </Flex>
-      </Flex>
       <Button
         disabled={true}
         css={{
@@ -265,7 +190,7 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
         <LoadingSpinner
           css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
         />
-        Waiting for {fromAmountFormatted} {fromToken?.symbol}
+        Waiting for you to send funds
       </Button>
     </>
   )

@@ -56,6 +56,7 @@ export type ChildrenProps = {
   requestId: string | null
   depositAddress?: string
   executionStatus?: ReturnType<typeof useExecutionStatus>['data']
+  isLoadingTransaction: boolean
 }
 
 type Props = {
@@ -121,7 +122,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     undefined,
     fromToken && toToken
       ? {
-          user: address ?? deadAddress,
+          user: deadAddress,
           originChainId: fromToken.chainId,
           destinationChainId: toToken.chainId,
           originCurrency: fromToken.address,
@@ -282,7 +283,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     return _allTxHashes
   }, [executionStatus?.txHashes, executionStatus?.inTxHashes])
 
-  const { data: transactions } = useRequests(
+  const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
       progressStep === TransactionProgressStep.Error) &&
       allTxHashes[0]
@@ -322,7 +323,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         seconds,
         requestId,
         depositAddress,
-        executionStatus
+        executionStatus,
+        isLoadingTransaction
       })}
     </>
   )

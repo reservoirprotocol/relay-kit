@@ -150,7 +150,8 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   recipient,
   refundAddress,
   depositAddress,
-  executionStatus
+  executionStatus,
+  isLoadingTransaction
 }) => {
   const details = quote?.details
 
@@ -197,7 +198,9 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
         }}
       >
         <Text style="h6" css={{ mb: 8 }}>
-          {isWaitingForDeposit ? 'Send Funds' : 'Trade Details'}
+          {isWaitingForDeposit
+            ? 'Send Funds From Your Wallet'
+            : 'Trade Details'}
         </Text>
 
         {progressStep === TransactionProgressStep.WaitingForDeposit ? (
@@ -234,6 +237,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
             timeEstimate={timeEstimate?.formattedTime}
             isCanonical={false}
             details={details}
+            isLoadingTransaction={isLoadingTransaction}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

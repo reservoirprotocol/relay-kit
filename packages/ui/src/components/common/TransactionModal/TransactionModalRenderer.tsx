@@ -406,7 +406,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   }, [steps, quoteError, swapError])
 
   // Fetch Success Tx
-  const { data: transactions, isFetching: isLoadingTransaction } = useRequests(
+  const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
       progressStep === TransactionProgressStep.Error) &&
       allTxHashes[0]
