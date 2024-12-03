@@ -25,6 +25,7 @@ export type WidgetContainerProps = {
   onDepositAddressModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
+  onSwapValidating?: (data: Execute) => void
   invalidateBalanceQueries: () => void
 } & Pick<
   ChildrenProps,
@@ -71,6 +72,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   onSwapModalOpenChange,
   onDepositAddressModalOpenChange,
   onSwapSuccess,
+  onSwapValidating,
   onAnalyticEvent,
   invalidateBalanceQueries,
   setCustomToAddress
@@ -103,6 +105,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
+            onSwapValidating={onSwapValidating}
             invalidateBalanceQueries={invalidateBalanceQueries}
             wallet={wallet}
             linkedWallets={linkedWallets}
