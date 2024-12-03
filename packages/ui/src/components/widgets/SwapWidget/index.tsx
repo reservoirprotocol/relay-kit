@@ -53,6 +53,7 @@ type BaseSwapWidgetProps = {
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onSwapValidating?: (data: Execute) => void
   onSwapSuccess?: (data: Execute) => void
   onSwapError?: (error: string, data?: Execute) => void
 }
@@ -97,6 +98,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onConnectWallet,
   onAnalyticEvent,
   onSwapSuccess,
+  onSwapValidating,
   onSwapError
 }) => {
   const relayClient = useRelayClient()
@@ -274,6 +276,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             }}
             useExternalLiquidity={useExternalLiquidity}
             onSwapSuccess={onSwapSuccess}
+            onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}
             customToAddress={customToAddress}

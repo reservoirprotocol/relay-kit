@@ -7,7 +7,8 @@ import {
   Pill,
   Text,
   ChainTokenIcon,
-  ChainIcon
+  ChainIcon,
+  Skeleton
 } from '../../../primitives/index.js'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,19 +23,21 @@ import { useRelayClient } from '../../../../hooks/index.js'
 import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
+import { formatBN } from '../../../../utils/numbers.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
   toToken?: Token
-  fromAmountFormatted: string
-  toAmountFormatted: string
+  fromAmountFormatted?: string
+  toAmountFormatted?: string
   allTxHashes: TxHashes
-  transaction: ReturnType<typeof useRequests>['data']['0']
+  transaction?: ReturnType<typeof useRequests>['data']['0']
   seconds: number
   fillTime: string
   timeEstimate?: string
   isCanonical?: boolean
   details?: Execute['details'] | null
+  isLoadingTransaction?: boolean
   onOpenChange: (open: boolean) => void
 }
 
@@ -50,21 +53,46 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   timeEstimate,
   isCanonical,
   details,
+  isLoadingTransaction,
   onOpenChange
 }) => {
   const relayClient = useRelayClient()
   const isWrap = details?.operation === 'wrap'
   const isUnwrap = details?.operation === 'unwrap'
 
+  const _fromAmountFormatted = transaction?.data?.metadata?.currencyIn?.amount
+    ? formatBN(
+        transaction?.data?.metadata?.currencyIn?.amount,
+        5,
+        transaction?.data?.metadata?.currencyIn?.currency?.decimals ?? 18
+      )
+    : fromAmountFormatted
+  const _fromToken =
+    transaction?.data?.metadata?.currencyIn?.currency ?? fromToken
+  const fromTokenLogoUri =
+    transaction?.data?.metadata?.currencyIn?.currency?.metadata?.logoURI ??
+    fromToken?.logoURI
+  const _toAmountFormatted = transaction?.data?.metadata?.currencyOut?.amount
+    ? formatBN(
+        transaction?.data?.metadata?.currencyOut?.amount,
+        5,
+        transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
+      )
+    : toAmountFormatted
+  const _toToken = transaction?.data?.metadata?.currencyOut?.currency ?? toToken
+  const toTokenLogoUri =
+    transaction?.data?.metadata?.currencyOut?.currency?.metadata?.logoURI ??
+    toToken?.logoURI
+
   const actionTitle = isWrap ? 'wrapped' : isUnwrap ? 'unwrapped' : 'swapped'
   const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
     ? 'https://testnets.relay.link'
     : 'https://relay.link'
-  const fromChain = fromToken
-    ? relayClient?.chains.find((chain) => chain.id === fromToken?.chainId)
+  const fromChain = _fromToken
+    ? relayClient?.chains.find((chain) => chain.id === _fromToken?.chainId)
     : null
-  const toChain = toToken
-    ? relayClient?.chains.find((chain) => chain.id === toToken?.chainId)
+  const toChain = _toToken
+    ? relayClient?.chains.find((chain) => chain.id === _toToken?.chainId)
     : null
   const delayedTxUrl = transaction?.data?.inTxs?.[0]?.hash
     ? `${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`
@@ -129,9 +157,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         </motion.div>
 
         <Text style="subtitle1" css={{ mt: '4', mb: '2', textAlign: 'center' }}>
-          Processing the order to swap {fromAmountFormatted} {fromToken?.symbol}{' '}
-          into {toAmountFormatted} {toToken?.symbol}, this will take ~
-          {timeEstimate}.
+          Processing the order to swap {_fromAmountFormatted}{' '}
+          {_fromToken?.symbol} into {_toAmountFormatted} {_toToken?.symbol},
+          this will take ~{timeEstimate}.
         </Text>
 
         <Flex align="center" css={{ gap: '2', mb: 24 }}>
@@ -282,19 +310,25 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         </Text>
 
         <Flex align="center" css={{ gap: '2', mb: 20 }}>
-          {fromToken ? (
+          {_fromToken ? (
             <Pill
               color="gray"
               css={{ alignItems: 'center', py: '2', px: '3', gap: '2' }}
             >
               <ChainTokenIcon
-                chainId={fromToken.chainId}
-                tokenlogoURI={fromToken.logoURI}
+                chainId={_fromToken.chainId}
+                tokenlogoURI={fromTokenLogoUri}
                 css={{ height: 32, width: 32 }}
               />
-              <Text style="subtitle1" ellipsify>
-                {fromAmountFormatted} {fromToken.symbol}
-              </Text>
+              {isLoadingTransaction ? (
+                <Skeleton
+                  css={{ height: 24, width: 60, background: 'gray5' }}
+                />
+              ) : (
+                <Text style="subtitle1" ellipsify>
+                  {_fromAmountFormatted} {_fromToken.symbol}
+                </Text>
+              )}
             </Pill>
           ) : (
             <Text style="subtitle1">?</Text>
@@ -302,19 +336,25 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           <Text style="subtitle1" color="subtle">
             to
           </Text>
-          {toToken ? (
+          {_toToken ? (
             <Pill
               color="gray"
               css={{ alignItems: 'center', py: '2', px: '3', gap: '2' }}
             >
               <ChainTokenIcon
-                chainId={toToken.chainId}
-                tokenlogoURI={toToken.logoURI}
+                chainId={_toToken.chainId}
+                tokenlogoURI={toTokenLogoUri}
                 css={{ height: 32, width: 32 }}
               />
-              <Text style="subtitle1" ellipsify>
-                {toAmountFormatted} {toToken.symbol}
-              </Text>
+              {isLoadingTransaction ? (
+                <Skeleton
+                  css={{ height: 24, width: 60, background: 'gray5' }}
+                />
+              ) : (
+                <Text style="subtitle1" ellipsify>
+                  {_toAmountFormatted} {_toToken.symbol}
+                </Text>
+              )}
             </Pill>
           ) : (
             <Text style="subtitle1">?</Text>
