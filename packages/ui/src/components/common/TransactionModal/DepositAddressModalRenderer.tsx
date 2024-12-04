@@ -318,7 +318,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         swapError,
         setSwapError,
         allTxHashes,
-        transaction: undefined,
+        transaction,
         fillTime,
         seconds,
         requestId,
