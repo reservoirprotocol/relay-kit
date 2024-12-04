@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.24
+
+### Patch Changes
+
+- 90c9ef9: Add slippage details to review quote screen
+
 ## 2.2.23
 
 ### Patch Changes
