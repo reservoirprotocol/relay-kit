@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.25
+
+### Patch Changes
+
+- 3a71c56: Fix slippage ui bugs
+
 ## 2.2.24
 
 ### Patch Changes
