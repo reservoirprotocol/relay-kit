@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.26
+
+### Patch Changes
+
+- 9255bd1: Hide slippage ui temporarily
+
 ## 2.2.25
 
 ### Patch Changes
