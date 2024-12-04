@@ -116,7 +116,11 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
 
   let breakdown: { title: string; value: ReactNode }[] = []
 
-  if (minimumAmountFormatted) {
+  if (
+    minimumAmountFormatted &&
+    quote?.details?.slippageTolerance?.destination?.percent &&
+    quote.details.slippageTolerance.destination.percent != '0.00'
+  ) {
     breakdown.push({
       title: 'Min. Received',
       value: (
@@ -150,7 +154,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                 <Flex css={{ color: 'gray9' }}>
                   <FontAwesomeIcon
                     icon={faInfoCircle}
-                    width={16}
+                    width={14}
+                    height={14}
                     style={{
                       display: 'inline-block'
                     }}
@@ -406,7 +411,11 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
               align="center"
               css={{ width: '100%', gap: '4' }}
             >
-              <Text style="subtitle2" color="subtle">
+              <Text
+                style="subtitle2"
+                color="subtle"
+                css={{ alignSelf: 'flex-start' }}
+              >
                 {item.title}
               </Text>
               {isFetchingQuote ? (
