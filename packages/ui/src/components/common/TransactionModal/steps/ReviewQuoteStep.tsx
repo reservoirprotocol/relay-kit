@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from 'react'
+import { useEffect, useState, type FC, type ReactNode } from 'react'
 import {
   Button,
   Flex,
@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { formatDollar } from '../../../../utils/numbers.js'
+import { formatBN, formatDollar } from '../../../../utils/numbers.js'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { calculatePriceTimeEstimate } from '../../../../utils/quote.js'
@@ -27,6 +27,7 @@ import React from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
 import type { Address } from 'viem'
 import type { LinkedWallet } from '../../../../types/index.js'
+import Tooltip from '../../../primitives/Tooltip.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -73,6 +74,14 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   const totalImpactUsd = quote?.details?.totalImpact?.usd
   const showHighPriceImpactWarning =
     isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
+  const minimumAmountFormatted = quote?.details?.currencyOut?.minimumAmount
+    ? formatBN(
+        quote.details.currencyOut.minimumAmount,
+        6,
+        toToken?.decimals,
+        false
+      )
+    : undefined
 
   const fromChain = client?.chains?.find(
     (chain) => chain.id === fromToken?.chainId
@@ -105,7 +114,58 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     return () => clearInterval(interval)
   }, [quoteUpdatedAt])
 
-  const breakdown = [
+  let breakdown: { title: string; value: ReactNode }[] = []
+
+  if (minimumAmountFormatted) {
+    breakdown.push({
+      title: 'Min. Received',
+      value: (
+        <Flex
+          align="center"
+          direction="column"
+          css={{
+            gap: '1'
+          }}
+        >
+          <Text style="subtitle2">
+            {minimumAmountFormatted} {toToken?.symbol}
+          </Text>
+          <Tooltip
+            align="end"
+            side="top"
+            content={
+              <Text style="subtitle2" css={{ maxWidth: 235 }}>
+                Automatic slippage tolerance is applied to every trade. The
+                option to adjust slippage will be available soon.
+              </Text>
+            }
+          >
+            <div>
+              <Flex css={{ gap: '1' }} align="center">
+                <Text style="body3" color="subtle">
+                  Slippage:{' '}
+                  {quote?.details?.slippageTolerance?.destination?.percent ?? 0}
+                  %
+                </Text>
+                <Flex css={{ color: 'gray9' }}>
+                  <FontAwesomeIcon
+                    icon={faInfoCircle}
+                    width={16}
+                    style={{
+                      display: 'inline-block'
+                    }}
+                  />
+                </Flex>
+              </Flex>
+            </div>
+          </Tooltip>
+        </Flex>
+      )
+    })
+  }
+
+  breakdown = [
+    ...breakdown,
     {
       title: 'Estimated time',
       value: (
