@@ -1,5 +1,23 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.26
+
+### Patch Changes
+
+- 9255bd1: Hide slippage ui temporarily
+
+## 2.2.25
+
+### Patch Changes
+
+- 3a71c56: Fix slippage ui bugs
+
+## 2.2.24
+
+### Patch Changes
+
+- 90c9ef9: Add slippage details to review quote screen
+
 ## 2.2.23
 
 ### Patch Changes
