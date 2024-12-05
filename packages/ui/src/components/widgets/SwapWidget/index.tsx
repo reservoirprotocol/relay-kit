@@ -38,7 +38,6 @@ import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import Tooltip from '../../primitives/Tooltip.js'
-import RefundAddressSection from '../RefundAddressSection.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
 
 type BaseSwapWidgetProps = {
@@ -193,10 +192,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         canonicalTimeEstimate,
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
-        isValidRefundAddress,
-        refundAddress,
         isRecipientLinked,
-        setRefundAddress,
         setUseExternalLiquidity,
         setSwapError,
         invalidateBalanceQueries
@@ -1025,14 +1021,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isSingleChainLocked={isSingleChainLocked}
                     fromChainWalletVMSupported={fromChainWalletVMSupported}
                   />
-                  {!fromChainWalletVMSupported ? (
-                    <RefundAddressSection
-                      refundAddress={refundAddress}
-                      setRefundAddress={setRefundAddress}
-                      fromChain={fromChain}
-                      refundAddressValid={isValidRefundAddress}
-                    />
-                  ) : null}
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     error={error}
@@ -1087,7 +1075,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       depositAddressModalOpen={depositAddressModalOpen}
                       isValidFromAddress={isValidFromAddress}
                       isValidToAddress={isValidToAddress}
-                      isValidRefundAddress={isValidRefundAddress}
                       fromChainWalletVMSupported={fromChainWalletVMSupported}
                       context={'Swap'}
                       onConnectWallet={onConnectWallet}

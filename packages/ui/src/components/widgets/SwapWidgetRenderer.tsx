@@ -126,10 +126,7 @@ export type ChildrenProps = {
   supportedWalletVMs: ChainVM[]
   fromChainWalletVMSupported: boolean
   toChainWalletVMSupported: boolean
-  isValidRefundAddress: boolean
-  refundAddress?: string
   isRecipientLinked?: boolean
-  setRefundAddress: Dispatch<React.SetStateAction<string | undefined>>
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -160,9 +157,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [customToAddress, setCustomToAddress] = useState<
     Address | string | undefined
   >(defaultToAddress)
-  const [refundAddress, setRefundAddress] = useState<
-    Address | string | undefined
-  >()
   const [useExternalLiquidity, setUseExternalLiquidity] =
     useState<boolean>(false)
   const address = useWalletAddress(wallet, linkedWallets)
@@ -373,12 +367,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     toChain?.vmType,
     recipient,
     toChain?.id
-  )
-
-  const isValidRefundAddress = isValidAddress(
-    fromChain?.vmType,
-    refundAddress,
-    fromChain?.id
   )
 
   const externalLiquiditySupport = usePrice(
@@ -673,8 +661,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
-  } else if (!fromChainWalletVMSupported && !isValidRefundAddress) {
-    ctaCopy = 'Enter Refund Address'
   } else if (!toChainWalletVMSupported && !isValidToAddress) {
     ctaCopy = `Enter ${toChain.displayName} Address`
   } else if (transactionModalOpen) {
@@ -774,10 +760,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         supportedWalletVMs,
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
-        isValidRefundAddress,
-        refundAddress,
         isRecipientLinked,
-        setRefundAddress,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
