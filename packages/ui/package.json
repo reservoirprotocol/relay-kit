@@ -1,6 +1,6 @@
 {
   "name": "@reservoir0x/relay-kit-ui",
-  "version": "2.2.26",
+  "version": "2.2.27",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",
