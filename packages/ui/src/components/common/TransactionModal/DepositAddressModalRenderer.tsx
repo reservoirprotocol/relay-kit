@@ -70,7 +70,6 @@ type Props = {
   amountInputValue: string
   amountOutputValue: string
   recipient?: string
-  refundAddress?: string
   customToAddress?: Address
   wallet?: AdaptedWallet
   invalidateBalanceQueries: () => void
@@ -92,8 +91,6 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   recipient,
-  customToAddress,
-  refundAddress,
   invalidateBalanceQueries,
   children,
   onSuccess,
@@ -135,8 +132,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
             fromToken.decimals
           ).toString(),
           referrer: relayClient?.source ?? undefined,
-          useDepositAddress: true,
-          refundTo: refundAddress
+          useDepositAddress: true
         }
       : undefined,
     () => {},

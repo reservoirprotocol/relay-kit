@@ -127,7 +127,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             address={address}
             recipient={recipient}
             timeEstimate={timeEstimate}
-            refundAddress={'0x03508bB71268BBA25ECaCC8F620e01866650532c'} //TODO
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
             invalidateBalanceQueries={invalidateBalanceQueries}

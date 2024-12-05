@@ -30,7 +30,6 @@ type DepositAddressModalProps = {
   amountOutputValue: string
   recipient?: Address | string
   customToAddress?: Address | string
-  refundAddress?: Address | string
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -47,7 +46,6 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
     fromToken,
     toToken,
     recipient,
-    refundAddress,
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     amountInputValue,
@@ -69,7 +67,6 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
       debouncedOutputAmountValue={debouncedOutputAmountValue}
       address={address}
       recipient={recipient}
-      refundAddress={refundAddress}
       invalidateBalanceQueries={invalidateBalanceQueries}
       onAnalyticEvent={onAnalyticEvent}
       onSuccess={(quote, executionStatus) => {
@@ -148,7 +145,6 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   seconds,
   fromChain,
   recipient,
-  refundAddress,
   depositAddress,
   executionStatus,
   isLoadingTransaction
@@ -206,13 +202,9 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
         {progressStep === TransactionProgressStep.WaitingForDeposit ? (
           <WaitingForDepositStep
             fromToken={fromToken}
-            toToken={toToken}
             fromChain={fromChain}
             fromAmountFormatted={fromAmountFormatted}
-            toAmountFormatted={toAmountFormatted}
             isFetchingQuote={isFetchingQuote}
-            recipientAddress={recipient}
-            refundAddress={refundAddress}
             depositAddress={depositAddress}
           />
         ) : null}

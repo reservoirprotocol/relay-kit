@@ -23,7 +23,6 @@ type SwapButtonProps = {
   | 'ctaCopy'
   | 'isValidFromAddress'
   | 'isValidToAddress'
-  | 'isValidRefundAddress'
   | 'fromChainWalletVMSupported'
 >
 
@@ -41,7 +40,6 @@ const SwapButton: FC<SwapButtonProps> = ({
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
-  isValidRefundAddress,
   fromChainWalletVMSupported,
   onClick,
   ctaCopy,
@@ -67,8 +65,7 @@ const SwapButton: FC<SwapButtonProps> = ({
             isInsufficientLiquidityError ||
             transactionModalOpen ||
             depositAddressModalOpen ||
-            isSameCurrencySameRecipientSwap ||
-            (!isValidRefundAddress && !fromChainWalletVMSupported))
+            isSameCurrencySameRecipientSwap)
         }
         onClick={() => {
           onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {

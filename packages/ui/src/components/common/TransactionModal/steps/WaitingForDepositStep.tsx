@@ -22,25 +22,17 @@ import { generateQrWalletDeeplink } from '../../../../utils/qrcode.js'
 
 type WaitingForDepositStepProps = {
   fromToken?: Token
-  toToken?: Token
   fromChain?: RelayChain
   fromAmountFormatted?: string
-  toAmountFormatted?: string
   isFetchingQuote?: boolean
-  recipientAddress?: string
-  refundAddress?: string
   depositAddress?: string
 }
 
 export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
   fromToken,
-  toToken,
   fromChain,
   fromAmountFormatted,
-  toAmountFormatted,
   isFetchingQuote,
-  recipientAddress,
-  refundAddress,
   depositAddress
 }) => {
   const relayClient = useRelayClient()
