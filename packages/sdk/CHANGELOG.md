@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.8
+
+### Patch Changes
+
+- bb5a8d0: Fix typescript error in RelayChain
+
 ## 1.4.7
 
 ### Patch Changes
