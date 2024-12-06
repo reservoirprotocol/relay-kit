@@ -1,47 +1,48 @@
 import {
   MAINNET_RELAY_API,
   RelayClient,
-  type AdaptedWallet,
+  setParams,
   type Execute,
   type paths,
   type ProgressData
 } from '@reservoir0x/relay-sdk'
-import { axiosPostFetcher } from '../fetcher.js'
+import fetcher from '../fetcher.js'
 import {
   useQuery,
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
-import type { WalletClient } from 'viem'
+import { useMemo } from 'react'
 import type { AxiosRequestConfig } from 'axios'
 
-type QuoteBody =
-  paths['/quote']['post']['requestBody']['content']['application/json']
+type ExecutionStatusParams =
+  paths['/intents/status/v2']['get']['parameters']['query']
 
-export type QuoteResponse =
-  paths['/quote']['post']['responses']['200']['content']['application/json']
+export type ExecutionStatusResponse =
+  paths['/intents/status/v2']['get']['responses']['200']['content']['application/json']
 
 type QueryType = typeof useQuery<
-  QuoteResponse,
+  ExecutionStatusResponse,
   DefaultError,
-  QuoteResponse,
+  ExecutionStatusResponse,
   QueryKey
 >
 type QueryOptions = Parameters<QueryType>['0']
 
-export const queryQuote = function (
+export const queryExecutionStatus = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: QuoteBody
-): Promise<Execute> {
+  options?: ExecutionStatusParams
+): Promise<ExecutionStatusResponse> {
   return new Promise((resolve, reject) => {
-    const url = new URL(`${baseApiUrl}/quote`)
-    axiosPostFetcher(url.href, options)
+    const url = new URL(`${baseApiUrl}/intents/status/v2`)
+    let query: ExecutionStatusParams = { ...options }
+    setParams(url, query)
+
+    fetcher(url.href)
       .then((response) => {
         const request: AxiosRequestConfig = {
           url: url.href,
-          method: 'post',
-          data: options
+          method: 'get'
         }
         resolve({
           ...response,
@@ -58,21 +59,17 @@ export type onProgress = (data: ProgressData) => void
 
 export default function (
   client?: RelayClient,
-  wallet?: WalletClient | AdaptedWallet,
-  options?: QuoteBody,
+  options?: ExecutionStatusParams,
   onRequest?: () => void,
   onResponse?: (data: Execute) => void,
   queryOptions?: Partial<QueryOptions>
 ) {
-  const queryKey = ['useQuote', options]
+  const queryKey = ['useExecutionStatus', options]
   const response = (useQuery as QueryType)({
     queryKey: queryKey,
     queryFn: () => {
       onRequest?.()
-      if (options && client?.source && !options.referrer) {
-        options.referrer = client.source
-      }
-      const promise = queryQuote(client?.baseApiUrl, options)
+      const promise = queryExecutionStatus(client?.baseApiUrl, options)
       promise.then((response: any) => {
         onResponse?.(response)
       })
@@ -83,38 +80,15 @@ export default function (
     ...queryOptions
   })
 
-  const executeQuote = useCallback(
-    (onProgress: onProgress) => {
-      if (!wallet) {
-        throw 'Missing a valid wallet'
-      }
-
-      if (!response.data) {
-        throw 'Missing a quote'
-      }
-
-      const promise = client?.actions?.execute({
-        wallet,
-        quote: response.data as Execute,
-        onProgress
-      })
-
-      return promise
-    },
-    [response.data, wallet, client]
-  )
-
   return useMemo(
     () =>
       ({
         ...response,
         data: response.error ? undefined : response.data,
-        queryKey,
-        executeQuote
+        queryKey
       }) as Omit<ReturnType<QueryType>, 'data'> & {
-        data?: QuoteResponse
+        data?: ExecutionStatusResponse
         queryKey: QueryKey
-        executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
       },
     [
       response.data,
@@ -123,7 +97,6 @@ export default function (
       response.isFetching,
       response.isRefetching,
       response.dataUpdatedAt,
-      executeQuote,
       queryKey
     ]
   )

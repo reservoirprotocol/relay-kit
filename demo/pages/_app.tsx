@@ -19,7 +19,7 @@ import {
   FilterChain,
   RemoveWallets
 } from '@dynamic-labs/sdk-react-core'
-import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
+// import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
@@ -169,7 +169,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             logLevel: 'INFO',
             environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
             walletConnectors: [
-              EthereumWalletConnectors,
+              // EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
               EclipseWalletConnectors
