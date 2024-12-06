@@ -468,13 +468,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }}
                         context="from"
                         multiWalletSupportEnabled={multiWalletSupportEnabled}
-                        chainIdsFilter={
+                        lockedChainIds={
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
                                 fromToken?.chainId === lockChainId
                               ? [fromToken?.chainId]
                               : undefined
+                        }
+                        chainIdsFilter={
+                          !fromChainWalletVMSupported && toToken
+                            ? [toToken.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -891,13 +896,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </div>
                         }
                         onAnalyticEvent={onAnalyticEvent}
-                        chainIdsFilter={
+                        lockedChainIds={
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
                                 toToken?.chainId === lockChainId
                               ? [toToken?.chainId]
                               : undefined
+                        }
+                        chainIdsFilter={
+                          !fromChainWalletVMSupported && fromToken
+                            ? [fromToken.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
