@@ -7,9 +7,16 @@
  * @returns A shrinked version of the Ethereum address
  * with the middle characters removed.
  */
-function truncateAddress(address?: string, shrinkInidicator?: string) {
+function truncateAddress(
+  address?: string,
+  shrinkInidicator?: string,
+  firstSectionLength?: number,
+  lastSectionLength?: number
+) {
   return address
-    ? address.slice(0, 4) + (shrinkInidicator || '…') + address.slice(-4)
+    ? address.slice(0, firstSectionLength ?? 4) +
+        (shrinkInidicator || '…') +
+        address.slice(-(lastSectionLength ?? 4))
     : address
 }
 

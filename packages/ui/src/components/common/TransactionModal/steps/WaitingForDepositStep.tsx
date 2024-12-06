@@ -155,8 +155,8 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
         {isFetchingQuote ? (
           <Skeleton css={{ height: 16, width: '100%' }} />
         ) : (
-          <Text style="subtitle2" ellipsify>
-            {depositAddress}
+          <Text style="subtitle2">
+            {truncateAddress(depositAddress, '...', 30, 4)}
           </Text>
         )}
         <CopyToClipBoard text={depositAddress ?? ''} />
