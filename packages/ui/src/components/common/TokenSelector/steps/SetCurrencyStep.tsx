@@ -158,7 +158,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
         Select Token
       </Text>
       <Flex css={{ width: '100%', gap: '3', height: '400px' }}>
-        {isDesktop && allChains.length > 1 ? (
+        {isDesktop && allChains.length > 2 ? (
           <>
             <Flex
               direction="column"
@@ -384,7 +384,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   }
                 />
               </AccessibleListItem>
-              {!isDesktop && allChains.length > 1 ? (
+              {!isDesktop && allChains.length > 2 ? (
                 <ChainFilter
                   options={allChains}
                   value={chainFilter}
