@@ -365,12 +365,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                           chain={fromChain}
                           onLinkNewWallet={() => {
-                            onLinkNewWallet?.({
-                              chain: fromChain,
-                              direction: 'from'
-                            })?.then((wallet) => {
-                              onSetPrimaryWallet?.(wallet.address)
-                            })
+                            if (!address && fromChainWalletVMSupported) {
+                              onConnectWallet?.()
+                            } else {
+                              onLinkNewWallet?.({
+                                chain: fromChain,
+                                direction: 'from'
+                              })?.then((wallet) => {
+                                onSetPrimaryWallet?.(wallet.address)
+                              })
+                            }
                           }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
@@ -717,12 +721,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                           chain={toChain}
                           onLinkNewWallet={() => {
-                            onLinkNewWallet?.({
-                              chain: toChain,
-                              direction: 'to'
-                            })?.then((wallet) => {
-                              setCustomToAddress(wallet.address)
-                            })
+                            if (!address && fromChainWalletVMSupported) {
+                              onConnectWallet?.()
+                            } else {
+                              onLinkNewWallet?.({
+                                chain: toChain,
+                                direction: 'to'
+                              })?.then((wallet) => {
+                                setCustomToAddress(wallet.address)
+                              })
+                            }
                           }}
                           setAddressModalOpen={setAddressModalOpen}
                           wallets={linkedWallets!}
