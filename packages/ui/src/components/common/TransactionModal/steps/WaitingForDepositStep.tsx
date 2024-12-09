@@ -57,6 +57,21 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
 
   return (
     <>
+      <Box
+        css={{
+          '--borderColor': 'colors.subtle-border-color',
+          border: '1px solid var(--borderColor)',
+          borderRadius: 8,
+          px: '2',
+          py: '3',
+          mb: '3'
+        }}
+      >
+        <Text style="body2">
+          Transfer funds manually from your {fromChain?.displayName} wallet to
+          Relay’s deposit address to complete the bridge.
+        </Text>
+      </Box>
       <Flex css={{ gap: '1' }}>
         <Flex css={{ gap: '1', width: '100%' }} direction="column">
           <Text style="subtitle2">Network</Text>
