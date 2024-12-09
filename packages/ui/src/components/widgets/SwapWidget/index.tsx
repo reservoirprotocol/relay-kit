@@ -1076,16 +1076,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               const chain = !isValidFromAddress
                                 ? fromChain
                                 : toChain
-                              onLinkNewWallet?.({
-                                chain: chain,
-                                direction: !isValidFromAddress ? 'from' : 'to'
-                              })?.then((wallet) => {
-                                if (!isValidFromAddress) {
-                                  onSetPrimaryWallet?.(wallet.address)
-                                } else {
-                                  setCustomToAddress(wallet.address)
-                                }
-                              })
+                              if (!address) {
+                                onConnectWallet?.()
+                              } else {
+                                onLinkNewWallet?.({
+                                  chain: chain,
+                                  direction: !isValidFromAddress ? 'from' : 'to'
+                                })?.then((wallet) => {
+                                  if (!isValidFromAddress) {
+                                    onSetPrimaryWallet?.(wallet.address)
+                                  } else {
+                                    setCustomToAddress(wallet.address)
+                                  }
+                                })
+                              }
                             } else {
                               setAddressModalOpen(true)
                             }
@@ -1098,12 +1102,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               multiWalletSupportEnabled &&
                               toChainWalletVMSupported
                             ) {
-                              onLinkNewWallet?.({
-                                chain: toChain,
-                                direction: 'to'
-                              })?.then((wallet) => {
-                                setCustomToAddress(wallet.address)
-                              })
+                              if (!address) {
+                                onConnectWallet?.()
+                              } else {
+                                onLinkNewWallet?.({
+                                  chain: toChain,
+                                  direction: 'to'
+                                })?.then((wallet) => {
+                                  setCustomToAddress(wallet.address)
+                                })
+                              }
                             } else {
                               setAddressModalOpen(true)
                             }

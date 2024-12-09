@@ -72,11 +72,7 @@ const SwapButton: FC<SwapButtonProps> = ({
             context,
             ctaCopy
           })
-          if (address) {
-            onClick()
-          } else {
-            onConnectWallet?.()
-          }
+          onClick()
         }}
       >
         {ctaCopy}
