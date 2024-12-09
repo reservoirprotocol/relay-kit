@@ -593,50 +593,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         ) : null}
                       </Flex>
                     </Flex>
-                    {!fromChainWalletVMSupported ? (
-                      <Pill
-                        color="amber"
-                        css={{
-                          display: 'flex',
-                          p: '2',
-                          alignItems: 'center',
-                          width: '100%'
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faCircleExclamation}
-                          width={16}
-                          height={16}
-                        />
-                        <Text
-                          style="subtitle3"
-                          css={{ display: 'flex', gap: '2px', ml: '2' }}
-                        >
-                          This route supports bridging via{' '}
-                          <Tooltip
-                            content={
-                              <Text
-                                style="subtitle2"
-                                css={{ maxWidth: 215, display: 'inline-block' }}
-                              >
-                                Send funds to a deposit address to automatically
-                                bridge to another chain.
-                              </Text>
-                            }
-                          >
-                            <div>
-                              <Text
-                                style="subtitle3"
-                                css={{ textDecoration: 'underline' }}
-                              >
-                                deposit address
-                              </Text>
-                            </div>
-                          </Tooltip>
-                          .
-                        </Text>
-                      </Pill>
-                    ) : null}
                   </TokenSelectorContainer>
                   <Box
                     css={{

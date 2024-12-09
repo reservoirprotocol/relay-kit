@@ -194,9 +194,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
         }}
       >
         <Text style="h6" css={{ mb: 8 }}>
-          {isWaitingForDeposit
-            ? 'Send Funds From Your Wallet'
-            : 'Trade Details'}
+          {isWaitingForDeposit ? 'Manual Transfer' : 'Trade Details'}
         </Text>
 
         {progressStep === TransactionProgressStep.WaitingForDeposit ? (
