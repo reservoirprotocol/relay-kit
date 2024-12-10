@@ -680,7 +680,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       case 'swap':
       default: {
         if (context === 'Swap') {
-          ctaCopy = 'Trade'
+          ctaCopy = 'Swap'
         } else {
           ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
         }
