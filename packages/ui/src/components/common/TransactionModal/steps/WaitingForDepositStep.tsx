@@ -170,7 +170,13 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
                               justifyContent: 'center'
                             }}
                           >
-                            <Flex css={{ position: 'relative' }}>
+                            <Flex
+                              css={{
+                                position: 'relative',
+                                zIndex: '999',
+                                transform: 'translate3d(0,0,0)'
+                              }}
+                            >
                               <ChainIcon
                                 chainId={fromChain?.id}
                                 height={14}
@@ -190,7 +196,8 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
                                 height={33}
                                 style={{
                                   borderRadius: '100%',
-                                  border: '1.5px solid white'
+                                  border: '1.5px solid white',
+                                  background: 'white'
                                 }}
                               />
                             </Flex>
