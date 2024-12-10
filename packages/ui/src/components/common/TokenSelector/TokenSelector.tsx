@@ -38,6 +38,7 @@ import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
   token?: Token
+  restrictedToken?: Token
   trigger: ReactNode
   restrictedTokensList?: Token[]
   chainIdsFilter?: number[]
@@ -70,6 +71,7 @@ export enum TokenSelectorStep {
 const TokenSelector: FC<TokenSelectorProps> = ({
   openState,
   token,
+  restrictedToken,
   trigger,
   restrictedTokensList,
   chainIdsFilter,
@@ -162,7 +164,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
     {
-      chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
+      chainIds:
+        type === 'token' && chainFilter.id
+          ? [chainFilter.id]
+          : configuredChainIds,
       address: isAddress(debouncedTokenSearchValue)
         ? debouncedTokenSearchValue
         : undefined,
@@ -593,6 +598,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             {tokenSelectorStep === TokenSelectorStep.SetChain ? (
               <SetChainStep
                 token={token}
+                restrictedToken={restrictedToken}
+                tokenList={tokenList}
                 context={context}
                 setTokenSelectorStep={setTokenSelectorStep}
                 setInputElement={setInputElement}
