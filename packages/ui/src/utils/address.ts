@@ -5,6 +5,7 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { isAddress } from 'viem'
 import { isBitcoinAddress } from '../utils/bitcoin.js'
+import { isTronAddress } from '../utils/tron.js'
 import {
   eclipse,
   eclipseWallets,
@@ -50,6 +51,8 @@ export const isValidAddress = (
       return isSolanaAddress(address)
     } else if (vmType === 'bvm') {
       return isBitcoinAddress(address)
+    } else if (vmType === 'tvm') {
+      return isTronAddress(address)
     }
   }
   return false
