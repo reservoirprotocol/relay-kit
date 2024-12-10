@@ -1,6 +1,7 @@
 import { type FC, type ReactNode } from 'react'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
 import { SwapModal } from '../common/TransactionModal/SwapModal.js'
+import { DepositAddressModal } from '../common/TransactionModal/DepositAddressModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
@@ -9,6 +10,7 @@ import type { LinkedWallet } from '../../types/index.js'
 
 export type WidgetContainerProps = {
   transactionModalOpen: boolean
+  depositAddressModalOpen: boolean
   addressModalOpen: boolean
   toChain?: RelayChain
   fromChain?: RelayChain
@@ -16,9 +18,11 @@ export type WidgetContainerProps = {
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setDepositAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: () => ReactNode
   onSwapModalOpenChange: (open: boolean) => void
+  onDepositAddressModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
   onSwapValidating?: (data: Execute) => void
@@ -34,8 +38,6 @@ export type WidgetContainerProps = {
   | 'recipient'
   | 'customToAddress'
   | 'tradeType'
-  | 'swapError'
-  | 'price'
   | 'address'
   | 'setCustomToAddress'
   | 'useExternalLiquidity'
@@ -45,6 +47,8 @@ export type WidgetContainerProps = {
 const WidgetContainer: FC<WidgetContainerProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
+  depositAddressModalOpen,
+  setDepositAddressModalOpen,
   addressModalOpen,
   setAddressModalOpen,
   children,
@@ -57,8 +61,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   amountOutputValue,
   tradeType,
   customToAddress,
-  swapError,
-  price,
   address,
   useExternalLiquidity,
   timeEstimate,
@@ -68,6 +70,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   linkedWallets,
   multiWalletSupportEnabled,
   onSwapModalOpenChange,
+  onDepositAddressModalOpenChange,
   onSwapSuccess,
   onSwapValidating,
   onAnalyticEvent,
@@ -80,34 +83,57 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
     <div className="relay-kit-reset">
       {children()}
       {isMounted ? (
-        <SwapModal
-          open={transactionModalOpen}
-          onOpenChange={(open) => {
-            onSwapModalOpenChange(open)
-            setTransactionModalOpen(open)
-          }}
-          fromChain={fromChain}
-          fromToken={fromToken}
-          toToken={toToken}
-          amountInputValue={amountInputValue}
-          amountOutputValue={amountOutputValue}
-          debouncedInputAmountValue={debouncedInputAmountValue}
-          debouncedOutputAmountValue={debouncedOutputAmountValue}
-          tradeType={tradeType}
-          useExternalLiquidity={useExternalLiquidity}
-          address={address}
-          recipient={recipient}
-          isCanonical={useExternalLiquidity}
-          timeEstimate={timeEstimate}
-          onAnalyticEvent={onAnalyticEvent}
-          onSuccess={onSwapSuccess}
-          onSwapValidating={onSwapValidating}
-          invalidateBalanceQueries={invalidateBalanceQueries}
-          wallet={wallet}
-          linkedWallets={linkedWallets}
-          multiWalletSupportEnabled={multiWalletSupportEnabled}
-        />
+        <>
+          <SwapModal
+            open={transactionModalOpen}
+            onOpenChange={(open) => {
+              onSwapModalOpenChange(open)
+              setTransactionModalOpen(open)
+            }}
+            fromChain={fromChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            amountInputValue={amountInputValue}
+            amountOutputValue={amountOutputValue}
+            debouncedInputAmountValue={debouncedInputAmountValue}
+            debouncedOutputAmountValue={debouncedOutputAmountValue}
+            tradeType={tradeType}
+            useExternalLiquidity={useExternalLiquidity}
+            address={address}
+            recipient={recipient}
+            isCanonical={useExternalLiquidity}
+            timeEstimate={timeEstimate}
+            onAnalyticEvent={onAnalyticEvent}
+            onSuccess={onSwapSuccess}
+            onSwapValidating={onSwapValidating}
+            invalidateBalanceQueries={invalidateBalanceQueries}
+            wallet={wallet}
+            linkedWallets={linkedWallets}
+            multiWalletSupportEnabled={multiWalletSupportEnabled}
+          />
+          <DepositAddressModal
+            open={depositAddressModalOpen}
+            onOpenChange={(open) => {
+              onDepositAddressModalOpenChange(open)
+              setDepositAddressModalOpen(open)
+            }}
+            fromChain={fromChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            amountInputValue={amountInputValue}
+            amountOutputValue={amountOutputValue}
+            debouncedInputAmountValue={debouncedInputAmountValue}
+            debouncedOutputAmountValue={debouncedOutputAmountValue}
+            address={address}
+            recipient={recipient}
+            timeEstimate={timeEstimate}
+            onAnalyticEvent={onAnalyticEvent}
+            onSuccess={onSwapSuccess}
+            invalidateBalanceQueries={invalidateBalanceQueries}
+          />
+        </>
       ) : null}
+
       <CustomAddressModal
         open={addressModalOpen}
         toAddress={customToAddress}

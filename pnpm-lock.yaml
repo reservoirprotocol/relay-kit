@@ -331,6 +331,9 @@ importers:
       pandacss-preset-radix-colors:
         specifier: ^0.2.0
         version: 0.2.0(@pandacss/dev@0.40.0)(@radix-ui/colors@0.1.9)
+      qrcode.react:
+        specifier: ^4.1.0
+        version: 4.1.0(react@18.2.0)
       react:
         specifier: ^18.0
         version: 18.2.0
@@ -13781,6 +13784,14 @@ packages:
   /qrcode-terminal-nooctal@0.12.1:
     resolution: {integrity: sha512-jy/kkD0iIMDjTucB+5T6KBsnirlhegDH47vHgrj5MejchSQmi/EAMM0xMFeePgV9CJkkAapNakpVUWYgHvtdKg==}
     hasBin: true
+    dev: false
+
+  /qrcode.react@4.1.0(react@18.2.0):
+    resolution: {integrity: sha512-uqXVIIVD/IPgWLYxbOczCNAQw80XCM/LulYDADF+g2xDsPj5OoRwSWtIS4jGyp295wyjKstfG1qIv/I2/rNWpQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /qrcode@1.5.1:

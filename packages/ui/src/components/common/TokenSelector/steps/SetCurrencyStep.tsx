@@ -44,7 +44,6 @@ type SetCurrencyProps = {
   ) => void
   tokenSearchInput: string
   setTokenSearchInput: (value: string) => void
-  chainIdsFilter: number[] | undefined
   chainFilterOptions: RelayChain[]
   chainFilter: ChainFilterValue
   setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
@@ -53,6 +52,7 @@ type SetCurrencyProps = {
   isLoadingDuneBalances: boolean
   enhancedCurrencyList?: EnhancedCurrencyList[]
   token?: Token
+  depositAddressOnly?: boolean
   selectToken: (currency: Currency, chainId?: number) => void
   setUnverifiedTokenModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   setUnverifiedToken: React.Dispatch<React.SetStateAction<Token | undefined>>
@@ -73,7 +73,6 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   setInputElement,
   tokenSearchInput,
   setTokenSearchInput,
-  chainIdsFilter,
   chainFilterOptions,
   chainFilter,
   setChainFilter,
@@ -81,6 +80,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   isLoadingExternalTokenList,
   isLoadingDuneBalances,
   enhancedCurrencyList,
+  depositAddressOnly,
   selectToken,
   setUnverifiedTokenModalOpen,
   setUnverifiedToken,
@@ -158,7 +158,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
         Select Token
       </Text>
       <Flex css={{ width: '100%', gap: '3', height: '400px' }}>
-        {isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
+        {isDesktop && allChains.length > 2 ? (
           <>
             <Flex
               direction="column"
@@ -384,7 +384,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   }
                 />
               </AccessibleListItem>
-              {!isDesktop && (!chainIdsFilter || chainIdsFilter.length > 1) ? (
+              {!isDesktop && allChains.length > 2 ? (
                 <ChainFilter
                   options={allChains}
                   value={chainFilter}
@@ -400,6 +400,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
               <>
                 <SuggestedTokens
                   chainId={chainFilter.id}
+                  depositAddressOnly={depositAddressOnly}
                   onSelect={(token) => {
                     selectToken(token, token.chainId)
                   }}
