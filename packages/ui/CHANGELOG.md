@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.2.28
+
+### Patch Changes
+
+- c7167e6: Restore slippage UI component in transaction review step
+
 ## 2.2.27
 
 ### Patch Changes
