@@ -116,59 +116,58 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
 
   let breakdown: { title: string; value: ReactNode }[] = []
 
-  //This is temporarily removed until we can work out better slippage estimation
-  // if (
-  //   minimumAmountFormatted &&
-  //   quote?.details?.slippageTolerance?.destination?.percent &&
-  //   quote.details.slippageTolerance.destination.percent != '0.00'
-  // ) {
-  //   breakdown.push({
-  //     title: 'Min. Received',
-  //     value: (
-  //       <Flex
-  //         align="center"
-  //         direction="column"
-  //         css={{
-  //           gap: '1'
-  //         }}
-  //       >
-  //         <Text style="subtitle2">
-  //           {minimumAmountFormatted} {toToken?.symbol}
-  //         </Text>
-  //         <Tooltip
-  //           align="end"
-  //           side="top"
-  //           content={
-  //             <Text style="subtitle2" css={{ maxWidth: 235 }}>
-  //               Automatic slippage tolerance is applied to every trade. The
-  //               option to adjust slippage will be available soon.
-  //             </Text>
-  //           }
-  //         >
-  //           <div>
-  //             <Flex css={{ gap: '1' }} align="center">
-  //               <Text style="body3" color="subtle">
-  //                 Slippage:{' '}
-  //                 {quote?.details?.slippageTolerance?.destination?.percent ?? 0}
-  //                 %
-  //               </Text>
-  //               <Flex css={{ color: 'gray9' }}>
-  //                 <FontAwesomeIcon
-  //                   icon={faInfoCircle}
-  //                   width={14}
-  //                   height={14}
-  //                   style={{
-  //                     display: 'inline-block'
-  //                   }}
-  //                 />
-  //               </Flex>
-  //             </Flex>
-  //           </div>
-  //         </Tooltip>
-  //       </Flex>
-  //     )
-  //   })
-  // }
+  if (
+    minimumAmountFormatted &&
+    quote?.details?.slippageTolerance?.destination?.percent &&
+    quote.details.slippageTolerance.destination.percent != '0.00'
+  ) {
+    breakdown.push({
+      title: 'Min. Received',
+      value: (
+        <Flex
+          align="center"
+          direction="column"
+          css={{
+            gap: '1'
+          }}
+        >
+          <Text style="subtitle2">
+            {minimumAmountFormatted} {toToken?.symbol}
+          </Text>
+          <Tooltip
+            align="end"
+            side="top"
+            content={
+              <Text style="subtitle2" css={{ maxWidth: 235 }}>
+                Automatic slippage tolerance is applied to every trade. The
+                option to adjust slippage will be available soon.
+              </Text>
+            }
+          >
+            <div>
+              <Flex css={{ gap: '1' }} align="center">
+                <Text style="body3" color="subtle">
+                  Slippage:{' '}
+                  {quote?.details?.slippageTolerance?.destination?.percent ?? 0}
+                  %
+                </Text>
+                <Flex css={{ color: 'gray9' }}>
+                  <FontAwesomeIcon
+                    icon={faInfoCircle}
+                    width={14}
+                    height={14}
+                    style={{
+                      display: 'inline-block'
+                    }}
+                  />
+                </Flex>
+              </Flex>
+            </div>
+          </Tooltip>
+        </Flex>
+      )
+    })
+  }
 
   breakdown = [
     ...breakdown,
