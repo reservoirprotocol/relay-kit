@@ -365,8 +365,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -403,6 +403,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         isValidAddress={isValidFromAddress}
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
+                        restrictedToken={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
@@ -425,9 +426,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                                fromToken?.chainId === lockChainId
-                              ? [fromToken?.chainId]
-                              : undefined
+                              fromToken?.chainId === lockChainId
+                            ? [fromToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === fromToken?.chainId
@@ -698,8 +699,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -740,6 +741,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         address={recipient}
                         isValidAddress={isValidToAddress}
                         token={toToken}
+                        restrictedToken={fromToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
@@ -785,9 +787,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                                toToken?.chainId === lockChainId
-                              ? [toToken?.chainId]
-                              : undefined
+                              toToken?.chainId === lockChainId
+                            ? [toToken?.chainId]
+                            : undefined
                         }
                         restrictedTokensList={tokens?.filter(
                           (token) => token.chainId === toToken?.chainId
