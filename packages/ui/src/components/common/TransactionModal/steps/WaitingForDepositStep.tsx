@@ -6,16 +6,13 @@ import {
   Pill,
   Skeleton,
   Text,
-  Box
+  Box,
+  Anchor
 } from '../../../primitives/index.js'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { type Token } from '../../../../types/index.js'
-import {
-  getDeadAddress,
-  zeroDeadAddress,
-  type RelayChain
-} from '@reservoir0x/relay-sdk'
+import { getDeadAddress, type RelayChain } from '@reservoir0x/relay-sdk'
 import { CopyToClipBoard } from '../../CopyToClipBoard.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faQrcode } from '@fortawesome/free-solid-svg-icons'
@@ -57,21 +54,26 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
 
   return (
     <>
-      <Box
+      <Flex
+        direction="column"
         css={{
           '--borderColor': 'colors.subtle-border-color',
           border: '1px solid var(--borderColor)',
           borderRadius: 8,
           px: '2',
           py: '3',
-          mb: '3'
+          mb: '3',
+          gap: '2'
         }}
       >
         <Text style="body2">
           Transfer funds manually from your {fromChain?.displayName} wallet to
           Relay’s deposit address to complete the bridge.
         </Text>
-      </Box>
+        <Anchor href="https://support.relay.link/en/articles/10269920-how-do-deposit-addresses-work">
+          Learn More
+        </Anchor>
+      </Flex>
       <Flex css={{ gap: '1' }}>
         <Flex css={{ gap: '1', width: '100%' }} direction="column">
           <Text style="subtitle2">Network</Text>
@@ -99,19 +101,26 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
             }}
             radius="squared"
           >
-            <Text style="h6" css={{ fontWeight: '500', mr: '1' }}>
-              {fromAmountFormatted}
-            </Text>
-            <img
-              alt={fromToken?.name}
-              src={fromToken?.logoURI}
-              width={20}
-              height={20}
-              style={{
-                borderRadius: 9999
-              }}
-            />
-            <Text style="h6">{fromToken?.symbol}</Text>
+            {fromAmountFormatted ? (
+              <>
+                {' '}
+                <Text style="h6" css={{ fontWeight: '500', mr: '1' }}>
+                  {fromAmountFormatted}
+                </Text>
+                <img
+                  alt={fromToken?.name}
+                  src={fromToken?.logoURI}
+                  width={20}
+                  height={20}
+                  style={{
+                    borderRadius: 9999
+                  }}
+                />
+                <Text style="h6">{fromToken?.symbol}</Text>
+              </>
+            ) : (
+              <Skeleton css={{ height: 24, width: '100%' }} />
+            )}{' '}
           </Pill>
         </Flex>
       </Flex>
@@ -122,7 +131,7 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
         css={{ display: 'flex', alignItems: 'center', gap: '3', p: '3' }}
       >
         {isFetchingQuote ? (
-          <Skeleton css={{ height: 16, width: '100%' }} />
+          <Skeleton css={{ height: 21, width: '100%' }} />
         ) : (
           <>
             <Text style="subtitle2">
