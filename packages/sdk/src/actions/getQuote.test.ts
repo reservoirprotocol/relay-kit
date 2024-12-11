@@ -1,17 +1,29 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { RelayClient, createClient, getClient } from '../client'
 import { http, zeroAddress } from 'viem'
 import { mainnet } from 'viem/chains'
 import { MAINNET_RELAY_API } from '../constants'
 import { axios } from '../utils'
+import { AdaptedWallet } from '../types/AdaptedWallet'
+import { Execute } from '../types'
+import { SignatureStepItem } from '../types/SignatureStepItem'
+import { TransactionStepItem } from '../types/TransactionStepItem'
 
 let client: RelayClient | undefined
-let wallet = {
+let wallet: AdaptedWallet & {
+  handleSignMessageStep: Mock<[SignatureStepItem, Execute['steps'][0]], Promise<string>>;
+  handleSendTransactionStep: Mock<[number, TransactionStepItem, Execute['steps'][0]], Promise<string>>;
+  handleConfirmTransactionStep: Mock;
+  switchChain: Mock;
+} = {
+  vmType: 'evm',
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve(zeroAddress),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-  handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue(undefined)
 }
 
 let axiosRequestSpy: ReturnType<typeof mockAxiosRequest>

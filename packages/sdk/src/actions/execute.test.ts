@@ -1,33 +1,58 @@
-import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest'
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { RelayClient, createClient } from '../client'
 import { http, zeroAddress } from 'viem'
 import { mainnet } from 'viem/chains'
 import { MAINNET_RELAY_API } from '../constants'
 import { executeBridge } from '../../tests/data/executeBridge'
-import type { Execute } from '../types'
+import { Execute } from '../types'
+import { AdaptedWallet } from '../types/AdaptedWallet'
+import { SignatureStepItem } from '../types/SignatureStepItem'
+import { TransactionStepItem } from '../types/TransactionStepItem'
 
 let client: RelayClient | undefined
-let wallet = {
+let wallet: AdaptedWallet & {
+  handleSignMessageStep: Mock
+  handleSendTransactionStep: Mock
+  handleConfirmTransactionStep: Mock
+  switchChain: Mock
+} = {
+  vmType: 'evm',
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve(zeroAddress),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-  handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue(undefined)
 }
 let quote = executeBridge
 let executeStepsSpy = vi
   .fn()
   .mockImplementation(
-    (
-      chainId: any,
+    async (
+      chainId: number,
       request: any,
-      wallet: any,
+      wallet: AdaptedWallet,
       progress: any,
       quote: Execute
     ) => {
-      return new Promise(() => {
-        delete quote.details?.currencyIn
-      })
+      // Simulate chain switching for cross-chain operations
+      const toChainId = quote.details?.currencyOut?.currency?.chainId
+      if (toChainId && toChainId !== chainId) {
+        await wallet.switchChain(toChainId)
+      }
+
+      // Return mock execution result
+      return {
+        steps: quote.steps.map((step: any) => ({
+          ...step,
+          items: step.items.map((item: any) => ({
+            ...item,
+            status: 'complete',
+            txHashes: [{ txHash: '0x1', chainId: toChainId || chainId }]
+          }))
+        }))
+      }
     }
   )
 vi.mock('../utils/executeSteps.js', () => {
@@ -118,5 +143,29 @@ describe('Should test the execute action.', () => {
       quote.details?.currencyIn?.currency?.chainId
     )
     expect(lastCall[5]).toBeUndefined()
+  })
+
+  it('Should handle cross-chain bridge operations', async () => {
+    const fromChainId = 1
+    const toChainId = 8453
+    client = createClient({ baseApiUrl: MAINNET_RELAY_API })
+
+    wallet.getChainId = vi.fn()
+      .mockResolvedValueOnce(fromChainId)
+      .mockResolvedValueOnce(toChainId)
+
+    await client?.actions?.execute({
+      wallet,
+      quote: {
+        ...quote,
+        details: {
+          ...quote.details,
+          currencyIn: { currency: { chainId: fromChainId } },
+          currencyOut: { currency: { chainId: toChainId } }
+        }
+      }
+    })
+
+    expect(wallet.switchChain).toHaveBeenCalledWith(toChainId)
   })
 })

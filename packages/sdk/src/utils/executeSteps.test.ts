@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { axios } from './axios'
 import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
@@ -8,6 +8,9 @@ import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { Execute } from '../types'
+import { AdaptedWallet } from '../types/AdaptedWallet'
+import { SignatureStepItem } from '../types/SignatureStepItem'
+import { TransactionStepItem } from '../types/TransactionStepItem'
 import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
 import { swapWithApproval } from '../../tests/data/swapWithApproval'
 
@@ -64,13 +67,20 @@ vi.mock('viem', async () => {
 let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
 let swapData: Execute = JSON.parse(JSON.stringify(swapWithApproval))
 
-let wallet = {
+let wallet: AdaptedWallet & {
+  handleSignMessageStep: Mock<[SignatureStepItem, Execute['steps'][0]], Promise<string>>;
+  handleSendTransactionStep: Mock<[number, TransactionStepItem, Execute['steps'][0]], Promise<string>>;
+  handleConfirmTransactionStep: Mock;
+  switchChain: Mock;
+} = {
+  vmType: 'evm',
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve('0x'),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
   handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue(undefined)
 }
 
 let client = createClient({
@@ -133,12 +143,19 @@ describe('Should test the executeSteps method.', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm',
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
+    } as AdaptedWallet & {
+      handleSignMessageStep: Mock;
+      handleSendTransactionStep: Mock;
+      handleConfirmTransactionStep: Mock;
+      switchChain: Mock;
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -407,12 +424,19 @@ describe('Should test a signature step.', () => {
     axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridgeAuthorize))
     wallet = {
+      vmType: 'evm',
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
+    } as AdaptedWallet & {
+      handleSignMessageStep: Mock;
+      handleSendTransactionStep: Mock;
+      handleConfirmTransactionStep: Mock;
+      switchChain: Mock;
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -840,12 +864,19 @@ describe('Base tests', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm',
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
+    } as AdaptedWallet & {
+      handleSignMessageStep: Mock;
+      handleSendTransactionStep: Mock;
+      handleConfirmTransactionStep: Mock;
+      switchChain: Mock;
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -985,5 +1016,202 @@ describe('Base tests', () => {
         step.items?.every((item) => item.status === 'complete')
       )
     ).toBeTruthy()
+  })
+})
+
+describe('Error Recovery', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
+    bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    // Ensure bridgeData has required structure
+    if (!bridgeData.steps?.[0]?.items?.[0]) {
+      bridgeData.steps = [{
+        id: 'test-step',
+        kind: 'transaction',
+        action: 'Test transaction',
+        description: 'Test transaction description',
+        items: [{
+          status: 'incomplete',
+          data: {
+            to: '0x456',
+            value: '1000000000000000000',
+            maxFeePerGas: '1000000000',
+            maxPriorityFeePerGas: '100000000'
+          }
+        }]
+      }]
+    }
+    wallet = {
+      vmType: 'evm',
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn(),
+      handleConfirmTransactionStep: vi.fn(),
+      switchChain: vi.fn().mockResolvedValue(undefined)
+    } as AdaptedWallet & {
+      handleSignMessageStep: Mock;
+      handleSendTransactionStep: Mock;
+      handleConfirmTransactionStep: Mock;
+      switchChain: Mock;
+    }
+  })
+
+  it('Should retry failed transactions with increased gas', async () => {
+    let attemptCount = 0
+    const originalGas = BigInt('1000000000')
+    const originalPriorityGas = BigInt('100000000')
+
+    // Mock initial failure then success
+    wallet.handleSendTransactionStep.mockImplementation(async (_, item) => {
+      attemptCount++
+      if (attemptCount === 1) {
+        const error = new Error('insufficient funds for gas')
+        error.name = 'InsufficientFundsError'
+        throw error
+      }
+      // Verify gas parameters are increased on retry
+      const maxFeePerGas = BigInt(item.data.maxFeePerGas || 0)
+      const maxPriorityFeePerGas = BigInt(item.data.maxPriorityFeePerGas || 0)
+      expect(maxFeePerGas).toBeGreaterThan(originalGas)
+      expect(maxPriorityFeePerGas).toBeGreaterThan(originalPriorityGas)
+      return '0x123'
+    })
+
+    // Mock successful transaction confirmation with polling
+    wallet.handleConfirmTransactionStep.mockImplementation(async (txHash) => {
+      return {
+        transactionHash: txHash,
+        status: 1,
+        blockNumber: 1234567
+      }
+    })
+
+    // Mock successful validation response with polling
+    let validationAttempts = 0
+    axiosRequestSpy.mockImplementation(() => {
+      validationAttempts++
+      if (validationAttempts < 2) {
+        return Promise.resolve({
+          status: 200,
+          data: { status: 'pending' }
+        })
+      }
+      return Promise.resolve({
+        status: 200,
+        data: { status: 'success', txHashes: ['0x123'] }
+      })
+    })
+
+    const result = await executeSteps(1, {}, wallet, () => {}, bridgeData, undefined)
+    expect(attemptCount).toBe(2)
+    expect(validationAttempts).toBeGreaterThan(1)
+    expect(result?.steps?.[0]?.items?.[0]?.txHashes?.[0]?.txHash).toBe('0x123')
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(2)
+  })
+
+  it('Should handle out of gas errors with automatic retry', async () => {
+    let attemptCount = 0
+    const originalGas = BigInt('1000000000')
+    const originalPriorityGas = BigInt('100000000')
+
+    // Mock initial failure then success
+    wallet.handleSendTransactionStep.mockImplementation(async (_, item) => {
+      attemptCount++
+      if (attemptCount === 1) {
+        const error = new Error('out of gas')
+        error.name = 'OutOfGasError'
+        throw error
+      }
+      // Verify gas parameters are increased on retry
+      const maxFeePerGas = BigInt(item.data.maxFeePerGas || 0)
+      const maxPriorityFeePerGas = BigInt(item.data.maxPriorityFeePerGas || 0)
+      expect(maxFeePerGas).toBeGreaterThan(originalGas)
+      expect(maxPriorityFeePerGas).toBeGreaterThan(originalPriorityGas)
+      return '0x123'
+    })
+
+    // Mock successful transaction confirmation with polling
+    wallet.handleConfirmTransactionStep.mockImplementation(async (txHash) => {
+      return {
+        transactionHash: txHash,
+        status: 1,
+        blockNumber: 1234567
+      }
+    })
+
+    // Mock successful validation response with polling
+    let validationAttempts = 0
+    axiosRequestSpy.mockImplementation(() => {
+      validationAttempts++
+      if (validationAttempts < 2) {
+        return Promise.resolve({
+          status: 200,
+          data: { status: 'pending' }
+        })
+      }
+      return Promise.resolve({
+        status: 200,
+        data: { status: 'success', txHashes: ['0x123'] }
+      })
+    })
+
+    const result = await executeSteps(1, {}, wallet, () => {}, bridgeData, undefined)
+    expect(attemptCount).toBe(2)
+    expect(validationAttempts).toBeGreaterThan(1)
+    expect(result?.steps?.[0]?.items?.[0]?.txHashes?.[0]?.txHash).toBe('0x123')
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('Concurrent Operations', () => {
+  it('Should maintain transaction order in parallel execution', async () => {
+    const txHashes = ['0x123', '0x456', '0x789']
+    let currentIndex = 0
+    wallet.handleSendTransactionStep = vi.fn().mockImplementation(async (_, __, step) => {
+      const index = parseInt(step.id.split('-')[1]) - 1
+      expect(index).toBe(currentIndex)
+      currentIndex++
+      return txHashes[index]
+    })
+
+    // Create test transactions with required structure
+    const transactions: Execute[] = txHashes.map((_, index) => ({
+      steps: [{
+        id: `deposit-${index + 1}`,
+        kind: 'transaction',
+        action: 'Confirm transaction in your wallet',
+        description: 'Deposit funds for executing the calls',
+        items: [{
+          status: 'incomplete',
+          data: {
+            value: (1000000 * (index + 1)).toString(),
+            from: '0x03508bB71268BBA25ECaCC8F620e01866650532c',
+            to: '0xa5f565650890fba1824ee0f21ebbbf660a179934',
+            chainId: 1,
+            maxFeePerGas: '1000000000',
+            maxPriorityFeePerGas: '100000000'
+          },
+          txHashes: []
+        }]
+      }]
+    }))
+
+    const results = await Promise.all(
+      transactions.map(tx =>
+        executeSteps(1, {}, wallet, () => {}, tx, undefined)
+      )
+    )
+
+    const resultHashes = results.map(result =>
+      result?.steps?.[0]?.items?.[0]?.txHashes?.[0]?.txHash
+    ).filter((hash): hash is string => hash !== undefined)
+
+    expect(resultHashes).toEqual(txHashes)
+    expect(currentIndex).toBe(txHashes.length)
   })
 })
