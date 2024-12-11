@@ -179,6 +179,7 @@ function truncateBalance(balance: string) {
  * @param maxLength The maximum total length of the string representation.
  * @returns A plain string representation of the number, trimmed to the specified length.
  */
+
 function formatFixedLength(amount: string, maxLength: number) {
   if (!/^[-+]?\d*\.?\d*$/.test(amount)) return 'Invalid number'
 
@@ -203,7 +204,10 @@ function formatFixedLength(amount: string, maxLength: number) {
   }
 
   // Ensure no unnecessary trailing zeros and remove any trailing decimal points
-  result = result.replace(/\.0+$/, '').replace(/\.$/, '')
+  result = result
+    .replace(/\.0+$/, '')
+    .replace(/\.(\d*[^0])0+$/, '.$1')
+    .replace(/\.$/, '')
 
   // Add negative sign back if the number was negative
   if (isNegative) {
