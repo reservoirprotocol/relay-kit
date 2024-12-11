@@ -35,7 +35,6 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         if (signData.signatureKind === 'eip191') {
           client.log(['Execute Steps: Signing with eip191'], LogLevel.Verbose)
           if (signData.message.match(/0x[0-9a-fA-F]{64}/)) {
-            // If the message represents a hash, we need to convert it to raw bytes first
             signature = await wallet.signMessage({
               account: wallet.account as Account,
               message: {
@@ -62,32 +61,68 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       return signature
     },
     handleSendTransactionStep: async (chainId, stepItem) => {
+      console.log('[DEBUG] Gate.io Transaction - Starting transaction step', {
+        chainId,
+        stepItem
+      })
       const stepData = stepItem.data
       const chain = getClient().chains.find(
         (chain) => chain.id === chainId
       )?.viemChain
+
+      console.log('[DEBUG] Gate.io Transaction - Chain verification', {
+        foundChain: !!chain,
+        chainDetails: chain
+      })
+
       if (!chain) {
+        console.error('[DEBUG] Gate.io Transaction - Chain not found error')
         throw 'Chain not found when sending transaction'
       }
 
-      return await wallet.sendTransaction({
+      console.log('[DEBUG] Gate.io Transaction - Preparing transaction parameters', {
         chain,
         data: stepData.data,
-        account: wallet.account ?? stepData.from, // use signer.account if it's defined
+        account: wallet.account ?? stepData.from,
         to: stepData.to,
-        value: hexToBigInt((stepData.value as any) || 0),
-        ...(stepData.maxFeePerGas && {
-          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
-        }),
-        ...(stepData.maxPriorityFeePerGas && {
-          maxPriorityFeePerGas: hexToBigInt(
-            stepData.maxPriorityFeePerGas as any
-          )
-        }),
-        ...(stepData.gas && {
-          gas: hexToBigInt(stepData.gas as any)
-        })
+        value: (stepData.value as any) || 0,
+        maxFeePerGas: stepData.maxFeePerGas,
+        maxPriorityFeePerGas: stepData.maxPriorityFeePerGas,
+        gas: stepData.gas
       })
+
+      try {
+        const hash = await wallet.sendTransaction({
+          chain,
+          data: stepData.data,
+          account: wallet.account ?? stepData.from,
+          to: stepData.to,
+          value: hexToBigInt((stepData.value as any) || 0),
+          ...(stepData.maxFeePerGas && {
+            maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
+          }),
+          ...(stepData.maxPriorityFeePerGas && {
+            maxPriorityFeePerGas: hexToBigInt(
+              stepData.maxPriorityFeePerGas as any
+            )
+          }),
+          ...(stepData.gas && {
+            gas: hexToBigInt(stepData.gas as any)
+          })
+        })
+        console.log('[DEBUG] Gate.io Transaction - Transaction sent successfully', {
+          hash,
+          chainId
+        })
+        return hash
+      } catch (error) {
+        console.error('[DEBUG] Gate.io Transaction - Error sending transaction', {
+          error,
+          chainId,
+          stepItem
+        })
+        throw error
+      }
     },
     handleConfirmTransactionStep: async (
       txHash,

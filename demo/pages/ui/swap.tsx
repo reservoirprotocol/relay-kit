@@ -25,8 +25,18 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
+import { testWalletOperations } from './test-wallet'
 
 const SwapWidgetPage: NextPage = () => {
+  useEffect(() => {
+    console.log('[DEBUG] Gate.io Wallet - Running basic operations test')
+    testWalletOperations()
+      .then((result) => {
+        console.log('[DEBUG] Gate.io Wallet - Test Results:', result)
+      })
+      .catch(console.error)
+  }, [])
+
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
       linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
@@ -71,8 +81,22 @@ const SwapWidgetPage: NextPage = () => {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
           if (isEthereumWallet(primaryWallet)) {
+            console.log('[DEBUG] Gate.io Wallet - Provider Details:', {
+              provider: window.ethereum,
+              methods: window.ethereum ? Object.keys(window.ethereum) : 'No provider',
+              isInjected: !!window.ethereum,
+              chainId: window.ethereum?.chainId,
+              selectedAddress: window.ethereum?.selectedAddress
+            })
             const walletClient = await primaryWallet.getWalletClient()
+            console.log('[DEBUG] Gate.io Wallet - Wallet Client:', {
+              client: walletClient,
+              account: walletClient.account,
+              chain: walletClient.chain,
+              transport: walletClient.transport
+            })
             adaptedWallet = adaptViemWallet(walletClient)
+            console.log('[DEBUG] Gate.io Wallet - Adapted Wallet:', adaptedWallet)
           } else if (isBitcoinWallet(primaryWallet)) {
             const wallet = convertToLinkedWallet(primaryWallet)
             adaptedWallet = adaptBitcoinWallet(
@@ -112,6 +136,7 @@ const SwapWidgetPage: NextPage = () => {
           setWallet(undefined)
         }
       } catch (e) {
+        console.error('[DEBUG] Gate.io Wallet - Adaptation Error:', e)
         setWallet(undefined)
       }
     }
