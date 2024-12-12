@@ -1070,9 +1070,7 @@ describe('Error Recovery', () => {
     wallet.handleSendTransactionStep.mockImplementation(async (_, item) => {
       attemptCount++
       if (attemptCount === 1) {
-        const error = new Error('insufficient funds for gas')
-        error.name = 'InsufficientFundsError'
-        throw error
+        throw { name: 'InsufficientFundsError', message: 'insufficient funds for gas' }
       }
       // Verify gas parameters are increased on retry
       const maxFeePerGas = BigInt(item.data.maxFeePerGas || 0)
@@ -1123,9 +1121,7 @@ describe('Error Recovery', () => {
     wallet.handleSendTransactionStep.mockImplementation(async (_, item) => {
       attemptCount++
       if (attemptCount === 1) {
-        const error = new Error('out of gas')
-        error.name = 'OutOfGasError'
-        throw error
+        throw { name: 'OutOfGasError', message: 'out of gas' }
       }
       // Verify gas parameters are increased on retry
       const maxFeePerGas = BigInt(item.data.maxFeePerGas || 0)

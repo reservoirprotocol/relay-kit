@@ -36,12 +36,6 @@ let executeStepsSpy = vi
       progress: any,
       quote: Execute
     ) => {
-      // Simulate chain switching for cross-chain operations
-      const toChainId = quote.details?.currencyOut?.currency?.chainId
-      if (toChainId && toChainId !== chainId) {
-        await wallet.switchChain(toChainId)
-      }
-
       // Return mock execution result
       return {
         steps: quote.steps.map((step: any) => ({
@@ -49,7 +43,7 @@ let executeStepsSpy = vi
           items: step.items.map((item: any) => ({
             ...item,
             status: 'complete',
-            txHashes: [{ txHash: '0x1', chainId: toChainId || chainId }]
+            txHashes: [{ txHash: '0x1', chainId }]
           }))
         }))
       }
@@ -58,7 +52,8 @@ let executeStepsSpy = vi
 vi.mock('../utils/executeSteps.js', () => {
   return {
     executeSteps: (...args: any) => {
-      executeStepsSpy(args)
+      const [chainId, request, wallet, progress, quote] = args
+      return executeStepsSpy(chainId, request, wallet, progress, quote)
     }
   }
 })
