@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.11
+
+### Patch Changes
+
+- 561b396: Deposit Address fallback functionality
+
 ## 1.4.10
 
 ### Patch Changes

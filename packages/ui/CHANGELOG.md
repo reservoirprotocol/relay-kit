@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.0
+
+### Minor Changes
+
+- 561b396: Deposit Address fallback functionality
+
+### Patch Changes
+
+- aa034bd: Remove trailing zeros from formatted amount
+- dc6b34c: Include additional parameters when generating tx urls
+- Updated dependencies [561b396]
+  - @reservoir0x/relay-kit-hooks@1.4.11
+
 ## 2.2.28
 
 ### Patch Changes
