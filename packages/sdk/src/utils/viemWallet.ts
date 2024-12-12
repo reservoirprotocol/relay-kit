@@ -61,12 +61,13 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       return signature
     },
     handleSendTransactionStep: async (chainId, stepItem) => {
+      const client = getClient()
       console.log('[DEBUG] Gate.io Transaction - Starting transaction step', {
         chainId,
         stepItem
       })
       const stepData = stepItem.data
-      const chain = getClient().chains.find(
+      const chain = client.chains.find(
         (chain) => chain.id === chainId
       )?.viemChain
 
@@ -92,6 +93,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       })
 
       try {
+        client.log(['Execute Steps: Sending transaction'], LogLevel.Verbose)
         const hash = await wallet.sendTransaction({
           chain,
           data: stepData.data,
