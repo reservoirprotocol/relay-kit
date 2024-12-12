@@ -15,7 +15,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
 import { truncateAddress } from '../../../../utils/truncate.js'
-import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl.js'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { type Token } from '../../../../types/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
@@ -24,6 +23,7 @@ import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
+import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -200,16 +200,13 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       {!delayedTxUrl ? (
         <Flex justify="center">
           {allTxHashes.map(({ txHash, chainId }) => {
-            const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+            const txUrl = getTxBlockExplorerUrl(
               chainId,
-              relayClient?.chains
+              relayClient?.chains,
+              txHash
             )
             return (
-              <Anchor
-                key={txHash}
-                href={`${blockExplorerBaseUrl}/tx/${txHash}`}
-                target="_blank"
-              >
+              <Anchor key={txHash} href={txUrl} target="_blank">
                 View Tx: {truncateAddress(txHash)}
               </Anchor>
             )
@@ -361,16 +358,13 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           )}
         </Flex>
         {allTxHashes.map(({ txHash, chainId }) => {
-          const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+          const txUrl = getTxBlockExplorerUrl(
             chainId,
-            relayClient?.chains
+            relayClient?.chains,
+            txHash
           )
           return (
-            <Anchor
-              key={txHash}
-              href={`${blockExplorerBaseUrl}/tx/${txHash}`}
-              target="_blank"
-            >
+            <Anchor key={txHash} href={txUrl} target="_blank">
               View Tx: {truncateAddress(txHash)}
             </Anchor>
           )

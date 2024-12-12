@@ -3,8 +3,8 @@ import { Anchor, Button, Flex, Text } from '../../../primitives/index.js'
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import type { ExecuteStep, ExecuteStepItem } from '@reservoir0x/relay-sdk'
 import { useRelayClient } from '../../../../hooks/index.js'
-import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
+import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 
 type ValidatingStepProps = {
   currentStep?: ExecuteStep | null
@@ -66,16 +66,13 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
           </Text>
         ) : (
           currentStepItem?.txHashes?.map(({ txHash, chainId }) => {
-            const blockExplorerBaseUrl = getChainBlockExplorerUrl(
+            const txUrl = getTxBlockExplorerUrl(
               chainId,
-              relayClient?.chains
+              relayClient?.chains,
+              txHash
             )
             return (
-              <Anchor
-                key={txHash}
-                href={`${blockExplorerBaseUrl}/tx/${txHash}`}
-                target="_blank"
-              >
+              <Anchor key={txHash} href={txUrl} target="_blank">
                 View Tx: {truncateAddress(txHash)}
               </Anchor>
             )
