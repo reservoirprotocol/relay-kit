@@ -423,7 +423,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                   toToken.decimals
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
-          useExternalLiquidity
+          useExternalLiquidity,
+          useDepositAddress: !fromChainWalletVMSupported
         }
       : undefined
 
