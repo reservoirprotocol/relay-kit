@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation'
 import ErrorWell from '../../ErrorWell.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
-import getChainBlockExplorerUrl from '../../../../utils/getChainBlockExplorerUrl.js'
 import { type Address } from 'viem'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { useRelayClient } from '../../../../hooks/index.js'
@@ -24,6 +23,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -53,9 +53,10 @@ export const ErrorStep: FC<ErrorStepProps> = ({
     ? 'https://testnets.relay.link'
     : 'https://relay.link'
   const depositTx = allTxHashes ? allTxHashes[0] : undefined
-  const depositExplorer = getChainBlockExplorerUrl(
+  const depositTxUrl = getTxBlockExplorerUrl(
     depositTx?.chainId,
-    relayClient?.chains
+    relayClient?.chains,
+    depositTx?.txHash
   )
   let fillTx =
     allTxHashes && allTxHashes.length > 1
@@ -71,10 +72,12 @@ export const ErrorStep: FC<ErrorStepProps> = ({
       chainId: transaction.data.outTxs[0].chainId as number
     }
   }
-  const fillExplorer = getChainBlockExplorerUrl(
+  const fillTxUrl = getTxBlockExplorerUrl(
     fillTx?.chainId,
-    relayClient?.chains
+    relayClient?.chains,
+    fillTx?.txHash
   )
+
   const mergedError = isRefund && errorMessage ? new Error(errorMessage) : error
   const refundDetails = transaction?.data?.refundCurrencyData
   const refundChain = transaction?.data?.refundCurrencyData?.currency?.chainId
@@ -155,7 +158,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
               <Text style="subtitle1">Deposit Tx</Text>
               {depositTx ? (
                 <Anchor
-                  href={`${depositExplorer}/tx/${depositTx.txHash}`}
+                  href={depositTxUrl}
                   target="_blank"
                   css={{ display: 'flex', alignItems: 'center', gap: '1' }}
                 >
@@ -196,7 +199,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
 
               {fillTx ? (
                 <Anchor
-                  href={`${fillExplorer}/tx/${fillTx.txHash}`}
+                  href={fillTxUrl}
                   target="_blank"
                   css={{ display: 'flex', alignItems: 'center', gap: '1' }}
                 >
