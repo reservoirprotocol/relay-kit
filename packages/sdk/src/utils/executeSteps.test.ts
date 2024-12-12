@@ -65,12 +65,14 @@ let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
 let swapData: Execute = JSON.parse(JSON.stringify(swapWithApproval))
 
 let wallet = {
+  vmType: 'evm' as const,
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve('0x'),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
   handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue(undefined)
 }
 
 let client = createClient({
@@ -133,12 +135,14 @@ describe('Should test the executeSteps method.', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm' as const,
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -407,12 +411,14 @@ describe('Should test a signature step.', () => {
     axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridgeAuthorize))
     wallet = {
+      vmType: 'evm' as const,
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -840,12 +846,14 @@ describe('Base tests', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm' as const,
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue(undefined)
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -985,5 +993,72 @@ describe('Base tests', () => {
         step.items?.every((item) => item.status === 'complete')
       )
     ).toBeTruthy()
+  })
+})
+
+describe('Error handling tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
+    bridgeData = JSON.parse(JSON.stringify(executeBridge))
+    wallet = {
+      vmType: 'evm' as const,
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x123'),
+      handleConfirmTransactionStep: vi.fn().mockImplementation(async (txHash) => {
+        return { status: 1 }
+      }),
+      switchChain: vi.fn().mockResolvedValue(undefined)
+    }
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
+  })
+
+  it('Should properly propagate insufficient funds error', async () => {
+    wallet.handleSendTransactionStep = vi.fn().mockImplementation(async () => {
+      const error = new Error('insufficient funds for gas')
+      error.name = 'InsufficientFundsError'
+      throw error
+    })
+
+    await expect(
+      executeSteps(1, { url: '/execute' }, wallet, () => {}, bridgeData, undefined)
+    ).rejects.toThrow('insufficient funds for gas')
+
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(1)
+  })
+
+  it('Should properly propagate out of gas error', async () => {
+    wallet.handleSendTransactionStep = vi.fn().mockImplementation(async () => {
+      const error = new Error('out of gas')
+      error.name = 'OutOfGasError'
+      throw error
+    })
+
+    await expect(
+      executeSteps(1, { url: '/execute' }, wallet, () => {}, bridgeData, undefined)
+    ).rejects.toThrow('out of gas')
+
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(1)
+  })
+
+  it('Should properly propagate transaction underpriced error', async () => {
+    wallet.handleSendTransactionStep = vi.fn().mockImplementation(async () => {
+      const error = new Error('transaction underpriced')
+      error.name = 'TransactionUnderpriced'
+      throw error
+    })
+
+    await expect(
+      executeSteps(1, { url: '/execute' }, wallet, () => {}, bridgeData, undefined)
+    ).rejects.toThrow('transaction underpriced')
+
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(1)
   })
 })
