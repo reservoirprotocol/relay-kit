@@ -52,6 +52,12 @@ export async function execute(data: ExecuteActionParameters) {
     const { request, ...restOfQuote } = quote
     const _quote = safeStructuredClone(restOfQuote)
 
+    // Handle chain switching for cross-chain operations
+    const toChainId = _quote.details?.currencyOut?.currency?.chainId
+    if (toChainId && toChainId !== chainId) {
+      await adaptedWallet.switchChain(toChainId)
+    }
+
     const data = await executeSteps(
       chainId,
       request,
@@ -80,12 +86,6 @@ export async function execute(data: ExecuteActionParameters) {
             }
           }
         : undefined
-          ? {
-              deposit: {
-                gasLimit: depositGasLimit
-              }
-            }
-          : undefined
     )
     return data
   } catch (err: any) {

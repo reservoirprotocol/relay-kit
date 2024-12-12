@@ -62,35 +62,14 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     },
     handleSendTransactionStep: async (chainId, stepItem) => {
       const client = getClient()
-      console.log('[DEBUG] Gate.io Transaction - Starting transaction step', {
-        chainId,
-        stepItem
-      })
       const stepData = stepItem.data
       const chain = client.chains.find(
         (chain) => chain.id === chainId
       )?.viemChain
 
-      console.log('[DEBUG] Gate.io Transaction - Chain verification', {
-        foundChain: !!chain,
-        chainDetails: chain
-      })
-
       if (!chain) {
-        console.error('[DEBUG] Gate.io Transaction - Chain not found error')
         throw 'Chain not found when sending transaction'
       }
-
-      console.log('[DEBUG] Gate.io Transaction - Preparing transaction parameters', {
-        chain,
-        data: stepData.data,
-        account: wallet.account ?? stepData.from,
-        to: stepData.to,
-        value: (stepData.value as any) || 0,
-        maxFeePerGas: stepData.maxFeePerGas,
-        maxPriorityFeePerGas: stepData.maxPriorityFeePerGas,
-        gas: stepData.gas
-      })
 
       try {
         client.log(['Execute Steps: Sending transaction'], LogLevel.Verbose)
@@ -112,17 +91,8 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
             gas: hexToBigInt(stepData.gas as any)
           })
         })
-        console.log('[DEBUG] Gate.io Transaction - Transaction sent successfully', {
-          hash,
-          chainId
-        })
         return hash
       } catch (error) {
-        console.error('[DEBUG] Gate.io Transaction - Error sending transaction', {
-          error,
-          chainId,
-          stepItem
-        })
         throw error
       }
     },

@@ -25,18 +25,8 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
-import { testWalletOperations } from './test-wallet'
 
 const SwapWidgetPage: NextPage = () => {
-  useEffect(() => {
-    console.log('[DEBUG] Gate.io Wallet - Running basic operations test')
-    testWalletOperations()
-      .then((result) => {
-        console.log('[DEBUG] Gate.io Wallet - Test Results:', result)
-      })
-      .catch(console.error)
-  }, [])
-
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
       linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
@@ -81,22 +71,8 @@ const SwapWidgetPage: NextPage = () => {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
           if (isEthereumWallet(primaryWallet)) {
-            console.log('[DEBUG] Gate.io Wallet - Provider Details:', {
-              provider: window.ethereum,
-              methods: window.ethereum ? Object.keys(window.ethereum) : 'No provider',
-              isInjected: !!window.ethereum,
-              chainId: window.ethereum?.chainId,
-              selectedAddress: window.ethereum?.selectedAddress
-            })
             const walletClient = await primaryWallet.getWalletClient()
-            console.log('[DEBUG] Gate.io Wallet - Wallet Client:', {
-              client: walletClient,
-              account: walletClient.account,
-              chain: walletClient.chain,
-              transport: walletClient.transport
-            })
             adaptedWallet = adaptViemWallet(walletClient)
-            console.log('[DEBUG] Gate.io Wallet - Adapted Wallet:', adaptedWallet)
           } else if (isBitcoinWallet(primaryWallet)) {
             const wallet = convertToLinkedWallet(primaryWallet)
             adaptedWallet = adaptBitcoinWallet(
@@ -136,7 +112,6 @@ const SwapWidgetPage: NextPage = () => {
           setWallet(undefined)
         }
       } catch (e) {
-        console.error('[DEBUG] Gate.io Wallet - Adaptation Error:', e)
         setWallet(undefined)
       }
     }
@@ -182,16 +157,6 @@ const SwapWidgetPage: NextPage = () => {
                   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
                 }
           }
-          // defaultToToken={{
-          //   chainId: 10,
-          //   address: '0x0000000000000000000000000000000000000000',
-          //   decimals: 18,
-          //   name: 'ETH',
-          //   symbol: 'ETH',
-          //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-          // }}
-          // lockToToken={true}
-          // lockFromToken={true}
           defaultFromToken={{
             chainId: 8453,
             address: '0x0000000000000000000000000000000000000000',
@@ -200,16 +165,6 @@ const SwapWidgetPage: NextPage = () => {
             symbol: 'ETH',
             logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
           }}
-          // defaultFromToken={{
-          //   chainId: 1,
-          //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
-          //   decimals: 8,
-          //   name: 'SOLVE',
-          //   symbol: 'SOLVE',
-          //   logoURI:
-          //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
-          // }}
-          // defaultAmount={'5'}
           wallet={wallet}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}

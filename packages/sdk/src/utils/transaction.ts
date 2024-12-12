@@ -41,38 +41,62 @@ export async function sendTransactionSafely(
   const client = getClient()
   const walletChainId = await wallet.getChainId()
   if (chainId !== walletChainId) {
-    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
+    throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId}`
   }
   let receipt: TransactionReceipt | SvmReceipt | undefined
   let transactionCancelled = false
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
-    (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
+    (2.5 * 60 * 1000) / pollingInterval
   let waitingForConfirmation = true
   let attemptCount = 0
+  let gasRetryCount = 0
+  const maxGasRetries = 3
 
-  let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
-  if ((txHash as any) === 'null') {
-    throw 'User rejected the request'
+  const sendTransaction = async () => {
+    try {
+      let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
+      if ((txHash as any) === 'null') {
+        throw 'User rejected the request'
+      }
+
+      postTransactionToSolver({
+        txHash,
+        chainId,
+        step,
+        request,
+        headers
+      })
+
+      if (!txHash) {
+        throw Error(
+          'Transaction hash not returned from handleSendTransactionStep method'
+        )
+      }
+      setTxHashes([{ txHash: txHash, chainId: chainId }])
+      return txHash
+    } catch (error: any) {
+      if (gasRetryCount < maxGasRetries &&
+         (error.message?.includes('insufficient funds for gas') ||
+          error.message?.includes('out of gas'))) {
+        gasRetryCount++
+        // Increase gas parameters by 20% for each retry
+        const increaseFactor = 1.2 ** gasRetryCount
+        if (item.data.maxFeePerGas) {
+          item.data.maxFeePerGas = (BigInt(item.data.maxFeePerGas) * BigInt(Math.floor(increaseFactor * 100)) / BigInt(100)).toString()
+        }
+        if (item.data.maxPriorityFeePerGas) {
+          item.data.maxPriorityFeePerGas = (BigInt(item.data.maxPriorityFeePerGas) * BigInt(Math.floor(increaseFactor * 100)) / BigInt(100)).toString()
+        }
+        return await sendTransaction()
+      }
+      throw error
+    }
   }
 
-  postTransactionToSolver({
-    txHash,
-    chainId,
-    step,
-    request,
-    headers
-  })
+  let txHash = await sendTransaction()
 
-  if (!txHash) {
-    throw Error(
-      'Transaction hash not returned from handleSendTransactionStep method'
-    )
-  }
-  setTxHashes([{ txHash: txHash, chainId: chainId }])
-
-  //Set up internal functions
   const validate = (res: AxiosResponse) => {
     getClient()?.log(
       ['Execute Steps: Polling for confirmation', res],
@@ -104,7 +128,6 @@ export async function sendTransactionSafely(
     return false
   }
 
-  // Poll the confirmation url to confirm the transaction went through
   const pollForConfirmation = async () => {
     isValidating?.()
     while (
@@ -121,7 +144,7 @@ export async function sendTransactionSafely(
         })
       }
       if (!res || validate(res)) {
-        waitingForConfirmation = false // transaction confirmed
+        waitingForConfirmation = false
       } else if (res) {
         if (res.data.status !== 'pending') {
           isValidating?.(res)
@@ -145,7 +168,6 @@ export async function sendTransactionSafely(
   const waitForTransaction = () => {
     const controller = new AbortController()
     const signal = controller.signal
-    // Handle transaction replacements and cancellations
     return {
       promise: wallet
         .handleConfirmTransactionStep(
@@ -157,7 +179,7 @@ export async function sendTransactionSafely(
             }
             setTxHashes([{ txHash: replacementTxHash, chainId: chainId }])
             txHash = replacementTxHash
-            attemptCount = 0 // reset attempt count
+            attemptCount = 0
             getClient()?.log(
               ['Transaction replaced', replacementTxHash],
               LogLevel.Verbose
@@ -204,25 +226,16 @@ export async function sendTransactionSafely(
     }
   }
 
-  //If the origin chain is bitcoin, skip polling for confirmation, because the deposit will take too long
   if (chainId === 8253038) {
     return true
   }
 
-  //Sequence internal functions
-  // We want synchronous execution in the following cases:
-  // - Approval Signature step required first
-  // - Bitcoin is the destination
-  // - Canonical route used
   if (
     step.id === 'approve' ||
     details?.currencyOut?.currency?.chainId === 8253038 ||
     request?.data?.useExternalLiquidity
   ) {
     await waitForTransaction().promise
-    //In the following cases we want to skip polling for confirmation:
-    // - Bitcoin destination chain, we want to skip polling for confirmation as the block times are lengthy
-    // - Canonical route, also lengthy fill time
     if (
       details?.currencyOut?.currency?.chainId !== 8253038 &&
       !request?.data?.useExternalLiquidity

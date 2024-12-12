@@ -73,7 +73,6 @@ describe('Viem wallet adapter', () => {
   describe('Wallet Provider Adaptations', () => {
     const providers = [
       { name: 'MetaMask', isMetaMask: true },
-      { name: 'Gate.io', isGateWallet: true },
       { name: 'Generic', ethereum: true }
     ]
 
