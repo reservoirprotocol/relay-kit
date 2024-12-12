@@ -415,8 +415,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -477,9 +477,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                              fromToken?.chainId === lockChainId
-                            ? [fromToken?.chainId]
-                            : undefined
+                                fromToken?.chainId === lockChainId
+                              ? [fromToken?.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -776,8 +776,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -866,9 +866,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                              toToken?.chainId === lockChainId
-                            ? [toToken?.chainId]
-                            : undefined
+                                toToken?.chainId === lockChainId
+                              ? [toToken?.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
