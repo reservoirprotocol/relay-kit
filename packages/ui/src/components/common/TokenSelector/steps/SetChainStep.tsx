@@ -12,7 +12,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChevronLeft,
-  faExclamationTriangle,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../../utils/truncate.js'
@@ -22,6 +21,7 @@ import {
   type EnhancedCurrencyList
 } from '../TokenSelector.js'
 import type { Currency } from '@reservoir0x/relay-kit-hooks'
+import { useTokenList } from '@reservoir0x/relay-kit-hooks'
 import Fuse from 'fuse.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
@@ -35,6 +35,8 @@ type SetChainStepProps = {
   size: 'mobile' | 'desktop'
   context: 'from' | 'to'
   token?: Token
+  restrictedToken?: Token
+  tokenList?: ReturnType<typeof useTokenList>['data']
   multiWalletSupportEnabled?: boolean
   setTokenSelectorStep: React.Dispatch<React.SetStateAction<TokenSelectorStep>>
   setInputElement: React.Dispatch<React.SetStateAction<HTMLInputElement | null>>
@@ -72,6 +74,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   size,
   context,
   token,
+  restrictedToken,
+  tokenList,
   multiWalletSupportEnabled = false,
   setTokenSelectorStep,
   setInputElement,
@@ -165,16 +169,35 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               (chain) => chain.id.toString() === value
             )
             if (chain) {
-              const token =
+              let token =
                 chain.isSupported && chain.currency?.metadata?.verified
                   ? (chain.currency as Currency)
                   : {
                       ...chain.relayChain.currency,
+                      chainId: chain.id,
                       metadata: {
                         logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
                         verified: true
                       }
                     }
+
+              if (
+                token.chainId === restrictedToken?.chainId &&
+                token.address?.toLowerCase() ===
+                  restrictedToken?.address?.toLowerCase()
+              ) {
+                const alternativeToken = tokenList
+                  ?.flatMap((tokenList) => tokenList)
+                  .find(
+                    (t) =>
+                      t.chainId === token.chainId &&
+                      t.address?.toLowerCase() !== token.address?.toLowerCase()
+                  )
+
+                if (alternativeToken) {
+                  token = alternativeToken
+                }
+              }
               selectToken(token, chain.id)
             }
           }

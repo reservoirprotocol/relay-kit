@@ -454,6 +454,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         token={fromToken}
                         onAnalyticEvent={onAnalyticEvent}
                         depositAddressOnly={!fromChainWalletVMSupported}
+                        restrictedToken={toToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
@@ -819,6 +820,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         isValidAddress={isValidToAddress}
                         token={toToken}
                         depositAddressOnly={!fromChainWalletVMSupported}
+                        restrictedToken={fromToken}
                         setToken={(token) => {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
