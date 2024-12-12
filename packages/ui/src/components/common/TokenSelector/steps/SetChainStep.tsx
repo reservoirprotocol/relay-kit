@@ -44,6 +44,7 @@ type SetChainStepProps = {
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
   selectedCurrencyList?: EnhancedCurrencyList
+  chainIdsFilter?: number[]
 }
 
 const fuseSearchOptions = {
@@ -81,6 +82,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
+  chainIdsFilter,
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
@@ -98,7 +100,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           chain.id === bitcoin.id) &&
         (context !== 'from' ||
           multiWalletSupportEnabled ||
-          chain.vmType === 'evm')
+          chain.vmType === 'evm') &&
+        (!chainIdsFilter || !chainIdsFilter.includes(chain.id))
     ) || []
 
   const combinedChains: NormalizedChain[] = [

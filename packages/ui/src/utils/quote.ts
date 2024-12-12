@@ -233,6 +233,11 @@ export const extractQuoteId = (steps?: Execute['steps']) => {
   return ''
 }
 
+export const extractDepositAddress = (steps?: Execute['steps']) => {
+  const depositStep = steps?.find((step) => step.id === 'deposit')
+  return depositStep?.depositAddress
+}
+
 export const calculatePriceTimeEstimate = (
   details?: PriceResponse['details']
 ) => {

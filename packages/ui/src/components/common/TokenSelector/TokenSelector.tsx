@@ -42,12 +42,14 @@ export type TokenSelectorProps = {
   trigger: ReactNode
   restrictedTokensList?: Token[]
   chainIdsFilter?: number[]
+  lockedChainIds?: number[]
   context: 'from' | 'to'
   type?: 'token' | 'chain'
   size?: 'mobile' | 'desktop'
   address?: Address | string
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
+  depositAddressOnly?: boolean
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -73,12 +75,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   trigger,
   restrictedTokensList,
   chainIdsFilter,
+  lockedChainIds,
   context,
   type = 'token',
   size = 'mobile',
   address,
   isValidAddress,
   multiWalletSupportEnabled = false,
+  depositAddressOnly,
   setToken,
   onAnalyticEvent
 }) => {
@@ -122,23 +126,28 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     return chains
   }, [relayClient?.chains, multiWalletSupportEnabled])
 
+  const configuredChainIds = useMemo(() => {
+    if (lockedChainIds) {
+      return lockedChainIds
+    }
+    let _chainIds = configuredChains.map((chain) => chain.id)
+    if (chainIdsFilter) {
+      _chainIds = _chainIds.filter((id) => !chainIdsFilter.includes(id))
+    }
+    return _chainIds
+  }, [configuredChains, lockedChainIds, chainIdsFilter])
+
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
           (chain) =>
-            chain.vmType === 'evm' ||
-            chain.id === solana.id ||
-            chain.id === eclipse.id ||
-            chain.id === bitcoin.id
+            (chain.vmType === 'evm' ||
+              chain.id === solana.id ||
+              chain.id === eclipse.id ||
+              chain.id === bitcoin.id) &&
+            configuredChainIds.includes(chain.id)
         )
       : configuredChains
-
-  const configuredChainIds = useMemo(() => {
-    if (chainIdsFilter) {
-      return chainIdsFilter
-    }
-    return configuredChains.map((chain) => chain.id)
-  }, [configuredChains, chainIdsFilter])
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
@@ -165,8 +174,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       term: !isAddress(debouncedTokenSearchValue)
         ? debouncedTokenSearchValue
         : undefined,
-      defaultList: useDefaultTokenList,
+      defaultList: useDefaultTokenList && !depositAddressOnly,
       limit: 20,
+      depositAddressOnly,
       ...(tokenListQuery ? { tokens: tokenListQuery } : {})
     }
   )
@@ -185,7 +195,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         defaultList: false,
         limit: 20,
         ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
-        useExternalSearch: true
+        useExternalSearch: true,
+        depositAddressOnly
       },
       {
         enabled: !!debouncedTokenSearchValue
@@ -239,7 +250,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       suggestedTokenQuery
         ? {
             tokens: suggestedTokenQuery,
-            limit: 20
+            limit: 20,
+            depositAddressOnly
           }
         : undefined,
       {
@@ -409,7 +421,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     {
       chainIds: token?.chainId ? [token.chainId] : [],
       address: token?.address,
-      limit: 1
+      limit: 1,
+      depositAddressOnly
     },
     {
       enabled:
@@ -538,15 +551,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             sm: {
               minWidth:
                 size === 'desktop'
-                  ? !chainIdsFilter || chainIdsFilter.length > 1
+                  ? configuredChainIds.length > 1
                     ? 568
                     : 378
                   : 400,
               maxWidth:
-                size === 'desktop' &&
-                (!chainIdsFilter || chainIdsFilter.length > 1)
-                  ? 568
-                  : 378
+                size === 'desktop' && configuredChainIds.length > 1 ? 568 : 378
             }
           }}
         >
@@ -567,7 +577,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 setInputElement={setInputElement}
                 tokenSearchInput={tokenSearchInput}
                 setTokenSearchInput={setTokenSearchInput}
-                chainIdsFilter={chainIdsFilter}
                 chainFilterOptions={chainFilterOptions}
                 chainFilter={chainFilter}
                 setChainFilter={setChainFilter}
@@ -583,6 +592,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 onAnalyticEvent={onAnalyticEvent}
                 setUnverifiedToken={setUnverifiedToken}
                 setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
+                depositAddressOnly={depositAddressOnly}
               />
             ) : null}
             {tokenSelectorStep === TokenSelectorStep.SetChain ? (
@@ -600,6 +610,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 type={type}
                 size={size}
                 multiWalletSupportEnabled={multiWalletSupportEnabled}
+                chainIdsFilter={chainIdsFilter}
               />
             ) : null}
           </Flex>

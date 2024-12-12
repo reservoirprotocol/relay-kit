@@ -14,6 +14,10 @@ export {
   default as useRelayConfig,
   queryRelayConfig
 } from './hooks/useRelayConfig.js'
+export {
+  default as useExecutionStatus,
+  queryExecutionStatus
+} from './hooks/useExecutionStatus.js'
 
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'

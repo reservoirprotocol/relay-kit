@@ -15,7 +15,7 @@ import { useAccount } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import type { Execute } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
@@ -30,7 +30,6 @@ import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
-import { formatBN } from '../../utils/numbers.js'
 import {
   addressWithFallback,
   isValidAddress,
@@ -42,6 +41,7 @@ export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
+  depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   defaultFromToken?: Token
   defaultToToken?: Token
@@ -53,6 +53,7 @@ type SwapWidgetRendererProps = {
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  supportedWalletVMs: ChainVM[]
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -122,6 +123,10 @@ export type ChildrenProps = {
   isBvmSwap: boolean
   isValidFromAddress: boolean
   isValidToAddress: boolean
+  supportedWalletVMs: ChainVM[]
+  fromChainWalletVMSupported: boolean
+  toChainWalletVMSupported: boolean
+  isRecipientLinked?: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -130,6 +135,7 @@ export type ChildrenProps = {
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   transactionModalOpen,
+  depositAddressModalOpen,
   defaultFromToken,
   defaultToToken,
   defaultToAddress,
@@ -140,6 +146,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
+  supportedWalletVMs,
   children,
   onAnalyticEvent
 }) => {
@@ -198,13 +205,18 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     (chain) => chain.id === fromToken?.chainId
   )
 
+  const fromChainWalletVMSupported =
+    !fromChain?.vmType || supportedWalletVMs.includes(fromChain?.vmType)
+  const toChainWalletVMSupported =
+    !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
+
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
       (linkedWallet) => address === linkedWallet.address
     )
     const _isValidToAddress = isValidAddress(
       toChain?.vmType,
-      customToAddress ?? address ?? '',
+      customToAddress ?? '',
       toChain?.id,
       !customToAddress && _linkedWallet?.address === address
         ? _linkedWallet?.connector
@@ -235,9 +247,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCustomToAddress
   ])
 
-  const recipient = customToAddress ?? defaultRecipient ?? address
+  const recipient = customToAddress ?? defaultRecipient
 
-  const { displayName: toDisplayName } = useENSResolver(recipient)
+  const { displayName: toDisplayName } = useENSResolver(recipient, {
+    enabled: toChain?.vmType === 'evm'
+  })
 
   const {
     value: fromBalance,
@@ -324,6 +338,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const linkedWallet = linkedWallets?.find(
     (linkedWallet) => address === linkedWallet.address
   )
+  const isRecipientLinked =
+    (recipient
+      ? linkedWallets?.find((wallet) => wallet.address === recipient)
+      : undefined) !== undefined
 
   const isValidFromAddress = isValidAddress(
     fromChain?.vmType,
@@ -377,7 +395,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
   const supportsExternalLiquidity =
-    tokenPairIsCanonical && externalLiquiditySupport.status === 'success'
+    tokenPairIsCanonical &&
+    externalLiquiditySupport.status === 'success' &&
+    fromChainWalletVMSupported
       ? true
       : false
 
@@ -403,7 +423,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                   toToken.decimals
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
-          useExternalLiquidity
+          useExternalLiquidity,
+          useDepositAddress: !fromChainWalletVMSupported
         }
       : undefined
 
@@ -461,6 +482,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&
+        !depositAddressModalOpen &&
         debouncedInputAmountValue === amountInputValue &&
         debouncedOutputAmountValue === amountOutputValue
           ? 12000
@@ -546,7 +568,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       totalAmount &&
       address &&
       (fromBalance ?? 0n) < totalAmount &&
-      !hasAuxiliaryFundsSupport
+      !hasAuxiliaryFundsSupport &&
+      fromChainWalletVMSupported
   )
 
   const fetchQuoteErrorMessage = error
@@ -620,10 +643,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
-  } else if (multiWalletSupportEnabled && !isValidFromAddress) {
+  } else if (
+    multiWalletSupportEnabled &&
+    !isValidFromAddress &&
+    fromChainWalletVMSupported
+  ) {
     ctaCopy = `Select ${fromChain?.displayName} Wallet`
   } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = `Select ${toChain?.displayName} Wallet`
+    ctaCopy = toChainWalletVMSupported
+      ? `Select ${toChain?.displayName} Wallet`
+      : `Enter ${toChain?.displayName} Address`
   } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
   } else if (isSameCurrencySameRecipientSwap) {
@@ -634,6 +663,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Balance'
   } else if (isInsufficientLiquidityError) {
     ctaCopy = 'Insufficient Liquidity'
+  } else if (!toChainWalletVMSupported && !isValidToAddress) {
+    ctaCopy = `Enter ${toChain.displayName} Address`
   } else if (transactionModalOpen) {
     switch (operation) {
       case 'wrap': {
@@ -651,7 +682,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       case 'swap':
       default: {
         if (context === 'Swap') {
-          ctaCopy = 'Trade'
+          ctaCopy = 'Swap'
         } else {
           ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
         }
@@ -728,6 +759,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isBvmSwap,
         isValidFromAddress,
         isValidToAddress,
+        supportedWalletVMs,
+        fromChainWalletVMSupported,
+        toChainWalletVMSupported,
+        isRecipientLinked,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,

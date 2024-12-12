@@ -128,6 +128,7 @@ const ChainWidgetPage: NextPage = () => {
         <SwapWidget
           lockChainId={8453}
           wallet={wallet}
+          supportedWalletVMs={['bvm', 'evm', 'svm']}
           tokens={[
             {
               chainId: 8453,
