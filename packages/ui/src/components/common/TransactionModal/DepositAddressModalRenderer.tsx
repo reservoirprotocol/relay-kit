@@ -31,6 +31,7 @@ import { useAccount } from 'wagmi'
 import { extractDepositAddress, extractQuoteId } from '../../../utils/quote.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
+import { bitcoin } from '../../../utils/bitcoin.js'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
@@ -254,7 +255,19 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       setProgressStep(TransactionProgressStep.Success)
       invalidateBalanceQueries()
     } else if (executionStatus?.status === 'pending') {
-      setProgressStep(TransactionProgressStep.Validating)
+      const timeEstimateMs =
+        ((quote?.details?.timeEstimate ?? 0) +
+          (fromChain && fromChain.id === bitcoin.id ? 600 : 0)) *
+        1000
+      const isDelayedTx =
+        timeEstimateMs >
+        (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
+          (relayClient?.pollingInterval ?? 5000)
+      if (isDelayedTx) {
+        setProgressStep(TransactionProgressStep.Success)
+      } else {
+        setProgressStep(TransactionProgressStep.Validating)
+      }
     }
   }, [executionStatus?.status, quoteError])
 
