@@ -308,7 +308,11 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           progressStep === TransactionProgressStep.Error) &&
         allTxHashes[0]
           ? true
-          : false
+          : false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: false,
+      retryOnMount: false
     }
   )
 
