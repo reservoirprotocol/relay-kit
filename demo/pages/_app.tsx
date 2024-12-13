@@ -169,10 +169,10 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             logLevel: 'INFO',
             environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
             walletConnectors: [
-              // EthereumWalletConnectors
-              // SolanaWalletConnectors,
-              // BitcoinWalletConnectors,
-              // EclipseWalletConnectors
+              EthereumWalletConnectors,
+              SolanaWalletConnectors,
+              BitcoinWalletConnectors,
+              EclipseWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {
