@@ -134,10 +134,9 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
           <Skeleton css={{ height: 21, width: '100%' }} />
         ) : (
           <>
-            <Text style="subtitle2">
+            <Text style="subtitle2" css={{ marginRight: 'auto' }}>
               {truncateAddress(depositAddress, '...', 28, 4)}
             </Text>
-            <CopyToClipBoard text={depositAddress ?? ''} />
             {qrcodeUrl ? (
               <Popover>
                 <PopoverTrigger style={{ cursor: 'pointer' }}>
@@ -235,6 +234,7 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
                 </PopoverPortal>
               </Popover>
             ) : null}
+            <CopyToClipBoard text={depositAddress ?? ''} />
           </>
         )}
       </Pill>
