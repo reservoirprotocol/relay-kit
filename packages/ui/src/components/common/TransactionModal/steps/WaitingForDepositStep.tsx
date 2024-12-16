@@ -70,7 +70,10 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
           Transfer funds manually from your {fromChain?.displayName} wallet to
           Relay’s deposit address to complete the bridge.
         </Text>
-        <Anchor href="https://support.relay.link/en/articles/10269920-how-do-deposit-addresses-work">
+        <Anchor
+          href="https://support.relay.link/en/articles/10269920-how-do-deposit-addresses-work"
+          target="_blank"
+        >
           Learn More
         </Anchor>
       </Flex>
@@ -134,10 +137,9 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
           <Skeleton css={{ height: 21, width: '100%' }} />
         ) : (
           <>
-            <Text style="subtitle2">
+            <Text style="subtitle2" css={{ marginRight: 'auto' }}>
               {truncateAddress(depositAddress, '...', 28, 4)}
             </Text>
-            <CopyToClipBoard text={depositAddress ?? ''} />
             {qrcodeUrl ? (
               <Popover>
                 <PopoverTrigger style={{ cursor: 'pointer' }}>
@@ -235,6 +237,7 @@ export const WaitingForDepositStep: FC<WaitingForDepositStepProps> = ({
                 </PopoverPortal>
               </Popover>
             ) : null}
+            <CopyToClipBoard text={depositAddress ?? ''} />
           </>
         )}
       </Pill>
