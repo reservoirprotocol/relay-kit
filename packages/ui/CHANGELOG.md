@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.1
+
+### Patch Changes
+
+- d5b3c66: Optimize usePrice hook by moving baseChainId validation to SwapWidgetRenderer and removing checkExternalLiquiditySupport prop. This improves performance by skipping invalid canonical routes based on baseChainId relationships.
+- cb7ded3: Spacing for DepositAddressModal
+- Updated dependencies [1a593b5]
+  - @reservoir0x/relay-kit-hooks@1.4.12
+
 ## 2.3.0
 
 ### Minor Changes
