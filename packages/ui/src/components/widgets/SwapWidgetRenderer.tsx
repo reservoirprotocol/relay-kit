@@ -389,17 +389,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       enabled:
         fromToken !== undefined &&
         toToken !== undefined &&
-        (() => {
-          if (!relayClient?.chains || !fromToken?.chainId || !toToken?.chainId) {
-            return true; // If we can't determine chains, allow the request for backward compatibility
-          }
-          const fromChain = relayClient.chains.find((chain: RelayChain) => chain.id === fromToken.chainId);
-          const toChain = relayClient.chains.find((chain: RelayChain) => chain.id === toToken.chainId);
-          if (!fromChain?.baseChainId || !toChain?.baseChainId) {
-            return true; // If we can't determine baseChainId, allow the request
-          }
-          return fromChain.id === toChain.baseChainId || toChain.id === fromChain.baseChainId;
-        })()
+        fromChain &&
+        toChain &&
+        (fromChain.id === toChain.baseChainId ||
+          toChain.id === fromChain.baseChainId)
     }
   )
   const supportsExternalLiquidity =
@@ -460,18 +453,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           debouncedOutputAmountValue.length > 0 &&
           Number(debouncedOutputAmountValue) !== 0)) &&
       fromToken !== undefined &&
-      toToken !== undefined &&
-      (() => {
-        if (!relayClient.chains || !fromToken?.chainId || !toToken?.chainId) {
-          return false;
-        }
-        const fromChain = relayClient.chains.find((chain: RelayChain) => chain.id === fromToken.chainId);
-        const toChain = relayClient.chains.find((chain: RelayChain) => chain.id === toToken.chainId);
-        if (!fromChain?.baseChainId || !toChain?.baseChainId) {
-          return true; // If we can't determine baseChainId, allow the request
-        }
-        return fromChain.id === toChain.baseChainId || toChain.id === fromChain.baseChainId;
-      })()
+      toToken !== undefined
   )
 
   const {
