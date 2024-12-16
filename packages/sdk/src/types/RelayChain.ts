@@ -36,4 +36,5 @@ export type RelayChain = {
   brandColor?: string | null
   vmType?: ChainVM
   viemChain?: Chain
+  baseChainId?: number | null
 }

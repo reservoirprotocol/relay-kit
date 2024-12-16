@@ -139,7 +139,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
-      checkExternalLiquiditySupport={true}
       supportedWalletVMs={supportedWalletVMs}
     >
       {({
