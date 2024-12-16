@@ -2,8 +2,7 @@ import {
   MAINNET_RELAY_API,
   RelayClient,
   type Execute,
-  type paths,
-  type RelayChain
+  type paths
 } from '@reservoir0x/relay-sdk'
 import { axiosPostFetcher } from '../fetcher.js'
 import {
@@ -75,17 +74,7 @@ export default function usePrice(
           })
       })
     },
-    enabled: client !== undefined && options !== undefined && (() => {
-      if (!client?.chains || !options.originChainId || !options.destinationChainId) {
-        return false;
-      }
-      const fromChain = client.chains.find((chain: RelayChain) => chain.id === options.originChainId);
-      const toChain = client.chains.find((chain: RelayChain) => chain.id === options.destinationChainId);
-      if (!fromChain?.baseChainId || !toChain?.baseChainId) {
-        return true; // If we can't determine baseChainId, allow the request
-      }
-      return fromChain.id === toChain.baseChainId || toChain.id === fromChain.baseChainId;
-    })(),
+    enabled: client !== undefined && options !== undefined,
     retry: false,
     ...queryOptions
   })
