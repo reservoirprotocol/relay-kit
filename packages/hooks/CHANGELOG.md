@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.12
+
+### Patch Changes
+
+- 1a593b5: feat: optimize usePrice hook to skip invalid canonical routes
+
 ## 1.4.11
 
 ### Patch Changes
