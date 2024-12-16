@@ -89,6 +89,8 @@ export interface paths {
                   explorerQueryParams?: {
                     [key: string]: unknown;
                   } | null;
+                  /** @description The chain id which the chain rolls up to. This is always set as Ethereum for L1 chains */
+                  baseChainId?: number | null;
                 })[];
             };
           };
@@ -325,7 +327,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -835,7 +837,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -2256,6 +2258,11 @@ export interface paths {
              * @default true
              */
             useReceiver?: boolean;
+            /**
+             * @description Specify the method for routing the deposit to the solver
+             * @enum {string}
+             */
+            depositMethod?: "receiver" | "depositor-v1";
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
@@ -2270,11 +2277,8 @@ export interface paths {
                 /** @description App fees to be charged for execution in basis points, e.g. 100 = 1% */
                 fee?: string;
               }[];
-            /**
-             * @description Enable this to use the Relay protocol for insuring the request - use with caution, this is an experimental flag
-             * @default true
-             */
-            useCommitment?: boolean;
+            /** @description If the request involves specifying transactions to be executed during the deposit transaction, an explicit gas limit must be set when requesting the quote */
+            gasLimitForDepositSpecifiedTxs?: number;
           };
         };
       };
@@ -3634,6 +3638,8 @@ export interface paths {
           id?: string;
           startTimestamp?: number;
           endTimestamp?: number;
+          startBlock?: number;
+          endBlock?: number;
           /** @description Get all requests for a single chain in either direction. Setting originChainId and/or destinationChainId will override this parameter. */
           chainId?: string;
           sortBy?: "createdAt" | "updatedAt";
@@ -3730,6 +3736,7 @@ export interface paths {
                         data?: unknown;
                         stateChanges?: unknown;
                         hash?: string;
+                        block?: number;
                         /** @description The type of transaction, always set to onchain */
                         type?: string;
                         chainId?: number;
@@ -3893,6 +3900,7 @@ export interface paths {
                         data?: unknown;
                         stateChanges?: unknown;
                         hash?: string;
+                        block?: number;
                         /** @description The type of transaction, always set to onchain */
                         type?: string;
                         chainId?: number;
