@@ -1,8 +1,8 @@
-import { Chain } from 'viem'
+import type { Chain } from 'viem'
 
 export const calderaTestnet = {
   id: 4654,
-  name: 'Caldera Testnet',
+  name: 'Creator Testnet',
   nativeCurrency: {
     name: 'ETH',
     symbol: 'ETH',

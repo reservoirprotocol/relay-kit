@@ -1,4 +1,4 @@
-import { Chain } from 'viem'
+import type { Chain } from 'viem'
 import { calderaTestnet } from './customChains'
 
 export type ReservoirChain = Chain & {
