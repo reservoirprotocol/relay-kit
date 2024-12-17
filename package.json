@@ -41,5 +41,8 @@
     "semi": false,
     "singleQuote": true,
     "trailingComma": "none"
+  },
+  "dependencies": {
+    "viem": "~2.9.31"
   }
 }

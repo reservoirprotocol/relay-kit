@@ -48,6 +48,7 @@ export enum ChainId {
   ATLAS_RELAY_TESTNET = 1357,
   B3_SEPOLIA = 1993,
   LISK_SEPOLIA = 4202,
+  CREATOR_TESTNET = 4654,
   ARENA_Z_TESTNET = 9897,
   SHAPE_SEPOLIA = 11011,
   ABSTRACT_TESTNET = 11124,
@@ -550,6 +551,18 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
     {
       chainId: ChainId.ANCIENT8,
       address: '0x4200000000000000000000000000000000000006',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+      verified: true
+    }
+  ],
+  [ChainId.CREATOR_TESTNET]: [
+    {
+      chainId: ChainId.CREATOR_TESTNET,
+      address: '0x34AF38Ec07708dBC01C5A814fc418D3840448fce',
       name: 'Wrapped Ether',
       symbol: 'WETH',
       decimals: 18,
