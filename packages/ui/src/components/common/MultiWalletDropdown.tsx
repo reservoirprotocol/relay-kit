@@ -215,7 +215,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
         })}
 
         <DropdownMenuItem
-          aria-label="Link a new wallet"
+          aria-label="Connect a new wallet"
           css={{
             ...DropdownItemBaseStyle
           }}
@@ -226,7 +226,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
             onLinkNewWallet()
           }}
         >
-          <Text style="subtitle2">Link a new wallet</Text>
+          <Text style="subtitle2">Connect a new wallet</Text>
         </DropdownMenuItem>
 
         {context === 'destination' ? (
