@@ -152,15 +152,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const filteredRestrictedTokenList = useMemo(() => {
     if (!restrictedTokensList) return undefined
 
-    // Only filter tokens if we're viewing that specific chain
-    if (chainFilter.id === undefined || chainFilter.id !== token?.chainId) {
+    // Only filter tokens if we're viewing a specific chain
+    if (chainFilter.id === undefined) {
       return restrictedTokensList
     }
 
     return restrictedTokensList.filter(
       (token) => token.chainId === chainFilter.id
     )
-  }, [restrictedTokensList, chainFilter.id, token?.chainId])
+  }, [restrictedTokensList, chainFilter.id])
 
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
