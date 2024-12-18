@@ -44,6 +44,7 @@ type SetCurrencyProps = {
   ) => void
   tokenSearchInput: string
   setTokenSearchInput: (value: string) => void
+  configuredChainIds: number[] | undefined
   chainFilterOptions: RelayChain[]
   chainFilter: ChainFilterValue
   setChainFilter: (value: React.SetStateAction<ChainFilterValue>) => void
@@ -73,6 +74,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   setInputElement,
   tokenSearchInput,
   setTokenSearchInput,
+  configuredChainIds,
   chainFilterOptions,
   chainFilter,
   setChainFilter,
@@ -158,7 +160,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
         Select Token
       </Text>
       <Flex css={{ width: '100%', gap: '3', height: '530px' }}>
-        {isDesktop && allChains.length > 2 ? (
+        {isDesktop && (!configuredChainIds || configuredChainIds.length > 1) ? (
           <>
             <Flex
               direction="column"
@@ -384,7 +386,8 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   }
                 />
               </AccessibleListItem>
-              {!isDesktop && allChains.length > 2 ? (
+              {!isDesktop &&
+              (!configuredChainIds || configuredChainIds.length > 1) ? (
                 <ChainFilter
                   options={allChains}
                   value={chainFilter}
