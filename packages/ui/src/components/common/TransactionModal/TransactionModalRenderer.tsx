@@ -295,7 +295,10 @@ export const TransactionModalRenderer: FC<Props> = ({
       const activeWalletChainId = await _wallet?.getChainId()
 
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
-        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK)
+        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
+          activeWalletChainId,
+          chainId: fromToken.chainId
+        })
         await _wallet?.switchChain(fromToken.chainId)
       }
 
