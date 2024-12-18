@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.2
+
+### Patch Changes
+
+- e2e93c7: Fix token selection bugs with lockChainId and restrictedTokens
+- 869d7f8: Add additional data points to switch wallet event
+- 46c7bdd: Update copy for link new wallet dropdown item
+
 ## 2.3.1
 
 ### Patch Changes
