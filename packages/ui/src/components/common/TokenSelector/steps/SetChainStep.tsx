@@ -207,7 +207,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           gridTemplateColumns: isDesktop ? 'repeat(2, minmax(0, 1fr))' : 'none',
           gridColumnGap: isDesktop ? '8px' : '0',
           gridAutoRows: 'min-content',
-          height: 370,
+          height: 530,
           overflowY: 'auto',
           pb: '2',
           gap: isDesktop ? '0' : '2',

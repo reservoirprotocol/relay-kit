@@ -157,12 +157,12 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       >
         Select Token
       </Text>
-      <Flex css={{ width: '100%', gap: '3', height: '400px' }}>
+      <Flex css={{ width: '100%', gap: '3', height: '530px' }}>
         {isDesktop && allChains.length > 2 ? (
           <>
             <Flex
               direction="column"
-              css={{ maxWidth: 170, flexShrink: 0, gap: '1' }}
+              css={{ maxWidth: 210, flexShrink: 0, gap: '1' }}
             >
               <AccessibleList
                 onSelect={(value) => {
