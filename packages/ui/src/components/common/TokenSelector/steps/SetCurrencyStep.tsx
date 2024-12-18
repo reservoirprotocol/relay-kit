@@ -87,7 +87,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   setCurrencyList,
   onAnalyticEvent
 }) => {
-  const isSmallDevice = useMediaQuery('(max-width: 600px)')
+  const isSmallDevice = useMediaQuery('(max-width: 660px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
   const allChains = [
     { id: undefined, name: 'All Chains' },

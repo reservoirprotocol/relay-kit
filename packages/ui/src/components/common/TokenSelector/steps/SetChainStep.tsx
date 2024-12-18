@@ -86,7 +86,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   selectedCurrencyList
 }) => {
   const client = useRelayClient()
-  const isSmallDevice = useMediaQuery('(max-width: 600px)')
+  const isSmallDevice = useMediaQuery('(max-width: 660px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
 
   const supportedChains = selectedCurrencyList?.chains || []

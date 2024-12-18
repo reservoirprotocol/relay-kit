@@ -548,8 +548,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           trigger={trigger}
           css={{
             p: '4',
-            overflow: 'hidden',
-            sm: {
+            overflowY: 'clip',
+            '@media(min-width: 660px)': {
               minWidth:
                 size === 'desktop'
                   ? configuredChainIds.length > 1

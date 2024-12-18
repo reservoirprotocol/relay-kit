@@ -1,4 +1,4 @@
-import { Flex, Button, Text, Box, Pill } from '../../primitives/index.js'
+import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useContext, useEffect, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
@@ -22,7 +22,7 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
-import { faClipboard, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
@@ -36,8 +36,6 @@ import {
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
-import Tooltip from '../../primitives/Tooltip.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
 
 type BaseSwapWidgetProps = {
@@ -414,8 +412,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -476,9 +474,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : fromToken?.chainId !== undefined &&
-                                fromToken?.chainId === lockChainId
-                              ? [fromToken?.chainId]
-                              : undefined
+                              fromToken?.chainId === lockChainId
+                            ? [fromToken?.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -775,8 +773,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -865,9 +863,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : toToken?.chainId !== undefined &&
-                                toToken?.chainId === lockChainId
-                              ? [toToken?.chainId]
-                              : undefined
+                              toToken?.chainId === lockChainId
+                            ? [toToken?.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
