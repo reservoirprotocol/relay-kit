@@ -149,14 +149,27 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         )
       : configuredChains
 
+  const filteredRestrictedTokenList = useMemo(() => {
+    if (!restrictedTokensList) return undefined
+
+    // Only filter tokens if we're viewing a specific chain
+    if (chainFilter.id === undefined) {
+      return restrictedTokensList
+    }
+
+    return restrictedTokensList.filter(
+      (token) => token.chainId === chainFilter.id
+    )
+  }, [restrictedTokensList, chainFilter.id])
+
   const useDefaultTokenList =
     debouncedTokenSearchValue === '' &&
-    (!restrictedTokensList || !restrictedTokensList.length)
+    (!filteredRestrictedTokenList || !filteredRestrictedTokenList.length)
 
   let tokenListQuery: string[] | undefined
 
-  if (restrictedTokensList && restrictedTokensList.length > 0) {
-    tokenListQuery = restrictedTokensList.map(
+  if (filteredRestrictedTokenList && filteredRestrictedTokenList.length > 0) {
+    tokenListQuery = filteredRestrictedTokenList.map(
       (token) => `${token.chainId}:${token.address}`
     )
   }
@@ -217,7 +230,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       : undefined
   )
 
-  const restrictedTokenAddresses = restrictedTokensList?.map((token) =>
+  const restrictedTokenAddresses = filteredRestrictedTokenList?.map((token) =>
     token.address.toLowerCase()
   )
 
@@ -234,8 +247,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   let suggestedTokenQuery: string[] | undefined
 
-  if (restrictedTokensList && restrictedTokensList.length > 0) {
-    suggestedTokenQuery = restrictedTokensList.map(
+  if (filteredRestrictedTokenList && filteredRestrictedTokenList.length > 0) {
+    suggestedTokenQuery = filteredRestrictedTokenList.map(
       (token) => `${token.chainId}:${token.address}`
     )
   } else if (duneTokenBalances) {
@@ -577,6 +590,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 setInputElement={setInputElement}
                 tokenSearchInput={tokenSearchInput}
                 setTokenSearchInput={setTokenSearchInput}
+                configuredChainIds={configuredChainIds}
                 chainFilterOptions={chainFilterOptions}
                 chainFilter={chainFilter}
                 setChainFilter={setChainFilter}
