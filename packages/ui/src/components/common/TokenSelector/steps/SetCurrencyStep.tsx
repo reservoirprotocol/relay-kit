@@ -89,7 +89,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
   setCurrencyList,
   onAnalyticEvent
 }) => {
-  const isSmallDevice = useMediaQuery('(max-width: 600px)')
+  const isSmallDevice = useMediaQuery('(max-width: 660px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
   const allChains = [
     { id: undefined, name: 'All Chains' },
@@ -159,12 +159,12 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       >
         Select Token
       </Text>
-      <Flex css={{ width: '100%', gap: '3', height: '400px' }}>
+      <Flex css={{ width: '100%', gap: '3', height: '530px' }}>
         {isDesktop && (!configuredChainIds || configuredChainIds.length > 1) ? (
           <>
             <Flex
               direction="column"
-              css={{ maxWidth: 170, flexShrink: 0, gap: '1' }}
+              css={{ maxWidth: 210, flexShrink: 0, gap: '1' }}
             >
               <AccessibleList
                 onSelect={(value) => {
