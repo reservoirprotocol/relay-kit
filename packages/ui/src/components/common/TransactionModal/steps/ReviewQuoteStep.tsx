@@ -116,16 +116,18 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
 
   let breakdown: { title: string; value: ReactNode }[] = []
 
-  if (
-    minimumAmountFormatted &&
-    quote?.details?.slippageTolerance?.destination?.percent &&
-    quote.details.slippageTolerance.destination.percent != '0.00'
-  ) {
+  const slippage = Number(
+    quote?.details?.slippageTolerance?.destination?.percent ??
+      quote?.details?.slippageTolerance?.origin?.percent ??
+      0
+  )
+
+  if (minimumAmountFormatted && slippage && slippage != 0) {
     breakdown.push({
       title: 'Min. Received',
       value: (
         <Flex
-          align="center"
+          align="end"
           direction="column"
           css={{
             gap: '1'
@@ -151,7 +153,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
                   {quote?.details?.slippageTolerance?.destination?.percent ?? 0}
                   %
                 </Text>
-                <Flex css={{ color: 'gray9' }}>
+                <Flex css={{ color: 'gray8' }}>
                   <FontAwesomeIcon
                     icon={faInfoCircle}
                     width={14}
@@ -169,9 +171,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     })
   }
 
-  breakdown = [
-    ...breakdown,
-    {
+  if (timeEstimate.time) {
+    breakdown.push({
       title: 'Estimated time',
       value: (
         <Flex
@@ -188,7 +189,11 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
         </Flex>
       )
-    },
+    })
+  }
+
+  breakdown = [
+    ...breakdown,
     {
       title: 'Network cost',
       value: (
