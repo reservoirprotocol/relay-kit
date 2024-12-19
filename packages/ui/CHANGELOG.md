@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.3
+
+### Patch Changes
+
+- 73f94b2: Update token selector dimensions and breakpoints
+- cd44e80: Fix slippage ui bugs
+
 ## 2.3.2
 
 ### Patch Changes
