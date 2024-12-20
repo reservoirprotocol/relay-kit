@@ -34,6 +34,7 @@ import { bitcoin } from '../../../utils/bitcoin.js'
 import { evmDeadAddress } from '@reservoir0x/relay-sdk'
 import { solDeadAddress } from '@reservoir0x/relay-sdk'
 import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
+import { mergeTokenLists } from '../../../utils/tokens.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -263,7 +264,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       suggestedTokenQuery
         ? {
             tokens: suggestedTokenQuery,
-            limit: 20,
+            limit: 30,
             depositAddressOnly
           }
         : undefined,
@@ -299,47 +300,44 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     return mergedList
   }, [tokenList, externalTokenList])
 
-  // Filter out unconfigured chains and append Relay Chain to each currency
+  // Enhance token list with Relay chain data, balances and sort by usd value/balances
   const enhancedCurrencyList = useMemo(() => {
-    const _tokenList =
-      combinedTokenList && (combinedTokenList as any).length
-        ? (combinedTokenList as CurrencyList[])
-        : undefined
-
+    // Filter suggested tokens by chain if needed
     const filteredSuggestedTokens = chainFilter.id
-      ? suggestedTokens
-          ?.map((tokenList) =>
-            tokenList.filter((token) => token.chainId === chainFilter.id)
-          )
-          .filter((tokenList) => tokenList.length > 0)
+      ? suggestedTokens?.map((tokenList) =>
+          tokenList.filter((token) => token.chainId === chainFilter.id)
+        )
       : suggestedTokens
 
-    let list =
-      context === 'from' &&
-      useDefaultTokenList &&
-      chainFilter.id === undefined &&
-      filteredSuggestedTokens &&
-      filteredSuggestedTokens.length > 0
-        ? filteredSuggestedTokens
-        : combinedTokenList
+    // Only merge suggested tokens when using default list
+    const list = useDefaultTokenList
+      ? mergeTokenLists([filteredSuggestedTokens, combinedTokenList])
+      : combinedTokenList || []
 
-    const ethTokens = _tokenList?.find(
-      (list) => list[0] && list[0].groupID === 'ETH'
+    // Prioritize ETH and USDC tokens
+    const ethTokens = list.find(
+      (tokenList) => tokenList[0] && tokenList[0].groupID === 'ETH'
     )
-    const usdcTokens = _tokenList?.find(
-      (list) => list[0] && list[0].groupID === 'USDC'
+    const usdcTokens = list.find(
+      (tokenList) => tokenList[0] && tokenList[0].groupID === 'USDC'
     )
-    if (list && suggestedTokens) {
-      list = list?.filter(
-        (tokenList) =>
-          tokenList[0] &&
-          tokenList[0].groupID !== 'ETH' &&
-          tokenList[0].groupID !== 'USDC'
-      )
-      list = [ethTokens ?? [], usdcTokens ?? []].concat(list)
-    }
 
-    const mappedList = list?.map((currencyList) => {
+    // Remove ETH/USDC from main list and add them to the front
+    const filteredList = list.filter(
+      (tokenList) =>
+        tokenList[0] &&
+        tokenList[0].groupID !== 'ETH' &&
+        tokenList[0].groupID !== 'USDC'
+    )
+
+    const sortedList = [
+      ...(ethTokens ? [ethTokens] : []),
+      ...(usdcTokens ? [usdcTokens] : []),
+      ...filteredList
+    ]
+
+    // Map and enhance the currency list
+    const mappedList = sortedList?.map((currencyList) => {
       const filteredList = currencyList
         .map((currency) => {
           const relayChain = configuredChains.find(
@@ -394,8 +392,21 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           totalValueUsd
         }
       })
-      .filter((list) => list !== undefined)
-      .sort((a, b) => (b?.totalValueUsd ?? 0) - (a?.totalValueUsd ?? 0))
+      .filter((list): list is NonNullable<typeof list> => list !== undefined)
+      .sort((a, b) => {
+        // First sort by USD value if available
+        if (a.totalValueUsd !== b.totalValueUsd) {
+          return b.totalValueUsd - a.totalValueUsd
+        }
+        // Then sort by balance if USD value is equal or undefined
+        if (a.totalBalance !== b.totalBalance) {
+          return Number(b.totalBalance - a.totalBalance)
+        }
+        // Finally prioritize verified tokens
+        const aVerified = a.chains[0]?.metadata?.verified ?? false
+        const bVerified = b.chains[0]?.metadata?.verified ?? false
+        return bVerified === aVerified ? 0 : bVerified ? 1 : -1
+      })
   }, [
     context,
     combinedTokenList,
