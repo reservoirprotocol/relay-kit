@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.13
+
+### Patch Changes
+
+- 91e7d85: Fix useRequests base url
+
 ## 1.4.12
 
 ### Patch Changes
