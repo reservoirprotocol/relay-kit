@@ -1,3 +1,4 @@
+import type { CurrencyList } from '@reservoir0x/relay-kit-hooks'
 import type { Token } from '../types/index.js'
 import { ASSETS_RELAY_API } from '@reservoir0x/relay-sdk'
 import type { paths, RelayChain } from '@reservoir0x/relay-sdk'
@@ -41,4 +42,27 @@ export const findBridgableToken = (chain?: RelayChain, token?: Token) => {
     }
   }
   return null
+}
+
+export const mergeTokenLists = (lists: (CurrencyList[] | undefined)[]) => {
+  const mergedList: CurrencyList[] = []
+  const seenTokens = new Set<string>()
+
+  lists.forEach((list) => {
+    if (!list) return
+
+    list.forEach((currencyList) => {
+      const currency = currencyList[0]
+      if (!currency) return
+
+      const tokenKey = `${currency.chainId}:${currency.address?.toLowerCase()}`
+
+      if (!seenTokens.has(tokenKey)) {
+        seenTokens.add(tokenKey)
+        mergedList.push(currencyList)
+      }
+    })
+  })
+
+  return mergedList
 }
