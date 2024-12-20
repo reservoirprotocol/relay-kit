@@ -32,7 +32,8 @@ export const queryRequests = function (
   options?: UserTransactionQuery | false,
   pageParam?: string | null
 ): Promise<UserTransactionsResponse> {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const baseUrl =
+    typeof window !== 'undefined' ? window.location.origin : undefined
   const url = new URL(`${baseApiUrl}/requests/v2`, baseUrl)
 
   let query: UserTransactionQuery = { ...options }
