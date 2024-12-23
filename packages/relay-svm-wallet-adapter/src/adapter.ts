@@ -2,22 +2,28 @@ import {
   AddressLookupTableAccount,
   Connection,
   PublicKey,
-  Transaction,
   TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
   type SendOptions,
   type TransactionSignature
 } from '@solana/web3.js'
-import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
+import {
+  LogLevel,
+  getClient,
+  type AdaptedWallet,
+  type TransactionStepItem
+} from '@reservoir0x/relay-sdk'
 
 export const adaptSolanaWallet = (
   walletAddress: string,
   chainId: number,
   connection: Connection,
   signAndSendTransaction: (
-    transaction: Transaction | VersionedTransaction,
-    options?: SendOptions
+    transaction: VersionedTransaction,
+    options?: SendOptions,
+    instructions?: TransactionInstruction[],
+    rawInstructions?: TransactionStepItem['data']['instructions']
   ) => Promise<{
     signature: TransactionSignature
   }>
@@ -71,7 +77,12 @@ export const adaptSolanaWallet = (
       )
 
       const transaction = new VersionedTransaction(messageV0)
-      const signature = await signAndSendTransaction(transaction)
+      const signature = await signAndSendTransaction(
+        transaction,
+        undefined,
+        instructions,
+        stepItem.data.instructions
+      )
 
       client.log(
         ['Transaction Signature obtained', signature],
