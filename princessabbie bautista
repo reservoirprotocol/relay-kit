@@ -1,0 +1,12 @@
+import {
+  createClient,
+  convertViemChainToRelayChain,
+  MAINNET_RELAY_API,
+} from "@reservoir0x/relay-sdk";
+import { mainnet } from "viem/chains";
+
+createClient({
+  baseApiUrl: MAINNET_RELAY_API,
+  source: "YOUR.SOURCE",
+  chains: [convertViemChainToRelayChain(mainnet)],
+});
