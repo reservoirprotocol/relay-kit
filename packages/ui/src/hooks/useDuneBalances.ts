@@ -42,9 +42,9 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/beta/balance/${address?.toLowerCase()}?chain_ids=all&exclude_spam_tokens=true`
+      let url = `https://api.dune.com/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=all&exclude_spam_tokens=true`
       if (isSvmAddress) {
-        url = `https://api.dune.com/api/beta/balance/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+        url = `https://api.dune.com/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (isBvmAddress) {
