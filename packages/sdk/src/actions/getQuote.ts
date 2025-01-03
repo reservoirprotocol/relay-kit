@@ -1,6 +1,6 @@
 import { type AxiosRequestConfig } from 'axios'
 import { axios } from '../utils/axios.js'
-import { zeroAddress, type Address, type WalletClient } from 'viem'
+import { zeroAddress, type WalletClient } from 'viem'
 import prepareCallTransaction from '../utils/prepareCallTransaction.js'
 import {
   isSimulateContractRequest,
@@ -33,7 +33,7 @@ export type GetQuoteParameters = {
   tradeType: QuoteBodyOptions['tradeType']
   wallet?: AdaptedWallet | WalletClient
   amount?: string
-  recipient?: Address
+  recipient?: string
   options?: Omit<QuoteBodyOptions, 'user' | 'source' | 'txs' | 'tradeType'>
   txs?: (NonNullable<QuoteBody['txs']>[0] | SimulateContractRequest)[]
 }
