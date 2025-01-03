@@ -561,7 +561,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           trigger={trigger}
           css={{
             p: '4',
-            overflowY: 'clip',
+            display: 'flex',
+            flexDirection: 'column',
+            height: 'auto',
+            maxHeight: 'min(85vh, 600px)',
             '@media(min-width: 660px)': {
               minWidth:
                 size === 'desktop'
@@ -581,7 +584,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               width: '100%',
               height: '100%',
               gap: '3',
-              position: 'relative'
+              position: 'relative',
+              overflowY: 'hidden'
             }}
           >
             {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
