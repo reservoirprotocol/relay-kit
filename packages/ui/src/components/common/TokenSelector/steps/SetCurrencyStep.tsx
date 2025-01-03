@@ -411,7 +411,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
                   }}
                 />
                 <Text style="subtitle3" color="subtle">
-                  Popular Tokens
+                  Suggested Tokens
                 </Text>
               </>
             ) : null}
