@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.9
+
+### Patch Changes
+
+- 2b257cd: Expose instructions in signature function
+
 ## 1.4.8
 
 ### Patch Changes
