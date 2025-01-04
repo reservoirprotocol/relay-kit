@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.5
+
+### Patch Changes
+
+- 9d16628: Optimize token list merging and sorting logic in TokenSelector
+- 5193c1a: Fix token overflow ui bug on token selector
+- Updated dependencies [2b257cd]
+  - @reservoir0x/relay-sdk@1.4.9
+  - @reservoir0x/relay-kit-hooks@1.4.14
+
 ## 2.3.4
 
 ### Patch Changes
