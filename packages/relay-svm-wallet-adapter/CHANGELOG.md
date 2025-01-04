@@ -1,5 +1,13 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 2.0.9
+
+### Patch Changes
+
+- 2b257cd: Expose instructions in signature function
+- Updated dependencies [2b257cd]
+  - @reservoir0x/relay-sdk@1.4.9
+
 ## 2.0.8
 
 ### Patch Changes
