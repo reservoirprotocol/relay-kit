@@ -11,6 +11,7 @@ import {
 import { isViemWalletClient } from '../utils/viemWallet.js'
 import { getClient } from '../client.js'
 import type { AdaptedWallet, Execute, paths } from '../types/index.js'
+import { getDeadAddress } from '../constants/address.js'
 
 export type QuoteBody = NonNullable<
   paths['/quote']['post']['requestBody']['content']['application/json']
@@ -85,14 +86,26 @@ export async function getQuote(
     })
   }
 
+  const fromChain = client.chains.find((chain) => chain.id === chainId)
+  const toChain = client.chains.find((chain) => chain.id === toChainId)
+
+  const originDeadAddress = fromChain
+    ? getDeadAddress(fromChain.vmType, fromChain.id)
+    : undefined
+  const destinationDeadAddress = toChain
+    ? getDeadAddress(toChain.vmType, toChain.id)
+    : undefined
+
   const query: QuoteBody = {
-    user: caller || zeroAddress,
+    user: caller || originDeadAddress || zeroAddress,
     destinationCurrency: toCurrency,
     destinationChainId: toChainId,
     originCurrency: currency,
     originChainId: chainId,
     amount,
-    recipient: recipient ? (recipient as string) : caller ?? zeroAddress,
+    recipient: recipient
+      ? (recipient as string)
+      : caller || destinationDeadAddress || zeroAddress,
     tradeType,
     referrer: client.source || undefined,
     txs: preparedTransactions,
