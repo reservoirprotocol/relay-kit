@@ -121,7 +121,8 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
           border: '1px solid var(--borderColor)',
           borderRadius: 12,
           p: '3',
-          height: 260
+          height: 260,
+          gap: '3'
         }}
       >
         {steps?.map((step, index) => {
@@ -133,13 +134,17 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
                 s.items?.some((item) => item.status === 'incomplete')
               )
 
-          const stepTitle =
-            step.id === 'approve'
-              ? 'Approve in wallet'
-              : step?.items?.[0]?.txHashes?.length &&
-                step?.items?.[0]?.txHashes?.length > 0
-              ? `Swapping ${fromToken?.symbol} for ${toToken?.symbol}`
-              : 'Confirm swap in wallet'
+          const hasTxHash =
+            step?.items?.[0]?.txHashes?.length &&
+            step?.items?.[0]?.txHashes?.length > 0
+
+          const isApproveStep = step.id === 'approve'
+
+          const stepTitle = isApproveStep
+            ? 'Approve in wallet'
+            : hasTxHash
+            ? `Swapping ${fromToken?.symbol} for ${toToken?.symbol}`
+            : 'Confirm swap in wallet'
 
           return (
             <Box key={step.id}>
@@ -150,12 +155,10 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
               >
                 <Flex align="center" css={{ gap: '2', height: 40 }}>
                   {step.id === 'approve' ? (
-                    <img
-                      src={fromToken?.logoURI}
-                      alt={fromToken?.symbol}
-                      style={{
-                        height: 32,
-                        width: 32,
+                    <ChainTokenIcon
+                      chainId={fromToken?.chainId}
+                      tokenlogoURI={fromToken?.logoURI}
+                      css={{
                         borderRadius: 9999999,
                         flexShrink: 0,
                         filter: isCurrentStep ? 'none' : 'grayscale(100%)'
@@ -177,25 +180,36 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
                       <FontAwesomeIcon icon={faRepeat} width={16} />
                     </Flex>
                   )}
-                  <Flex direction="column" css={{ gap: '1' }}>
+                  <Flex direction="column" css={{ gap: '2px' }}>
                     <Text style="subtitle2">{stepTitle}</Text>
-                    {step?.items?.[0]?.txHashes?.map(({ txHash, chainId }) => {
-                      const txUrl = getTxBlockExplorerUrl(
-                        chainId,
-                        relayClient?.chains,
-                        txHash
-                      )
-                      return (
-                        <Anchor key={txHash} href={txUrl} target="_blank">
-                          View Tx: {truncateAddress(txHash)}
-                        </Anchor>
-                      )
-                    })}
+                    {isApproveStep && !hasTxHash && (
+                      <Anchor css={{ fontSize: 12 }} href="" target="_blank">
+                        Why do I have to approve a token?
+                      </Anchor>
+                    )}
+                    {hasTxHash &&
+                      step?.items?.[0]?.txHashes?.map(({ txHash, chainId }) => {
+                        const txUrl = getTxBlockExplorerUrl(
+                          chainId,
+                          relayClient?.chains,
+                          txHash
+                        )
+                        return (
+                          <Anchor
+                            key={txHash}
+                            href={txUrl}
+                            target="_blank"
+                            css={{ fontSize: 12 }}
+                          >
+                            View Tx: {truncateAddress(txHash, '...', 6, 4)}
+                          </Anchor>
+                        )
+                      })}
                   </Flex>
                 </Flex>
 
                 <Flex>
-                  {isCurrentStep ? (
+                  {isCurrentStep && hasTxHash ? (
                     <LoadingSpinner
                       css={{ height: 16, width: 16, fill: 'gray9' }}
                     />
@@ -210,7 +224,7 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
               </Flex>
 
               {index !== (steps?.length || 0) - 1 && (
-                <Box css={{ height: '22px', pl: '16px' }}>
+                <Box css={{ height: '14px', pl: '16px', marginTop: '12px' }}>
                   <Box
                     css={{
                       width: '1px',
