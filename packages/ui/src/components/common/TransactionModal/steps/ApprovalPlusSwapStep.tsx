@@ -38,7 +38,6 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
 }) => {
   const details = quote?.details
   const relayClient = useRelayClient()
-  console.log(steps)
 
   return (
     <>
