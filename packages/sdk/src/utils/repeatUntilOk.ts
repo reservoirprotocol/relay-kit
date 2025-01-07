@@ -1,5 +1,5 @@
 /**
- * Repeat a function until the functionn returns true for a maximum set of attempts with a fixed interval
+ * Repeat a function until the function returns true for a maximum set of attempts with a fixed interval
  * @param callback A function that returns true to exit the loop
  * @param maximumAttempts The maximum amount of tries for this poll
  * @param attemptCount The amount of attempts already done by the poll, should be left blank
