@@ -293,7 +293,6 @@ export const TransactionModalRenderer: FC<Props> = ({
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
       const activeWalletChainId = await _wallet?.getChainId()
-
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
