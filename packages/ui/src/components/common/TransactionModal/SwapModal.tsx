@@ -1,6 +1,6 @@
 import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { type Address } from 'viem'
-import { type FC, useEffect } from 'react'
+import { type FC, useEffect, useState } from 'react'
 import {
   type ChildrenProps,
   TransactionModalRenderer,
@@ -19,6 +19,7 @@ import { formatBN } from '../../../utils/numbers.js'
 import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
+import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
 
 type SwapModalProps = {
   open: boolean
@@ -181,6 +182,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   setSwapError,
   progressStep,
   setProgressStep,
+  steps,
   setSteps,
   currentStep,
   setCurrentStep,
@@ -204,6 +206,20 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   waitingForSteps,
   isLoadingTransaction
 }) => {
+  const [isApprovalPlusSwap, setIsApprovalPlusSwap] = useState(false)
+
+  useEffect(() => {
+    if (quote?.steps) {
+      const firstStep = quote.steps[0]
+      if (
+        firstStep.id === 'approve' &&
+        firstStep?.items?.[0]?.status === 'incomplete'
+      ) {
+        setIsApprovalPlusSwap(true)
+      }
+    }
+  }, [quote?.steps])
+
   useEffect(() => {
     if (!open) {
       if (currentStep) {
@@ -214,6 +230,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       setAllTxHashes([])
       setStartTimestamp(0)
       setSwapError(null)
+      setIsApprovalPlusSwap(false)
     } else {
       setSteps(null)
       setProgressStep(TransactionProgressStep.ReviewQuote)
@@ -266,7 +283,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         }}
       >
         <Text style="h6" css={{ mb: 8 }}>
-          {isReviewQuoteStep ? 'Review Quote' : 'Trade Details'}
+          {isReviewQuoteStep ? 'Review Quote' : 'Transaction Details'}
         </Text>
 
         {progressStep === TransactionProgressStep.ReviewQuote ? (
@@ -289,7 +306,21 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
           />
         ) : null}
 
-        {progressStep === TransactionProgressStep.WalletConfirmation ? (
+        {(progressStep === TransactionProgressStep.WalletConfirmation ||
+          progressStep === TransactionProgressStep.Validating) &&
+        isApprovalPlusSwap ? (
+          <ApprovalPlusSwapStep
+            fromToken={fromToken}
+            toToken={toToken}
+            fromAmountFormatted={fromAmountFormatted}
+            toAmountFormatted={toAmountFormatted}
+            steps={steps}
+            quote={quote}
+          />
+        ) : null}
+
+        {progressStep === TransactionProgressStep.WalletConfirmation &&
+        !isApprovalPlusSwap ? (
           <SwapConfirmationStep
             fromToken={fromToken}
             toToken={toToken}
@@ -298,7 +329,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             quote={quote}
           />
         ) : null}
-        {progressStep === TransactionProgressStep.Validating ? (
+        {progressStep === TransactionProgressStep.Validating &&
+        !isApprovalPlusSwap ? (
           <ValidatingStep
             currentStep={currentStep}
             currentStepItem={currentStepItem}
