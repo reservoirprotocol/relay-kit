@@ -14,3 +14,4 @@ export {
   isSimulateContractRequest
 } from './simulateContract.js'
 export { safeStructuredClone } from './structuredClone.js'
+export { repeatUntilOk } from './repeatUntilOk.js'

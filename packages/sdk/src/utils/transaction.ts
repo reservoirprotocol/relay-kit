@@ -15,6 +15,7 @@ import type {
 } from 'axios'
 import { getClient } from '../client.js'
 import { SolverStatusTimeoutError } from '../errors/index.js'
+import { repeatUntilOk } from '../utils/repeatUntilOk.js'
 
 /**
  * Safe txhash.wait which handles replacements when users speed up the transaction
@@ -39,8 +40,20 @@ export async function sendTransactionSafely(
   details?: Execute['details']
 ) {
   const client = getClient()
-  const walletChainId = await wallet.getChainId()
-  if (chainId !== walletChainId) {
+  try {
+    //In some cases wallets can be delayed when switching chains, causing this check to fail.
+    //To work around this we check the chain id of the active wallet a few times before declaring it a failure
+    await repeatUntilOk(
+      async () => {
+        const walletChainId = await wallet.getChainId()
+        return walletChainId === chainId
+      },
+      10,
+      undefined,
+      250
+    )
+  } catch (e) {
+    const walletChainId = await wallet.getChainId()
     throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
   }
   let receipt: TransactionReceipt | SvmReceipt | undefined
