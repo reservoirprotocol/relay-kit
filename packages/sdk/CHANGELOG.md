@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.4.10
+
+### Patch Changes
+
+- 7d6f035: Improve robustness of pre tx chain id check
+- f81fbfa: Fix dead address being allowed as burn address
+
 ## 1.4.9
 
 ### Patch Changes
