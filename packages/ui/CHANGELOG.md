@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.6
+
+### Patch Changes
+
+- f81fbfa: Fix dead address being allowed as burn address
+- 0f3e5f5: Upgrade dune api version to v1
+- Updated dependencies [7d6f035]
+- Updated dependencies [f81fbfa]
+  - @reservoir0x/relay-sdk@1.4.10
+  - @reservoir0x/relay-kit-hooks@1.4.15
+
 ## 2.3.5
 
 ### Patch Changes
