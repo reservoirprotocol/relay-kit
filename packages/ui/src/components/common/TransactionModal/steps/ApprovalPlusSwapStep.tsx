@@ -122,7 +122,7 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
           borderRadius: 12,
           p: '3',
           height: 260,
-          gap: '3'
+          gap: '8px'
         }}
       >
         {steps?.map((step, index) => {
