@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.16
+
+### Patch Changes
+
+- 9928dbc: Add quote_error analytics event
+
 ## 1.4.15
 
 ### Patch Changes
