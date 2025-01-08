@@ -108,7 +108,25 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const { connector } = useAccount()
   const deadAddress = getDeadAddress(fromChain?.vmType, fromChain?.id)
-
+  const _quoteData =
+    fromToken && toToken
+      ? {
+          user: deadAddress,
+          originChainId: fromToken.chainId,
+          destinationChainId: toToken.chainId,
+          originCurrency: fromToken.address,
+          destinationCurrency: toToken.address,
+          recipient: recipient as string,
+          tradeType: 'EXACT_INPUT',
+          appFees: providerOptionsContext.appFees,
+          amount: parseUnits(
+            debouncedInputAmountValue,
+            fromToken.decimals
+          ).toString(),
+          referrer: relayClient?.source ?? undefined,
+          useDepositAddress: true
+        }
+      : undefined
   const {
     data: quoteData,
     isLoading: isFetchingQuote,
@@ -168,6 +186,16 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       refetchOnMount: false,
       retryOnMount: false,
       staleTime: Infinity
+    },
+    (e: any) => {
+      const errorMessage = e?.response?.data?.message
+        ? new Error(e?.response?.data?.message)
+        : e
+      onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
+        wallet_connector: connector?.name,
+        error_message: errorMessage,
+        parameters: _quoteData
+      })
     }
   )
 

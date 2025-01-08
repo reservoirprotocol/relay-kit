@@ -62,7 +62,8 @@ export default function (
   options?: QuoteBody,
   onRequest?: () => void,
   onResponse?: (data: Execute) => void,
-  queryOptions?: Partial<QueryOptions>
+  queryOptions?: Partial<QueryOptions>,
+  onError?: (e: any) => void
 ) {
   const queryKey = ['useQuote', options]
   const response = (useQuery as QueryType)({
@@ -73,9 +74,14 @@ export default function (
         options.referrer = client.source
       }
       const promise = queryQuote(client?.baseApiUrl, options)
-      promise.then((response: any) => {
-        onResponse?.(response)
-      })
+      promise
+        .then((response: any) => {
+          onResponse?.(response)
+        })
+        .catch((e) => {
+          onError?.(e)
+          throw e
+        })
       return promise
     },
     enabled: client !== undefined && options !== undefined,
