@@ -206,22 +206,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   waitingForSteps,
   isLoadingTransaction
 }) => {
-  const [isApprovalPlusSwap, setIsApprovalPlusSwap] = useState(false)
-
   const firstStep = quote?.steps?.[0]
-
-  useEffect(() => {
-    if (quote?.steps) {
-      if (
-        firstStep?.id === 'approve' &&
-        firstStep?.items?.[0]?.status === 'incomplete'
-      ) {
-        setIsApprovalPlusSwap(true)
-      } else {
-        setIsApprovalPlusSwap(false)
-      }
-    }
-  }, [quote?.steps])
+  const isApprovalPlusSwap =
+    firstStep?.id === 'approve' &&
+    firstStep?.items?.[0]?.status === 'incomplete'
 
   useEffect(() => {
     if (!open) {
@@ -233,19 +221,10 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
       setAllTxHashes([])
       setStartTimestamp(0)
       setSwapError(null)
-      setIsApprovalPlusSwap(false)
     } else {
       setSteps(null)
       setProgressStep(TransactionProgressStep.ReviewQuote)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
-      if (
-        firstStep?.id === 'approve' &&
-        firstStep?.items?.[0]?.status === 'incomplete'
-      ) {
-        setIsApprovalPlusSwap(true)
-      } else {
-        setIsApprovalPlusSwap(false)
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
