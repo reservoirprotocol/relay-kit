@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.7
+
+### Patch Changes
+
+- 9928dbc: Add quote_error analytics event
+- bf0e5ef: Fix token selector height bug
+- Updated dependencies [9928dbc]
+  - @reservoir0x/relay-kit-hooks@1.4.16
+
 ## 2.3.6
 
 ### Patch Changes
