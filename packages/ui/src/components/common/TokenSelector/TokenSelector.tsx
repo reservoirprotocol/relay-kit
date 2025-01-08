@@ -574,8 +574,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             p: '4',
             display: 'flex',
             flexDirection: 'column',
-            height: 'auto',
-            maxHeight: 'min(85vh, 600px)',
+            height: 'min(85vh, 600px)',
             '@media(min-width: 660px)': {
               minWidth:
                 size === 'desktop'
