@@ -216,6 +216,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
         firstStep?.items?.[0]?.status === 'incomplete'
       ) {
         setIsApprovalPlusSwap(true)
+      } else {
+        setIsApprovalPlusSwap(false)
       }
     }
   }, [quote?.steps])
