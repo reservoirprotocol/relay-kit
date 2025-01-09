@@ -36,6 +36,7 @@ import {
   findSupportedWallet
 } from '../../utils/address.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
+import { errorToJSON } from '../../utils/errors.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -490,9 +491,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : undefined
     },
     (e: any) => {
-      const errorMessage = e?.response?.data?.message
-        ? new Error(e?.response?.data?.message)
-        : e
+      const errorMessage = errorToJSON(
+        e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
+      )
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
