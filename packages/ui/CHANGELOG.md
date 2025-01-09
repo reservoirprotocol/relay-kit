@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.9
+
+### Patch Changes
+
+- 93d9556: Extract more data out of error message when sending to analytics handler
+
 ## 2.3.8
 
 ### Patch Changes
