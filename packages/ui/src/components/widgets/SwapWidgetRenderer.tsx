@@ -496,7 +496,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
-        parameters: _quoteData
+        parameters: quoteParameters
       })
     }
   )
