@@ -247,7 +247,12 @@ export const TransactionModalRenderer: FC<Props> = ({
         error &&
         ((typeof error.message === 'string' &&
           error.message.includes('rejected')) ||
-          (typeof error === 'string' && error.includes('rejected')))
+          (typeof error === 'string' && error.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Plugin Closed')))
       ) {
         onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
         setProgressStep(TransactionProgressStep.ReviewQuote)
