@@ -183,7 +183,11 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
                   <Flex direction="column" css={{ gap: '2px' }}>
                     <Text style="subtitle2">{stepTitle}</Text>
                     {isApproveStep && !hasTxHash && (
-                      <Anchor css={{ fontSize: 12 }} href="" target="_blank">
+                      <Anchor
+                        css={{ fontSize: 12 }}
+                        href="https://support.relay.link/en/articles/10371133-why-do-i-have-to-approve-a-token"
+                        target="_blank"
+                      >
                         Why do I have to approve a token?
                       </Anchor>
                     )}
