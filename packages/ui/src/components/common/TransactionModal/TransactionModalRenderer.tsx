@@ -31,6 +31,7 @@ import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount, useWalletClient } from 'wagmi'
 import { extractQuoteId, parseFees } from '../../../utils/quote.js'
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
+import { errorToJSON } from '../../../utils/errors.js'
 
 export enum TransactionProgressStep {
   ReviewQuote,
@@ -230,9 +231,9 @@ export const TransactionModalRenderer: FC<Props> = ({
           : undefined
     },
     (e: any) => {
-      const errorMessage = e?.response?.data?.message
-        ? new Error(e?.response?.data?.message)
-        : e
+      const errorMessage = errorToJSON(
+        e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
+      )
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
@@ -254,9 +255,11 @@ export const TransactionModalRenderer: FC<Props> = ({
         return
       }
 
-      const errorMessage = error?.response?.data?.message
-        ? new Error(error?.response?.data?.message)
-        : error
+      const errorMessage = errorToJSON(
+        error?.response?.data?.message
+          ? new Error(error?.response?.data?.message)
+          : error
+      )
 
       onAnalyticEvent?.(EventNames.SWAP_ERROR, {
         error_message: errorMessage,

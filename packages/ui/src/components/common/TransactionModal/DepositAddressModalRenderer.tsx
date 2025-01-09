@@ -32,6 +32,7 @@ import { extractDepositAddress, extractQuoteId } from '../../../utils/quote.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
+import { errorToJSON } from '../../../utils/errors.js'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
@@ -171,9 +172,9 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       staleTime: Infinity
     },
     (e: any) => {
-      const errorMessage = e?.response?.data?.message
-        ? new Error(e?.response?.data?.message)
-        : e
+      const errorMessage = errorToJSON(
+        e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
+      )
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
@@ -246,7 +247,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       }
       setProgressStep(TransactionProgressStep.Error)
       onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_SWAP_ERROR, {
-        error_message: executionStatus?.details ?? quoteError,
+        error_message: errorToJSON(executionStatus?.details ?? quoteError),
         wallet_connector: connector?.name,
         quote_id: requestId,
         amount_in: parseFloat(`${debouncedInputAmountValue}`),
