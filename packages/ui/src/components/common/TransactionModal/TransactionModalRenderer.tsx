@@ -154,17 +154,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   const walletClient = useWalletClient()
   const { connector } = useAccount()
   const deadAddress = getDeadAddress(fromChain?.vmType, fromChain?.id)
-
-  const {
-    data: quote,
-    isLoading: isFetchingQuote,
-    isRefetching: isRefetchingQuote,
-    executeQuote: executeSwap,
-    error: quoteError,
-    dataUpdatedAt: quoteUpdatedAt
-  } = useQuote(
-    relayClient ? relayClient : undefined,
-    wallet ?? walletClient.data,
+  const _quoteData =
     fromToken && toToken
       ? {
           user: address ?? deadAddress,
@@ -188,7 +178,18 @@ export const TransactionModalRenderer: FC<Props> = ({
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity
         }
-      : undefined,
+      : undefined
+  const {
+    data: quote,
+    isLoading: isFetchingQuote,
+    isRefetching: isRefetchingQuote,
+    executeQuote: executeSwap,
+    error: quoteError,
+    dataUpdatedAt: quoteUpdatedAt
+  } = useQuote(
+    relayClient ? relayClient : undefined,
+    wallet ?? walletClient.data,
+    _quoteData,
     () => {},
     ({ steps, details }) => {
       onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
@@ -227,6 +228,16 @@ export const TransactionModalRenderer: FC<Props> = ({
         debouncedOutputAmountValue === amountOutputValue
           ? 30000
           : undefined
+    },
+    (e: any) => {
+      const errorMessage = e?.response?.data?.message
+        ? new Error(e?.response?.data?.message)
+        : e
+      onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
+        wallet_connector: connector?.name,
+        error_message: errorMessage,
+        parameters: _quoteData
+      })
     }
   )
 
@@ -236,7 +247,12 @@ export const TransactionModalRenderer: FC<Props> = ({
         error &&
         ((typeof error.message === 'string' &&
           error.message.includes('rejected')) ||
-          (typeof error === 'string' && error.includes('rejected')))
+          (typeof error === 'string' && error.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Plugin Closed')))
       ) {
         onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
         setProgressStep(TransactionProgressStep.ReviewQuote)
@@ -293,7 +309,6 @@ export const TransactionModalRenderer: FC<Props> = ({
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
       const activeWalletChainId = await _wallet?.getChainId()
-
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,

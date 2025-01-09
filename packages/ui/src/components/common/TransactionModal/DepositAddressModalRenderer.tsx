@@ -108,16 +108,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const { connector } = useAccount()
   const deadAddress = getDeadAddress(fromChain?.vmType, fromChain?.id)
-
-  const {
-    data: quoteData,
-    isLoading: isFetchingQuote,
-    isRefetching,
-    error: quoteError,
-    queryKey
-  } = useQuote(
-    relayClient ? relayClient : undefined,
-    undefined,
+  const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
       ? {
           user: deadAddress,
@@ -135,7 +126,17 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           referrer: relayClient?.source ?? undefined,
           useDepositAddress: true
         }
-      : undefined,
+      : undefined
+  const {
+    data: quoteData,
+    isLoading: isFetchingQuote,
+    isRefetching,
+    error: quoteError,
+    queryKey
+  } = useQuote(
+    relayClient ? relayClient : undefined,
+    undefined,
+    quoteParameters,
     () => {},
     ({ steps, details }) => {
       onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
@@ -168,6 +169,16 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       refetchOnMount: false,
       retryOnMount: false,
       staleTime: Infinity
+    },
+    (e: any) => {
+      const errorMessage = e?.response?.data?.message
+        ? new Error(e?.response?.data?.message)
+        : e
+      onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
+        wallet_connector: connector?.name,
+        error_message: errorMessage,
+        parameters: quoteParameters
+      })
     }
   )
 

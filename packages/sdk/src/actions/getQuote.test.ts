@@ -68,13 +68,13 @@ describe('Should test the getQuote action.', () => {
       expect.objectContaining({
         url: expect.stringContaining('quote'),
         data: expect.objectContaining({
-          user: '0x0000000000000000000000000000000000000000',
+          user: '0x000000000000000000000000000000000000dead',
           destinationCurrency: '0x0000000000000000000000000000000000000000',
           destinationChainId: 1,
           originCurrency: '0x0000000000000000000000000000000000000000',
           originChainId: 8453,
           amount: '1000000000000000',
-          recipient: '0x0000000000000000000000000000000000000000',
+          recipient: '0x000000000000000000000000000000000000dead',
           tradeType: 'EXACT_INPUT'
         })
       })
@@ -106,13 +106,13 @@ describe('Should test the getQuote action.', () => {
       expect.objectContaining({
         url: expect.stringContaining('quote'),
         data: expect.objectContaining({
-          user: '0x0000000000000000000000000000000000000000',
+          user: '0x000000000000000000000000000000000000dead',
           destinationCurrency: '0x0000000000000000000000000000000000000000',
           destinationChainId: 1,
           originCurrency: '0x0000000000000000000000000000000000000000',
           originChainId: 8453,
           amount: '1000000000000000',
-          recipient: '0x0000000000000000000000000000000000000000',
+          recipient: '0x000000000000000000000000000000000000dead',
           tradeType: 'EXACT_INPUT',
           txs: [{ data: '0x', value: '0', to: '0x' }]
         })

@@ -488,6 +488,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         debouncedOutputAmountValue === amountOutputValue
           ? 12000
           : undefined
+    },
+    (e: any) => {
+      const errorMessage = e?.response?.data?.message
+        ? new Error(e?.response?.data?.message)
+        : e
+      onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
+        wallet_connector: connector?.name,
+        error_message: errorMessage,
+        parameters: quoteParameters
+      })
     }
   )
 

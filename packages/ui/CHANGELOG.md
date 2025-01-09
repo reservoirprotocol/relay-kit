@@ -1,5 +1,32 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.8
+
+### Patch Changes
+
+- a273799: Fix quote_error data
+- 52ceb0c: Adjust how we handle approval denied and plugin closed errors
+
+## 2.3.7
+
+### Patch Changes
+
+- 9928dbc: Add quote_error analytics event
+- bf0e5ef: Fix token selector height bug
+- Updated dependencies [9928dbc]
+  - @reservoir0x/relay-kit-hooks@1.4.16
+
+## 2.3.6
+
+### Patch Changes
+
+- f81fbfa: Fix dead address being allowed as burn address
+- 0f3e5f5: Upgrade dune api version to v1
+- Updated dependencies [7d6f035]
+- Updated dependencies [f81fbfa]
+  - @reservoir0x/relay-sdk@1.4.10
+  - @reservoir0x/relay-kit-hooks@1.4.15
+
 ## 2.3.5
 
 ### Patch Changes

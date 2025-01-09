@@ -1,5 +1,19 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.4.16
+
+### Patch Changes
+
+- 9928dbc: Add quote_error analytics event
+
+## 1.4.15
+
+### Patch Changes
+
+- Updated dependencies [7d6f035]
+- Updated dependencies [f81fbfa]
+  - @reservoir0x/relay-sdk@1.4.10
+
 ## 1.4.14
 
 ### Patch Changes

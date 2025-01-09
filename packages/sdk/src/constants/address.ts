@@ -20,3 +20,20 @@ export const getDeadAddress = (vmType?: ChainVM, chainId?: number) => {
     return evmDeadAddress
   }
 }
+
+export const isDeadAddress = (address?: string) => {
+  if (!address) {
+    return false
+  }
+
+  if (
+    address === eclipseDeadAddress ||
+    address === solDeadAddress ||
+    address === bitcoinDeadAddress ||
+    address === evmDeadAddress
+  ) {
+    return true
+  }
+
+  return false
+}

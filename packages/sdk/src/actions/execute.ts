@@ -8,6 +8,7 @@ import {
 } from '../utils/index.js'
 import { type WalletClient } from 'viem'
 import { isViemWalletClient } from '../utils/viemWallet.js'
+import { isDeadAddress } from '../constants/address.js'
 
 export type ExecuteActionParameters = {
   quote: Execute
@@ -47,6 +48,10 @@ export async function execute(data: ExecuteActionParameters) {
 
     if (chainId === undefined) {
       throw new Error('Missing chainId from quote')
+    }
+
+    if (isDeadAddress(quote?.details?.recipient)) {
+      throw new Error('Recipient should never be burn address')
     }
 
     const { request, ...restOfQuote } = quote
