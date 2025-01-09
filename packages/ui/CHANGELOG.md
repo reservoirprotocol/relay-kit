@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.8
+
+### Patch Changes
+
+- a273799: Fix quote_error data
+- 52ceb0c: Adjust how we handle approval denied and plugin closed errors
+
 ## 2.3.7
 
 ### Patch Changes
