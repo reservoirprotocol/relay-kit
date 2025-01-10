@@ -627,31 +627,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const maxCapacityWei = maxCapacity?.value
   const maxCapacityFormatted = maxCapacity?.formatted
 
-  let ctaCopy: string = context || 'Swap'
-
-  switch (operation) {
-    case 'wrap': {
-      ctaCopy = 'Wrap'
-      break
-    }
-    case 'unwrap': {
-      ctaCopy = 'Unwrap'
-      break
-    }
-    case 'send': {
-      ctaCopy = 'Send'
-      break
-    }
-    case 'swap':
-    default: {
-      if (context === 'Swap') {
-        ctaCopy = 'Trade'
-      } else {
-        ctaCopy = context === 'Deposit' ? 'Deposit' : 'Withdraw'
-      }
-      break
-    }
-  }
+  let ctaCopy: string = 'Review'
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
@@ -678,29 +654,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   } else if (!toChainWalletVMSupported && !isValidToAddress) {
     ctaCopy = `Enter ${toChain.displayName} Address`
   } else if (transactionModalOpen) {
-    switch (operation) {
-      case 'wrap': {
-        ctaCopy = 'Wrapping'
-        break
-      }
-      case 'unwrap': {
-        ctaCopy = 'Unwrapping'
-        break
-      }
-      case 'send': {
-        ctaCopy = 'Sending'
-        break
-      }
-      case 'swap':
-      default: {
-        if (context === 'Swap') {
-          ctaCopy = 'Swap'
-        } else {
-          ctaCopy = context === 'Deposit' ? 'Depositing' : 'Withdrawing'
-        }
-        break
-      }
-    }
+    ctaCopy = 'Review'
   }
 
   usePreviousValueChange(
