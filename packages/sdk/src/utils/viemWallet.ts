@@ -3,6 +3,7 @@ import { LogLevel } from './logger.js'
 import { getClient } from '../client.js'
 import type { Account, Address, Hex, WalletClient } from 'viem'
 import { createPublicClient, custom, fallback, hexToBigInt, http } from 'viem'
+import { walletActionsEip5792 } from 'viem/experimental'
 
 export function isViemWalletClient(
   wallet: WalletClient | AdaptedWallet
@@ -144,6 +145,41 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         })
         return
       }
+    },
+    supportsAtomicBatch: async (chainId) => {
+      if (!wallet.account) return false
+      try {
+        const eip5792Wallet = wallet.extend(walletActionsEip5792())
+        const capabilities = await eip5792Wallet.getCapabilities({
+          account: eip5792Wallet.account
+        })
+        return capabilities[chainId]?.atomicBatch?.supported
+      } catch {
+        return false
+      }
+    },
+    handleBatchTransactionStep: async (chainId, items) => {
+      const calls = items.map((item) => ({
+        to: item.data.to,
+        data: item.data.data,
+        value: hexToBigInt((item.data.value as any) || 0),
+        ...(item.data.gas && {
+          gas: hexToBigInt(item.data.gas as any)
+        })
+      }))
+
+      const eip5792Wallet = wallet.extend(walletActionsEip5792())
+
+      const client = getClient()
+      const chain = client.chains.find((chain) => chain.id === chainId)
+
+      const txHash = await eip5792Wallet.sendCalls({
+        chain: chain?.viemChain,
+        account: wallet.account as Account,
+        calls
+      })
+
+      return txHash
     }
   }
 }

@@ -70,6 +70,7 @@ export async function sendTransactionSafely(
     throw 'User rejected the request'
   }
 
+  // Post transaction to solver
   postTransactionToSolver({
     txHash,
     chainId,
