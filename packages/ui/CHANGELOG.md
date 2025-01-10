@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.3.10
+
+### Patch Changes
+
+- cbbe9b7: Add approve + swap ux flow and update cta copy in widget and modal
+
 ## 2.3.9
 
 ### Patch Changes
