@@ -26,6 +26,7 @@ export enum ChainId {
   ARBITRUM_NOVA = 42170,
   AVALANCHE = 43114,
   SUPERPOSITION = 55244,
+  INK = 57073,
   LINEA = 59144,
   BOB = 60808,
   PROOF_OF_PLAY_APEX = 70700,
@@ -448,6 +449,18 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       decimals: 8,
       logoURI:
         'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
+      verified: true
+    }
+  ],
+  [ChainId.INK]: [
+    {
+      chainId: ChainId.INK,
+      address: '0xf1815bd50389c46847f0bda824ec8da914045d14',
+      name: 'Bridge USDC (Stargate)',
+      symbol: 'USDC',
+      decimals: 6,
+      logoURI:
+        'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?169650669',
       verified: true
     }
   ],
