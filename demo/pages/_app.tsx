@@ -1,5 +1,6 @@
 import '@reservoir0x/relay-kit-ui/styles.css'
 import '../fonts.css'
+import '../global.css'
 
 import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect } from 'react'
@@ -30,6 +31,12 @@ import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { pipe } from '@dynamic-labs/utils'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
+import dynamic from 'next/dynamic'
+
+const MoonPayProvider = dynamic(
+  () => import('@moonpay/moonpay-react').then((mod) => mod.MoonPayProvider),
+  { ssr: false }
+)
 
 type AppWrapperProps = {
   children: ReactNode
@@ -198,7 +205,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           }}
         >
           <WagmiProvider config={wagmiConfig}>
-            <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            <MoonPayProvider
+              apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
+              debug
+            >
+              <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            </MoonPayProvider>
           </WagmiProvider>
         </DynamicContextProvider>
       </RelayKitProvider>

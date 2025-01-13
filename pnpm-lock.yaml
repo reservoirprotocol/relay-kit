@@ -50,6 +50,9 @@ importers:
       '@dynamic-labs/wagmi-connector':
         specifier: 4.0.0-alpha.21
         version: 4.0.0-alpha.21(@dynamic-labs/assert-package-version@4.0.0-alpha.21)(@dynamic-labs/ethereum-core@4.0.0-alpha.21)(@dynamic-labs/logger@4.0.0-alpha.21)(@dynamic-labs/rpc-providers@4.0.0-alpha.21)(@dynamic-labs/sdk-react-core@4.0.0-alpha.21)(@dynamic-labs/types@4.0.0-alpha.21)(@dynamic-labs/wallet-connector-core@4.0.0-alpha.21)(@wagmi/core@2.10.5)(eventemitter3@5.0.1)(react@18.2.0)(viem@2.9.32)(wagmi@2.9.11)
+      '@moonpay/moonpay-react':
+        specifier: ^1.8.3
+        version: 1.8.3(react@18.2.0)
       '@radix-ui/colors':
         specifier: ^0.1.8
         version: 0.1.9
@@ -4116,6 +4119,14 @@ packages:
       superstruct: 1.0.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@moonpay/moonpay-react@1.8.3(react@18.2.0):
+    resolution: {integrity: sha512-kz0W0nt+tg4NZWGSVIN5nF3AYQttQF07UH8klrdVtfIg+Jg8GbxazlQDCvg8FX21KaEld1buBLBh0EfAGO7/sw==}
+    peerDependencies:
+      react: '>=16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@motionone/animation@10.17.0:

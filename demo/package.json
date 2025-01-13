@@ -20,6 +20,7 @@
     "@dynamic-labs/solana": "4.0.0-alpha.21",
     "@dynamic-labs/utils": "4.0.0-alpha.21",
     "@dynamic-labs/wagmi-connector": "4.0.0-alpha.21",
+    "@moonpay/moonpay-react": "^1.8.3",
     "@radix-ui/colors": "^0.1.8",
     "@reservoir0x/relay-bitcoin-wallet-adapter": "workspace:*",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
