@@ -39,7 +39,6 @@ export type AdaptedWallet = {
   supportsAtomicBatch?: (chainId: number) => Promise<boolean>
   handleBatchTransactionStep?: (
     chainId: number,
-    items: TransactionStepItem[],
-    steps: Execute['steps']
+    items: TransactionStepItem[]
   ) => Promise<string | undefined>
 }

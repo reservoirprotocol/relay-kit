@@ -44,6 +44,7 @@ export enum TransactionProgressStep {
 export type TxHashes = { txHash: string; chainId: number }[]
 
 export type ChildrenProps = {
+  wallet?: AdaptedWallet
   progressStep: TransactionProgressStep
   setProgressStep: Dispatch<SetStateAction<TransactionProgressStep>>
   currentStep?: ExecuteStep | null
@@ -426,6 +427,8 @@ export const TransactionModalRenderer: FC<Props> = ({
     }
   }, [steps, quoteError, swapError])
 
+  const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
+
   // Fetch Success Tx
   const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
@@ -433,7 +436,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       allTxHashes[0]
       ? {
           user: address,
-          hash: allTxHashes[0]?.txHash
+          ...(requestId ? { id: requestId } : { hash: allTxHashes[0]?.txHash })
         }
       : undefined,
     relayClient?.baseApiUrl,
@@ -451,8 +454,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   const { fillTime: executionTime, seconds: executionTimeSeconds } =
     calculateExecutionTime(Math.floor(startTimestamp / 1000), transaction)
 
-  const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
-
   const feeBreakdown = useMemo(() => {
     const chains = relayClient?.chains
     const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
@@ -465,6 +466,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   return (
     <>
       {children({
+        wallet,
         progressStep,
         setProgressStep,
         currentStep,

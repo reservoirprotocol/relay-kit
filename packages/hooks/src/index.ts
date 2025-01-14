@@ -18,6 +18,7 @@ export {
   default as useExecutionStatus,
   queryExecutionStatus
 } from './hooks/useExecutionStatus.js'
+export { default as useAtomicBatchSupport } from './hooks/useAtomicBatchSupport.js'
 
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'

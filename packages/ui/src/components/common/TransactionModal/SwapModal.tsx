@@ -1,6 +1,6 @@
 import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { type Address } from 'viem'
-import { type FC, useEffect, useState } from 'react'
+import { type FC, useEffect } from 'react'
 import {
   type ChildrenProps,
   TransactionModalRenderer,
@@ -20,6 +20,7 @@ import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.j
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
 import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
+import { useAtomicBatchSupport } from '@reservoir0x/relay-kit-hooks'
 
 type SwapModalProps = {
   open: boolean
@@ -170,6 +171,7 @@ type InnerSwapModalProps = ChildrenProps & SwapModalProps
 const InnerSwapModal: FC<InnerSwapModalProps> = ({
   open,
   onOpenChange,
+  wallet,
   fromToken,
   toToken,
   quote,
@@ -206,10 +208,17 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   waitingForSteps,
   isLoadingTransaction
 }) => {
+  const { isSupported: isAtomicBatchSupported } = useAtomicBatchSupport(
+    wallet,
+    fromToken?.chainId
+  )
   const firstStep = quote?.steps?.[0]
+  const secondStep = quote?.steps?.[1]
   const isApprovalPlusSwap =
     firstStep?.id === 'approve' &&
-    firstStep?.items?.[0]?.status === 'incomplete'
+    firstStep?.items?.[0]?.status === 'incomplete' &&
+    (secondStep?.id === 'deposit' || secondStep?.id === 'swap') &&
+    !isAtomicBatchSupported
 
   useEffect(() => {
     if (!open) {
