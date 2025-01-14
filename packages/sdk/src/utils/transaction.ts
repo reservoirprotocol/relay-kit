@@ -68,13 +68,17 @@ export async function sendTransactionSafely(
   let txHash: string | undefined
 
   // Check if batching txs is supported and if there are multiple items to batch
-  const isBatchTransaction =
+  const isBatchTransaction = Boolean(
     Array.isArray(items) &&
-    items.length > 1 &&
-    wallet.handleBatchTransactionStep
+      items.length > 1 &&
+      wallet.handleBatchTransactionStep
+  )
 
   if (isBatchTransaction) {
-    txHash = await wallet.handleBatchTransactionStep?.(chainId, items)
+    txHash = await wallet.handleBatchTransactionStep?.(
+      chainId,
+      items as TransactionStepItem[]
+    )
   } else {
     txHash = await wallet.handleSendTransactionStep(
       chainId,
@@ -104,7 +108,9 @@ export async function sendTransactionSafely(
       'Transaction hash not returned from handleSendTransactionStep method'
     )
   }
-  setTxHashes([{ txHash: txHash, chainId: chainId }])
+  setTxHashes([
+    { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+  ])
 
   //Set up internal functions
   const validate = (res: AxiosResponse) => {
@@ -121,7 +127,9 @@ export async function sendTransactionSafely(
     }
     if (res.status === 200 && res.data && res.data.status === 'success') {
       if (txHash) {
-        setInternalTxHashes([{ txHash: txHash, chainId: chainId }])
+        setInternalTxHashes([
+          { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+        ])
       }
 
       const chainTxHashes: NonNullable<

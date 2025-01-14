@@ -179,6 +179,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   isRefetchingQuote,
   quoteError,
   address,
+  requestId,
   swap,
   swapError,
   setSwapError,
@@ -333,6 +334,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
           <ValidatingStep
             currentStep={currentStep}
             currentStepItem={currentStepItem}
+            requestId={requestId}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Success ? (

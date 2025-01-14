@@ -41,7 +41,11 @@ export enum TransactionProgressStep {
   Error
 }
 
-export type TxHashes = { txHash: string; chainId: number }[]
+export type TxHashes = {
+  txHash: string
+  chainId: number
+  isBatchTx?: boolean
+}[]
 
 export type ChildrenProps = {
   wallet?: AdaptedWallet
@@ -433,18 +437,17 @@ export const TransactionModalRenderer: FC<Props> = ({
   const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
       progressStep === TransactionProgressStep.Error) &&
-      allTxHashes[0]
-      ? {
-          user: address,
-          ...(requestId ? { id: requestId } : { hash: allTxHashes[0]?.txHash })
-        }
+      (requestId || allTxHashes[0])
+      ? requestId
+        ? { id: requestId }
+        : { hash: allTxHashes[0]?.txHash, user: address }
       : undefined,
     relayClient?.baseApiUrl,
     {
       enabled:
         (progressStep === TransactionProgressStep.Success ||
           progressStep === TransactionProgressStep.Error) &&
-        allTxHashes[0]
+        (requestId || allTxHashes[0])
           ? true
           : false
     }
