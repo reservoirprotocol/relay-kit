@@ -26,10 +26,9 @@ type DepositAddressModalProps = {
   timeEstimate?: { time: number; formattedTime: string }
   debouncedOutputAmountValue: string
   debouncedInputAmountValue: string
-  amountInputValue: string
-  amountOutputValue: string
   recipient?: Address | string
   customToAddress?: Address | string
+  defaultQuote?: Execute
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -48,8 +47,6 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
     recipient,
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
-    amountInputValue,
-    amountOutputValue,
     timeEstimate,
     invalidateBalanceQueries,
     onAnalyticEvent,
@@ -61,8 +58,6 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
       fromChain={fromChain}
       fromToken={fromToken}
       toToken={toToken}
-      amountInputValue={amountInputValue}
-      amountOutputValue={amountOutputValue}
       debouncedInputAmountValue={debouncedInputAmountValue}
       debouncedOutputAmountValue={debouncedOutputAmountValue}
       address={address}
