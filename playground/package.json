@@ -18,7 +18,7 @@
     "next-themes": "^0.2.0",
     "react": "^18",
     "react-dom": "^18",
-    "viem": "~2.9.31",
+    "viem": "^2.21.55",
     "wagmi": "~2.9.8"
   },
   "devDependencies": {
