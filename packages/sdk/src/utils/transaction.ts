@@ -91,8 +91,10 @@ export async function sendTransactionSafely(
     throw 'User rejected the request'
   }
 
-  // Use the check endpoint from the last item
-  const check = (Array.isArray(items) ? items[items.length - 1] : items).check
+  // Find the first item with a check endpoint
+  const check = Array.isArray(items)
+    ? items.find((item) => item.check)?.check
+    : items.check
 
   // Post transaction to solver
   postTransactionToSolver({

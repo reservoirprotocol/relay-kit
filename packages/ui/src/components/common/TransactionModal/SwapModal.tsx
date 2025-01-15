@@ -20,7 +20,7 @@ import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.j
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
 import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
-import { useAtomicBatchSupport } from '@reservoir0x/relay-kit-hooks'
+import { useAtomicBatchSupport } from '../../../hooks/index.js'
 
 type SwapModalProps = {
   open: boolean

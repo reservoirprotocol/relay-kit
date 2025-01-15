@@ -87,7 +87,7 @@ export async function executeSteps(
       )
       if (isAtomicBatchSupported) {
         const batchedStep = prepareBatchTransaction(json.steps)
-        json.steps = [batchedStep, ...json.steps.slice(2)]
+        json.steps = [batchedStep]
       }
     }
 
