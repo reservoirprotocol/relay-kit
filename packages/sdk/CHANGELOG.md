@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.5.0
+
+### Minor Changes
+
+- 1effc86: Upgrade viem peer dependency
+
 ## 1.4.10
 
 ### Patch Changes
