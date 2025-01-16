@@ -1,5 +1,16 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 14.0.0
+
+### Minor Changes
+
+- 1effc86: Upgrade viem peer dependency
+
+### Patch Changes
+
+- Updated dependencies [1effc86]
+  - @reservoir0x/relay-sdk@1.5.0
+
 ## 13.0.10
 
 ### Patch Changes
