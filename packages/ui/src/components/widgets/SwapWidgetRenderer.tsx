@@ -101,7 +101,7 @@ export type ChildrenProps = {
   toBalancePending?: boolean
   fromBalance?: bigint
   fromBalancePending?: boolean
-  isFetchingPrice: boolean
+  isFetchingQuote: boolean
   isLoadingToBalance: boolean
   isLoadingFromBalance: boolean
   highRelayerServiceFee: boolean
@@ -458,19 +458,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const {
-    data: _priceData,
-    isLoading: _isFetchingPrice,
-    error: priceError
-  } = usePrice(
-    relayClient ? relayClient : undefined,
-    quoteParameters,
-    onQuoteReceived,
-    {
-      enabled: quoteFetchingEnabled
-    }
-  )
-
-  const {
     data: _quoteData,
     error: quoteError,
     isLoading: isFetchingQuote
@@ -503,22 +490,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   //Here we fetch the price data and quote data in parallel and then merge into one data model
-  const isFetchingPrice = isFetchingQuote ?? _isFetchingPrice
-  let error = _quoteData || isFetchingQuote ? null : quoteError ?? priceError
-  let price = error ? undefined : _quoteData ?? _priceData
-  //The only exception to the rule is a capacity exceeded error, in that case we want to use the error from the price api instead
-  if (
-    priceError &&
-    ((priceError as any)?.response?.data?.message?.includes(
-      'Insufficient relayer liquidity'
-    ) ||
-      (priceError as any)?.response?.data?.message?.includes(
-        'Amount is higher than the available liquidity'
-      ))
-  ) {
-    error = priceError
-    price = undefined
-  }
+  let error = _quoteData || isFetchingQuote ? null : quoteError
+  let price = error ? undefined : _quoteData
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -659,7 +632,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   usePreviousValueChange(
     isCapacityExceededError && supportsExternalLiquidity,
-    !isFetchingPrice && !externalLiquiditySupport.isFetching,
+    !isFetchingQuote && !externalLiquiditySupport.isFetching,
     (capacityExceeded) => {
       if (capacityExceeded) {
         onAnalyticEvent?.(EventNames.CTA_MAX_CAPACITY_PROMPTED, {
@@ -702,7 +675,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toBalance,
         toBalancePending,
         isLoadingToBalance,
-        isFetchingPrice,
+        isFetchingQuote,
         isLoadingFromBalance,
         fromBalance,
         fromBalancePending,

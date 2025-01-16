@@ -12,7 +12,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 type Props = Pick<
   ChildrenProps,
   | 'feeBreakdown'
-  | 'isFetchingPrice'
+  | 'isFetchingQuote'
   | 'price'
   | 'toToken'
   | 'fromToken'
@@ -33,7 +33,7 @@ const formatSwapRate = (rate: number) => {
 
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
-  isFetchingPrice,
+  isFetchingQuote,
   price,
   toToken,
   fromToken,
@@ -53,7 +53,7 @@ const FeeBreakdown: FC<Props> = ({
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   if (!feeBreakdown) {
-    if (isFetchingPrice) {
+    if (isFetchingQuote) {
       return (
         <Box
           id={'fee-breakdown-section'}
@@ -66,7 +66,7 @@ const FeeBreakdown: FC<Props> = ({
           }}
         >
           <FetchingQuoteLoader
-            isLoading={isFetchingPrice}
+            isLoading={isFetchingQuote}
             containerCss={{
               mt: 0,
               mb: 0,
