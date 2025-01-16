@@ -114,6 +114,41 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     return () => clearInterval(interval)
   }, [quoteUpdatedAt])
 
+  const firstStep = quote?.steps?.[0]
+  const firstStepItem = firstStep?.items?.[0]
+
+  let ctaCopy: string = 'Confirm'
+  if (firstStep?.id === 'approve' && firstStepItem?.status === 'incomplete') {
+    ctaCopy = 'Approve & Swap'
+  } else {
+    switch (details?.operation) {
+      case 'wrap': {
+        ctaCopy = 'Wrap'
+        break
+      }
+      case 'unwrap': {
+        ctaCopy = 'Unwrap'
+        break
+      }
+      case 'send': {
+        ctaCopy = 'Send'
+        break
+      }
+      case 'swap': {
+        ctaCopy = 'Swap'
+        break
+      }
+      case 'bridge': {
+        ctaCopy = 'Bridge'
+        break
+      }
+      default: {
+        ctaCopy = 'Confirm'
+        break
+      }
+    }
+  }
+
   let breakdown: { title: string; value: ReactNode }[] = []
 
   const slippage = Number(
@@ -509,7 +544,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
         disabled={isFetchingQuote || isRefetchingQuote || waitingForSteps}
         onClick={() => swap?.()}
       >
-        Confirm
+        {ctaCopy}
       </Button>
     </>
   )

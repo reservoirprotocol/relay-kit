@@ -1,5 +1,24 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.4.0
+
+### Minor Changes
+
+- 1effc86: Upgrade viem peer dependency
+
+### Patch Changes
+
+- bbc62bc: Add usdc to ink chain's suggested tokens
+- Updated dependencies [1effc86]
+  - @reservoir0x/relay-kit-hooks@1.5.0
+  - @reservoir0x/relay-sdk@1.5.0
+
+## 2.3.10
+
+### Patch Changes
+
+- cbbe9b7: Add approve + swap ux flow and update cta copy in widget and modal
+
 ## 2.3.9
 
 ### Patch Changes

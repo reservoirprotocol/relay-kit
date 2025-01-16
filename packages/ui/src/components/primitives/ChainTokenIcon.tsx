@@ -54,7 +54,7 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
         height={14}
         css={{
           position: 'absolute',
-          right: -1,
+          right: 0,
           bottom: 0,
           borderRadius: 4,
           overflow: 'hidden',

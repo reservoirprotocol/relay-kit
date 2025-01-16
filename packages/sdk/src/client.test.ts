@@ -22,6 +22,7 @@ describe('Should test the client.', () => {
   })
 
   it('Should confirm client is configured properly.', async () => {
+    console.log(client)
     expect(client).toEqual(
       expect.objectContaining({
         baseApiUrl: MAINNET_RELAY_API,
@@ -34,7 +35,7 @@ describe('Should test the client.', () => {
             id: 1,
             name: 'Ethereum',
             displayName: 'Ethereum',
-            httpRpcUrl: 'https://cloudflare-eth.com',
+            httpRpcUrl: 'https://eth.merkle.io',
             wsRpcUrl: '',
             explorerUrl: 'https://etherscan.io',
             depositEnabled: true
@@ -107,7 +108,7 @@ describe('Should test the client.', () => {
             id: 1,
             name: 'Ethereum',
             displayName: 'Ethereum',
-            httpRpcUrl: 'https://cloudflare-eth.com',
+            httpRpcUrl: 'https://eth.merkle.io',
             wsRpcUrl: '',
             explorerUrl: 'https://etherscan.io',
             depositEnabled: true

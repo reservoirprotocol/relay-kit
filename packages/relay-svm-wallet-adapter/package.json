@@ -1,6 +1,6 @@
 {
     "name": "@reservoir0x/relay-svm-wallet-adapter",
-    "version": "2.0.10",
+    "version": "3.0.0",
     "description": "An SVM (Solana Virtual Machine) adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
@@ -60,6 +60,6 @@
     "peerDependencies": {
         "@reservoir0x/relay-sdk": "workspace:*",
         "@solana/web3.js": "^1.95.3",
-        "viem": "^2.9.31"
+        "viem": "^2.21.55"
     }
 }

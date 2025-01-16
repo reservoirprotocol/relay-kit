@@ -46,6 +46,7 @@ export const Colors = {
   // Green
   green2: { value: '{colors.green.2}' },
   green3: { value: '{colors.green.3}' },
+  green9: { value: '{colors.green.9}' },
   green10: { value: '{colors.green.10}' },
   green11: { value: '{colors.green.11}' },
   green12: { value: '{colors.green.12}' },
