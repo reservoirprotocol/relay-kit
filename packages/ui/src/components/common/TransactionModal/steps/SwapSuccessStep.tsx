@@ -199,17 +199,19 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
       {!delayedTxUrl ? (
         <Flex justify="center">
-          {allTxHashes.map(({ txHash, chainId }) => {
+          {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
             const txUrl = getTxBlockExplorerUrl(
               chainId,
               relayClient?.chains,
               txHash
             )
-            return (
-              <Anchor key={txHash} href={txUrl} target="_blank">
-                View Tx: {truncateAddress(txHash)}
-              </Anchor>
-            )
+            if (txUrl && !isBatchTx) {
+              return (
+                <Anchor key={txHash} href={txUrl} target="_blank">
+                  View Tx: {truncateAddress(txHash)}
+                </Anchor>
+              )
+            }
           })}
         </Flex>
       ) : null}
@@ -357,17 +359,20 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             <Text style="subtitle1">?</Text>
           )}
         </Flex>
-        {allTxHashes.map(({ txHash, chainId }) => {
+        {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
           const txUrl = getTxBlockExplorerUrl(
             chainId,
             relayClient?.chains,
             txHash
           )
-          return (
-            <Anchor key={txHash} href={txUrl} target="_blank">
-              View Tx: {truncateAddress(txHash)}
-            </Anchor>
-          )
+
+          if (txUrl && !isBatchTx) {
+            return (
+              <Anchor key={txHash} href={txUrl} target="_blank">
+                View Tx: {truncateAddress(txHash)}
+              </Anchor>
+            )
+          }
         })}
       </Flex>
 

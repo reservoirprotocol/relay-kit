@@ -81,7 +81,11 @@ export const calculateExecutionTime = (
     if (startTime && txEndTimestamp) {
       seconds = txEndTimestamp - startTime
       if (seconds > 60) {
-        fillTime = `${relativeTime(txEndTimestamp * 1000, startTime * 1000, true)}`
+        fillTime = `${relativeTime(
+          txEndTimestamp * 1000,
+          startTime * 1000,
+          true
+        )}`
       } else {
         fillTime = `${seconds}s`
       }
@@ -94,17 +98,10 @@ export const calculateExecutionTime = (
 }
 
 export const extractDepositRequestId = (steps?: Execute['steps'] | null) => {
-  let stepItems = steps?.find((step) => step.id === 'deposit')?.items
+  if (!steps?.length) return null
 
-  if (!stepItems && steps && steps[0]) {
-    stepItems = steps[0].items
-  }
-  if (stepItems && stepItems?.length > 0) {
-    const endpoint = stepItems[0].check?.endpoint ?? ''
-    const matches = endpoint.match(/requestId=([^&]*)/)
-    return matches ? matches[1] : null
-  }
-  return null
+  // Find the first step that has a requestId
+  return steps.find((step) => step.requestId)?.requestId || null
 }
 
 export const statusToText = {

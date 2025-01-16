@@ -9,21 +9,26 @@ import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.j
 type ValidatingStepProps = {
   currentStep?: ExecuteStep | null
   currentStepItem?: ExecuteStepItem | null
+  requestId?: string | null
 }
 
 export const ValidatingStep: FC<ValidatingStepProps> = ({
   currentStep,
-  currentStepItem
+  currentStepItem,
+  requestId
 }) => {
   const relayClient = useRelayClient()
   const transactionBaseUrl =
     relayClient?.baseApiUrl && relayClient.baseApiUrl.includes('testnet')
       ? 'https://testnets.relay.link'
       : 'https://relay.link'
-  const txHash =
+
+  const currentTxHash =
     currentStepItem?.txHashes && currentStepItem.txHashes[0]
-      ? currentStepItem.txHashes[0].txHash
+      ? currentStepItem.txHashes[0]
       : undefined
+
+  const urlId = currentTxHash?.isBatchTx ? requestId : currentTxHash?.txHash
 
   return (
     <>
@@ -46,7 +51,7 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
             </Text>
           </Flex>
         ) : null}
-        {txHash && currentStep?.id !== 'approve' ? (
+        {urlId && currentStep?.id !== 'approve' ? (
           <Text
             color="subtle"
             style="body2"
@@ -55,7 +60,7 @@ export const ValidatingStep: FC<ValidatingStepProps> = ({
             Feel free to leave at any time, you can track your progress within
             the{' '}
             <Anchor
-              href={`${transactionBaseUrl}/transaction/${txHash}`}
+              href={`${transactionBaseUrl}/transaction/${urlId}`}
               target="_blank"
               rel="noreffer"
             >
