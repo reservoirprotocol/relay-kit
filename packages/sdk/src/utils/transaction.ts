@@ -78,6 +78,16 @@ export async function sendTransactionSafely(
     headers
   })
 
+  if (chainId === details?.currencyOut?.currency?.chainId) {
+    postSameChainTransactionToSolver({
+      calldata: JSON.stringify({ ...item.data, txHash }),
+      chainId,
+      step,
+      request,
+      headers
+    })
+  }
+
   if (!txHash) {
     throw Error(
       'Transaction hash not returned from handleSendTransactionStep method'
@@ -176,12 +186,22 @@ export async function sendTransactionSafely(
               LogLevel.Verbose
             )
             postTransactionToSolver({
-              txHash: replacementTxHash as Address,
+              txHash: replacementTxHash,
               chainId,
               step,
               request,
               headers
             })
+
+            if (chainId === details?.currencyOut?.currency?.chainId) {
+              postSameChainTransactionToSolver({
+                calldata: JSON.stringify({ ...item.data, replacementTxHash }),
+                chainId,
+                step,
+                request,
+                headers
+              })
+            }
           },
           () => {
             if (signal.aborted) {
@@ -263,6 +283,54 @@ export async function sendTransactionSafely(
   }
 
   return true
+}
+
+const postSameChainTransactionToSolver = async ({
+  calldata,
+  chainId,
+  request,
+  headers,
+  step
+}: {
+  calldata: string
+  chainId: number
+  step: Execute['steps'][0]
+  request: AxiosRequestConfig
+  headers?: AxiosRequestHeaders
+}) => {
+  if (calldata && step.requestId && chainId) {
+    getClient()?.log(
+      ['Posting same chain transaction to notify the solver'],
+      LogLevel.Verbose
+    )
+    try {
+      //TODO: add the proper type
+      const triggerData: any = {
+        tx: calldata,
+        chainId: chainId.toString(),
+        requestId: step.requestId
+      }
+
+      axios
+        .request({
+          url: `${request.baseURL}/transactions/single`,
+          method: 'POST',
+          headers: headers,
+          data: triggerData
+        })
+        .then(() => {
+          getClient()?.log(
+            ['Same chain transaction notified to the solver'],
+            LogLevel.Verbose
+          )
+        })
+    } catch (e) {
+      getClient()?.log(
+        ['Failed to post same chain transaction to solver', e],
+        LogLevel.Warn
+      )
+    }
+  }
 }
 
 const postTransactionToSolver = async ({
