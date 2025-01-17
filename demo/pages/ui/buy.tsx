@@ -167,10 +167,12 @@ const SwapWidgetPage: NextPage = () => {
             baseCurrencyAmount={amount}
             lockAmount="true"
             currencyCode="usdc"
-            paymentMethod="credit_debit_card"
+            // paymentMethod="credit_debit_card"
             walletAddress={depositAddress}
             showWalletAddressForm="false"
             visible
+            //@ts-ignore
+            cex
             onTransactionCompleted={async () => {
               setState('DEPOSIT_ADDRESS')
             }}
