@@ -1,5 +1,20 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.0
+
+### Minor Changes
+
+- 3ae98ed: Add support for batch transactions
+
+### Patch Changes
+
+- e7f0acc: Remove usePrice hook usage from widget
+- 80aba91: Add support for EIP-5792 batch transactions
+- Updated dependencies [3ae98ed]
+- Updated dependencies [80aba91]
+  - @reservoir0x/relay-kit-hooks@1.6.0
+  - @reservoir0x/relay-sdk@1.6.0
+
 ## 2.4.0
 
 ### Minor Changes
