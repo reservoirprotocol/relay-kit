@@ -105,9 +105,13 @@ export async function sendTransactionSafely(
     headers
   })
 
-  if (chainId === details?.currencyOut?.currency?.chainId) {
+  if (
+    !isBatchTransaction &&
+    !Array.isArray(items) &&
+    chainId === details?.currencyOut?.currency?.chainId
+  ) {
     postSameChainTransactionToSolver({
-      calldata: JSON.stringify({ ...item.data, txHash }),
+      calldata: JSON.stringify({ ...items.data, txHash }),
       chainId,
       step,
       request,
