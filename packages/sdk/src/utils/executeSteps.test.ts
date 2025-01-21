@@ -7,7 +7,7 @@ import { MAINNET_RELAY_API } from '../constants/servers'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
-import type { Execute } from '../types'
+import type { ChainVM, Execute } from '../types'
 import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
 import { swapWithApproval } from '../../tests/data/swapWithApproval'
 
@@ -65,12 +65,16 @@ let bridgeData: Execute = JSON.parse(JSON.stringify(executeBridge))
 let swapData: Execute = JSON.parse(JSON.stringify(swapWithApproval))
 
 let wallet = {
+  vmType: 'evm' as ChainVM,
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve('0x'),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
   handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue('0x'),
+  supportsAtomicBatch: vi.fn().mockResolvedValue(false),
+  handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
 }
 
 let client = createClient({
@@ -133,12 +137,16 @@ describe('Should test the executeSteps method.', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm',
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue('0x'),
+      supportsAtomicBatch: vi.fn().mockResolvedValue(false),
+      handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -407,12 +415,16 @@ describe('Should test a signature step.', () => {
     axiosPostSpy = mockAxiosPost()
     bridgeData = JSON.parse(JSON.stringify(executeBridgeAuthorize))
     wallet = {
+      vmType: 'evm' as ChainVM,
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue('0x'),
+      supportsAtomicBatch: vi.fn().mockResolvedValue(false),
+      handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -840,12 +852,16 @@ describe('Base tests', () => {
     bridgeData = JSON.parse(JSON.stringify(executeBridge))
     swapData = JSON.parse(JSON.stringify(swapWithApproval))
     wallet = {
+      vmType: 'evm',
       getChainId: () => Promise.resolve(1),
       transport: http(mainnet.rpcUrls.default.http[0]),
       address: () => Promise.resolve('0x'),
       handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
       handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
-      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x')
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue('0x'),
+      supportsAtomicBatch: vi.fn().mockResolvedValue(false),
+      handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
     }
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
@@ -985,5 +1001,69 @@ describe('Base tests', () => {
         step.items?.every((item) => item.status === 'complete')
       )
     ).toBeTruthy()
+  })
+})
+
+describe('Should test atomic batch transactions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    axiosRequestSpy = mockAxiosRequest()
+    axiosPostSpy = mockAxiosPost()
+    swapData = JSON.parse(JSON.stringify(swapWithApproval))
+    wallet = {
+      vmType: 'evm',
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+      handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+      switchChain: vi.fn().mockResolvedValue('0x'),
+      supportsAtomicBatch: vi.fn().mockResolvedValue(true),
+      handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
+    }
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
+  })
+
+  it('Should use handleBatchTransactionStep when atomic batching is supported', async () => {
+    let batchedSteps: Execute['steps'] | undefined
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {
+        batchedSteps = steps
+      },
+      swapData,
+      undefined
+    )
+
+    // Should call handleBatchTransactionStep once for both approve and swap
+    expect(wallet.handleBatchTransactionStep).toHaveBeenCalledTimes(1)
+    expect(wallet.handleSendTransactionStep).not.toHaveBeenCalled()
+
+    // Verify the steps were combined into a single batched step
+    expect(batchedSteps?.[0].id).toBe('approve-and-swap')
+    expect(batchedSteps?.[0].items?.length).toBe(2)
+  })
+
+  it('Should use handleSendTransactionStep when atomic batching is not supported', async () => {
+    wallet.supportsAtomicBatch = vi.fn().mockResolvedValue(false)
+
+    await executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps, fees, breakdown, details }) => {},
+      swapData,
+      undefined
+    )
+
+    // Should call handleSendTransactionStep twice - once for approve and once for swap
+    expect(wallet.handleBatchTransactionStep).not.toHaveBeenCalled()
+    expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(2)
   })
 })

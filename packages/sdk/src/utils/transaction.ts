@@ -24,7 +24,7 @@ import { repeatUntilOk } from '../utils/repeatUntilOk.js'
  */
 export async function sendTransactionSafely(
   chainId: number,
-  item: TransactionStepItem,
+  items: TransactionStepItem | TransactionStepItem[],
   step: Execute['steps'][0],
   wallet: AdaptedWallet,
   setTxHashes: (
@@ -65,11 +65,38 @@ export async function sendTransactionSafely(
   let waitingForConfirmation = true
   let attemptCount = 0
 
-  let txHash = await wallet.handleSendTransactionStep(chainId, item, step)
+  let txHash: string | undefined
+
+  // Check if batching txs is supported and if there are multiple items to batch
+  const isBatchTransaction = Boolean(
+    Array.isArray(items) &&
+      items.length > 1 &&
+      wallet.handleBatchTransactionStep
+  )
+
+  if (isBatchTransaction) {
+    txHash = await wallet.handleBatchTransactionStep?.(
+      chainId,
+      items as TransactionStepItem[]
+    )
+  } else {
+    txHash = await wallet.handleSendTransactionStep(
+      chainId,
+      Array.isArray(items) ? items[0] : items,
+      step
+    )
+  }
+
   if ((txHash as any) === 'null') {
     throw 'User rejected the request'
   }
 
+  // Find the first item with a check endpoint
+  const check = Array.isArray(items)
+    ? items.find((item) => item.check)?.check
+    : items.check
+
+  // Post transaction to solver
   postTransactionToSolver({
     txHash,
     chainId,
@@ -93,7 +120,9 @@ export async function sendTransactionSafely(
       'Transaction hash not returned from handleSendTransactionStep method'
     )
   }
-  setTxHashes([{ txHash: txHash, chainId: chainId }])
+  setTxHashes([
+    { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+  ])
 
   //Set up internal functions
   const validate = (res: AxiosResponse) => {
@@ -110,7 +139,9 @@ export async function sendTransactionSafely(
     }
     if (res.status === 200 && res.data && res.data.status === 'success') {
       if (txHash) {
-        setInternalTxHashes([{ txHash: txHash, chainId: chainId }])
+        setInternalTxHashes([
+          { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+        ])
       }
 
       const chainTxHashes: NonNullable<
@@ -136,10 +167,10 @@ export async function sendTransactionSafely(
       !transactionCancelled
     ) {
       let res
-      if (item?.check?.endpoint && !request?.data?.useExternalLiquidity) {
+      if (check?.endpoint && !request?.data?.useExternalLiquidity) {
         res = await axios.request({
-          url: `${request.baseURL}${item?.check?.endpoint}`,
-          method: item?.check?.method,
+          url: `${request.baseURL}${check?.endpoint}`,
+          method: check?.method,
           headers: headers
         })
       }
@@ -242,12 +273,14 @@ export async function sendTransactionSafely(
     return true
   }
 
-  //Sequence internal functions
-  // We want synchronous execution in the following cases:
-  // - Approval Signature step required first
-  // - Bitcoin is the destination
-  // - Canonical route used
-  if (
+  if (isBatchTransaction) {
+    await pollForConfirmation() // Rely on the solver to confirm batch transactions
+  } else if (
+    //Sequence internal functions
+    // We want synchronous execution in the following cases:
+    // - Approval Signature step required first
+    // - Bitcoin is the destination
+    // - Canonical route used
     step.id === 'approve' ||
     details?.currencyOut?.currency?.chainId === 8253038 ||
     request?.data?.useExternalLiquidity
@@ -274,7 +307,7 @@ export async function sendTransactionSafely(
     }
 
     if (!receipt) {
-      if (!item.check) {
+      if (!check) {
         await receiptPromise
       } else {
         receiptController.abort()

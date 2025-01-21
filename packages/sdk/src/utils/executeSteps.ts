@@ -10,6 +10,10 @@ import type { AxiosRequestConfig } from 'axios'
 import { getClient } from '../client.js'
 import { LogLevel } from '../utils/logger.js'
 import { sendTransactionSafely } from './transaction.js'
+import {
+  canBatchTransactions,
+  prepareBatchTransaction
+} from './prepareBatchTransaction.js'
 
 export type SetStateData = Pick<
   Execute,
@@ -61,6 +65,7 @@ export async function executeSteps(
   }
 
   let json = newJson
+  let isAtomicBatchSupported = false
   try {
     if (!json) {
       client.log(['Execute Steps: Fetching Steps', request], LogLevel.Verbose)
@@ -72,6 +77,19 @@ export async function executeSteps(
 
     // Handle errors
     if (json.error || !json.steps) throw json
+
+    // Check if step's transactions can be batched and if wallet supports atomic batch
+    // If so, manipulate steps to batch transactions
+    if (canBatchTransactions(json.steps)) {
+      isAtomicBatchSupported = Boolean(
+        wallet?.supportsAtomicBatch &&
+          (await wallet?.supportsAtomicBatch(chainId))
+      )
+      if (isAtomicBatchSupported) {
+        const batchedStep = prepareBatchTransaction(json.steps)
+        json.steps = [batchedStep]
+      }
+    }
 
     // Update state on first call or recursion
     setState({
@@ -207,9 +225,15 @@ export async function executeSteps(
                     details: json?.details
                   })
 
+                  // If atomic batch is supported and first item in step, batch all items in the step
+                  const transactionStepItems =
+                    isAtomicBatchSupported && incompleteStepItemIndex === 0
+                      ? stepItems
+                      : stepItem
+
                   await sendTransactionSafely(
                     transactionChainId,
-                    stepItem as TransactionStepItem,
+                    transactionStepItems as TransactionStepItem[],
                     step,
                     wallet,
                     (txHashes) => {

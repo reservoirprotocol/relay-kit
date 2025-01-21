@@ -30,6 +30,7 @@ import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { pipe } from '@dynamic-labs/utils'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
+import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -172,7 +173,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
-              EclipseWalletConnectors
+              EclipseWalletConnectors,
+              AbstractEvmWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {
