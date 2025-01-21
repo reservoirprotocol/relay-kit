@@ -32,6 +32,7 @@ import { pipe } from '@dynamic-labs/utils'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import dynamic from 'next/dynamic'
+import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
 const MoonPayProvider = dynamic(
   () => import('@moonpay/moonpay-react').then((mod) => mod.MoonPayProvider),
@@ -179,7 +180,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
-              EclipseWalletConnectors
+              EclipseWalletConnectors,
+              AbstractEvmWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

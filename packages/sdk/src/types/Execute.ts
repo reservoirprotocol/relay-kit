@@ -55,10 +55,12 @@ export type Execute = {
       txHashes?: {
         txHash: string
         chainId: number
+        isBatchTx?: boolean
       }[]
       internalTxHashes?: {
         txHash: string
         chainId: number
+        isBatchTx?: boolean
       }[]
       errorData?: any
       orderData?: {
