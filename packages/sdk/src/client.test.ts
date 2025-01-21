@@ -35,7 +35,7 @@ describe('Should test the client.', () => {
             id: 1,
             name: 'Ethereum',
             displayName: 'Ethereum',
-            httpRpcUrl: 'https://eth.merkle.io',
+            httpRpcUrl: 'https://cloudflare-eth.com',
             wsRpcUrl: '',
             explorerUrl: 'https://etherscan.io',
             depositEnabled: true
@@ -108,7 +108,7 @@ describe('Should test the client.', () => {
             id: 1,
             name: 'Ethereum',
             displayName: 'Ethereum',
-            httpRpcUrl: 'https://eth.merkle.io',
+            httpRpcUrl: 'https://cloudflare-eth.com',
             wsRpcUrl: '',
             explorerUrl: 'https://etherscan.io',
             depositEnabled: true
