@@ -85,12 +85,6 @@ export async function execute(data: ExecuteActionParameters) {
             }
           }
         : undefined
-          ? {
-              deposit: {
-                gasLimit: depositGasLimit
-              }
-            }
-          : undefined
     )
     return data
   } catch (err: any) {
