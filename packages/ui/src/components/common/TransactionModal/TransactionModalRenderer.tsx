@@ -41,9 +41,14 @@ export enum TransactionProgressStep {
   Error
 }
 
-export type TxHashes = { txHash: string; chainId: number }[]
+export type TxHashes = {
+  txHash: string
+  chainId: number
+  isBatchTx?: boolean
+}[]
 
 export type ChildrenProps = {
+  wallet?: AdaptedWallet
   progressStep: TransactionProgressStep
   setProgressStep: Dispatch<SetStateAction<TransactionProgressStep>>
   currentStep?: ExecuteStep | null
@@ -426,22 +431,23 @@ export const TransactionModalRenderer: FC<Props> = ({
     }
   }, [steps, quoteError, swapError])
 
+  const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
+
   // Fetch Success Tx
   const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
     (progressStep === TransactionProgressStep.Success ||
       progressStep === TransactionProgressStep.Error) &&
-      allTxHashes[0]
-      ? {
-          user: address,
-          hash: allTxHashes[0]?.txHash
-        }
+      (requestId || allTxHashes[0])
+      ? requestId
+        ? { id: requestId }
+        : { hash: allTxHashes[0]?.txHash, user: address }
       : undefined,
     relayClient?.baseApiUrl,
     {
       enabled:
         (progressStep === TransactionProgressStep.Success ||
           progressStep === TransactionProgressStep.Error) &&
-        allTxHashes[0]
+        (requestId || allTxHashes[0])
           ? true
           : false
     }
@@ -450,8 +456,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   const { fillTime, seconds } = calculateFillTime(transaction)
   const { fillTime: executionTime, seconds: executionTimeSeconds } =
     calculateExecutionTime(Math.floor(startTimestamp / 1000), transaction)
-
-  const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
 
   const feeBreakdown = useMemo(() => {
     const chains = relayClient?.chains
@@ -465,6 +469,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   return (
     <>
       {children({
+        wallet,
         progressStep,
         setProgressStep,
         currentStep,

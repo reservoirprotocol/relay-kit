@@ -34,4 +34,11 @@ export type AdaptedWallet = {
   address: () => Promise<string>
   switchChain: (chainId: number) => Promise<void>
   transport?: CustomTransport | HttpTransport
+  // evm wallets that support EIP-5792's atomic batch capability
+  // https://www.eip5792.xyz/capabilities/atomicBatch
+  supportsAtomicBatch?: (chainId: number) => Promise<boolean>
+  handleBatchTransactionStep?: (
+    chainId: number,
+    items: TransactionStepItem[]
+  ) => Promise<string | undefined>
 }
