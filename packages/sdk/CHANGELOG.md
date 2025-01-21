@@ -1,5 +1,15 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.0
+
+### Minor Changes
+
+- 3ae98ed: Add support for batch transactions
+
+### Patch Changes
+
+- 80aba91: Add support for EIP-5792 batch transactions
+
 ## 1.5.0
 
 ### Minor Changes
