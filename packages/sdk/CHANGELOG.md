@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.1
+
+### Patch Changes
+
+- 5a9208f: Post same chain tx to solver to fix status timeout errors
+
 ## 1.6.0
 
 ### Minor Changes
