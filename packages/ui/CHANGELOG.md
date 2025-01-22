@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.1
+
+### Patch Changes
+
+- Updated dependencies [5a9208f]
+  - @reservoir0x/relay-sdk@1.6.1
+  - @reservoir0x/relay-kit-hooks@1.6.1
+
 ## 2.5.0
 
 ### Minor Changes
