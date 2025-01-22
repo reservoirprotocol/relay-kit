@@ -1,15 +1,20 @@
 import { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { useState, type FC, type ReactNode } from 'react'
+import { useMemo, useState, type FC, type ReactNode } from 'react'
 import useRelayClient from '../../../hooks/useRelayClient.js'
 import { parseUnits } from 'viem'
+import { getDeadAddress, type Execute } from '@reservoir0x/relay-sdk'
+import { extractDepositAddress } from '../../../utils/quote.js'
 
 export type ChildrenProps = {
   depositAddress?: string
   recipient?: string
   setRecipient?: React.Dispatch<React.SetStateAction<string | undefined>>
+  amount: string
+  setAmount: React.Dispatch<React.SetStateAction<string>>
 }
 
 type OnrampWidgetRendererProps = {
+  defaultWalletAddress?: string
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -36,27 +41,32 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({ children }) => {
       useDepositAddress: true,
       tradeType: 'EXACT_INPUT',
       amount: parseUnits(amount, 6).toString(),
-      user: '0x000000000000000000000000000000000000dead'
+      user: getDeadAddress(),
+      recipient
     },
     undefined,
     undefined,
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      refetchOnReconnect: false
+      refetchOnReconnect: false,
+      enabled: recipient !== undefined
     }
   )
 
-  const depositAddress = quote?.data?.steps?.find(
-    (step) => step.depositAddress
-  )?.depositAddress
+  const depositAddress = useMemo(
+    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
+    [quote]
+  )
 
   return (
     <>
       {children({
         depositAddress,
         recipient,
-        setRecipient
+        setRecipient,
+        amount,
+        setAmount
       })}
     </>
   )

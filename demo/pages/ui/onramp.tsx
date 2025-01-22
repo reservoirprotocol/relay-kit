@@ -4,7 +4,11 @@ import { useTheme } from 'next-themes'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { DepositAddressModal, useRelayClient } from '@reservoir0x/relay-kit-ui'
+import {
+  DepositAddressModal,
+  OnrampWidget,
+  useRelayClient
+} from '@reservoir0x/relay-kit-ui'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { Execute } from '@reservoir0x/relay-sdk'
 
@@ -27,7 +31,7 @@ export const formatSeconds = (seconds: number): string => {
   return `${dDisplay} ${hDisplay} ${mDisplay} ${sDisplay}`.trim()
 }
 
-const SwapWidgetPage: NextPage = () => {
+const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
   const [currency, setCurrency] = useState(
     '7560_0x0000000000000000000000000000000000000000'
@@ -87,7 +91,18 @@ const SwapWidgetPage: NextPage = () => {
         background: theme === 'light' ? 'rgba(245, 242, 255, 1)' : '#1c172b'
       }}
     >
-      {state === 'CURRENCY_SELECTION' ? (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          paddingTop: 50
+        }}
+      >
+        <OnrampWidget />
+      </div>
+      {/* {state === 'CURRENCY_SELECTION' ? (
         <div
           style={{
             display: 'flex',
@@ -219,9 +234,9 @@ const SwapWidgetPage: NextPage = () => {
           timeEstimate={timeEstimate}
           invalidateBalanceQueries={() => {}}
         />
-      ) : null}
+      ) : null} */}
     </Layout>
   )
 }
 
-export default SwapWidgetPage
+export default OnrampPage
