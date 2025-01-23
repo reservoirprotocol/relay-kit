@@ -1,20 +1,86 @@
 import type { FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
-import { Flex, Text } from '../../primitives/index.js'
+import { Box, Button, Flex, Text } from '../../primitives/index.js'
 import AmountInput from '../../common/AmountInput.js'
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faArrowDownLong,
+  faArrowUpLong,
+  faClipboard
+} from '@fortawesome/free-solid-svg-icons'
+import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
+import { EventNames } from '../../../constants/events.js'
+import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
+import type { LinkedWallet } from '~sdk/types/index.js'
+import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
+import { MultiWalletDropdown } from '~sdk/components/common/MultiWalletDropdown.js'
+import { CustomAddressModal } from '~sdk/components/common/CustomAddressModal.js'
+import { useAccount } from 'wagmi'
 
-type OnrampWidgetProps = {
+type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
+  supportedWalletVMs: ChainVM[]
+  onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
-const OnrampWidget: FC<OnrampWidgetProps> = ({ defaultWalletAddress }) => {
+type MultiWalletDisabledProps = BaseOnrampWidgetProps & {
+  multiWalletSupportEnabled?: false
+  linkedWallets?: never
+  onSetPrimaryWallet?: never
+  onLinkNewWallet?: never
+}
+
+type MultiWalletEnabledProps = BaseOnrampWidgetProps & {
+  multiWalletSupportEnabled: true
+  linkedWallets: LinkedWallet[]
+  onSetPrimaryWallet?: (address: string) => void
+  onLinkNewWallet: (params: {
+    chain?: RelayChain
+    direction: 'to' | 'from'
+  }) => Promise<LinkedWallet> | void
+}
+
+export type OnrampWidgetProps =
+  | MultiWalletDisabledProps
+  | MultiWalletEnabledProps
+
+const OnrampWidget: FC<OnrampWidgetProps> = ({
+  defaultWalletAddress,
+  linkedWallets,
+  multiWalletSupportEnabled,
+  supportedWalletVMs,
+  onConnectWallet,
+  onLinkNewWallet,
+  onSetPrimaryWallet,
+  onAnalyticEvent
+}) => {
   const relayClient = useRelayClient()
+  const [displayCurrency, setDisplayCurrency] = useState(false)
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const { isConnected } = useAccount()
 
   return (
-    <OnrampWidgetRenderer defaultWalletAddress={defaultWalletAddress}>
-      {({ depositAddress, recipient, setRecipient, amount, setAmount }) => {
+    <OnrampWidgetRenderer
+      defaultWalletAddress={defaultWalletAddress}
+      supportedWalletVMs={supportedWalletVMs}
+    >
+      {({
+        depositAddress,
+        recipient,
+        setRecipient,
+        isRecipientLinked,
+        isValidRecipient,
+        amount,
+        setAmount,
+        token,
+        setToken,
+        toChain,
+        toDisplayName,
+        toChainWalletVMSupported
+      }) => {
         const formattedAmount =
           amount === ''
             ? ''
@@ -28,7 +94,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({ defaultWalletAddress }) => {
               : new Intl.NumberFormat(undefined, {
                   style: 'currency',
                   currency: 'USD',
-                  minimumFractionDigits: 0, // Do not force decimal places
+                  minimumFractionDigits: amount.includes('.0')
+                    ? 1
+                    : amount.endsWith('0') && amount.includes('.')
+                      ? 2
+                      : 0,
                   maximumFractionDigits: amount.includes('.') ? 2 : 0
                 }).format(+amount)
 
@@ -64,32 +134,242 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({ defaultWalletAddress }) => {
                   <div>FIAT SELECTOR</div>
                 </Flex>
                 <AmountInput
-                  value={formattedAmount}
+                  value={displayCurrency ? '0.03' : formattedAmount}
                   setValue={(e) => {
                     setAmount(e)
                   }}
-                  onChange={(e) => {
-                    const inputValue = (e.target as HTMLInputElement).value
-                    const numericValue = inputValue.replace(/[^0-9.]/g, '') // Extract numerical value
-                    const regex = /^[0-9]+(\.[0-9]*)?$/
-                    if (numericValue === '.' || numericValue.includes(',')) {
-                      setAmount('0.')
-                    } else if (
-                      regex.test(numericValue) ||
-                      numericValue === ''
-                    ) {
-                      setAmount(numericValue)
-                    }
-                  }}
+                  placeholder={displayCurrency ? '0' : '$0'}
+                  onChange={
+                    displayCurrency
+                      ? undefined
+                      : (e) => {
+                          const inputValue = (e.target as HTMLInputElement)
+                            .value
+                          const numericValue = inputValue
+                            .replace(/[^0-9.]/g, '')
+                            .replace(/(\..*?)(\..*)/, '$1')
+                            .replace(/(\.\d{2})\d+/, '$1')
+                          const regex = /^[0-9]+(\.[0-9]*)?$/
+                          console.log(numericValue)
+                          if (
+                            numericValue === '.' ||
+                            numericValue.includes(',')
+                          ) {
+                            setAmount('0.')
+                          } else if (
+                            regex.test(numericValue) ||
+                            numericValue === ''
+                          ) {
+                            setAmount(numericValue)
+                          }
+                        }
+                  }
                   css={{
                     fontWeight: '700',
                     fontSize: 48,
                     lineHeight: '58px',
-                    py: 0
+                    py: 0,
+                    textAlign: 'center',
+                    mb: '2'
                   }}
                 />
+                <button
+                  style={{
+                    gap: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '16px'
+                  }}
+                  onClick={() => {
+                    setDisplayCurrency(!displayCurrency)
+                  }}
+                >
+                  <Text style="body2" color="subtle">
+                    {displayCurrency ? formattedAmount : '0.03 ETH'}
+                  </Text>
+                  <Flex
+                    css={{
+                      color: 'gray8'
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      style={{ height: 14 }}
+                      icon={faArrowUpLong}
+                    />
+                    <FontAwesomeIcon
+                      style={{ height: 14 }}
+                      icon={faArrowDownLong}
+                    />
+                  </Flex>
+                </button>
+                <TokenSelector
+                  type={'token'}
+                  // address={address} //TODO
+                  // isValidAddress={isValidFromAddress}
+                  token={token}
+                  onAnalyticEvent={onAnalyticEvent}
+                  depositAddressOnly={true}
+                  // restrictedToken={toToken}
+                  setToken={(token) => {
+                    onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+                      direction: 'input',
+                      token_symbol: token.symbol
+                    })
+                    setToken(token)
+                  }}
+                  context="to"
+                  size={'desktop'}
+                  trigger={
+                    <div
+                      style={{
+                        width: 'max-content',
+                        margin: '0 auto',
+                        marginBottom: '16px'
+                      }}
+                    >
+                      <TokenTrigger token={token} />
+                    </div>
+                  }
+                />
+                <Flex css={{ gap: '2', margin: '0 auto' }}>
+                  <Button
+                    color="white"
+                    corners="pill"
+                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    onClick={() => {
+                      setAmount('100')
+                    }}
+                  >
+                    <Text style="subtitle2">$100</Text>
+                  </Button>
+                  <Button
+                    color="white"
+                    corners="pill"
+                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    onClick={() => {
+                      setAmount('300')
+                    }}
+                  >
+                    <Text style="subtitle2">$300</Text>
+                  </Button>
+                  <Button
+                    color="white"
+                    corners="pill"
+                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    onClick={() => {
+                      setAmount('1000')
+                    }}
+                  >
+                    <Text style="subtitle2">$1,000</Text>
+                  </Button>
+                </Flex>
+                <Box
+                  css={{
+                    width: '100%',
+                    height: 1,
+                    my: '3',
+                    background: 'gray5'
+                  }}
+                />
+                <Flex justify="between" align="center">
+                  <Text color="subtle" style="subtitle2">
+                    Recipient
+                  </Text>
+                  {multiWalletSupportEnabled === true &&
+                  toChainWalletVMSupported ? (
+                    <MultiWalletDropdown
+                      context="origin"
+                      selectedWalletAddress={recipient}
+                      onSelect={(wallet) =>
+                        onSetPrimaryWallet?.(wallet.address)
+                      }
+                      chain={toChain}
+                      onLinkNewWallet={() => {
+                        if (!recipient && toChainWalletVMSupported) {
+                          onConnectWallet?.()
+                        } else {
+                          onLinkNewWallet?.({
+                            chain: toChain,
+                            direction: 'to'
+                          })?.then((wallet) => {
+                            onSetPrimaryWallet?.(wallet.address)
+                          })
+                        }
+                      }}
+                      setAddressModalOpen={setAddressModalOpen}
+                      wallets={linkedWallets!}
+                      onAnalyticEvent={onAnalyticEvent}
+                    />
+                  ) : null}
+                  {!multiWalletSupportEnabled || !toChainWalletVMSupported ? (
+                    <Button
+                      color={
+                        isValidRecipient && !isRecipientLinked
+                          ? 'warning'
+                          : 'secondary'
+                      }
+                      corners="pill"
+                      size="none"
+                      css={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        px: '2',
+                        py: '1'
+                      }}
+                      onClick={() => {
+                        setAddressModalOpen(true)
+                        onAnalyticEvent?.(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
+                      }}
+                    >
+                      {isValidRecipient && !isRecipientLinked ? (
+                        <Box css={{ color: 'amber11' }}>
+                          <FontAwesomeIcon
+                            icon={faClipboard}
+                            width={16}
+                            height={16}
+                          />
+                        </Box>
+                      ) : null}
+                      <Text
+                        style="subtitle2"
+                        css={{
+                          color:
+                            isValidRecipient && !isRecipientLinked
+                              ? 'amber11'
+                              : 'secondary-button-color'
+                        }}
+                      >
+                        {!isValidRecipient ? `Enter Address` : toDisplayName}
+                      </Text>
+                    </Button>
+                  ) : null}
+                </Flex>
               </Flex>
             </Flex>
+            <CustomAddressModal
+              open={addressModalOpen}
+              toAddress={recipient}
+              toChain={toChain}
+              isConnected={
+                (linkedWallets && linkedWallets.length > 0) || isConnected
+                  ? true
+                  : false
+              }
+              linkedWallets={linkedWallets ?? []}
+              multiWalletSupportEnabled={multiWalletSupportEnabled}
+              onAnalyticEvent={onAnalyticEvent}
+              onOpenChange={(open) => {
+                setAddressModalOpen(open)
+              }}
+              onConfirmed={(address) => {
+                setRecipient(address)
+              }}
+              onClear={() => {
+                setRecipient(undefined)
+              }}
+            />
           </div>
         )
       }}

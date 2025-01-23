@@ -117,6 +117,13 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           //   }
           // ]
         }}
+        theme={{
+          input: {
+            background: 'green',
+            borderRadius: '8px',
+            color: 'red'
+          }
+        }}
         // theme={
         //   {
         // primaryColor: 'red',

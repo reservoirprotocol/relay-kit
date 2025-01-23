@@ -209,11 +209,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         defaultList: false,
         limit: 20,
         ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
-        useExternalSearch: true,
-        depositAddressOnly
+        useExternalSearch: true
       },
       {
-        enabled: !!debouncedTokenSearchValue
+        enabled: !!debouncedTokenSearchValue && !depositAddressOnly
       }
     )
 
