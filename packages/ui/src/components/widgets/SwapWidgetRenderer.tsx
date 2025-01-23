@@ -246,7 +246,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCustomToAddress
   ])
 
-  const recipient = customToAddress ?? defaultRecipient
+  const recipient = customToAddress ?? defaultRecipient ?? address
 
   const { displayName: toDisplayName } = useENSResolver(recipient, {
     enabled: toChain?.vmType === 'evm'
@@ -362,6 +362,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     recipient ?? '',
     toChain?.id
   )
+
   const toAddressWithFallback = addressWithFallback(
     toChain?.vmType,
     recipient,
