@@ -805,13 +805,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           fontSize: 28,
                           color:
                             isFetchingQuote && tradeType === 'EXACT_INPUT'
-                              ? 'gray11'
-                              : 'gray12',
+                              ? 'text-subtle'
+                              : 'input-color',
                           _placeholder: {
                             color:
                               isFetchingQuote && tradeType === 'EXACT_INPUT'
-                                ? 'gray11'
-                                : 'gray12'
+                                ? 'text-subtle'
+                                : 'input-color'
                           },
                           _disabled: {
                             cursor: 'not-allowed',
