@@ -51,6 +51,9 @@ const SwapWidgetPage: NextPage = () => {
       }
     | undefined
   >()
+  const [slippageTolerance, setSlippageTolerance] = useState<
+    string | undefined
+  >(undefined)
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.reduce((linkedWallets, wallet) => {
@@ -262,6 +265,7 @@ const SwapWidgetPage: NextPage = () => {
           onSwapSuccess={(data) => {
             console.log('onSwapSuccess Triggered', data)
           }}
+          slippageTolerance={slippageTolerance}
         />
       </div>
       <div
@@ -278,6 +282,23 @@ const SwapWidgetPage: NextPage = () => {
             type="checkbox"
             checked={singleChainMode}
             onChange={(e) => setSingleChainMode(e.target.checked)}
+          />
+        </div>
+        <div style={{ marginTop: '20px' }}>
+          <label>
+            Slippage Tolerance (basis points - 50 for 0.5% slippage):{' '}
+          </label>
+          <input
+            type="number"
+            min="0"
+            max="10000"
+            value={slippageTolerance ?? ''}
+            onChange={(e) =>
+              setSlippageTolerance(
+                e.target.value === '' ? undefined : e.target.value
+              )
+            }
+            placeholder="auto"
           />
         </div>
       </div>
