@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.3
+
+### Patch Changes
+
+- f0c558e: Add slippageTolerance prop to swap widget
+
 ## 2.5.2
 
 ### Patch Changes
