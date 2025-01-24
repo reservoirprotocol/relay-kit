@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.2
+
+### Patch Changes
+
+- 27b298c: Fix theme token usage for inputs
+- 2abfa1a: Fix recipient bug when multi wallet support is not enabled
+
 ## 2.5.1
 
 ### Patch Changes
