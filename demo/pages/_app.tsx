@@ -170,7 +170,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             logLevel: 'INFO',
             environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
             walletConnectors: [
-              EthereumWalletConnectors,
+              // EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
               EclipseWalletConnectors,
