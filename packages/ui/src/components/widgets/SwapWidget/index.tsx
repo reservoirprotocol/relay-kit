@@ -45,6 +45,7 @@ type BaseSwapWidgetProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
+  slippageTolerance?: string
   lockToToken?: boolean
   lockFromToken?: boolean
   lockChainId?: number
@@ -86,6 +87,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  slippageTolerance,
   lockToToken = false,
   lockFromToken = false,
   lockChainId,
@@ -133,6 +135,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
+      slippageTolerance={slippageTolerance}
       wallet={wallet}
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
@@ -187,6 +190,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isValidToAddress,
         supportsExternalLiquidity,
         useExternalLiquidity,
+        slippageTolerance,
         canonicalTimeEstimate,
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
@@ -318,6 +322,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
+            slippageTolerance={slippageTolerance}
             onSwapSuccess={onSwapSuccess}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
