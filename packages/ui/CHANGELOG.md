@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.4
+
+### Patch Changes
+
+- 72cdfad: Update radix dialog version
+
 ## 2.5.3
 
 ### Patch Changes
