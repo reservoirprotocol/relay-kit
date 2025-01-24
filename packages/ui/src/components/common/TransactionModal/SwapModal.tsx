@@ -38,6 +38,7 @@ type SwapModalProps = {
   customToAddress?: Address | string
   tradeType: TradeType
   useExternalLiquidity: boolean
+  slippageTolerance?: string
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
@@ -62,6 +63,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     amountInputValue,
     amountOutputValue,
     useExternalLiquidity,
+    slippageTolerance,
     timeEstimate,
     isCanonical,
     wallet,
@@ -82,6 +84,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
       debouncedOutputAmountValue={debouncedOutputAmountValue}
       tradeType={tradeType}
       useExternalLiquidity={useExternalLiquidity}
+      slippageTolerance={slippageTolerance}
       address={address}
       recipient={recipient}
       wallet={wallet}

@@ -49,6 +49,7 @@ type SwapWidgetRendererProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: TradeType
+  slippageTolerance?: string
   context: 'Swap' | 'Deposit' | 'Withdraw'
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
@@ -115,6 +116,7 @@ export type ChildrenProps = {
   ctaCopy: string
   isFromNative: boolean
   useExternalLiquidity: boolean
+  slippageTolerance?: string
   supportsExternalLiquidity: boolean
   timeEstimate?: { time: number; formattedTime: string }
   canonicalTimeEstimate?: { time: number; formattedTime: string }
@@ -141,6 +143,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  slippageTolerance,
   context,
   wallet,
   multiWalletSupportEnabled = false,
@@ -404,6 +407,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? true
       : false
 
+  const [currentSlippageTolerance, setCurrentSlippageTolerance] = useState<
+    string | undefined
+  >(slippageTolerance)
+
+  useEffect(() => {
+    setCurrentSlippageTolerance(slippageTolerance)
+  }, [slippageTolerance])
+
   const quoteParameters =
     fromToken && toToken
       ? {
@@ -427,7 +438,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
-          useDepositAddress: !fromChainWalletVMSupported
+          useDepositAddress: !fromChainWalletVMSupported,
+          slippageTolerance: slippageTolerance
         }
       : undefined
 
@@ -690,6 +702,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ctaCopy,
         isFromNative,
         useExternalLiquidity,
+        slippageTolerance: currentSlippageTolerance,
         supportsExternalLiquidity,
         timeEstimate,
         canonicalTimeEstimate,
