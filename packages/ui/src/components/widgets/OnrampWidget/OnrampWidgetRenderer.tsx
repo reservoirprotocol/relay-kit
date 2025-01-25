@@ -10,10 +10,11 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { extractDepositAddress } from '../../../utils/quote.js'
 import type { LinkedWallet, Token } from '../../../types/index.js'
-import useENSResolver from '~sdk/hooks/useENSResolver.js'
+import useENSResolver from '../../../hooks/useENSResolver.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
-import { findSupportedWallet, isValidAddress } from '~sdk/utils/address.js'
+import { findSupportedWallet, isValidAddress } from '../../../utils/address.js'
 import useWalletAddress from '../../../hooks/useWalletAddress.js'
+import useMoonpayQuote from '../../../hooks/useMoonpayQuote.js'
 
 export type ChildrenProps = {
   depositAddress?: string
@@ -23,11 +24,14 @@ export type ChildrenProps = {
   isValidRecipient: boolean
   amount: string
   setAmount: React.Dispatch<React.SetStateAction<string>>
+  fiatCurrency: string
+  setFiatCurrency: React.Dispatch<React.SetStateAction<string>>
   token: Token
   setToken: React.Dispatch<React.SetStateAction<Token>>
   toChain?: RelayChain
   toDisplayName?: string
   toChainWalletVMSupported?: boolean
+  totalAmount: number | null
 }
 
 type OnrampWidgetRendererProps = {
@@ -35,6 +39,7 @@ type OnrampWidgetRendererProps = {
   supportedWalletVMs: ChainVM[]
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  moonpayApiKey?: string
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -43,6 +48,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   multiWalletSupportEnabled,
+  moonpayApiKey,
   children
 }) => {
   const client = useRelayClient()
@@ -62,6 +68,19 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   )
   const toChainWalletVMSupported =
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
+
+  const fromChain = useMemo(
+    () =>
+      client?.chains.find(
+        (chain) => chain.id === (token.chainId === 8453 ? 10 : 8453)
+      ),
+    [token, client?.chains]
+  )
+  const fromCurrency =
+    fromChain && fromChain.id === 8453
+      ? '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+      : '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
+
   const [amount, setAmount] = useState('20')
   const [recipient, setRecipient] = useState<string | undefined>(
     defaultWalletAddress
@@ -69,40 +88,14 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   const { displayName: toDisplayName } = useENSResolver(recipient, {
     enabled: toChain?.vmType === 'evm'
   })
-  const quote = useQuote(
-    client ?? undefined,
-    undefined,
-    {
-      originChainId: 1,
-      originCurrency: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      destinationChainId: token?.chainId,
-      destinationCurrency: token?.address,
-      useDepositAddress: true,
-      tradeType: 'EXACT_INPUT',
-      amount: parseUnits(amount, 6).toString(),
-      user: getDeadAddress(),
-      recipient
-    },
-    undefined,
-    undefined,
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      enabled: recipient !== undefined
-    }
-  )
 
-  const depositAddress = useMemo(
-    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
-    [quote]
-  )
+  const [fiatCurrency, setFiatCurrency] = useState('usd')
 
   const address = useWalletAddress(undefined, linkedWallets)
 
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
-      (linkedWallet) => address === linkedWallet.address
+      (linkedWallet) => recipient === linkedWallet.address
     )
     const _isValidRecipient = isValidAddress(
       toChain?.vmType,
@@ -151,6 +144,61 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     toChain?.id
   )
 
+  const moonpayQuote = useMoonpayQuote(
+    'usdc_base',
+    +amount >= 20
+      ? {
+          baseCurrencyCode: fiatCurrency,
+          quoteCurrencyAmount: +amount,
+          paymentMethod: 'credit_debit_card',
+          apiKey: moonpayApiKey
+        }
+      : undefined,
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false
+    }
+  )
+
+  const quote = useQuote(
+    client ?? undefined,
+    undefined,
+    {
+      originChainId: fromChain?.id ?? 8453,
+      originCurrency: fromCurrency, //usdc
+      destinationChainId: token?.chainId,
+      destinationCurrency: token?.address,
+      useDepositAddress: true,
+      tradeType: 'EXACT_INPUT',
+      amount: parseUnits(amount, 6).toString(),
+      user: getDeadAddress(),
+      recipient: _recipient
+    },
+    undefined,
+    undefined,
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      enabled: _recipient !== undefined
+    }
+  )
+
+  const depositAddress = useMemo(
+    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
+    [quote]
+  )
+
+  const relayFees = quote.data?.fees
+    ? Number(quote.data.fees.relayer?.amountUsd ?? 0) +
+      Number(quote.data.fees.app?.amountUsd ?? 0)
+    : null
+  const totalAmount =
+    moonpayQuote.data?.totalAmount && relayFees
+      ? moonpayQuote.data?.totalAmount + relayFees
+      : null
+
   return (
     <>
       {children({
@@ -165,7 +213,10 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         setToken,
         toChain,
         toDisplayName,
-        toChainWalletVMSupported
+        toChainWalletVMSupported,
+        fiatCurrency,
+        setFiatCurrency,
+        totalAmount
       })}
     </>
   )

@@ -1,27 +1,32 @@
 import type { FC } from 'react'
-import { useRelayClient } from '../../../hooks/index.js'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
-import { Box, Button, Flex, Text } from '../../primitives/index.js'
+import { Box, Button, Flex, Pill, Text } from '../../primitives/index.js'
 import AmountInput from '../../common/AmountInput.js'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDownLong,
   faArrowUpLong,
-  faClipboard
+  faChevronDown,
+  faClipboard,
+  faCreditCard
 } from '@fortawesome/free-solid-svg-icons'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { EventNames } from '../../../constants/events.js'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { LinkedWallet } from '~sdk/types/index.js'
+import type { LinkedWallet } from '../../../types/index.js'
 import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
-import { MultiWalletDropdown } from '~sdk/components/common/MultiWalletDropdown.js'
-import { CustomAddressModal } from '~sdk/components/common/CustomAddressModal.js'
+import { MultiWalletDropdown } from '../../../components/common/MultiWalletDropdown.js'
+import { CustomAddressModal } from '../../../components/common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
+import * as Collapsible from '@radix-ui/react-collapsible'
+import { StyledCollapsibleContent } from '../../common/StyledCollapisbleContent.js'
+import { OnrampModal } from './modals/OnrampModal.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
+  moonpayApiKey?: string
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -49,6 +54,7 @@ export type OnrampWidgetProps =
 
 const OnrampWidget: FC<OnrampWidgetProps> = ({
   defaultWalletAddress,
+  moonpayApiKey,
   linkedWallets,
   multiWalletSupportEnabled,
   supportedWalletVMs,
@@ -57,15 +63,19 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   onSetPrimaryWallet,
   onAnalyticEvent
 }) => {
-  const relayClient = useRelayClient()
   const [displayCurrency, setDisplayCurrency] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [feesOpen, setFeesOpen] = useState(false)
+  const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
 
   return (
     <OnrampWidgetRenderer
       defaultWalletAddress={defaultWalletAddress}
       supportedWalletVMs={supportedWalletVMs}
+      moonpayApiKey={moonpayApiKey}
+      linkedWallets={linkedWallets}
+      multiWalletSupportEnabled={multiWalletSupportEnabled}
     >
       {({
         depositAddress,
@@ -79,7 +89,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         setToken,
         toChain,
         toDisplayName,
-        toChainWalletVMSupported
+        toChainWalletVMSupported,
+        totalAmount
       }) => {
         const formattedAmount =
           amount === ''
@@ -101,6 +112,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       : 0,
                   maximumFractionDigits: amount.includes('.') ? 2 : 0
                 }).format(+amount)
+
+        const ctaDisabled = !recipient && !totalAmount
 
         return (
           <div
@@ -282,12 +295,13 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     <MultiWalletDropdown
                       context="origin"
                       selectedWalletAddress={recipient}
-                      onSelect={(wallet) =>
-                        onSetPrimaryWallet?.(wallet.address)
-                      }
+                      onSelect={(wallet) => setRecipient(wallet.address)}
                       chain={toChain}
                       onLinkNewWallet={() => {
-                        if (!recipient && toChainWalletVMSupported) {
+                        if (
+                          (!linkedWallets || linkedWallets.length === 0) &&
+                          toChainWalletVMSupported
+                        ) {
                           onConnectWallet?.()
                         } else {
                           onLinkNewWallet?.({
@@ -348,6 +362,82 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 </Flex>
               </Flex>
             </Flex>
+            <Flex
+              direction="column"
+              css={{
+                width: '100%',
+                overflow: 'hidden',
+                borderRadius: 'widget-card-border-radius',
+                backgroundColor: 'widget-background',
+                border: 'widget-card-border',
+                mb: 'widget-card-section-gutter',
+                p: '4'
+              }}
+            >
+              <Flex justify="between" align="center" css={{ mb: '3' }}>
+                <Text color="subtle" style="subtitle2">
+                  Paying with
+                </Text>
+                <Pill
+                  css={{ px: '2', py: '6px', alignItems: 'center', gap: '2' }}
+                  color="gray"
+                  radius="squared"
+                >
+                  <FontAwesomeIcon style={{ width: 16 }} icon={faCreditCard} />
+                  <Text style="subtitle2">Credit/Debit Card</Text>
+                </Pill>
+              </Flex>
+              <Flex css={{ gap: '2' }} direction="column">
+                <Collapsible.Root open={feesOpen} onOpenChange={setFeesOpen}>
+                  <Collapsible.Trigger asChild>
+                    <div>
+                      <Flex
+                        justify="between"
+                        align="center"
+                        css={{ cursor: 'pointer' }}
+                      >
+                        <Text style="h6">You Pay</Text>
+                        <Flex align="center" css={{ gap: '2' }}>
+                          <Text style="h6">{totalAmount}</Text>
+                          <Text
+                            style="body1"
+                            css={{
+                              color: 'gray9',
+                              marginLeft: 'auto',
+                              transition: 'all 0.25s ease-in-out',
+                              transform: feesOpen
+                                ? 'rotate(180deg)'
+                                : 'rotate(0)',
+                              width: 12
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faChevronDown} />
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </Collapsible.Trigger>
+                  <StyledCollapsibleContent css={{ mt: '2' }}>
+                    <Flex css={{ gap: '2' }}>
+                      <Flex>
+                        <Text style="subtitle2" color="subtle">
+                          0.03 ETH
+                        </Text>
+                        <Text style="subtitle2">$100</Text>
+                      </Flex>
+                    </Flex>
+                  </StyledCollapsibleContent>
+                </Collapsible.Root>
+              </Flex>
+              <Button
+                disabled={ctaDisabled}
+                onClick={() => {
+                  setOnrampModalOpen(true)
+                }}
+              >
+                Buy
+              </Button>
+            </Flex>
             <CustomAddressModal
               open={addressModalOpen}
               toAddress={recipient}
@@ -369,6 +459,12 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               onClear={() => {
                 setRecipient(undefined)
               }}
+            />
+            <OnrampModal
+              open={onrampModalOpen}
+              onOpenChange={setOnrampModalOpen}
+              onAnalyticEvent={onAnalyticEvent}
+              // onSuccess={}
             />
           </div>
         )

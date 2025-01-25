@@ -34,11 +34,6 @@ import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import dynamic from 'next/dynamic'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
-const MoonPayProvider = dynamic(
-  () => import('@moonpay/moonpay-react').then((mod) => mod.MoonPayProvider),
-  { ssr: false }
-)
-
 type AppWrapperProps = {
   children: ReactNode
 }
@@ -116,13 +111,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           //     fee: '100' // 1%
           //   }
           // ]
-        }}
-        theme={{
-          input: {
-            background: 'green',
-            borderRadius: '8px',
-            color: 'red'
-          }
         }}
         // theme={
         //   {
@@ -214,12 +202,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           }}
         >
           <WagmiProvider config={wagmiConfig}>
-            <MoonPayProvider
+            {/* <MoonPayProvider
               apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
               debug
-            >
-              <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
-            </MoonPayProvider>
+            > */}
+            <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            {/* </MoonPayProvider> */}
           </WagmiProvider>
         </DynamicContextProvider>
       </RelayKitProvider>

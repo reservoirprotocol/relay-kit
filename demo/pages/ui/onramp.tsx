@@ -1,89 +1,54 @@
 import { NextPage } from 'next'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
-import dynamic from 'next/dynamic'
-import { useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import {
-  DepositAddressModal,
+  LinkedWallet,
   OnrampWidget,
   useRelayClient
 } from '@reservoir0x/relay-kit-ui'
-import { formatUnits, parseUnits, zeroAddress } from 'viem'
-import { Execute } from '@reservoir0x/relay-sdk'
-
-const MoonPayBuyWidget = dynamic(
-  () => import('@moonpay/moonpay-react').then((mod) => mod.MoonPayBuyWidget),
-  { ssr: false }
-)
-
-export const formatSeconds = (seconds: number): string => {
-  seconds = Number(seconds)
-  const d = Math.floor(seconds / (3600 * 24))
-  const h = Math.floor((seconds % (3600 * 24)) / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-
-  const dDisplay = d > 0 ? d + (d == 1 ? ' d' : 'd ') : ''
-  const hDisplay = h > 0 ? h + (h == 1 ? ' h' : 'h ') : ''
-  const mDisplay = m > 0 ? m + (m == 1 ? ' m' : 'm ') : ''
-  const sDisplay = s > 0 ? s + (s == 1 ? ' s' : 's ') : ''
-  return `${dDisplay} ${hDisplay} ${mDisplay} ${sDisplay}`.trim()
-}
+import { formatUnits, parseUnits } from 'viem'
+import {
+  useDynamicContext,
+  useDynamicEvents,
+  useDynamicModals,
+  useUserWallets,
+  Wallet
+} from '@dynamic-labs/sdk-react-core'
+import { useWalletFilter } from 'context/walletFilter'
+import { convertToLinkedWallet } from 'utils/dynamic'
+import { RelayChain } from '@reservoir0x/relay-sdk'
 
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
-  const [currency, setCurrency] = useState(
-    '7560_0x0000000000000000000000000000000000000000'
-  )
-  const [amount, setAmount] = useState('20')
-  const [recipient, setRecipient] = useState<string | undefined>()
-  const [state, setState] = useState<
-    'CURRENCY_SELECTION' | 'FIAT' | 'DEPOSIT_ADDRESS'
-  >('CURRENCY_SELECTION')
-  const client = useRelayClient()
-  const destinationChainId = Number(currency.split('_')[0])
-  const destinationCurrency = currency.split('_')[1] as string
-  const quote = useQuote(
-    client ?? undefined,
-    undefined,
-    {
-      originChainId: 1,
-      originCurrency: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      destinationChainId: destinationChainId,
-      destinationCurrency: destinationCurrency,
-      useDepositAddress: true,
-      tradeType: 'EXACT_INPUT',
-      amount: parseUnits(amount, 6).toString(),
-      user: '0x000000000000000000000000000000000000dead'
-    },
-    undefined,
-    undefined,
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false
+  useDynamicEvents('walletAdded', (newWallet) => {
+    if (linkWalletPromise) {
+      linkWalletPromise?.resolve(convertToLinkedWallet(newWallet))
+      setLinkWalletPromise(undefined)
     }
-  )
-
-  const amountOut = quote?.data?.details?.currencyOut?.amount ?? ''
-  const amountOutput =
-    amountOut && amountOut !== ''
-      ? formatUnits(
-          BigInt(amountOut),
-          Number(quote.data?.details?.currencyOut?.currency?.decimals ?? 18)
-        )
-      : ''
-
-  const depositAddress = quote?.data?.steps?.find(
-    (step) => step.depositAddress
-  )?.depositAddress
-
-  const fromChain = client?.chains.find((chain) => chain.id === 1)
-  const timeEstimate = {
-    time: quote.data?.details?.timeEstimate ?? 0,
-    formattedTime: formatSeconds(quote.data?.details?.timeEstimate ?? 0)
-  }
+  })
+  const [linkWalletPromise, setLinkWalletPromise] = useState<
+    | {
+        resolve: (value: LinkedWallet) => void
+        reject: () => void
+        params: { chain?: RelayChain; direction: 'to' | 'from' }
+      }
+    | undefined
+  >()
+  const { setWalletFilter } = useWalletFilter()
+  const { setShowAuthFlow, primaryWallet } = useDynamicContext()
+  const { setShowLinkNewWalletModal } = useDynamicModals()
+  const userWallets = useUserWallets()
+  const wallets = useRef<Wallet<any>[]>()
+  const linkedWallets = useMemo(() => {
+    const _wallets = userWallets.reduce((linkedWallets, wallet) => {
+      linkedWallets.push(convertToLinkedWallet(wallet))
+      return linkedWallets
+    }, [] as LinkedWallet[])
+    wallets.current = userWallets
+    return _wallets
+  }, [userWallets])
 
   return (
     <Layout
@@ -100,7 +65,47 @@ const OnrampPage: NextPage = () => {
           paddingTop: 50
         }}
       >
-        <OnrampWidget />
+        <OnrampWidget
+          supportedWalletVMs={['evm', 'svm', 'bvm']}
+          multiWalletSupportEnabled={true}
+          linkedWallets={linkedWallets}
+          moonpayApiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
+          onLinkNewWallet={({ chain, direction }) => {
+            if (linkWalletPromise) {
+              linkWalletPromise.reject()
+              setLinkWalletPromise(undefined)
+            }
+            if (chain?.vmType === 'evm') {
+              setWalletFilter('EVM')
+            } else if (chain?.id === 792703809) {
+              setWalletFilter('SOL')
+            } else if (chain?.id === 8253038) {
+              setWalletFilter('BTC')
+            } else if (chain?.id === 9286185) {
+              setWalletFilter('ECLIPSE')
+            } else {
+              setWalletFilter(undefined)
+            }
+            const promise = new Promise<LinkedWallet>((resolve, reject) => {
+              setLinkWalletPromise({
+                resolve,
+                reject,
+                params: {
+                  chain,
+                  direction
+                }
+              })
+            })
+            setShowLinkNewWalletModal(true)
+            return promise
+          }}
+          onConnectWallet={() => {
+            setShowAuthFlow(true)
+          }}
+          onAnalyticEvent={(eventName, data) => {
+            console.log('Analytic Event', eventName, data)
+          }}
+        />
       </div>
       {/* {state === 'CURRENCY_SELECTION' ? (
         <div
