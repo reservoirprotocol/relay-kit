@@ -45,6 +45,7 @@ type BaseSwapWidgetProps = {
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
+  slippageTolerance?: string
   lockToToken?: boolean
   lockFromToken?: boolean
   lockChainId?: number
@@ -86,6 +87,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
+  slippageTolerance,
   lockToToken = false,
   lockFromToken = false,
   lockChainId,
@@ -133,6 +135,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultTradeType={defaultTradeType}
       defaultFromToken={initialFromToken}
       defaultToToken={defaultToToken}
+      slippageTolerance={slippageTolerance}
       wallet={wallet}
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
@@ -187,6 +190,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isValidToAddress,
         supportsExternalLiquidity,
         useExternalLiquidity,
+        slippageTolerance,
         canonicalTimeEstimate,
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
@@ -318,6 +322,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
+            slippageTolerance={slippageTolerance}
             onSwapSuccess={onSwapSuccess}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
@@ -414,8 +419,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -476,12 +481,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                fromToken?.chainId,
+                                lockChainId,
+                                toToken?.chainId
+                              ) && fromToken?.chainId
+                            ? [fromToken.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -701,7 +706,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       !toChainWalletVMSupported ? (
                         <Button
                           color={
-                            isValidToAddress && !isRecipientLinked
+                            isValidToAddress &&
+                            multiWalletSupportEnabled &&
+                            !isRecipientLinked
                               ? 'warning'
                               : 'secondary'
                           }
@@ -720,7 +727,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             )
                           }}
                         >
-                          {isValidToAddress && !isRecipientLinked ? (
+                          {isValidToAddress &&
+                          multiWalletSupportEnabled &&
+                          !isRecipientLinked ? (
                             <Box css={{ color: 'amber11' }}>
                               <FontAwesomeIcon
                                 icon={faClipboard}
@@ -733,7 +742,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             style="subtitle2"
                             css={{
                               color:
-                                isValidToAddress && !isRecipientLinked
+                                isValidToAddress &&
+                                multiWalletSupportEnabled &&
+                                !isRecipientLinked
                                   ? 'amber11'
                                   : 'secondary-button-color'
                             }}
@@ -779,8 +790,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -799,13 +810,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           fontSize: 28,
                           color:
                             isFetchingQuote && tradeType === 'EXACT_INPUT'
-                              ? 'gray11'
-                              : 'gray12',
+                              ? 'text-subtle'
+                              : 'input-color',
                           _placeholder: {
                             color:
                               isFetchingQuote && tradeType === 'EXACT_INPUT'
-                                ? 'gray11'
-                                : 'gray12'
+                                ? 'text-subtle'
+                                : 'input-color'
                           },
                           _disabled: {
                             cursor: 'not-allowed',
@@ -869,12 +880,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                toToken?.chainId,
+                                lockChainId,
+                                fromToken?.chainId
+                              ) && toToken?.chainId
+                            ? [toToken.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken

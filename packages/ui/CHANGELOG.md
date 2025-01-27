@@ -1,5 +1,32 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.4
+
+### Patch Changes
+
+- 72cdfad: Update radix dialog version
+
+## 2.5.3
+
+### Patch Changes
+
+- f0c558e: Add slippageTolerance prop to swap widget
+
+## 2.5.2
+
+### Patch Changes
+
+- 27b298c: Fix theme token usage for inputs
+- 2abfa1a: Fix recipient bug when multi wallet support is not enabled
+
+## 2.5.1
+
+### Patch Changes
+
+- Updated dependencies [5a9208f]
+  - @reservoir0x/relay-sdk@1.6.1
+  - @reservoir0x/relay-kit-hooks@1.6.1
+
 ## 2.5.0
 
 ### Minor Changes

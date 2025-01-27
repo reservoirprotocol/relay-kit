@@ -104,6 +104,7 @@ type Props = {
   customToAddress?: Address
   tradeType: TradeType
   useExternalLiquidity: boolean
+  slippageTolerance?: string
   wallet?: AdaptedWallet
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
@@ -130,6 +131,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   customToAddress,
   tradeType,
   useExternalLiquidity,
+  slippageTolerance,
   wallet,
   invalidateBalanceQueries,
   children,
@@ -182,6 +184,7 @@ export const TransactionModalRenderer: FC<Props> = ({
                   toToken.decimals
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
+          slippageTolerance: slippageTolerance,
           useExternalLiquidity
         }
       : undefined
