@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
-import { useMemo, useRef, useState } from 'react'
+import { lazy, useMemo, useRef, useState } from 'react'
 import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import {
   LinkedWallet,
@@ -19,7 +19,11 @@ import {
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { RelayChain } from '@reservoir0x/relay-sdk'
-
+const MoonPayBuyWidget = lazy(() =>
+  import('@moonpay/moonpay-react').then((module) => ({
+    default: module.MoonPayBuyWidget
+  }))
+)
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -70,6 +74,13 @@ const OnrampPage: NextPage = () => {
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
           moonpayApiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
+          moonpayOnUrlSignatureRequested={async (
+            url: string
+          ): Promise<string> => {
+            const response = await fetch(`/api/sign-url?url=${url}`)
+            const data = await response.json()
+            return data.signature
+          }}
           onLinkNewWallet={({ chain, direction }) => {
             if (linkWalletPromise) {
               linkWalletPromise.reject()

@@ -27,11 +27,14 @@ export type ChildrenProps = {
   fiatCurrency: string
   setFiatCurrency: React.Dispatch<React.SetStateAction<string>>
   token: Token
+  fromToken: Token
   setToken: React.Dispatch<React.SetStateAction<Token>>
   toChain?: RelayChain
+  fromChain?: RelayChain
   toDisplayName?: string
   toChainWalletVMSupported?: boolean
   totalAmount: number | null
+  quote?: Execute
 }
 
 type OnrampWidgetRendererProps = {
@@ -80,6 +83,15 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     fromChain && fromChain.id === 8453
       ? '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
       : '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
+  const fromToken: Token = {
+    chainId: fromChain?.id ?? 8453,
+    address: fromCurrency,
+    symbol: 'USDC',
+    name: 'USDC',
+    logoURI:
+      'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+    decimals: 6
+  }
 
   const [amount, setAmount] = useState('20')
   const [recipient, setRecipient] = useState<string | undefined>(
@@ -165,8 +177,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     client ?? undefined,
     undefined,
     {
-      originChainId: fromChain?.id ?? 8453,
-      originCurrency: fromCurrency, //usdc
+      originChainId: fromToken.chainId,
+      originCurrency: fromToken.address,
       destinationChainId: token?.chainId,
       destinationCurrency: token?.address,
       useDepositAddress: true,
@@ -210,13 +222,16 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         amount,
         setAmount,
         token,
+        fromToken,
         setToken,
         toChain,
+        fromChain,
         toDisplayName,
         toChainWalletVMSupported,
         fiatCurrency,
         setFiatCurrency,
-        totalAmount
+        totalAmount,
+        quote: quote.data as Execute
       })}
     </>
   )

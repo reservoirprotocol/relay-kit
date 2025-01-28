@@ -37,7 +37,8 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "viem": "^2.21.55",
-    "wagmi": "~2.14.3"
+    "wagmi": "~2.14.3",
+    "@moonpay/moonpay-react": "^1.8.3"
   },
   "devDependencies": {
     "@dynamic-labs/types": "4.2.2",

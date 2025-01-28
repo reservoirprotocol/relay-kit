@@ -27,6 +27,7 @@ type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
   moonpayApiKey?: string
+  moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -55,6 +56,7 @@ export type OnrampWidgetProps =
 const OnrampWidget: FC<OnrampWidgetProps> = ({
   defaultWalletAddress,
   moonpayApiKey,
+  moonpayOnUrlSignatureRequested,
   linkedWallets,
   multiWalletSupportEnabled,
   supportedWalletVMs,
@@ -86,11 +88,14 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         amount,
         setAmount,
         token,
+        fromToken,
         setToken,
         toChain,
+        fromChain,
         toDisplayName,
         toChainWalletVMSupported,
-        totalAmount
+        totalAmount,
+        quote
       }) => {
         const formattedAmount =
           amount === ''
@@ -242,7 +247,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                         marginBottom: '16px'
                       }}
                     >
-                      <TokenTrigger token={token} />
+                      <TokenTrigger isSingleChainLocked={true} token={token} />
                     </div>
                   }
                 />
@@ -429,15 +434,16 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   </StyledCollapsibleContent>
                 </Collapsible.Root>
               </Flex>
-              <Button
-                disabled={ctaDisabled}
-                onClick={() => {
-                  setOnrampModalOpen(true)
-                }}
-              >
-                Buy
-              </Button>
             </Flex>
+            <Button
+              css={{ width: '100%', justifyContent: 'center' }}
+              disabled={ctaDisabled}
+              onClick={() => {
+                setOnrampModalOpen(true)
+              }}
+            >
+              Buy
+            </Button>
             <CustomAddressModal
               open={addressModalOpen}
               toAddress={recipient}
@@ -464,6 +470,14 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               open={onrampModalOpen}
               onOpenChange={setOnrampModalOpen}
               onAnalyticEvent={onAnalyticEvent}
+              moonpayOnUrlSignatureRequested={moonpayOnUrlSignatureRequested}
+              fromToken={fromToken}
+              toToken={token}
+              fromChain={fromChain}
+              toChain={toChain}
+              depositAddress={depositAddress}
+              totalAmount={totalAmount ? `${totalAmount}` : undefined}
+              quote={quote}
               // onSuccess={}
             />
           </div>
