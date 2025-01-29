@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "name": "relay-sdk-demo",
   "scripts": {
     "dev": "next dev",

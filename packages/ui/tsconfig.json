@@ -11,6 +11,7 @@
       "@reservoir0x/relay-kit-ui": ["./packages/ui/src"],
       "@reservoir0x/relay-kit-hooks": ["./packages/hooks/src"],
       "@reservoir0x/relay-design-system": ["./packages/design-system"],
+      "@reservoir0x/relay-design-system/OnrampWidget": ["./packages/ui/src/components/widgets/OnrampWidget"],
     }
   },
   "watchOptions": {

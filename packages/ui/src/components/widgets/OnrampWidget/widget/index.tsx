@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
-import { Box, Button, Flex, Pill, Text } from '../../primitives/index.js'
-import AmountInput from '../../common/AmountInput.js'
+import { Box, Button, Flex, Pill, Text } from '../../../primitives/index.js'
+import AmountInput from '../../../common/AmountInput.js'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -11,17 +11,17 @@ import {
   faClipboard,
   faCreditCard
 } from '@fortawesome/free-solid-svg-icons'
-import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
-import { EventNames } from '../../../constants/events.js'
-import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { LinkedWallet } from '../../../types/index.js'
+import TokenSelector from '../../../common/TokenSelector/TokenSelector.js'
+import { EventNames } from '../../../../constants/events.js'
+import { TokenTrigger } from '../../../common/TokenSelector/triggers/TokenTrigger.js'
+import type { LinkedWallet } from '../../../../types/index.js'
 import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
-import { MultiWalletDropdown } from '../../../components/common/MultiWalletDropdown.js'
-import { CustomAddressModal } from '../../../components/common/CustomAddressModal.js'
+import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
+import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import * as Collapsible from '@radix-ui/react-collapsible'
-import { StyledCollapsibleContent } from '../../common/StyledCollapisbleContent.js'
-import { OnrampModal } from './modals/OnrampModal.js'
+import { StyledCollapsibleContent } from '../../../common/StyledCollapisbleContent.js'
+import { OnrampModal } from '../modals/OnrampModal.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string

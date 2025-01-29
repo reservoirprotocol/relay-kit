@@ -17,8 +17,7 @@ import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
 import {
   DynamicContextProvider,
-  FilterChain,
-  RemoveWallets
+  FilterChain
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
@@ -28,10 +27,8 @@ import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
-import { pipe } from '@dynamic-labs/utils'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import dynamic from 'next/dynamic'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
 const MoonPayProvider = lazy(() =>

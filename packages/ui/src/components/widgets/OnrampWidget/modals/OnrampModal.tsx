@@ -1,5 +1,12 @@
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { type FC, lazy, Suspense, useEffect, useState } from 'react'
+import {
+  type FC,
+  lazy,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useState
+} from 'react'
 import { Modal } from '../../../common/Modal.js'
 import {
   Box,
@@ -9,6 +16,7 @@ import {
   Text
 } from '../../../primitives/index.js'
 import type { Token } from '../../../../types/index.js'
+
 const MoonPayBuyWidget = lazy(() =>
   import('@moonpay/moonpay-react').then((module) => ({
     default: module.MoonPayBuyWidget
@@ -175,26 +183,28 @@ export const OnrampModal: FC<OnrampModalProps> = ({
             </Text>
           </Flex>
           <Suspense fallback={<div>Loading...</div>}>
-            <MoonPayBuyWidget
-              variant="embedded"
-              baseCurrencyCode="usd"
-              baseCurrencyAmount={totalAmount}
-              lockAmount="true"
-              currencyCode="usdc"
-              paymentMethod="credit_debit_card"
-              walletAddress={depositAddress}
-              showWalletAddressForm="false"
-              visible
-              style={{
-                margin: 0,
-                width: '100%',
-                border: 'none'
-              }}
-              onUrlSignatureRequested={moonpayOnUrlSignatureRequested}
-              onTransactionCreated={async (props) => {
+            {MoonPayBuyWidget ? (
+              <MoonPayBuyWidget
+                variant="embedded"
+                baseCurrencyCode="usd"
+                baseCurrencyAmount={totalAmount}
+                lockAmount="true"
+                currencyCode="usdc"
+                paymentMethod="credit_debit_card"
+                walletAddress={depositAddress}
+                showWalletAddressForm="false"
+                visible
+                style={{
+                  margin: 0,
+                  width: '100%',
+                  border: 'none'
+                }}
+                onUrlSignatureRequested={moonpayOnUrlSignatureRequested}
+                // onTransactionCreated={async (props) => {
                 //todo move to processing and start polling the transaction
-              }}
-            />
+                // }}
+              />
+            ) : null}
           </Suspense>
         </Flex>
       ) : null}

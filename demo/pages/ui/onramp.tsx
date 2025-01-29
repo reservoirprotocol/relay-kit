@@ -1,14 +1,10 @@
 import { NextPage } from 'next'
-import { Layout } from 'components/Layout'
+import { Layout } from '../../components/Layout'
 import { useTheme } from 'next-themes'
-import { lazy, useMemo, useRef, useState } from 'react'
-import { useQuote } from '@reservoir0x/relay-kit-hooks'
-import {
-  LinkedWallet,
-  OnrampWidget,
-  useRelayClient
-} from '@reservoir0x/relay-kit-ui'
-import { formatUnits, parseUnits } from 'viem'
+import { useMemo, useRef, useState } from 'react'
+import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
+import { OnrampWidget } from '@reservoir0x/relay-kit-ui/OnrampWidget'
+
 import {
   useDynamicContext,
   useDynamicEvents,
@@ -19,11 +15,7 @@ import {
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { RelayChain } from '@reservoir0x/relay-sdk'
-const MoonPayBuyWidget = lazy(() =>
-  import('@moonpay/moonpay-react').then((module) => ({
-    default: module.MoonPayBuyWidget
-  }))
-)
+
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -118,139 +110,6 @@ const OnrampPage: NextPage = () => {
           }}
         />
       </div>
-      {/* {state === 'CURRENCY_SELECTION' ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            paddingTop: 50,
-            gap: 8
-          }}
-        >
-          <h2>Choose a currency</h2>
-          <div>
-            <label>Currency: </label>
-            <select
-              value={currency}
-              onChange={(e) => {
-                setCurrency(e.target.value as any)
-              }}
-            >
-              <option value="7560_0x0000000000000000000000000000000000000000">
-                Cyber ETH
-              </option>
-              <option value="70700_0x0000000000000000000000000000000000000000">
-                Apex ETH
-              </option>
-            </select>
-          </div>
-          <div>
-            <label>Choose an amount: </label>
-            <select
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value as any)
-              }}
-            >
-              <option value="20">$20</option>
-              <option value="50">$50</option>
-              <option value="100">$100</option>
-            </select>
-          </div>
-          <div>
-            <label>Enter your wallet address: </label>
-            <input
-              type="text"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-            />
-          </div>
-          <button
-            style={{
-              marginTop: 20
-            }}
-            onClick={() => {
-              setState('FIAT')
-            }}
-          >
-            Continue
-          </button>
-        </div>
-      ) : null}
-      {state === 'FIAT' ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            gap: 8
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Purchase Crypto</h2>
-          <MoonPayBuyWidget
-            variant="embedded"
-            baseCurrencyCode="usd"
-            baseCurrencyAmount={amount}
-            lockAmount="true"
-            currencyCode="usdc"
-            // paymentMethod="credit_debit_card"
-            walletAddress={depositAddress}
-            showWalletAddressForm="false"
-            visible
-            //@ts-ignore
-            cex
-            onTransactionCompleted={async () => {
-              setState('DEPOSIT_ADDRESS')
-            }}
-          />
-        </div>
-      ) : null}
-      {state === 'DEPOSIT_ADDRESS' ? (
-        <DepositAddressModal
-          open={true}
-          onOpenChange={() => {}}
-          defaultQuote={quote.data as Execute}
-          fromChain={fromChain}
-          fromToken={
-            fromChain
-              ? {
-                  chainId: fromChain?.id,
-                  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-                  name: 'USDC',
-                  symbol: 'USDC',
-                  decimals: 6,
-                  logoURI:
-                    'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png',
-                  verified: true
-                }
-              : undefined
-          }
-          toToken={
-            destinationChainId
-              ? {
-                  chainId: destinationChainId,
-                  address: zeroAddress,
-                  name: 'ETH',
-                  symbol: 'ETH',
-                  decimals: 18,
-                  logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
-                  verified: true
-                }
-              : undefined
-          }
-          debouncedInputAmountValue={amount}
-          debouncedOutputAmountValue={amountOutput}
-          address={recipient}
-          recipient={recipient}
-          timeEstimate={timeEstimate}
-          invalidateBalanceQueries={() => {}}
-        />
-      ) : null} */}
     </Layout>
   )
 }
