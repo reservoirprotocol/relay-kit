@@ -13,16 +13,18 @@ import {
 import TokenSelector from '../../../common/TokenSelector/TokenSelector.js'
 import { EventNames } from '../../../../constants/events.js'
 import { TokenTrigger } from '../../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { LinkedWallet } from '../../../../types/index.js'
+import type { FiatCurrency, LinkedWallet } from '../../../../types/index.js'
 import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
+import FiatCurrencyModal from './FiatCurrencyModal.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
+  fiatCurrencies?: FiatCurrency[]
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -62,7 +64,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
 }) => {
   const [displayCurrency, setDisplayCurrency] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const [feesOpen, setFeesOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
 
@@ -89,8 +90,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         toDisplayName,
         toChainWalletVMSupported,
         totalAmount,
-        quote
+        quote,
+        fiatCurrency,
+        setFiatCurrency
       }) => {
+        //todo make format dynamic based on fiatCurrency
         const formattedAmount =
           amount === ''
             ? ''
@@ -143,7 +147,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Text style="subtitle2" color="subtle">
                     You are buying
                   </Text>
-                  <div>FIAT SELECTOR</div>
+                  <FiatCurrencyModal
+                    fiatCurrency={fiatCurrency}
+                    setFiatCurrency={setFiatCurrency}
+                  />
                 </Flex>
                 <AmountInput
                   value={displayCurrency ? '0.03' : formattedAmount}
@@ -420,6 +427,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               depositAddress={depositAddress}
               totalAmount={totalAmount ? `${totalAmount}` : undefined}
               quote={quote}
+              fiatCurrency={fiatCurrency}
               // onSuccess={}
             />
           </div>

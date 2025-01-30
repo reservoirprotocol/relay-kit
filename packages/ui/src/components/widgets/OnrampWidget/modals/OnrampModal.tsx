@@ -10,7 +10,7 @@ import {
   Pill,
   Text
 } from '../../../primitives/index.js'
-import type { Token } from '../../../../types/index.js'
+import type { FiatCurrency, Token } from '../../../../types/index.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import { LoadingSpinner } from '../../../../components/common/LoadingSpinner.js'
 import { EventNames } from '../../../../constants/events.js'
@@ -34,6 +34,7 @@ type OnrampModalProps = {
   fromChain?: RelayChain
   toToken?: Token
   toChain?: RelayChain
+  fiatCurrency: FiatCurrency
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -49,6 +50,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   quote,
   toChain,
   fromChain,
+  fiatCurrency,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
@@ -232,11 +234,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
             {toToken?.symbol}
           </Text>
         </Flex>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div></div>}>
           {MoonPayBuyWidget ? (
             <MoonPayBuyWidget
               variant="embedded"
-              baseCurrencyCode="usd"
+              baseCurrencyCode={fiatCurrency.code}
               quoteCurrencyAmount={totalAmount}
               lockAmount="true"
               currencyCode={

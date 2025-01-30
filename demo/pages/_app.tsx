@@ -55,12 +55,21 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
 
   useEffect(() => {
     const isTestnet = router.query.api === 'testnets'
-    setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
+    const newApi = isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API
+    if (relayApi !== newApi) {
+      setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
+    }
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(relayApi, {
-    includeChains: '9286185,8253038'
-  })
+  const { chains, viemChains } = useRelayChains(
+    relayApi,
+    {
+      includeChains: '9286185,8253038'
+    },
+    {
+      refetchOnWindowFocus: false
+    }
+  )
 
   useEffect(() => {
     if (chains && viemChains && !wagmiConfig) {

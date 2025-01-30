@@ -9,7 +9,11 @@ import {
   type RelayChain
 } from '@reservoir0x/relay-sdk'
 import { extractDepositAddress } from '../../../../utils/quote.js'
-import type { LinkedWallet, Token } from '../../../../types/index.js'
+import type {
+  FiatCurrency,
+  LinkedWallet,
+  Token
+} from '../../../../types/index.js'
 import useENSResolver from '../../../../hooks/useENSResolver.js'
 import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 import {
@@ -26,8 +30,8 @@ export type ChildrenProps = {
   isValidRecipient: boolean
   amount: string
   setAmount: React.Dispatch<React.SetStateAction<string>>
-  fiatCurrency: string
-  setFiatCurrency: React.Dispatch<React.SetStateAction<string>>
+  fiatCurrency: FiatCurrency
+  setFiatCurrency: React.Dispatch<React.SetStateAction<FiatCurrency>>
   token: Token
   fromToken: Token
   setToken: React.Dispatch<React.SetStateAction<Token>>
@@ -101,7 +105,12 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     enabled: toChain?.vmType === 'evm'
   })
 
-  const [fiatCurrency, setFiatCurrency] = useState('usd')
+  const [fiatCurrency, setFiatCurrency] = useState<FiatCurrency>({
+    name: 'US Dollar',
+    code: 'usd',
+    minAmount: '20',
+    icon: 'https://static.moonpay.com/widget/currencies/usd.svg'
+  })
 
   const address = useWalletAddress(undefined, linkedWallets)
 
