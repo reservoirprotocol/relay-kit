@@ -272,7 +272,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             {fillTime !== '-' && seconds <= 10 && seconds >= 0 ? (
               <Text style="h3">{fillTime}</Text>
             ) : (
-              <Box css={{ color: 'success', mr: '$2' }}>
+              <Box css={{ color: 'green9', mr: '$2' }}>
                 <FontAwesomeIcon icon={faCheck} style={{ height: 40 }} />
               </Box>
             )}

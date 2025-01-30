@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDownLong,
   faArrowUpLong,
-  faChevronDown,
   faClipboard,
   faCreditCard
 } from '@fortawesome/free-solid-svg-icons'
@@ -19,14 +18,11 @@ import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
-import * as Collapsible from '@radix-ui/react-collapsible'
-import { StyledCollapsibleContent } from '../../../common/StyledCollapisbleContent.js'
 import { OnrampModal } from '../modals/OnrampModal.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
-  moonpayApiKey?: string
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -55,7 +51,6 @@ export type OnrampWidgetProps =
 
 const OnrampWidget: FC<OnrampWidgetProps> = ({
   defaultWalletAddress,
-  moonpayApiKey,
   moonpayOnUrlSignatureRequested,
   linkedWallets,
   multiWalletSupportEnabled,
@@ -75,7 +70,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
     <OnrampWidgetRenderer
       defaultWalletAddress={defaultWalletAddress}
       supportedWalletVMs={supportedWalletVMs}
-      moonpayApiKey={moonpayApiKey}
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
     >
@@ -291,7 +285,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     background: 'gray5'
                   }}
                 />
-                <Flex justify="between" align="center">
+                <Flex justify="between" align="center" css={{ mb: '2' }}>
                   <Text color="subtle" style="subtitle2">
                     Recipient
                   </Text>
@@ -365,74 +359,22 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     </Button>
                   ) : null}
                 </Flex>
-              </Flex>
-            </Flex>
-            <Flex
-              direction="column"
-              css={{
-                width: '100%',
-                overflow: 'hidden',
-                borderRadius: 'widget-card-border-radius',
-                backgroundColor: 'widget-background',
-                border: 'widget-card-border',
-                mb: 'widget-card-section-gutter',
-                p: '4'
-              }}
-            >
-              <Flex justify="between" align="center" css={{ mb: '3' }}>
-                <Text color="subtle" style="subtitle2">
-                  Paying with
-                </Text>
-                <Pill
-                  css={{ px: '2', py: '6px', alignItems: 'center', gap: '2' }}
-                  color="gray"
-                  radius="squared"
-                >
-                  <FontAwesomeIcon style={{ width: 16 }} icon={faCreditCard} />
-                  <Text style="subtitle2">Credit/Debit Card</Text>
-                </Pill>
-              </Flex>
-              <Flex css={{ gap: '2' }} direction="column">
-                <Collapsible.Root open={feesOpen} onOpenChange={setFeesOpen}>
-                  <Collapsible.Trigger asChild>
-                    <div>
-                      <Flex
-                        justify="between"
-                        align="center"
-                        css={{ cursor: 'pointer' }}
-                      >
-                        <Text style="h6">You Pay</Text>
-                        <Flex align="center" css={{ gap: '2' }}>
-                          <Text style="h6">{totalAmount}</Text>
-                          <Text
-                            style="body1"
-                            css={{
-                              color: 'gray9',
-                              marginLeft: 'auto',
-                              transition: 'all 0.25s ease-in-out',
-                              transform: feesOpen
-                                ? 'rotate(180deg)'
-                                : 'rotate(0)',
-                              width: 12
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faChevronDown} />
-                          </Text>
-                        </Flex>
-                      </Flex>
-                    </div>
-                  </Collapsible.Trigger>
-                  <StyledCollapsibleContent css={{ mt: '2' }}>
-                    <Flex css={{ gap: '2' }}>
-                      <Flex>
-                        <Text style="subtitle2" color="subtle">
-                          0.03 ETH
-                        </Text>
-                        <Text style="subtitle2">$100</Text>
-                      </Flex>
-                    </Flex>
-                  </StyledCollapsibleContent>
-                </Collapsible.Root>
+                <Flex justify="between" align="center">
+                  <Text color="subtle" style="subtitle2">
+                    Paying with
+                  </Text>
+                  <Pill
+                    css={{ px: '2', py: '6px', alignItems: 'center', gap: '2' }}
+                    color="gray"
+                    radius="squared"
+                  >
+                    <FontAwesomeIcon
+                      style={{ width: 16 }}
+                      icon={faCreditCard}
+                    />
+                    <Text style="subtitle2">Credit/Debit Card</Text>
+                  </Pill>
+                </Flex>
               </Flex>
             </Flex>
             <Button

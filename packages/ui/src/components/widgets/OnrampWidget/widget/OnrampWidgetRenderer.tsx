@@ -17,7 +17,6 @@ import {
   isValidAddress
 } from '../../../../utils/address.js'
 import useWalletAddress from '../../../../hooks/useWalletAddress.js'
-import useMoonpayQuote from '../../../../hooks/useMoonpayQuote.js'
 
 export type ChildrenProps = {
   depositAddress?: string
@@ -36,7 +35,7 @@ export type ChildrenProps = {
   fromChain?: RelayChain
   toDisplayName?: string
   toChainWalletVMSupported?: boolean
-  totalAmount: number | null
+  totalAmount: string | null
   quote?: Execute
 }
 
@@ -45,7 +44,6 @@ type OnrampWidgetRendererProps = {
   supportedWalletVMs: ChainVM[]
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
-  moonpayApiKey?: string
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -54,7 +52,6 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   multiWalletSupportEnabled,
-  moonpayApiKey,
   children
 }) => {
   const client = useRelayClient()
@@ -159,23 +156,6 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     toChain?.id
   )
 
-  const moonpayQuote = useMoonpayQuote(
-    'usdc_base',
-    +amount >= 20
-      ? {
-          baseCurrencyCode: fiatCurrency,
-          quoteCurrencyAmount: +amount,
-          paymentMethod: 'credit_debit_card',
-          apiKey: moonpayApiKey
-        }
-      : undefined,
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false
-    }
-  )
-
   const quote = useQuote(
     client ?? undefined,
     undefined,
@@ -205,13 +185,17 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     [quote]
   )
 
-  const relayFees = quote.data?.fees
-    ? Number(quote.data.fees.relayer?.amountUsd ?? 0) +
-      Number(quote.data.fees.app?.amountUsd ?? 0)
-    : null
   const totalAmount =
-    moonpayQuote.data?.totalAmount && relayFees
-      ? moonpayQuote.data?.totalAmount + relayFees
+    quote.data?.fees && amount
+      ? `${
+          Math.floor(
+            (Number(quote.data.fees.relayer?.amountUsd ?? 0) +
+              Number(quote.data.fees.gas?.amountUsd ?? 0) +
+              Number(quote.data.fees.app?.amountUsd ?? 0) +
+              +amount) *
+              100
+          ) / 100
+        }`
       : null
 
   return (
