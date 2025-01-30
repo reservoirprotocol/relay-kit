@@ -56,6 +56,9 @@ importers:
       '@dynamic-labs/wagmi-connector':
         specifier: 4.2.2
         version: 4.2.2(@dynamic-labs/assert-package-version@4.2.2)(@dynamic-labs/ethereum-core@4.2.3)(@dynamic-labs/logger@4.2.2)(@dynamic-labs/rpc-providers@4.2.2)(@dynamic-labs/sdk-react-core@4.2.2)(@dynamic-labs/types@4.2.2)(@dynamic-labs/wallet-connector-core@4.2.2)(@wagmi/core@2.16.3)(eventemitter3@5.0.1)(react@18.2.0)(viem@2.21.60)(wagmi@2.14.7)
+      '@moonpay/moonpay-react':
+        specifier: ^1.8.3
+        version: 1.8.3(react@18.2.0)
       '@radix-ui/colors':
         specifier: ^0.1.8
         version: 0.1.9
@@ -283,6 +286,9 @@ importers:
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.2
         version: 0.2.2(@fortawesome/fontawesome-svg-core@6.5.2)(react@18.2.0)
+      '@moonpay/moonpay-react':
+        specifier: ^1.8.3
+        version: 1.8.3(react@18.2.0)
       '@radix-ui/react-collapsible':
         specifier: ^1.0.3
         version: 1.0.3(@types/react-dom@18.2.19)(@types/react@18.2.55)(react-dom@18.2.0)(react@18.2.0)
@@ -4274,6 +4280,14 @@ packages:
       superstruct: 1.0.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@moonpay/moonpay-react@1.8.3(react@18.2.0):
+    resolution: {integrity: sha512-kz0W0nt+tg4NZWGSVIN5nF3AYQttQF07UH8klrdVtfIg+Jg8GbxazlQDCvg8FX21KaEld1buBLBh0EfAGO7/sw==}
+    peerDependencies:
+      react: '>=16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@motionone/animation@10.17.0:

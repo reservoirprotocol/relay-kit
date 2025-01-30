@@ -23,7 +23,7 @@ import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
 import { PriceImpactTooltip } from '../PriceImpactTooltip.js'
 import { faClipboard } from '@fortawesome/free-solid-svg-icons'
-import { SwapWidgetTokenTrigger } from '../../common/TokenSelector/triggers/SwapWidgetTokenTrigger.js'
+import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
@@ -506,7 +506,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             style={{ width: 'max-content' }}
                             onClick={() => setFromTokenSelectorType('token')}
                           >
-                            <SwapWidgetTokenTrigger
+                            <TokenTrigger
                               token={fromToken}
                               locked={
                                 lockFromToken ||
@@ -861,7 +861,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             style={{ width: 'max-content' }}
                             onClick={() => setToTokenSelectorType('token')}
                           >
-                            <SwapWidgetTokenTrigger
+                            <TokenTrigger
                               token={toToken}
                               locked={
                                 lockToToken ||

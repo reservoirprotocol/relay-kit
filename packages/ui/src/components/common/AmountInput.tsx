@@ -37,15 +37,19 @@ const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
       }}
       placeholder="0"
       value={value}
-      onChange={(e) => {
-        const inputValue = (e.target as HTMLInputElement).value
-        const regex = /^[0-9]+(\.[0-9]*)?$/
-        if (inputValue === '.' || inputValue.includes(',')) {
-          setValue('0.')
-        } else if (regex.test(inputValue) || inputValue === '') {
-          setValue(inputValue)
-        }
-      }}
+      onChange={
+        inputProps.onChange
+          ? inputProps.onChange
+          : (e) => {
+              const inputValue = (e.target as HTMLInputElement).value
+              const regex = /^[0-9]+(\.[0-9]*)?$/
+              if (inputValue === '.' || inputValue.includes(',')) {
+                setValue('0.')
+              } else if (regex.test(inputValue) || inputValue === '') {
+                setValue(inputValue)
+              }
+            }
+      }
     />
   )
 }
