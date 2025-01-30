@@ -1,5 +1,5 @@
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { type FC, lazy, Suspense, useEffect, useState } from 'react'
+import { type FC, lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Modal } from '../../../common/Modal.js'
 import {
   Anchor,
@@ -16,6 +16,8 @@ import { LoadingSpinner } from '../../../../components/common/LoadingSpinner.js'
 import { EventNames } from '../../../../constants/events.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
+import { useExecutionStatus } from '@reservoir0x/relay-kit-hooks'
+import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
 
 const MoonPayBuyWidget = lazy(() =>
   import('@moonpay/moonpay-react').then((module) => ({
@@ -71,6 +73,48 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
     ? 'https://testnets.relay.link'
     : 'https://relay.link'
+
+  const requestId = useMemo(
+    () => extractDepositRequestId(quote?.steps as Execute['steps']),
+    [quote]
+  )
+
+  const { data: executionStatus } = useExecutionStatus(
+    relayClient ? relayClient : undefined,
+    {
+      requestId: requestId ?? undefined
+    },
+    undefined,
+    undefined,
+    {
+      enabled: requestId !== null && step === 'PROCESSING' && open,
+      refetchInterval(query) {
+        const observableStates = ['waiting', 'pending', 'delayed']
+
+        if (
+          !query.state.data?.status ||
+          (requestId && observableStates.includes(query.state.data?.status))
+        ) {
+          return 1000
+        }
+        return 0
+      }
+    }
+  )
+
+  useEffect(() => {
+    if (
+      executionStatus?.status === 'pending' &&
+      (step !== 'PROCESSING' || processingStep !== 'RELAYING')
+    ) {
+      setStep('PROCESSING')
+      setProcessingStep('RELAYING')
+    }
+    if (executionStatus?.status === 'success') {
+      setStep('SUCCESS')
+      setProcessingStep(undefined)
+    }
+  }, [executionStatus])
 
   return (
     <Modal
@@ -210,17 +254,21 @@ export const OnrampModal: FC<OnrampModalProps> = ({
               onUrlSignatureRequested={moonpayOnUrlSignatureRequested}
               onTransactionCreated={async (props) => {
                 setMoonPayRequestId(props.id)
-                setStep('PROCESSING')
-                setProcessingStep('FINALIZING')
-                onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
-                  ...props
-                })
+                if (step === 'MOONPAY') {
+                  setStep('PROCESSING')
+                  setProcessingStep('FINALIZING')
+                  onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
+                    ...props
+                  })
+                }
               }}
               onTransactionCompleted={async (props) => {
-                setProcessingStep('RELAYING')
-                onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-                  ...props
-                })
+                if (step === 'PROCESSING') {
+                  setProcessingStep('RELAYING')
+                  onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
+                    ...props
+                  })
+                }
               }}
             />
           ) : null}
