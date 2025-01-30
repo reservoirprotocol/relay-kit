@@ -65,7 +65,6 @@ const OnrampPage: NextPage = () => {
           supportedWalletVMs={['evm', 'svm', 'bvm']}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
-          moonpayApiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
           moonpayOnUrlSignatureRequested={async (
             url: string
           ): Promise<string> => {
