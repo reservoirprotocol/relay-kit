@@ -18,7 +18,7 @@
     "@dynamic-labs/bitcoin": "4.2.2",
     "@dynamic-labs/eclipse": "4.2.2",
     "@dynamic-labs/ethereum": "4.2.2",
-    "@dynamic-labs/ethereum-core": "^4.2.3",
+    "@dynamic-labs/ethereum-core": "4.2.2",
     "@dynamic-labs/sdk-react-core": "4.2.2",
     "@dynamic-labs/solana": "4.2.2",
     "@dynamic-labs/utils": "4.2.2",
