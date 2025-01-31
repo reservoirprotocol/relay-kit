@@ -20,6 +20,7 @@ import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
 import FiatCurrencyModal from './FiatCurrencyModal.js'
+import { formatBN } from '../../../../utils/numbers.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
@@ -57,12 +58,12 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   linkedWallets,
   multiWalletSupportEnabled,
   supportedWalletVMs,
+  fiatCurrencies,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
   onAnalyticEvent
 }) => {
-  const [displayCurrency, setDisplayCurrency] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
@@ -75,13 +76,17 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       multiWalletSupportEnabled={multiWalletSupportEnabled}
     >
       {({
+        displayCurrency,
+        setDisplayCurrency,
         depositAddress,
         recipient,
         setRecipient,
         isRecipientLinked,
         isValidRecipient,
         amount,
-        setAmount,
+        amountToToken,
+        setInputValue,
+        amountToTokenFormatted,
         token,
         fromToken,
         setToken,
@@ -89,12 +94,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         fromChain,
         toDisplayName,
         toChainWalletVMSupported,
-        totalAmount,
-        quote,
         fiatCurrency,
         setFiatCurrency
       }) => {
-        //todo make format dynamic based on fiatCurrency
         const formattedAmount =
           amount === ''
             ? ''
@@ -116,7 +118,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   maximumFractionDigits: amount.includes('.') ? 2 : 0
                 }).format(+amount)
 
-        const ctaDisabled = !recipient && !totalAmount
+        //TODO validation
+        const ctaDisabled = Boolean(
+          !recipient && amount && +amount > fiatCurrency.minAmount
+        )
 
         return (
           <div
@@ -150,39 +155,18 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <FiatCurrencyModal
                     fiatCurrency={fiatCurrency}
                     setFiatCurrency={setFiatCurrency}
+                    fiatCurrencies={fiatCurrencies ?? []} //TODO add defaults
                   />
                 </Flex>
                 <AmountInput
-                  value={displayCurrency ? '0.03' : formattedAmount}
+                  value={displayCurrency ? `${amountToToken}` : formattedAmount}
                   setValue={(e) => {
-                    setAmount(e)
+                    //unused
                   }}
                   placeholder={displayCurrency ? '0' : '$0'}
-                  onChange={
-                    displayCurrency
-                      ? undefined
-                      : (e) => {
-                          const inputValue = (e.target as HTMLInputElement)
-                            .value
-                          const numericValue = inputValue
-                            .replace(/[^0-9.]/g, '')
-                            .replace(/(\..*?)(\..*)/, '$1')
-                            .replace(/(\.\d{2})\d+/, '$1')
-                          const regex = /^[0-9]+(\.[0-9]*)?$/
-                          console.log(numericValue)
-                          if (
-                            numericValue === '.' ||
-                            numericValue.includes(',')
-                          ) {
-                            setAmount('0.')
-                          } else if (
-                            regex.test(numericValue) ||
-                            numericValue === ''
-                          ) {
-                            setAmount(numericValue)
-                          }
-                        }
-                  }
+                  onChange={(e) => {
+                    setInputValue((e.target as HTMLInputElement).value)
+                  }}
                   css={{
                     fontWeight: '700',
                     fontSize: 48,
@@ -202,11 +186,20 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     marginBottom: '16px'
                   }}
                   onClick={() => {
-                    setDisplayCurrency(!displayCurrency)
+                    const _displayCurrency = !displayCurrency
+                    setDisplayCurrency(_displayCurrency)
+                    if (_displayCurrency) {
+                      setInputValue(
+                        formatBN(parseFloat(amountToToken), 5, token.decimals),
+                        _displayCurrency
+                      )
+                    }
                   }}
                 >
                   <Text style="body2" color="subtle">
-                    {displayCurrency ? formattedAmount : '0.03 ETH'}
+                    {displayCurrency
+                      ? formattedAmount
+                      : `${amountToTokenFormatted} ${token.symbol}`}
                   </Text>
                   <Flex
                     css={{
@@ -258,7 +251,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     corners="pill"
                     css={{ minHeight: 28, px: 3, py: 1 }}
                     onClick={() => {
-                      setAmount('100')
+                      setDisplayCurrency(false)
+                      setInputValue('100', false)
                     }}
                   >
                     <Text style="subtitle2">$100</Text>
@@ -268,7 +262,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     corners="pill"
                     css={{ minHeight: 28, px: 3, py: 1 }}
                     onClick={() => {
-                      setAmount('300')
+                      setDisplayCurrency(false)
+                      setInputValue('300', false)
                     }}
                   >
                     <Text style="subtitle2">$300</Text>
@@ -278,7 +273,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     corners="pill"
                     css={{ minHeight: 28, px: 3, py: 1 }}
                     onClick={() => {
-                      setAmount('1000')
+                      setDisplayCurrency(false)
+                      setInputValue('1000', false)
                     }}
                   >
                     <Text style="subtitle2">$1,000</Text>
@@ -424,10 +420,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               toToken={token}
               fromChain={fromChain}
               toChain={toChain}
-              depositAddress={depositAddress}
-              totalAmount={totalAmount ? `${totalAmount}` : undefined}
-              quote={quote}
+              amount={amount}
               fiatCurrency={fiatCurrency}
+              recipient={recipient}
               // onSuccess={}
             />
           </div>
