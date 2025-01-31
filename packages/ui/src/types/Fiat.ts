@@ -1,6 +1,6 @@
 export type FiatCurrency = {
   name: string
   code: string
-  minAmount: string
+  minAmount: number
   icon: string
 }

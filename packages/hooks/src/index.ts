@@ -18,6 +18,10 @@ export {
   default as useExecutionStatus,
   queryExecutionStatus
 } from './hooks/useExecutionStatus.js'
+export {
+  default as useTokenPrice,
+  queryTokenPrice
+} from './hooks/useTokenPrice.js'
 
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'

@@ -1,53 +1,62 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { type FC, lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { Modal } from '../../../common/Modal.js'
 import {
-  Anchor,
-  Box,
-  Button,
-  ChainTokenIcon,
-  Flex,
-  Pill,
-  Text
-} from '../../../primitives/index.js'
+  getDeadAddress,
+  type Execute,
+  type RelayChain
+} from '@reservoir0x/relay-sdk'
+import { type FC, useEffect, useMemo, useState } from 'react'
+import { Modal } from '../../../common/Modal.js'
 import type { FiatCurrency, Token } from '../../../../types/index.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
-import { LoadingSpinner } from '../../../../components/common/LoadingSpinner.js'
 import { EventNames } from '../../../../constants/events.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import { useExecutionStatus } from '@reservoir0x/relay-kit-hooks'
+import {
+  useExecutionStatus,
+  useQuote,
+  useRequests
+} from '@reservoir0x/relay-kit-hooks'
 import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
+import { parseUnits } from 'viem'
+import { extractDepositAddress } from '../../../../utils/quote.js'
+import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
+import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
+import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
+import { OnrampSuccessStep } from './steps/OnrampSuccessStep.js'
+import { OnrampMoonPayStep } from './steps/OnrampMoonPayStep.js'
 
-const MoonPayBuyWidget = lazy(() =>
-  import('@moonpay/moonpay-react').then((module) => ({
-    default: module.MoonPayBuyWidget
-  }))
-)
+export enum OnrampStep {
+  Confirming,
+  Moonpay,
+  Processing,
+  Success,
+  Error
+}
+
+export enum OnrampProcessingStep {
+  Finalizing,
+  Relaying
+}
 
 type OnrampModalProps = {
   open: boolean
-  totalAmount?: string
-  depositAddress?: string
-  quote?: Execute
-  fromToken?: Token
+  amount?: string
+  fromToken: Token
   fromChain?: RelayChain
-  toToken?: Token
+  toToken: Token
   toChain?: RelayChain
   fiatCurrency: FiatCurrency
+  recipient?: string
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
-  onSuccess?: (data: Execute) => void
+  //TODO add success data
+  onSuccess?: () => void
 }
 
 export const OnrampModal: FC<OnrampModalProps> = ({
   open,
-  totalAmount,
-  depositAddress,
+  amount,
+  recipient,
   fromToken,
   toToken,
-  quote,
   toChain,
   fromChain,
   fiatCurrency,
@@ -56,40 +65,88 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   onSuccess,
   onOpenChange
 }) => {
-  const [step, setStep] = useState<
-    'CONFIRMING' | 'MOONPAY' | 'PROCESSING' | 'SUCCESS'
-  >('CONFIRMING')
+  const [step, setStep] = useState<OnrampStep>(OnrampStep.Confirming)
   const [processingStep, setProcessingStep] = useState<
-    undefined | 'FINALIZING' | 'RELAYING'
+    OnrampProcessingStep | undefined
   >()
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
-  const relayClient = useRelayClient()
+  const client = useRelayClient()
 
   useEffect(() => {
     if (!open) {
-      setStep('CONFIRMING')
+      setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
+      setMoonPayRequestId(undefined)
     }
   }, [open])
 
-  const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
+  const quote = useQuote(
+    client ?? undefined,
+    undefined,
+    {
+      originChainId: fromToken.chainId,
+      originCurrency: fromToken.address,
+      destinationChainId: toToken.chainId,
+      destinationCurrency: toToken.address,
+      useDepositAddress: true,
+      tradeType: 'EXACT_INPUT',
+      amount: parseUnits(`${amount}`, 6).toString(),
+      user: getDeadAddress(),
+      recipient: recipient
+    },
+    undefined,
+    undefined,
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      enabled: Boolean(
+        amount &&
+          amount.length > 0 &&
+          toToken &&
+          fromToken &&
+          recipient !== undefined &&
+          open
+      )
+    }
+  )
+
+  const totalAmount =
+    quote.data?.fees && amount
+      ? `${
+          Math.floor(
+            (Number(quote.data.fees.relayer?.amountUsd ?? 0) +
+              Number(quote.data.fees.gas?.amountUsd ?? 0) +
+              Number(quote.data.fees.app?.amountUsd ?? 0) +
+              +amount) *
+              100
+          ) / 100
+        }`
+      : null
+
+  const depositAddress = useMemo(
+    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
+    [quote]
+  )
+
+  const baseTransactionUrl = client?.baseApiUrl.includes('testnets')
     ? 'https://testnets.relay.link'
     : 'https://relay.link'
 
   const requestId = useMemo(
-    () => extractDepositRequestId(quote?.steps as Execute['steps']),
+    () => extractDepositRequestId(quote?.data?.steps as Execute['steps']),
     [quote]
   )
 
   const { data: executionStatus } = useExecutionStatus(
-    relayClient ? relayClient : undefined,
+    client ? client : undefined,
     {
       requestId: requestId ?? undefined
     },
     undefined,
     undefined,
     {
-      enabled: requestId !== null && step === 'PROCESSING' && open,
+      enabled: requestId !== null && step === OnrampStep.Processing && open,
       refetchInterval(query) {
         const observableStates = ['waiting', 'pending', 'delayed']
 
@@ -104,16 +161,61 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     }
   )
 
+  const fillTxHash = useMemo(() => {
+    if (executionStatus?.txHashes && executionStatus?.txHashes[0]) {
+      return executionStatus?.txHashes[0]
+    }
+  }, [executionStatus])
+
+  const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
+    step === OnrampStep.Success && fillTxHash
+      ? {
+          user: recipient,
+          hash: fillTxHash
+        }
+      : undefined,
+    client?.baseApiUrl,
+    {
+      enabled: Boolean(step === OnrampStep.Success && fillTxHash),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: false,
+      retryOnMount: false
+    }
+  )
+
+  const transaction = transactions && transactions[0] ? transactions[0] : null
+  const toAmountFormatted =
+    transaction?.data?.metadata?.currencyOut?.amountFormatted ?? undefined
+
+  const fillTxUrl = fillTxHash
+    ? getTxBlockExplorerUrl(toToken.chainId, client?.chains, fillTxHash)
+    : undefined
+
+  const moonpayTxUrl = moonPayRequestId
+    ? `https://buy.moonpay.com/transaction_receipt?transactionId=${moonPayRequestId}`
+    : null
+
   useEffect(() => {
     if (
       executionStatus?.status === 'pending' &&
-      (step !== 'PROCESSING' || processingStep !== 'RELAYING')
+      (step !== OnrampStep.Processing ||
+        processingStep !== OnrampProcessingStep.Relaying)
     ) {
-      setStep('PROCESSING')
-      setProcessingStep('RELAYING')
+      setStep(OnrampStep.Processing)
+      setProcessingStep(OnrampProcessingStep.Relaying)
     }
     if (executionStatus?.status === 'success') {
-      setStep('SUCCESS')
+      setStep(OnrampStep.Success)
+      onAnalyticEvent?.(EventNames.ONRAMP_SUCCESS, {
+        chain_id_in: fromToken?.chainId,
+        currency_in: fromToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        currency_out: toToken?.symbol,
+        quote_id: requestId,
+        txHashes: executionStatus.txHashes
+      })
+      onSuccess?.()
       setProcessingStep(undefined)
     }
   }, [executionStatus])
@@ -136,293 +238,59 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         maxWidth: '412px !important'
       }}
     >
-      {step === 'CONFIRMING' ? (
-        <Flex
-          direction="column"
-          css={{
-            width: '100%',
-            height: '100%',
-            gap: '4'
-          }}
-        >
-          <Text style="h6">Buy {toToken?.name}</Text>
-          <Flex
-            direction="column"
-            css={{
-              width: '100%',
-              overflow: 'hidden',
-              borderRadius: 'widget-card-border-radius',
-              '--borderColor': 'colors.subtle-border-color',
-              border: '1px solid var(--borderColor)',
-              p: '4'
-            }}
-          >
-            <Flex align="center" css={{ gap: '2' }}>
-              <ChainTokenIcon
-                chainId={fromToken?.chainId}
-                tokenlogoURI={fromToken?.logoURI}
-                css={{ width: 32, height: 32 }}
-              />
-              <Text style="subtitle1">
-                You’ll purchase {fromToken?.symbol} via your card
-              </Text>
-            </Flex>
-            <Box
-              css={{
-                height: 24,
-                width: 1,
-                background: 'gray5',
-                my: '5px',
-                ml: 4
-              }}
-            />
-            <Flex align="center" css={{ gap: '2' }}>
-              <ChainTokenIcon
-                chainId={toToken?.chainId}
-                tokenlogoURI={toToken?.logoURI}
-                css={{ width: 32, height: 32 }}
-              />
-              <Text style="subtitle1">Relay converts to {toToken?.symbol}</Text>
-            </Flex>
-          </Flex>
-          <Text style="subtitle2">
-            This transaction occurs in two steps. MoonPay powers only your
-            purchase of {fromToken?.symbol} ({fromChain?.displayName}) which
-            Relay then converts to {toToken?.symbol} ({toChain?.displayName}).
-          </Text>
-          <Button
-            css={{ justifyContent: 'center' }}
-            onClick={(e) => {
-              // onAnalyticEvent
-              setStep('MOONPAY')
-            }}
-          >
-            Purchase {fromToken?.symbol}
-          </Button>
-        </Flex>
+      {step === OnrampStep.Confirming ? (
+        <OnrampConfirmingStep
+          toToken={toToken}
+          fromToken={fromToken}
+          fromChain={fromChain}
+          toChain={toChain}
+          requestId={requestId ?? undefined}
+          depositAddress={depositAddress}
+          recipient={recipient}
+          amount={amount}
+          totalAmount={totalAmount ?? undefined}
+          onAnalyticEvent={onAnalyticEvent}
+          setStep={setStep}
+        />
       ) : null}
-      <Flex
-        direction="column"
-        css={{
-          width: '100%',
-          height: '100%',
-          display: step === 'MOONPAY' ? 'flex' : 'none'
-        }}
-      >
-        <Text style="h6" css={{ mb: '2' }}>
-          Buy {toToken?.name}
-        </Text>
-        <Flex
-          align="center"
-          css={{
-            width: '100%',
-            overflow: 'hidden',
-            borderRadius: 'widget-card-border-radius',
-            '--borderColor': 'colors.subtle-border-color',
-            border: '1px solid var(--borderColor)',
-            p: '4',
-            gap: 2
-          }}
-        >
-          <ChainTokenIcon
-            chainId={fromToken?.chainId}
-            tokenlogoURI={fromToken?.logoURI}
-            css={{ width: 32, height: 32 }}
-          />
-          <Text style="subtitle2">
-            Purchase {fromToken?.symbol} via your card for Relay to convert to{' '}
-            {toToken?.symbol}
-          </Text>
-        </Flex>
-        <Suspense fallback={<div></div>}>
-          {MoonPayBuyWidget ? (
-            <MoonPayBuyWidget
-              variant="embedded"
-              baseCurrencyCode={fiatCurrency.code}
-              quoteCurrencyAmount={totalAmount}
-              lockAmount="true"
-              currencyCode={
-                fromChain?.id === 8453 ? 'usdc_base' : 'usdc_optimism'
-              }
-              paymentMethod="credit_debit_card"
-              walletAddress={depositAddress}
-              showWalletAddressForm="false"
-              visible
-              style={{
-                margin: 0,
-                width: '100%',
-                border: 'none'
-              }}
-              onUrlSignatureRequested={moonpayOnUrlSignatureRequested}
-              onTransactionCreated={async (props) => {
-                setMoonPayRequestId(props.id)
-                if (step === 'MOONPAY') {
-                  setStep('PROCESSING')
-                  setProcessingStep('FINALIZING')
-                  onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
-                    ...props
-                  })
-                }
-              }}
-              onTransactionCompleted={async (props) => {
-                if (step === 'PROCESSING') {
-                  setProcessingStep('RELAYING')
-                  onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-                    ...props
-                  })
-                }
-              }}
-            />
-          ) : null}
-        </Suspense>
-      </Flex>
-      {step === 'PROCESSING' ? (
-        <Flex
-          direction="column"
-          css={{
-            width: '100%',
-            height: '100%'
-          }}
-        >
-          <Text style="h6" css={{ mb: '4' }}>
-            Processing Transaction
-          </Text>
-          <Flex
-            direction="column"
-            css={{
-              width: '100%',
-              overflow: 'hidden',
-              borderRadius: 'widget-card-border-radius',
-              '--borderColor': 'colors.subtle-border-color',
-              border: '1px solid var(--borderColor)',
-              p: '4',
-              mb: '4'
-            }}
-          >
-            <Flex align="center" css={{ gap: '2' }}>
-              <ChainTokenIcon
-                chainId={fromToken?.chainId}
-                tokenlogoURI={fromToken?.logoURI}
-                css={{
-                  width: 32,
-                  height: 32,
-                  filter:
-                    processingStep === 'RELAYING' ? 'grayscale(1)' : 'none'
-                }}
-              />
-              <Flex css={{ gap: '1' }} direction="column">
-                <Text
-                  style="subtitle1"
-                  color={processingStep === 'RELAYING' ? 'subtle' : undefined}
-                >
-                  {processingStep === 'RELAYING'
-                    ? `Purchased ${fromToken?.symbol}(${fromChain?.displayName}) via your card`
-                    : `Finalizing your purchase of ${fromToken?.symbol}(${fromChain?.displayName}) via your card`}
-                </Text>
-                {moonPayRequestId ? (
-                  <Anchor
-                    href={`https://buy.moonpay.com/transaction_receipt?transactionId=${moonPayRequestId}`}
-                    target="_blank"
-                    css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-                  >
-                    Track MoonPay transaction{' '}
-                    <FontAwesomeIcon
-                      icon={faUpRightFromSquare}
-                      style={{ width: 14 }}
-                    />
-                  </Anchor>
-                ) : null}
-              </Flex>
-              {processingStep === 'RELAYING' ? (
-                <Box css={{ color: 'green9', ml: 'auto' }}>
-                  <FontAwesomeIcon icon={faCheck} style={{ height: 16 }} />
-                </Box>
-              ) : (
-                <LoadingSpinner
-                  css={{ height: 20, width: 20, fill: 'gray9', ml: 'auto' }}
-                />
-              )}
-            </Flex>
-            {processingStep === 'FINALIZING' ? (
-              <Pill
-                radius="rounded"
-                color="gray"
-                css={{ width: '100%', py: '2', px: '3', mt: '6px' }}
-              >
-                <Text style="subtitle2" color="subtle">
-                  It might take a few minutes for the MoonPay transaction to
-                  finalize.
-                </Text>
-              </Pill>
-            ) : null}
-            <Box
-              css={{
-                height: 24,
-                width: 1,
-                background: 'gray5',
-                my: '5px',
-                ml: 4
-              }}
-            />
-            <Flex
-              align="center"
-              css={{
-                gap: '2'
-              }}
-            >
-              <ChainTokenIcon
-                chainId={toToken?.chainId}
-                tokenlogoURI={toToken?.logoURI}
-                css={{
-                  width: 32,
-                  height: 32,
-                  filter:
-                    processingStep === 'RELAYING' ? 'none' : 'grayscale(1)'
-                }}
-              />
-              <Flex css={{ gap: '1' }} direction="column">
-                <Text
-                  style="subtitle1"
-                  color={processingStep === 'RELAYING' ? undefined : 'subtle'}
-                >
-                  {processingStep === 'RELAYING'
-                    ? `Converting to ${toToken?.symbol}(${toChain?.displayName})`
-                    : `Relay converts to ${toToken?.symbol}(${toChain?.displayName})`}
-                </Text>
-                {/* {txHash ? (
-                  <Anchor
-                    href={`${baseTransactionUrl}`}
-                    target="_blank"
-                    css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-                  >
-                    Track MoonPay transaction{' '}
-                    <FontAwesomeIcon
-                      icon={faUpRightFromSquare}
-                      style={{ width: 14 }}
-                    />
-                  </Anchor>
-                ) : null} */}
-              </Flex>
-              {processingStep === 'RELAYING' ? (
-                <LoadingSpinner
-                  css={{ height: 16, width: 16, fill: 'gray9', ml: 'auto' }}
-                />
-              ) : null}
-            </Flex>
-          </Flex>
-          <Text style="body2" color="subtle">
-            Feel free to leave at any time, you can track your progress within
-            the
-            <Anchor
-              href={`${baseTransactionUrl}/transaction/`}
-              target="_blank"
-              css={{ ml: '1' }}
-            >
-              transaction page
-            </Anchor>
-            .
-          </Text>
-        </Flex>
+      <OnrampMoonPayStep
+        step={step}
+        toToken={toToken}
+        fromToken={fromToken}
+        fromChain={fromChain}
+        depositAddress={depositAddress}
+        totalAmount={totalAmount ?? undefined}
+        fiatCurrency={fiatCurrency}
+        onAnalyticEvent={onAnalyticEvent}
+        setStep={setStep}
+        setProcessingStep={setProcessingStep}
+        setMoonPayRequestId={setMoonPayRequestId}
+        moonpayOnUrlSignatureRequested={moonpayOnUrlSignatureRequested}
+      />
+      {step === OnrampStep.Processing ? (
+        <OnrampProcessingStepUI
+          toToken={toToken}
+          fromToken={fromToken}
+          fromChain={fromChain}
+          toChain={toChain}
+          moonpayTxUrl={moonpayTxUrl ?? undefined}
+          fillTxUrl={fillTxUrl}
+          fillTxHash={fillTxHash}
+          processingStep={processingStep}
+          baseTransactionUrl={baseTransactionUrl}
+          requestId={requestId ?? undefined}
+        />
+      ) : null}
+      {step === OnrampStep.Success ? (
+        <OnrampSuccessStep
+          toToken={toToken}
+          isLoadingTransaction={isLoadingTransaction}
+          fillTxHash={fillTxHash}
+          fillTxUrl={fillTxUrl}
+          moonpayTxUrl={moonpayTxUrl ?? undefined}
+          toAmountFormatted={toAmountFormatted}
+          onOpenChange={onOpenChange}
+        />
       ) : null}
     </Modal>
   )

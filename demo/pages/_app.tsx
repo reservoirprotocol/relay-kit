@@ -67,7 +67,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       includeChains: '9286185,8253038'
     },
     {
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      refetchOnMount: false
     }
   )
 
