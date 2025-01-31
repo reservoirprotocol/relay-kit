@@ -145,21 +145,22 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   backgroundColor: 'widget-background',
                   border: 'widget-card-border',
                   mb: 'widget-card-section-gutter',
-                  p: '4'
+                  px: '4',
+                  pt: '40px',
+                  pb: '24px'
                 }}
               >
-                <Flex justify="between" align="center" css={{ mb: 28 }}>
-                  <Text style="subtitle2" color="subtle">
-                    You are buying
-                  </Text>
-                  <FiatCurrencyModal
-                    fiatCurrency={fiatCurrency}
-                    setFiatCurrency={setFiatCurrency}
-                    fiatCurrencies={fiatCurrencies ?? []} //TODO add defaults
-                  />
-                </Flex>
+                <Text
+                  style="subtitle2"
+                  color="subtle"
+                  css={{ textAlign: 'center' }}
+                >
+                  Enter an amount
+                </Text>
                 <AmountInput
-                  value={displayCurrency ? `${amountToToken}` : formattedAmount}
+                  value={
+                    displayCurrency ? `${amountToToken} ETH` : formattedAmount
+                  }
                   setValue={(e) => {
                     //unused
                   }}
@@ -280,104 +281,115 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     <Text style="subtitle2">$1,000</Text>
                   </Button>
                 </Flex>
-                <Box
-                  css={{
-                    width: '100%',
-                    height: 1,
-                    my: '3',
-                    background: 'gray5'
-                  }}
-                />
-                <Flex justify="between" align="center" css={{ mb: '2' }}>
-                  <Text color="subtle" style="subtitle2">
-                    Recipient
-                  </Text>
-                  {multiWalletSupportEnabled === true &&
-                  toChainWalletVMSupported ? (
-                    <MultiWalletDropdown
-                      context="origin"
-                      selectedWalletAddress={recipient}
-                      onSelect={(wallet) => setRecipient(wallet.address)}
-                      chain={toChain}
-                      onLinkNewWallet={() => {
-                        if (
-                          (!linkedWallets || linkedWallets.length === 0) &&
-                          toChainWalletVMSupported
-                        ) {
-                          onConnectWallet?.()
-                        } else {
-                          onLinkNewWallet?.({
-                            chain: toChain,
-                            direction: 'to'
-                          })?.then((wallet) => {
-                            onSetPrimaryWallet?.(wallet.address)
-                          })
-                        }
-                      }}
-                      setAddressModalOpen={setAddressModalOpen}
-                      wallets={linkedWallets!}
-                      onAnalyticEvent={onAnalyticEvent}
-                    />
-                  ) : null}
-                  {!multiWalletSupportEnabled || !toChainWalletVMSupported ? (
-                    <Button
-                      color={
-                        isValidRecipient && !isRecipientLinked
-                          ? 'warning'
-                          : 'secondary'
+              </Flex>
+            </Flex>
+            <Flex
+              direction="column"
+              css={{
+                width: '100%',
+                overflow: 'hidden',
+                borderRadius: 'widget-card-border-radius',
+                backgroundColor: 'widget-background',
+                border: 'widget-card-border',
+                mb: 'widget-card-section-gutter',
+                p: '4'
+              }}
+            >
+              <Flex justify="between" align="center" css={{ mb: '2' }}>
+                <Text color="subtle" style="subtitle2">
+                  Recipient
+                </Text>
+                {multiWalletSupportEnabled === true &&
+                toChainWalletVMSupported ? (
+                  <MultiWalletDropdown
+                    context="origin"
+                    selectedWalletAddress={recipient}
+                    onSelect={(wallet) => setRecipient(wallet.address)}
+                    chain={toChain}
+                    onLinkNewWallet={() => {
+                      if (
+                        (!linkedWallets || linkedWallets.length === 0) &&
+                        toChainWalletVMSupported
+                      ) {
+                        onConnectWallet?.()
+                      } else {
+                        onLinkNewWallet?.({
+                          chain: toChain,
+                          direction: 'to'
+                        })?.then((wallet) => {
+                          onSetPrimaryWallet?.(wallet.address)
+                        })
                       }
-                      corners="pill"
-                      size="none"
+                    }}
+                    setAddressModalOpen={setAddressModalOpen}
+                    wallets={linkedWallets!}
+                    onAnalyticEvent={onAnalyticEvent}
+                  />
+                ) : null}
+                {!multiWalletSupportEnabled || !toChainWalletVMSupported ? (
+                  <Button
+                    color={
+                      isValidRecipient && !isRecipientLinked
+                        ? 'warning'
+                        : 'secondary'
+                    }
+                    corners="pill"
+                    size="none"
+                    css={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      px: '2',
+                      py: '1'
+                    }}
+                    onClick={() => {
+                      setAddressModalOpen(true)
+                      onAnalyticEvent?.(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
+                    }}
+                  >
+                    {isValidRecipient && !isRecipientLinked ? (
+                      <Box css={{ color: 'amber11' }}>
+                        <FontAwesomeIcon
+                          icon={faClipboard}
+                          width={16}
+                          height={16}
+                        />
+                      </Box>
+                    ) : null}
+                    <Text
+                      style="subtitle2"
                       css={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        px: '2',
-                        py: '1'
-                      }}
-                      onClick={() => {
-                        setAddressModalOpen(true)
-                        onAnalyticEvent?.(EventNames.SWAP_ADDRESS_MODAL_CLICKED)
+                        color:
+                          isValidRecipient && !isRecipientLinked
+                            ? 'amber11'
+                            : 'secondary-button-color'
                       }}
                     >
-                      {isValidRecipient && !isRecipientLinked ? (
-                        <Box css={{ color: 'amber11' }}>
-                          <FontAwesomeIcon
-                            icon={faClipboard}
-                            width={16}
-                            height={16}
-                          />
-                        </Box>
-                      ) : null}
-                      <Text
-                        style="subtitle2"
-                        css={{
-                          color:
-                            isValidRecipient && !isRecipientLinked
-                              ? 'amber11'
-                              : 'secondary-button-color'
-                        }}
-                      >
-                        {!isValidRecipient ? `Enter Address` : toDisplayName}
-                      </Text>
-                    </Button>
-                  ) : null}
+                      {!isValidRecipient ? `Enter Address` : toDisplayName}
+                    </Text>
+                  </Button>
+                ) : null}
+              </Flex>
+              <Flex justify="between" align="center">
+                <Text color="subtle" style="subtitle2">
+                  Paying with
+                </Text>
+                <Flex
+                  css={{
+                    alignItems: 'center',
+                    gap: '2',
+                    ml: 'auto',
+                    mr: '2',
+                    color: 'gray9'
+                  }}
+                >
+                  <FontAwesomeIcon style={{ width: 16 }} icon={faCreditCard} />
+                  <Text style="subtitle2">Card</Text>
                 </Flex>
-                <Flex justify="between" align="center">
-                  <Text color="subtle" style="subtitle2">
-                    Paying with
-                  </Text>
-                  <Pill
-                    css={{ px: '2', py: '6px', alignItems: 'center', gap: '2' }}
-                    color="gray"
-                    radius="squared"
-                  >
-                    <FontAwesomeIcon
-                      style={{ width: 16 }}
-                      icon={faCreditCard}
-                    />
-                    <Text style="subtitle2">Credit/Debit Card</Text>
-                  </Pill>
-                </Flex>
+                <FiatCurrencyModal
+                  fiatCurrency={fiatCurrency}
+                  setFiatCurrency={setFiatCurrency}
+                  fiatCurrencies={fiatCurrencies ?? []} //TODO add defaults
+                />
               </Flex>
             </Flex>
             <Button
