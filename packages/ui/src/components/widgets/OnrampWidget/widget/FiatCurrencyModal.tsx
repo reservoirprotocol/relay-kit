@@ -57,15 +57,16 @@ const FiatCurrencyModal: FC<Props> = ({
           color="white"
           corners="pill"
           css={{
-            height: 36,
-            minHeight: 36,
+            height: 28,
+            minHeight: 28,
             width: 'max-content',
             flexShrink: 0,
             overflow: 'hidden',
             gap: '1',
             display: 'flex',
             alignItems: 'center',
-            p: '6px',
+            py: '1',
+            px: '2',
             backgroundColor: 'gray2',
             border: 'none',
             _hover: {
@@ -99,7 +100,8 @@ const FiatCurrencyModal: FC<Props> = ({
         overflow: 'hidden',
         p: '4',
         maxWidth: '400px !important',
-        maxHeight: '450px !important'
+        maxHeight: '450px !important',
+        height: 450
       }}
     >
       <Text
@@ -128,7 +130,7 @@ const FiatCurrencyModal: FC<Props> = ({
           flexDirection: 'column',
           width: '100%',
           gap: '1',
-          height: '100%',
+          height: 'calc(100% - 24px)',
           overflowY: 'auto',
           scrollPaddingTop: '40px'
         }}
@@ -154,7 +156,7 @@ const FiatCurrencyModal: FC<Props> = ({
               marginTop: '8px',
               marginBottom: '8px',
               position: 'sticky',
-              top: 0,
+              top: '8px',
               zIndex: 1
             }}
             css={{
@@ -233,7 +235,7 @@ const FiatCurrencyModal: FC<Props> = ({
                   >
                     <Text style="subtitle2">{currency.name}</Text>
                     <Text style="body3" color="subtle">
-                      {currency.code}
+                      {currency.code.toUpperCase()}
                     </Text>
                   </Flex>
                 </Flex>
@@ -241,6 +243,12 @@ const FiatCurrencyModal: FC<Props> = ({
             </AccessibleListItem>
           )
         })}
+        {/* Empty State */}
+        {filteredCurrencies.length === 0 ? (
+          <Text style="subtitle2" css={{ textAlign: 'center', py: '5' }}>
+            No results found.
+          </Text>
+        ) : null}
       </AccessibleList>
     </Modal>
   )

@@ -249,12 +249,14 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           recipient={recipient}
           amount={amount}
           totalAmount={totalAmount ?? undefined}
+          isFetchingQuote={quote.isFetching}
           onAnalyticEvent={onAnalyticEvent}
           setStep={setStep}
         />
       ) : null}
       <OnrampMoonPayStep
         step={step}
+        processingStep={processingStep}
         toToken={toToken}
         fromToken={fromToken}
         fromChain={fromChain}

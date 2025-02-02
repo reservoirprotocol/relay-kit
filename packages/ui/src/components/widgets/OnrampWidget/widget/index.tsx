@@ -302,7 +302,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 {multiWalletSupportEnabled === true &&
                 toChainWalletVMSupported ? (
                   <MultiWalletDropdown
-                    context="origin"
+                    context="destination"
                     selectedWalletAddress={recipient}
                     onSelect={(wallet) => setRecipient(wallet.address)}
                     chain={toChain}

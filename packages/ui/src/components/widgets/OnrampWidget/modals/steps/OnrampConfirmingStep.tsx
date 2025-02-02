@@ -22,6 +22,7 @@ type OnrampConfirmingStepProps = {
   recipient?: string
   amount?: string
   totalAmount?: string
+  isFetchingQuote?: boolean
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
 }
@@ -36,6 +37,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
   recipient,
   amount,
   totalAmount,
+  isFetchingQuote,
   onAnalyticEvent,
   setStep
 }) => {
@@ -94,7 +96,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
         converts to {toToken?.symbol} ({toChain?.displayName}).
       </Text>
       <Button
-        disabled={!depositAddress}
+        disabled={!depositAddress || isFetchingQuote}
         css={{ justifyContent: 'center' }}
         onClick={(e) => {
           onAnalyticEvent?.(EventNames.ONRAMP_CTA_CLICKED, {
@@ -109,7 +111,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
           setStep(OnrampStep.Moonpay)
         }}
       >
-        {!depositAddress ? (
+        {!depositAddress || isFetchingQuote ? (
           <LoadingSpinner
             css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
           />
