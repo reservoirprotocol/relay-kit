@@ -94,7 +94,7 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
             </Text>
           )}
         </Pill>
-        <Flex direction="column" css={{ gap: '2' }}>
+        <Flex direction="column" css={{ gap: '2', justifyItems: 'center' }}>
           <Anchor
             href={moonpayTxUrl}
             target="_blank"

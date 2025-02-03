@@ -25,7 +25,7 @@ import { formatBN } from '../../../../utils/numbers.js'
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
-  fiatCurrencies?: FiatCurrency[]
+  moonPayApiKey: string
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -54,11 +54,11 @@ export type OnrampWidgetProps =
 
 const OnrampWidget: FC<OnrampWidgetProps> = ({
   defaultWalletAddress,
+  moonPayApiKey,
   moonpayOnUrlSignatureRequested,
   linkedWallets,
   multiWalletSupportEnabled,
   supportedWalletVMs,
-  fiatCurrencies,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
@@ -78,7 +78,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       {({
         displayCurrency,
         setDisplayCurrency,
-        depositAddress,
         recipient,
         setRecipient,
         isRecipientLinked,
@@ -95,7 +94,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         toDisplayName,
         toChainWalletVMSupported,
         fiatCurrency,
-        setFiatCurrency
+        setFiatCurrency,
+        minAmountCurrency,
+        notEnoughFiat,
+        ctaCopy
       }) => {
         const formattedAmount =
           amount === ''
@@ -117,11 +119,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       : 0,
                   maximumFractionDigits: amount.includes('.') ? 2 : 0
                 }).format(+amount)
-
-        //TODO validation
-        const ctaDisabled = Boolean(
-          !recipient && amount && +amount > fiatCurrency.minAmount
-        )
 
         return (
           <div
@@ -177,6 +174,12 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     mb: '2'
                   }}
                 />
+                {notEnoughFiat ? (
+                  <Text color="red" css={{ mb: 24, textAlign: 'center' }}>
+                    Minimum amount is{' '}
+                    {displayCurrency ? minAmountCurrency ?? '$20' : '$20'}
+                  </Text>
+                ) : undefined}
                 <button
                   style={{
                     gap: '8px',
@@ -388,18 +391,36 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 <FiatCurrencyModal
                   fiatCurrency={fiatCurrency}
                   setFiatCurrency={setFiatCurrency}
-                  fiatCurrencies={fiatCurrencies ?? []} //TODO add defaults
+                  moonPayApiKey={moonPayApiKey}
                 />
               </Flex>
             </Flex>
             <Button
               css={{ width: '100%', justifyContent: 'center' }}
-              disabled={ctaDisabled}
+              disabled={notEnoughFiat}
               onClick={() => {
-                setOnrampModalOpen(true)
+                if (!recipient && toChainWalletVMSupported) {
+                  if (
+                    (!linkedWallets || linkedWallets.length === 0) &&
+                    toChainWalletVMSupported
+                  ) {
+                    onConnectWallet?.()
+                  } else {
+                    onLinkNewWallet?.({
+                      chain: toChain,
+                      direction: 'to'
+                    })?.then((wallet) => {
+                      onSetPrimaryWallet?.(wallet.address)
+                    })
+                  }
+                } else if (!recipient) {
+                  setAddressModalOpen(true)
+                } else {
+                  setOnrampModalOpen(true)
+                }
               }}
             >
-              Buy
+              {ctaCopy}
             </Button>
             <CustomAddressModal
               open={addressModalOpen}

@@ -9,6 +9,8 @@ import useDisconnected from './useDisconnected.js'
 import usePreviousValueChange from './usePreviousValueChange.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import useAtomicBatchSupport from './useAtomicBatchSupport.js'
+import useMoonPayCurrencies from './useMoonPayCurrencies.js'
+
 export {
   useMounted,
   useENSResolver,
@@ -20,5 +22,6 @@ export {
   useDisconnected,
   usePreviousValueChange,
   useBitcoinBalance,
-  useAtomicBatchSupport
+  useAtomicBatchSupport,
+  useMoonPayCurrencies
 }

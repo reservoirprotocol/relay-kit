@@ -11,6 +11,7 @@ type OnrampMoonPayStepProps = {
   toToken: Token
   fromToken: Token
   fromChain?: RelayChain
+  toChain?: RelayChain
   depositAddress?: string
   totalAmount?: string
   fiatCurrency: FiatCurrency
@@ -42,6 +43,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   toToken,
   fromToken,
   fromChain,
+  toChain,
   depositAddress,
   totalAmount,
   fiatCurrency,
@@ -75,7 +77,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
       }}
     >
       <Text style="h6" css={{ mb: '2' }}>
-        Buy {toToken?.name}
+        Buy {toToken?.symbol} ({toChain?.displayName})
       </Text>
       <Flex
         align="center"
@@ -95,8 +97,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           css={{ width: 32, height: 32 }}
         />
         <Text style="subtitle2">
-          Purchase {fromToken?.symbol} via your card for Relay to convert to{' '}
-          {toToken?.symbol}
+          Purchase {fromToken?.symbol} ({fromChain?.displayName}) via your card
+          for Relay to convert to {toToken?.symbol} ({toChain?.displayName})
         </Text>
       </Flex>
       <Suspense fallback={<div></div>}>

@@ -14,9 +14,13 @@ import { Modal } from '../../../../components/common/Modal.js'
 import type { FiatCurrency } from '../../../../types/index.js'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import Fuse from 'fuse.js'
+import useMoonPayCurrencies, {
+  type MoonPayFiatCurrency
+} from '../../../../hooks/useMoonPayCurrencies.js'
+import moonpayFiatCurrencies from '../../../../constants/moonPayFiatCurrencies.js'
 
 type Props = {
-  fiatCurrencies: FiatCurrency[]
+  moonPayApiKey: string
   fiatCurrency: FiatCurrency
   setFiatCurrency: (fiatCurrency: FiatCurrency) => void
 }
@@ -29,14 +33,42 @@ const fuseSearchOptions = {
 }
 
 const FiatCurrencyModal: FC<Props> = ({
+  moonPayApiKey,
   fiatCurrency,
-  setFiatCurrency,
-  fiatCurrencies
+  setFiatCurrency
 }) => {
   const [open, setOpen] = useState(false)
   const [currencySearchInput, setCurrencySearchInput] = useState('')
+  const { data: moonPayCurrencies } = useMoonPayCurrencies(
+    {
+      apiKey: moonPayApiKey
+    },
+    {
+      staleTime: 1000 * 60 * 60 * 24, //1 day
+      retryDelay: 1000 * 60 * 60 * 10 //10 minutes
+    }
+  )
+
+  const fiatCurrencies = useMemo(() => {
+    if (moonPayCurrencies && moonPayCurrencies.length > 0) {
+      return moonPayCurrencies
+        .filter((currency) => currency.type === 'fiat')
+        .map((currency) => {
+          const fiatCurrency = currency as MoonPayFiatCurrency
+          return {
+            name: fiatCurrency.name,
+            code: fiatCurrency.code,
+            minAmount: fiatCurrency.minBuyAmount,
+            icon: fiatCurrency.icon
+          }
+        })
+    } else {
+      return moonpayFiatCurrencies
+    }
+  }, [moonPayCurrencies])
+
   const sortedFiatCurrencies = useMemo(
-    () => fiatCurrencies.sort((a, b) => a.name.localeCompare(b.name)),
+    () => fiatCurrencies?.sort((a, b) => a.name.localeCompare(b.name)) ?? [],
     [fiatCurrencies]
   )
   const currenciesFuse = new Fuse(sortedFiatCurrencies, fuseSearchOptions)
@@ -99,9 +131,12 @@ const FiatCurrencyModal: FC<Props> = ({
       css={{
         overflow: 'hidden',
         p: '4',
-        maxWidth: '400px !important',
+        maxWidth: '100vw',
         maxHeight: '450px !important',
-        height: 450
+        height: 450,
+        sm: {
+          maxWidth: '400px !important'
+        }
       }}
     >
       <Text
@@ -185,7 +220,7 @@ const FiatCurrencyModal: FC<Props> = ({
                 css={{
                   scrollSnapAlign: 'start',
                   p: '2',
-                  mb: i + 1 < fiatCurrencies.length ? '1' : 0,
+                  mb: i + 1 < (fiatCurrencies?.length ?? 0) ? '1' : 0,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '2',

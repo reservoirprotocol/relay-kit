@@ -50,7 +50,9 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
         gap: '4'
       }}
     >
-      <Text style="h6">Buy {toToken?.name}</Text>
+      <Text style="h6">
+        Buy {toToken?.symbol} ({toChain?.displayName})
+      </Text>
       <Flex
         direction="column"
         css={{
@@ -69,7 +71,8 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
             css={{ width: 32, height: 32 }}
           />
           <Text style="subtitle1">
-            You’ll purchase {fromToken?.symbol} via your card
+            You’ll purchase {fromToken?.symbol} ({fromChain?.displayName}) via
+            your card
           </Text>
         </Flex>
         <Box
@@ -87,7 +90,9 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
             tokenlogoURI={toToken?.logoURI}
             css={{ width: 32, height: 32 }}
           />
-          <Text style="subtitle1">Relay converts to {toToken?.symbol}</Text>
+          <Text style="subtitle1">
+            Relay converts to {toToken?.symbol} ({toChain?.displayName})
+          </Text>
         </Flex>
       </Flex>
       <Text style="subtitle2">
@@ -116,7 +121,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
             css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
           />
         ) : (
-          `Purchase ${fromToken?.symbol}`
+          `Purchase ${fromToken?.symbol} (${fromChain?.displayName})`
         )}
       </Button>
     </Flex>

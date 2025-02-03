@@ -28,7 +28,6 @@ import { formatBN } from '../../../../utils/numbers.js'
 export type ChildrenProps = {
   displayCurrency: boolean
   setDisplayCurrency: React.Dispatch<React.SetStateAction<boolean>>
-  depositAddress?: string
   recipient?: string
   setRecipient: React.Dispatch<React.SetStateAction<string | undefined>>
   isRecipientLinked: boolean
@@ -49,6 +48,9 @@ export type ChildrenProps = {
   toChainWalletVMSupported?: boolean
   amountToTokenFormatted?: string
   usdRate: number
+  minAmountCurrency?: string
+  ctaCopy: string
+  notEnoughFiat: boolean
 }
 
 type OnrampWidgetRendererProps = {
@@ -90,6 +92,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     }
   )
   const usdRate = usdTokenPriceResponse?.price ?? 0
+  const minAmountCurrency = formatBN(20 / usdRate, 5, token.decimals)
 
   const toChain = useMemo(
     () => client?.chains.find((chain) => chain.id === token.chainId),
@@ -229,6 +232,16 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     [usdRate, displayCurrency]
   )
 
+  const notEnoughFiat = !amount || +amount < 20
+  let ctaCopy = 'Buy'
+  if (notEnoughFiat) {
+    ctaCopy = 'Enter an amount'
+  } else if (!_recipient && toChainWalletVMSupported) {
+    ctaCopy = `Connect`
+  } else if (!_recipient) {
+    ctaCopy = `Enter ${toChain?.displayName} address`
+  }
+
   return (
     <>
       {children({
@@ -253,7 +266,10 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         fiatCurrency,
         setFiatCurrency,
         amountToTokenFormatted,
-        usdRate
+        usdRate,
+        minAmountCurrency,
+        notEnoughFiat,
+        ctaCopy
       })}
     </>
   )

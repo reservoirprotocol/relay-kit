@@ -21,6 +21,10 @@ import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
 import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
 import { OnrampSuccessStep } from './steps/OnrampSuccessStep.js'
 import { OnrampMoonPayStep } from './steps/OnrampMoonPayStep.js'
+import { formatBN } from '../../../../utils/numbers.js'
+import { ErrorStep } from '../../../common/TransactionModal/steps/ErrorStep.js'
+import { errorToJSON } from '../../../../utils/errors.js'
+import { useAccount } from 'wagmi'
 
 export enum OnrampStep {
   Confirming,
@@ -49,7 +53,10 @@ type OnrampModalProps = {
   onOpenChange: (open: boolean) => void
   //TODO add success data
   onSuccess?: () => void
+  onSwapError?: (error: string, data?: Execute) => void
 }
+
+type TxHashes = { txHash: string; chainId: number }[]
 
 export const OnrampModal: FC<OnrampModalProps> = ({
   open,
@@ -63,24 +70,32 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
+  onSwapError,
   onOpenChange
 }) => {
+  const [swapError, setSwapError] = useState<Error | null>(null)
   const [step, setStep] = useState<OnrampStep>(OnrampStep.Confirming)
   const [processingStep, setProcessingStep] = useState<
     OnrampProcessingStep | undefined
   >()
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
   const client = useRelayClient()
+  const { connector } = useAccount()
 
   useEffect(() => {
     if (!open) {
       setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
       setMoonPayRequestId(undefined)
+      setSwapError(null)
     }
   }, [open])
 
-  const quote = useQuote(
+  const {
+    data: quote,
+    error: quoteError,
+    isFetching: isFetchingQuote
+  } = useQuote(
     client ?? undefined,
     undefined,
     {
@@ -112,12 +127,12 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   )
 
   const totalAmount =
-    quote.data?.fees && amount
+    quote?.fees && amount
       ? `${
           Math.floor(
-            (Number(quote.data.fees.relayer?.amountUsd ?? 0) +
-              Number(quote.data.fees.gas?.amountUsd ?? 0) +
-              Number(quote.data.fees.app?.amountUsd ?? 0) +
+            (Number(quote.fees.relayer?.amountUsd ?? 0) +
+              Number(quote.fees.gas?.amountUsd ?? 0) +
+              Number(quote.fees.app?.amountUsd ?? 0) +
               +amount) *
               100
           ) / 100
@@ -125,7 +140,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       : null
 
   const depositAddress = useMemo(
-    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
+    () => extractDepositAddress(quote?.steps as Execute['steps']),
     [quote]
   )
 
@@ -134,7 +149,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     : 'https://relay.link'
 
   const requestId = useMemo(
-    () => extractDepositRequestId(quote?.data?.steps as Execute['steps']),
+    () => extractDepositRequestId(quote?.steps as Execute['steps']),
     [quote]
   )
 
@@ -186,7 +201,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
 
   const transaction = transactions && transactions[0] ? transactions[0] : null
   const toAmountFormatted =
-    transaction?.data?.metadata?.currencyOut?.amountFormatted ?? undefined
+    formatBN(
+      transaction?.data?.metadata?.currencyOut?.amountFormatted,
+      5,
+      transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
+    ) ?? undefined
 
   const fillTxUrl = fillTxHash
     ? getTxBlockExplorerUrl(toToken.chainId, client?.chains, fillTxHash)
@@ -218,7 +237,55 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       onSuccess?.()
       setProcessingStep(undefined)
     }
-  }, [executionStatus])
+    if (
+      executionStatus?.status === 'failure' ||
+      executionStatus?.status === 'refund' ||
+      quoteError
+    ) {
+      const swapError = new Error(
+        executionStatus?.details ??
+          'Oops! Something went wrong while processing your transaction.'
+      )
+      if (step !== OnrampStep.Error) {
+        onSwapError?.(swapError.message, quote as Execute)
+      }
+      setStep(OnrampStep.Error)
+      onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_SWAP_ERROR, {
+        error_message: errorToJSON(executionStatus?.details ?? quoteError),
+        wallet_connector: connector?.name,
+        quote_id: requestId,
+        amount_in: amount,
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: quote?.details?.currencyOut?.amountFormatted,
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        txHashes: executionStatus?.txHashes ?? []
+      })
+      setSwapError(swapError)
+    }
+  }, [executionStatus, quoteError])
+
+  const allTxHashes = useMemo(() => {
+    const isRefund = executionStatus?.status === 'refund'
+    const _allTxHashes: TxHashes = []
+    executionStatus?.txHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: isRefund
+          ? (fromToken?.chainId as number)
+          : (toToken?.chainId as number)
+      })
+    })
+
+    executionStatus?.inTxHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: fromToken?.chainId as number
+      })
+    })
+    return _allTxHashes
+  }, [executionStatus?.txHashes, executionStatus?.inTxHashes])
 
   return (
     <Modal
@@ -249,7 +316,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           recipient={recipient}
           amount={amount}
           totalAmount={totalAmount ?? undefined}
-          isFetchingQuote={quote.isFetching}
+          isFetchingQuote={isFetchingQuote}
           onAnalyticEvent={onAnalyticEvent}
           setStep={setStep}
         />
@@ -260,6 +327,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         toToken={toToken}
         fromToken={fromToken}
         fromChain={fromChain}
+        toChain={toChain}
         depositAddress={depositAddress}
         totalAmount={totalAmount ?? undefined}
         fiatCurrency={fiatCurrency}
@@ -292,6 +360,16 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           moonpayTxUrl={moonpayTxUrl ?? undefined}
           toAmountFormatted={toAmountFormatted}
           onOpenChange={onOpenChange}
+        />
+      ) : null}
+      {step === OnrampStep.Error ? (
+        <ErrorStep
+          error={quoteError || swapError}
+          allTxHashes={allTxHashes}
+          address={recipient}
+          onOpenChange={onOpenChange}
+          transaction={transaction ?? undefined}
+          fromChain={fromChain}
         />
       ) : null}
     </Modal>
