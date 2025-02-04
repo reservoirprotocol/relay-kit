@@ -14,7 +14,7 @@ import TokenSelector from '../../../common/TokenSelector/TokenSelector.js'
 import { EventNames } from '../../../../constants/events.js'
 import { TokenTrigger } from '../../../common/TokenSelector/triggers/TokenTrigger.js'
 import type { FiatCurrency, LinkedWallet } from '../../../../types/index.js'
-import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
@@ -26,6 +26,8 @@ type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
   moonPayApiKey: string
+  onSuccess?: (data: Execute, moonpayRequestId: string) => void
+  onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -62,7 +64,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onSuccess
 }) => {
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
@@ -74,6 +77,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       supportedWalletVMs={supportedWalletVMs}
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
+      moonPayApiKey={moonPayApiKey}
     >
       {({
         displayCurrency,
@@ -156,7 +160,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 </Text>
                 <AmountInput
                   value={
-                    displayCurrency ? `${amountToToken} ETH` : formattedAmount
+                    displayCurrency
+                      ? `${amountToToken} ${token.symbol}`
+                      : formattedAmount
                   }
                   setValue={(e) => {
                     //unused
@@ -454,9 +460,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               fromChain={fromChain}
               toChain={toChain}
               amount={amount}
+              amountFormatted={formattedAmount}
+              amountToTokenFormatted={amountToTokenFormatted}
               fiatCurrency={fiatCurrency}
               recipient={recipient}
-              // onSuccess={}
+              onSuccess={onSuccess}
             />
           </div>
         )

@@ -7,7 +7,11 @@ import {
   type FC,
   type ReactNode
 } from 'react'
-import useRelayClient from '../../../../hooks/useRelayClient.js'
+import {
+  useRelayClient,
+  useENSResolver,
+  useIsPassthrough
+} from '../../../../hooks/index.js'
 import { zeroAddress } from 'viem'
 import { type ChainVM, type RelayChain } from '@reservoir0x/relay-sdk'
 import type {
@@ -15,7 +19,6 @@ import type {
   LinkedWallet,
   Token
 } from '../../../../types/index.js'
-import useENSResolver from '../../../../hooks/useENSResolver.js'
 import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 import {
   findSupportedWallet,
@@ -51,6 +54,7 @@ export type ChildrenProps = {
   minAmountCurrency?: string
   ctaCopy: string
   notEnoughFiat: boolean
+  isPassthrough: boolean
 }
 
 type OnrampWidgetRendererProps = {
@@ -58,6 +62,7 @@ type OnrampWidgetRendererProps = {
   supportedWalletVMs: ChainVM[]
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  moonPayApiKey: string
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -66,6 +71,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   multiWalletSupportEnabled,
+  moonPayApiKey,
   children
 }) => {
   const client = useRelayClient()
@@ -192,6 +198,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     toChain?.id
   )
 
+  const isPassthrough = useIsPassthrough(token, moonPayApiKey)
+
   useEffect(() => {
     setInputValue(displayCurrency ? amountToToken : amount)
   }, [usdRate])
@@ -269,7 +277,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         usdRate,
         minAmountCurrency,
         notEnoughFiat,
-        ctaCopy
+        ctaCopy,
+        isPassthrough
       })}
     </>
   )

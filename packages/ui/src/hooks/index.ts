@@ -10,6 +10,9 @@ import usePreviousValueChange from './usePreviousValueChange.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import useAtomicBatchSupport from './useAtomicBatchSupport.js'
 import useMoonPayCurrencies from './useMoonPayCurrencies.js'
+import useMoonPayGeolocation from './useMoonPayGeolocation.js'
+import useIpAddress from './useIpAddress.js'
+import useIsPassthrough from './useIsPassthrough.js'
 
 export {
   useMounted,
@@ -23,5 +26,8 @@ export {
   usePreviousValueChange,
   useBitcoinBalance,
   useAtomicBatchSupport,
-  useMoonPayCurrencies
+  useMoonPayCurrencies,
+  useMoonPayGeolocation,
+  useIpAddress,
+  useIsPassthrough
 }

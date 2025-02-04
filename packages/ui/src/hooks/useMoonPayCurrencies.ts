@@ -42,7 +42,7 @@ export type MoonPayCryptoCurrency = {
   notAllowedUSStates: string[]
   notAllowedCountries: string[]
   metadata: {
-    contractAddress: number
+    contractAddress: string
     chainId: string
     networkCode: string
   }

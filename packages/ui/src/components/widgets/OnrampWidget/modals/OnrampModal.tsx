@@ -19,6 +19,7 @@ import { extractDepositAddress } from '../../../../utils/quote.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
 import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
+import { OnrampProcessingPassthroughStep } from './steps/OnrampProcessingPassthroughStep.js'
 import { OnrampSuccessStep } from './steps/OnrampSuccessStep.js'
 import { OnrampMoonPayStep } from './steps/OnrampMoonPayStep.js'
 import { formatBN } from '../../../../utils/numbers.js'
@@ -30,6 +31,7 @@ export enum OnrampStep {
   Confirming,
   Moonpay,
   Processing,
+  ProcessingPassthrough,
   Success,
   Error
 }
@@ -42,18 +44,20 @@ export enum OnrampProcessingStep {
 type OnrampModalProps = {
   open: boolean
   amount?: string
+  amountFormatted?: string
+  amountToTokenFormatted?: string
   fromToken: Token
   fromChain?: RelayChain
   toToken: Token
   toChain?: RelayChain
   fiatCurrency: FiatCurrency
   recipient?: string
+  isPassthrough?: boolean
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
-  //TODO add success data
-  onSuccess?: () => void
-  onSwapError?: (error: string, data?: Execute) => void
+  onSuccess?: (data: Execute, moonpayRequestId: string) => void
+  onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
 }
 
 type TxHashes = { txHash: string; chainId: number }[]
@@ -61,16 +65,19 @@ type TxHashes = { txHash: string; chainId: number }[]
 export const OnrampModal: FC<OnrampModalProps> = ({
   open,
   amount,
+  amountFormatted,
   recipient,
   fromToken,
   toToken,
   toChain,
   fromChain,
   fiatCurrency,
+  isPassthrough,
+  amountToTokenFormatted,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
-  onSwapError,
+  onError,
   onOpenChange
 }) => {
   const [swapError, setSwapError] = useState<Error | null>(null)
@@ -232,9 +239,12 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         chain_id_out: toToken?.chainId,
         currency_out: toToken?.symbol,
         quote_id: requestId,
-        txHashes: executionStatus.txHashes
+        txHashes: executionStatus.txHashes,
+        amount,
+        totalAmount,
+        moonPayRequestId
       })
-      onSuccess?.()
+      onSuccess?.(quote as Execute, moonPayRequestId as string)
       setProcessingStep(undefined)
     }
     if (
@@ -247,7 +257,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           'Oops! Something went wrong while processing your transaction.'
       )
       if (step !== OnrampStep.Error) {
-        onSwapError?.(swapError.message, quote as Execute)
+        onError?.(swapError.message, quote as Execute, moonPayRequestId)
       }
       setStep(OnrampStep.Error)
       onAnalyticEvent?.(EventNames.DEPOSIT_ADDRESS_SWAP_ERROR, {
@@ -293,6 +303,9 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       open={open}
       onOpenChange={(open) => {
         if (open) {
+          if (isPassthrough) {
+            setStep(OnrampStep.Moonpay)
+          }
           onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
         } else {
           onAnalyticEvent?.(EventNames.ONRAMP_MODAL_CLOSE)
@@ -331,12 +344,29 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         depositAddress={depositAddress}
         totalAmount={totalAmount ?? undefined}
         fiatCurrency={fiatCurrency}
+        isPassthrough={isPassthrough}
         onAnalyticEvent={onAnalyticEvent}
         setStep={setStep}
         setProcessingStep={setProcessingStep}
         setMoonPayRequestId={setMoonPayRequestId}
         moonpayOnUrlSignatureRequested={moonpayOnUrlSignatureRequested}
+        onPassthroughSuccess={() => {
+          setStep(OnrampStep.Success)
+          onAnalyticEvent?.(EventNames.ONRAMP_PASSTHROUGH_SUCCESS, {
+            moonPayRequestId,
+            amount,
+            totalAmount
+          })
+        }}
       />
+      {step === OnrampStep.ProcessingPassthrough ? (
+        <OnrampProcessingPassthroughStep
+          toToken={toToken}
+          amountToTokenFormatted={amountToTokenFormatted}
+          moonpayTxUrl={moonpayTxUrl ?? undefined}
+          amount={amountFormatted}
+        />
+      ) : null}
       {step === OnrampStep.Processing ? (
         <OnrampProcessingStepUI
           toToken={toToken}
