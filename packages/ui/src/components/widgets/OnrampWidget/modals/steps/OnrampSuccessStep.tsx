@@ -100,7 +100,7 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
             target="_blank"
             css={{ display: 'flex', alignItems: 'center', gap: '1' }}
           >
-            Track MoonPay transaction{' '}
+            View MoonPay transaction{' '}
             <FontAwesomeIcon icon={faUpRightFromSquare} style={{ width: 14 }} />
           </Anchor>
           {fillTxUrl ? (
