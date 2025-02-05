@@ -13,6 +13,7 @@ type OnrampMoonPayStepProps = {
   fromChain?: RelayChain
   toChain?: RelayChain
   depositAddress?: string
+  recipient?: string
   totalAmount?: string
   fiatCurrency: FiatCurrency
   isPassthrough?: boolean
@@ -48,6 +49,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   fromChain,
   toChain,
   depositAddress,
+  recipient,
   totalAmount,
   fiatCurrency,
   isPassthrough,
@@ -98,30 +100,35 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
       }}
     >
       <Text style="h6" css={{ mb: '2' }}>
-        Buy {toToken?.symbol} ({toChain?.displayName})
+        {!isPassthrough
+          ? `Buy ${toToken?.symbol} (${toChain?.displayName})`
+          : 'Checkout'}
       </Text>
-      <Flex
-        align="center"
-        css={{
-          width: '100%',
-          overflow: 'hidden',
-          borderRadius: 'widget-card-border-radius',
-          '--borderColor': 'colors.subtle-border-color',
-          border: '1px solid var(--borderColor)',
-          p: '4',
-          gap: 2
-        }}
-      >
-        <ChainTokenIcon
-          chainId={fromToken?.chainId}
-          tokenlogoURI={fromToken?.logoURI}
-          css={{ width: 32, height: 32 }}
-        />
-        <Text style="subtitle2">
-          Purchase {fromToken?.symbol} ({fromChain?.displayName}) via your card
-          for Relay to convert to {toToken?.symbol} ({toChain?.displayName})
-        </Text>
-      </Flex>
+      {!isPassthrough ? (
+        <Flex
+          align="center"
+          css={{
+            width: '100%',
+            overflow: 'hidden',
+            borderRadius: 'widget-card-border-radius',
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            p: '4',
+            gap: 2
+          }}
+        >
+          <ChainTokenIcon
+            chainId={fromToken?.chainId}
+            tokenlogoURI={fromToken?.logoURI}
+            css={{ width: 32, height: 32 }}
+          />
+          <Text style="subtitle2">
+            Purchase {fromToken?.symbol} ({fromChain?.displayName}) via your
+            card for Relay to convert to {toToken?.symbol} (
+            {toChain?.displayName})
+          </Text>
+        </Flex>
+      ) : null}
       <Suspense fallback={<div></div>}>
         <MoonPayBuyWidget
           variant="embedded"
@@ -130,7 +137,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           lockAmount="true"
           currencyCode={moonPayCurrencyCode}
           paymentMethod="credit_debit_card"
-          walletAddress={depositAddress}
+          walletAddress={!isPassthrough ? depositAddress : recipient}
           showWalletAddressForm="false"
           visible
           style={{

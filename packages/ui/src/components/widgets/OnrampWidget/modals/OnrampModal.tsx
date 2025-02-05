@@ -369,6 +369,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         fromToken={fromToken}
         fromChain={fromChain}
         toChain={toChain}
+        recipient={recipient}
         depositAddress={depositAddress}
         totalAmount={
           fromToken.symbol === 'ETH' ? ethTotalAmount : totalAmount ?? undefined
