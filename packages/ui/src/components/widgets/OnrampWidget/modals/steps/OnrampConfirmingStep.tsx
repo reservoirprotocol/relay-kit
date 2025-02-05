@@ -22,6 +22,7 @@ type OnrampConfirmingStepProps = {
   recipient?: string
   amount?: string
   totalAmount?: string
+  ethTotalAmount?: string
   isFetchingQuote?: boolean
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
@@ -37,6 +38,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
   recipient,
   amount,
   totalAmount,
+  ethTotalAmount,
   isFetchingQuote,
   onAnalyticEvent,
   setStep
@@ -110,6 +112,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
             requestId,
             amount,
             totalAmount,
+            ethTotalAmount,
             toToken: toToken.address,
             toChain: toToken.chainId
           })

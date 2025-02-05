@@ -16,6 +16,7 @@ type OnrampMoonPayStepProps = {
   totalAmount?: string
   fiatCurrency: FiatCurrency
   isPassthrough?: boolean
+  moonPayCurrencyCode?: string
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
   setProcessingStep: (processingStep?: OnrampProcessingStep) => void
@@ -50,6 +51,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   totalAmount,
   fiatCurrency,
   isPassthrough,
+  moonPayCurrencyCode,
   onAnalyticEvent,
   setStep,
   setProcessingStep,
@@ -126,7 +128,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           baseCurrencyCode={fiatCurrency.code}
           quoteCurrencyAmount={`${totalAmount}`}
           lockAmount="true"
-          currencyCode={fromChain?.id === 8453 ? 'usdc_base' : 'usdc_optimism'}
+          currencyCode={moonPayCurrencyCode}
           paymentMethod="credit_debit_card"
           walletAddress={depositAddress}
           showWalletAddressForm="false"

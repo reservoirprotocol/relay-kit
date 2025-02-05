@@ -13,6 +13,7 @@ import useMoonPayCurrencies from './useMoonPayCurrencies.js'
 import useMoonPayGeolocation from './useMoonPayGeolocation.js'
 import useIpAddress from './useIpAddress.js'
 import useIsPassthrough from './useIsPassthrough.js'
+import useSupportedMoonPayCurrencyCode from './useSupportedMoonPayCurrencyCode.js'
 
 export {
   useMounted,
@@ -29,5 +30,6 @@ export {
   useMoonPayCurrencies,
   useMoonPayGeolocation,
   useIpAddress,
-  useIsPassthrough
+  useIsPassthrough,
+  useSupportedMoonPayCurrencyCode
 }

@@ -101,7 +101,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         setFiatCurrency,
         minAmountCurrency,
         notEnoughFiat,
-        ctaCopy
+        ctaCopy,
+        moonPayCurrencyCode,
+        isPassthrough
       }) => {
         const formattedAmount =
           amount === ''
@@ -465,6 +467,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               fiatCurrency={fiatCurrency}
               recipient={recipient}
               onSuccess={onSuccess}
+              moonPayCurrencyCode={moonPayCurrencyCode}
+              isPassthrough={isPassthrough}
             />
           </div>
         )

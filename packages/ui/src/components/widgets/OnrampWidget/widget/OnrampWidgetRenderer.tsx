@@ -10,7 +10,8 @@ import {
 import {
   useRelayClient,
   useENSResolver,
-  useIsPassthrough
+  useIsPassthrough,
+  useSupportedMoonPayCurrencyCode
 } from '../../../../hooks/index.js'
 import { zeroAddress } from 'viem'
 import { type ChainVM, type RelayChain } from '@reservoir0x/relay-sdk'
@@ -55,6 +56,7 @@ export type ChildrenProps = {
   ctaCopy: string
   notEnoughFiat: boolean
   isPassthrough: boolean
+  moonPayCurrencyCode: string
 }
 
 type OnrampWidgetRendererProps = {
@@ -107,26 +109,27 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   const toChainWalletVMSupported =
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
-  const fromChain = useMemo(
-    () =>
-      client?.chains.find(
-        (chain) => chain.id === (token.chainId === 8453 ? 10 : 8453)
-      ),
-    [token, client?.chains]
+  const moonPayCurrency = useSupportedMoonPayCurrencyCode(
+    ['usdc_base', 'usdc_polygon', 'usdc', 'eth'],
+    moonPayApiKey
   )
-  const fromCurrency =
-    fromChain && fromChain.id === 8453
-      ? '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
-      : '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
+
   const fromToken: Token = {
-    chainId: fromChain?.id ?? 8453,
-    address: fromCurrency,
-    symbol: 'USDC',
-    name: 'USDC',
+    chainId: +moonPayCurrency.chainId,
+    address: moonPayCurrency.contractAddress,
+    symbol: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
+    name: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
     logoURI:
-      'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
-    decimals: 6
+      moonPayCurrency.code === 'eth'
+        ? 'https://assets.relay.link/icons/1/light.png'
+        : 'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+    decimals: moonPayCurrency.code === 'eth' ? 18 : 6
   }
+
+  const fromChain = useMemo(
+    () => client?.chains.find((chain) => chain.id === +moonPayCurrency.chainId),
+    [fromToken, client?.chains, moonPayCurrency]
+  )
 
   const [amount, setAmount] = useState('20')
   const [amountToToken, setAmountToToken] = useState('')
@@ -278,7 +281,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         minAmountCurrency,
         notEnoughFiat,
         ctaCopy,
-        isPassthrough
+        isPassthrough,
+        moonPayCurrencyCode: moonPayCurrency.code
       })}
     </>
   )
