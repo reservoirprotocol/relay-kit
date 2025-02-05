@@ -48,12 +48,21 @@ export default function useIsPassthrough(token: Token, apiKey?: string) {
           countryCode === 'US' &&
           state &&
           currency.notAllowedUSStates.includes(state)
-        return !unsupportedCountry && !unsupportedState
+        return {
+          isPassthrough: !unsupportedCountry && !unsupportedState,
+          moonPayCurrency: currency
+        }
       } else {
-        return false
+        return {
+          isPassthrough: false,
+          moonPayCurrency: null
+        }
       }
     }
 
-    return false
+    return {
+      isPassthrough: false,
+      moonPayCurrency: null
+    }
   }, [token, moonPayCurrencies])
 }

@@ -201,7 +201,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     toChain?.id
   )
 
-  const isPassthrough = useIsPassthrough(token, moonPayApiKey)
+  const { isPassthrough, moonPayCurrency: passThroughCurrency } =
+    useIsPassthrough(token, moonPayApiKey)
 
   useEffect(() => {
     setInputValue(displayCurrency ? amountToToken : amount)
@@ -282,7 +283,10 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         notEnoughFiat,
         ctaCopy,
         isPassthrough,
-        moonPayCurrencyCode: moonPayCurrency.code
+        moonPayCurrencyCode:
+          isPassthrough && passThroughCurrency?.code
+            ? passThroughCurrency?.code
+            : moonPayCurrency.code
       })}
     </>
   )
