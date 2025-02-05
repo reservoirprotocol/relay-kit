@@ -56,6 +56,7 @@ type OnrampModalProps = {
   recipient?: string
   isPassthrough?: boolean
   moonPayCurrencyCode?: string
+  usdRate?: number
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -78,6 +79,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   isPassthrough,
   amountToTokenFormatted,
   moonPayCurrencyCode,
+  usdRate,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
@@ -160,7 +162,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   )
 
   const totalAmount =
-    quote?.fees && amount
+    quote?.fees && amount && !isPassthrough
       ? `${
           Math.floor(
             (Number(quote.fees.relayer?.amountUsd ?? 0) +
@@ -175,6 +177,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     totalAmount ? +totalAmount / (ethTokenPriceResponse?.price ?? 0) : '0',
     5,
     18
+  )
+  const toTokenTotalAmount = formatBN(
+    +(totalAmount ?? '0') / (usdRate ?? 0),
+    5,
+    toToken.decimals
   )
 
   const depositAddress = useMemo(
@@ -372,7 +379,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         recipient={recipient}
         depositAddress={depositAddress}
         totalAmount={
-          fromToken.symbol === 'ETH' ? ethTotalAmount : totalAmount ?? undefined
+          isPassthrough
+            ? toTokenTotalAmount
+            : fromToken.symbol === 'ETH'
+              ? ethTotalAmount
+              : totalAmount ?? undefined
         }
         fiatCurrency={fiatCurrency}
         isPassthrough={isPassthrough}
