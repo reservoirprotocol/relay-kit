@@ -11,14 +11,18 @@ type OnrampMoonPayStepProps = {
   toToken: Token
   fromToken: Token
   fromChain?: RelayChain
+  toChain?: RelayChain
   depositAddress?: string
   totalAmount?: string
   fiatCurrency: FiatCurrency
+  isPassthrough?: boolean
+  moonPayCurrencyCode?: string
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
-  setProcessingStep: (processingStep: OnrampProcessingStep) => void
+  setProcessingStep: (processingStep?: OnrampProcessingStep) => void
   setMoonPayRequestId: (id: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
+  onPassthroughSuccess: () => void
 }
 
 const MoonPayBuyWidget = memo(
@@ -42,18 +46,25 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   toToken,
   fromToken,
   fromChain,
+  toChain,
   depositAddress,
   totalAmount,
   fiatCurrency,
+  isPassthrough,
+  moonPayCurrencyCode,
   onAnalyticEvent,
   setStep,
   setProcessingStep,
   setMoonPayRequestId,
-  moonpayOnUrlSignatureRequested
+  moonpayOnUrlSignatureRequested,
+  onPassthroughSuccess
 }) => {
   useEffect(() => {
     if (window) {
       ;(window as any).relayOnrampStep = step
+    }
+    return () => {
+      ;(window as any).relayOnrampStep = undefined
     }
   }, [step])
 
@@ -61,7 +72,19 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
     if (window) {
       ;(window as any).relayOnrampProcessingStep = processingStep
     }
+    return () => {
+      ;(window as any).processingStep = undefined
+    }
   }, [processingStep])
+
+  useEffect(() => {
+    if (window) {
+      ;(window as any).relayIsPassthrough = isPassthrough
+    }
+    return () => {
+      ;(window as any).relayIsPassthrough = undefined
+    }
+  }, [isPassthrough])
 
   return (
     <Flex
@@ -75,7 +98,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
       }}
     >
       <Text style="h6" css={{ mb: '2' }}>
-        Buy {toToken?.name}
+        Buy {toToken?.symbol} ({toChain?.displayName})
       </Text>
       <Flex
         align="center"
@@ -95,8 +118,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           css={{ width: 32, height: 32 }}
         />
         <Text style="subtitle2">
-          Purchase {fromToken?.symbol} via your card for Relay to convert to{' '}
-          {toToken?.symbol}
+          Purchase {fromToken?.symbol} ({fromChain?.displayName}) via your card
+          for Relay to convert to {toToken?.symbol} ({toChain?.displayName})
         </Text>
       </Flex>
       <Suspense fallback={<div></div>}>
@@ -105,7 +128,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           baseCurrencyCode={fiatCurrency.code}
           quoteCurrencyAmount={`${totalAmount}`}
           lockAmount="true"
-          currencyCode={fromChain?.id === 8453 ? 'usdc_base' : 'usdc_optimism'}
+          currencyCode={moonPayCurrencyCode}
           paymentMethod="credit_debit_card"
           walletAddress={depositAddress}
           showWalletAddressForm="false"
@@ -120,26 +143,33 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           onUrlSignatureRequested={moonpayOnUrlSignatureRequested}
           onTransactionCreated={async (props) => {
             setMoonPayRequestId(props.id)
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
+              ...props
+            })
             if (
               window &&
-              (window as any).relayOnrampStep === OnrampStep.Moonpay
+              (window as any).relayOnrampStep === OnrampStep.Moonpay &&
+              !(window as any).relayIsPassthrough
             ) {
               setStep(OnrampStep.Processing)
               setProcessingStep(OnrampProcessingStep.Finalizing)
-              onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
-                ...props
-              })
+            } else if (window && (window as any).relayIsPassthrough) {
+              setStep(OnrampStep.ProcessingPassthrough)
             }
           }}
           onTransactionCompleted={async (props) => {
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
+              ...props
+            })
             if (
               window &&
-              (window as any).relayOnrampStep === OnrampStep.Processing
+              (window as any).relayOnrampStep === OnrampStep.Processing &&
+              !(window as any).relayIsPassthrough
             ) {
               setProcessingStep(OnrampProcessingStep.Relaying)
-              onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-                ...props
-              })
+            } else if (window && (window as any).relayIsPassthrough) {
+              setProcessingStep(undefined)
+              onPassthroughSuccess()
             }
           }}
         />

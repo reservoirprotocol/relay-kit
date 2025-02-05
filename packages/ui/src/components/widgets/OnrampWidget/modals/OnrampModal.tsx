@@ -11,21 +11,29 @@ import { EventNames } from '../../../../constants/events.js'
 import {
   useExecutionStatus,
   useQuote,
-  useRequests
+  useRequests,
+  useTokenPrice
 } from '@reservoir0x/relay-kit-hooks'
 import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
-import { parseUnits } from 'viem'
+import { parseUnits, zeroAddress } from 'viem'
 import { extractDepositAddress } from '../../../../utils/quote.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
 import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
+import { OnrampProcessingPassthroughStep } from './steps/OnrampProcessingPassthroughStep.js'
 import { OnrampSuccessStep } from './steps/OnrampSuccessStep.js'
 import { OnrampMoonPayStep } from './steps/OnrampMoonPayStep.js'
+import { formatBN } from '../../../../utils/numbers.js'
+import { ErrorStep } from '../../../common/TransactionModal/steps/ErrorStep.js'
+import { errorToJSON } from '../../../../utils/errors.js'
+import { useAccount } from 'wagmi'
+import { mainnet } from 'viem/chains'
 
 export enum OnrampStep {
   Confirming,
   Moonpay,
   Processing,
+  ProcessingPassthrough,
   Success,
   Error
 }
@@ -38,49 +46,85 @@ export enum OnrampProcessingStep {
 type OnrampModalProps = {
   open: boolean
   amount?: string
+  amountFormatted?: string
+  amountToTokenFormatted?: string
   fromToken: Token
   fromChain?: RelayChain
   toToken: Token
   toChain?: RelayChain
   fiatCurrency: FiatCurrency
   recipient?: string
+  isPassthrough?: boolean
+  moonPayCurrencyCode?: string
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
-  //TODO add success data
-  onSuccess?: () => void
+  onSuccess?: (data: Execute, moonpayRequestId: string) => void
+  onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
 }
+
+type TxHashes = { txHash: string; chainId: number }[]
 
 export const OnrampModal: FC<OnrampModalProps> = ({
   open,
   amount,
+  amountFormatted,
   recipient,
   fromToken,
   toToken,
   toChain,
   fromChain,
   fiatCurrency,
+  isPassthrough,
+  amountToTokenFormatted,
+  moonPayCurrencyCode,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
+  onError,
   onOpenChange
 }) => {
+  const [swapError, setSwapError] = useState<Error | null>(null)
   const [step, setStep] = useState<OnrampStep>(OnrampStep.Confirming)
   const [processingStep, setProcessingStep] = useState<
     OnrampProcessingStep | undefined
   >()
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
   const client = useRelayClient()
+  const { connector } = useAccount()
+  const { data: ethTokenPriceResponse } = useTokenPrice(
+    client?.baseApiUrl,
+    {
+      address: zeroAddress,
+      chainId: mainnet.id
+    },
+    {
+      refetchInterval: 60000 * 5, //5 minutes
+      refetchOnWindowFocus: false
+    }
+  )
 
   useEffect(() => {
     if (!open) {
       setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
       setMoonPayRequestId(undefined)
+      setSwapError(null)
+    } else {
+      if (isPassthrough) {
+        setStep(OnrampStep.Moonpay)
+      }
+      onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
     }
   }, [open])
 
-  const quote = useQuote(
+  const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
+
+  const {
+    data: quote,
+    error: quoteError,
+    isFetching: isFetchingQuote
+  } = useQuote(
     client ?? undefined,
     undefined,
     {
@@ -90,9 +134,12 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       destinationCurrency: toToken.address,
       useDepositAddress: true,
       tradeType: 'EXACT_INPUT',
-      amount: parseUnits(`${amount}`, 6).toString(),
+      amount:
+        fromToken.symbol === 'USDC'
+          ? parseUnits(`${amount}`, 6).toString()
+          : parseUnits(`${ethAmount}`, fromToken.decimals).toString(),
       user: getDeadAddress(),
-      recipient: recipient
+      recipient
     },
     undefined,
     undefined,
@@ -105,6 +152,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           amount.length > 0 &&
           toToken &&
           fromToken &&
+          !isPassthrough &&
           recipient !== undefined &&
           open
       )
@@ -112,20 +160,25 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   )
 
   const totalAmount =
-    quote.data?.fees && amount
+    quote?.fees && amount
       ? `${
           Math.floor(
-            (Number(quote.data.fees.relayer?.amountUsd ?? 0) +
-              Number(quote.data.fees.gas?.amountUsd ?? 0) +
-              Number(quote.data.fees.app?.amountUsd ?? 0) +
+            (Number(quote.fees.relayer?.amountUsd ?? 0) +
+              Number(quote.fees.gas?.amountUsd ?? 0) +
+              Number(quote.fees.app?.amountUsd ?? 0) +
               +amount) *
               100
           ) / 100
         }`
-      : null
+      : amount
+  const ethTotalAmount = formatBN(
+    totalAmount ? +totalAmount / (ethTokenPriceResponse?.price ?? 0) : '0',
+    5,
+    18
+  )
 
   const depositAddress = useMemo(
-    () => extractDepositAddress(quote?.data?.steps as Execute['steps']),
+    () => extractDepositAddress(quote?.steps as Execute['steps']),
     [quote]
   )
 
@@ -134,7 +187,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     : 'https://relay.link'
 
   const requestId = useMemo(
-    () => extractDepositRequestId(quote?.data?.steps as Execute['steps']),
+    () => extractDepositRequestId(quote?.steps as Execute['steps']),
     [quote]
   )
 
@@ -186,7 +239,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
 
   const transaction = transactions && transactions[0] ? transactions[0] : null
   const toAmountFormatted =
-    transaction?.data?.metadata?.currencyOut?.amountFormatted ?? undefined
+    formatBN(
+      transaction?.data?.metadata?.currencyOut?.amountFormatted,
+      5,
+      transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
+    ) ?? undefined
 
   const fillTxUrl = fillTxHash
     ? getTxBlockExplorerUrl(toToken.chainId, client?.chains, fillTxHash)
@@ -213,21 +270,71 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         chain_id_out: toToken?.chainId,
         currency_out: toToken?.symbol,
         quote_id: requestId,
-        txHashes: executionStatus.txHashes
+        txHashes: executionStatus.txHashes,
+        amount,
+        totalAmount,
+        ethTotalAmount,
+        moonPayRequestId
       })
-      onSuccess?.()
+      onSuccess?.(quote as Execute, moonPayRequestId as string)
       setProcessingStep(undefined)
     }
-  }, [executionStatus])
+    if (
+      executionStatus?.status === 'failure' ||
+      executionStatus?.status === 'refund' ||
+      quoteError
+    ) {
+      const swapError = new Error(
+        executionStatus?.details ??
+          'Oops! Something went wrong while processing your transaction.'
+      )
+      if (step !== OnrampStep.Error) {
+        onError?.(swapError.message, quote as Execute, moonPayRequestId)
+      }
+      setStep(OnrampStep.Error)
+      onAnalyticEvent?.(EventNames.ONRAMP_ERROR, {
+        error_message: errorToJSON(executionStatus?.details ?? quoteError),
+        wallet_connector: connector?.name,
+        quote_id: requestId,
+        amount_in: amount,
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: quote?.details?.currencyOut?.amountFormatted,
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        txHashes: executionStatus?.txHashes ?? []
+      })
+      setSwapError(swapError)
+    }
+  }, [executionStatus, quoteError])
+
+  const allTxHashes = useMemo(() => {
+    const isRefund = executionStatus?.status === 'refund'
+    const _allTxHashes: TxHashes = []
+    executionStatus?.txHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: isRefund
+          ? (fromToken?.chainId as number)
+          : (toToken?.chainId as number)
+      })
+    })
+
+    executionStatus?.inTxHashes?.forEach((txHash) => {
+      _allTxHashes.push({
+        txHash,
+        chainId: fromToken?.chainId as number
+      })
+    })
+    return _allTxHashes
+  }, [executionStatus?.txHashes, executionStatus?.inTxHashes])
 
   return (
     <Modal
       trigger={null}
       open={open}
       onOpenChange={(open) => {
-        if (open) {
-          onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
-        } else {
+        if (!open) {
           onAnalyticEvent?.(EventNames.ONRAMP_MODAL_CLOSE)
         }
         onOpenChange(open)
@@ -249,7 +356,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           recipient={recipient}
           amount={amount}
           totalAmount={totalAmount ?? undefined}
-          isFetchingQuote={quote.isFetching}
+          ethTotalAmount={ethTotalAmount}
+          isFetchingQuote={isFetchingQuote}
           onAnalyticEvent={onAnalyticEvent}
           setStep={setStep}
         />
@@ -260,15 +368,37 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         toToken={toToken}
         fromToken={fromToken}
         fromChain={fromChain}
+        toChain={toChain}
         depositAddress={depositAddress}
-        totalAmount={totalAmount ?? undefined}
+        totalAmount={
+          fromToken.symbol === 'ETH' ? ethTotalAmount : totalAmount ?? undefined
+        }
         fiatCurrency={fiatCurrency}
+        isPassthrough={isPassthrough}
+        moonPayCurrencyCode={moonPayCurrencyCode}
         onAnalyticEvent={onAnalyticEvent}
         setStep={setStep}
         setProcessingStep={setProcessingStep}
         setMoonPayRequestId={setMoonPayRequestId}
         moonpayOnUrlSignatureRequested={moonpayOnUrlSignatureRequested}
+        onPassthroughSuccess={() => {
+          setStep(OnrampStep.Success)
+          onAnalyticEvent?.(EventNames.ONRAMP_PASSTHROUGH_SUCCESS, {
+            moonPayRequestId,
+            amount,
+            totalAmount,
+            ethTotalAmount
+          })
+        }}
       />
+      {step === OnrampStep.ProcessingPassthrough ? (
+        <OnrampProcessingPassthroughStep
+          toToken={toToken}
+          amountToTokenFormatted={amountToTokenFormatted}
+          moonpayTxUrl={moonpayTxUrl ?? undefined}
+          amount={amountFormatted}
+        />
+      ) : null}
       {step === OnrampStep.Processing ? (
         <OnrampProcessingStepUI
           toToken={toToken}
@@ -292,6 +422,16 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           moonpayTxUrl={moonpayTxUrl ?? undefined}
           toAmountFormatted={toAmountFormatted}
           onOpenChange={onOpenChange}
+        />
+      ) : null}
+      {step === OnrampStep.Error ? (
+        <ErrorStep
+          error={quoteError || swapError}
+          allTxHashes={allTxHashes}
+          address={recipient}
+          onOpenChange={onOpenChange}
+          transaction={transaction ?? undefined}
+          fromChain={fromChain}
         />
       ) : null}
     </Modal>

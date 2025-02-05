@@ -182,17 +182,25 @@ export const OnrampProcessingStepUI: FC<OnrampProcessingStepUIProps> = ({
           ) : null}
         </Flex>
       </Flex>
-      <Text style="body2" color="subtle">
-        Feel free to leave at any time, you can track your progress within the
-        <Anchor
-          href={`${baseTransactionUrl}/transaction/${requestId}`}
-          target="_blank"
-          css={{ ml: '1' }}
-        >
-          transaction page
-        </Anchor>
-        .
-      </Text>
+      {processingStep === OnrampProcessingStep.Relaying ? (
+        <Text style="body2" color="subtle">
+          Feel free to leave at any time, you can track your progress within the
+          <Anchor
+            href={`${baseTransactionUrl}/transaction/${requestId}`}
+            target="_blank"
+            css={{ ml: '1' }}
+          >
+            transaction page
+          </Anchor>
+          .
+        </Text>
+      ) : (
+        <Text style="subtitle2" color="subtle">
+          This transaction occurs in two steps. MoonPay powers only your
+          purchase of {fromToken?.symbol} ({fromChain?.displayName}) which Relay
+          then converts to {toToken?.symbol} ({toChain?.displayName}).
+        </Text>
+      )}
     </Flex>
   )
 }

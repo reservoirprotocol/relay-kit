@@ -7,7 +7,12 @@ import {
   type FC,
   type ReactNode
 } from 'react'
-import useRelayClient from '../../../../hooks/useRelayClient.js'
+import {
+  useRelayClient,
+  useENSResolver,
+  useIsPassthrough,
+  useSupportedMoonPayCurrencyCode
+} from '../../../../hooks/index.js'
 import { zeroAddress } from 'viem'
 import { type ChainVM, type RelayChain } from '@reservoir0x/relay-sdk'
 import type {
@@ -15,7 +20,6 @@ import type {
   LinkedWallet,
   Token
 } from '../../../../types/index.js'
-import useENSResolver from '../../../../hooks/useENSResolver.js'
 import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 import {
   findSupportedWallet,
@@ -28,7 +32,6 @@ import { formatBN } from '../../../../utils/numbers.js'
 export type ChildrenProps = {
   displayCurrency: boolean
   setDisplayCurrency: React.Dispatch<React.SetStateAction<boolean>>
-  depositAddress?: string
   recipient?: string
   setRecipient: React.Dispatch<React.SetStateAction<string | undefined>>
   isRecipientLinked: boolean
@@ -49,6 +52,11 @@ export type ChildrenProps = {
   toChainWalletVMSupported?: boolean
   amountToTokenFormatted?: string
   usdRate: number
+  minAmountCurrency?: string
+  ctaCopy: string
+  notEnoughFiat: boolean
+  isPassthrough: boolean
+  moonPayCurrencyCode: string
 }
 
 type OnrampWidgetRendererProps = {
@@ -56,6 +64,7 @@ type OnrampWidgetRendererProps = {
   supportedWalletVMs: ChainVM[]
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
+  moonPayApiKey: string
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -64,6 +73,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   multiWalletSupportEnabled,
+  moonPayApiKey,
   children
 }) => {
   const client = useRelayClient()
@@ -90,6 +100,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     }
   )
   const usdRate = usdTokenPriceResponse?.price ?? 0
+  const minAmountCurrency = formatBN(20 / usdRate, 5, token.decimals)
 
   const toChain = useMemo(
     () => client?.chains.find((chain) => chain.id === token.chainId),
@@ -98,26 +109,27 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   const toChainWalletVMSupported =
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
-  const fromChain = useMemo(
-    () =>
-      client?.chains.find(
-        (chain) => chain.id === (token.chainId === 8453 ? 10 : 8453)
-      ),
-    [token, client?.chains]
+  const moonPayCurrency = useSupportedMoonPayCurrencyCode(
+    ['usdc_base', 'usdc_polygon', 'usdc', 'eth'],
+    moonPayApiKey
   )
-  const fromCurrency =
-    fromChain && fromChain.id === 8453
-      ? '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
-      : '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
+
   const fromToken: Token = {
-    chainId: fromChain?.id ?? 8453,
-    address: fromCurrency,
-    symbol: 'USDC',
-    name: 'USDC',
+    chainId: +moonPayCurrency.chainId,
+    address: moonPayCurrency.contractAddress,
+    symbol: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
+    name: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
     logoURI:
-      'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
-    decimals: 6
+      moonPayCurrency.code === 'eth'
+        ? 'https://assets.relay.link/icons/1/light.png'
+        : 'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+    decimals: moonPayCurrency.code === 'eth' ? 18 : 6
   }
+
+  const fromChain = useMemo(
+    () => client?.chains.find((chain) => chain.id === +moonPayCurrency.chainId),
+    [fromToken, client?.chains, moonPayCurrency]
+  )
 
   const [amount, setAmount] = useState('20')
   const [amountToToken, setAmountToToken] = useState('')
@@ -189,6 +201,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     toChain?.id
   )
 
+  const isPassthrough = useIsPassthrough(token, moonPayApiKey)
+
   useEffect(() => {
     setInputValue(displayCurrency ? amountToToken : amount)
   }, [usdRate])
@@ -229,6 +243,16 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     [usdRate, displayCurrency]
   )
 
+  const notEnoughFiat = !amount || +amount < 20
+  let ctaCopy = 'Buy'
+  if (notEnoughFiat) {
+    ctaCopy = 'Enter an amount'
+  } else if (!_recipient && toChainWalletVMSupported) {
+    ctaCopy = `Connect`
+  } else if (!_recipient) {
+    ctaCopy = `Enter ${toChain?.displayName} address`
+  }
+
   return (
     <>
       {children({
@@ -253,7 +277,12 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         fiatCurrency,
         setFiatCurrency,
         amountToTokenFormatted,
-        usdRate
+        usdRate,
+        minAmountCurrency,
+        notEnoughFiat,
+        ctaCopy,
+        isPassthrough,
+        moonPayCurrencyCode: moonPayCurrency.code
       })}
     </>
   )
