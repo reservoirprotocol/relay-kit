@@ -2,8 +2,8 @@ import { useState, type FC } from 'react'
 import { Box, Button, Flex, Pill, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
   supportsExternalLiquidity: boolean
@@ -68,19 +68,16 @@ const SwapRouteSelector: FC<Props> = ({
           disabled={!(supportsExternalLiquidity || externalLiquidtySelected)}
         >
           <Text style="subtitle2">Route</Text>
-          <Pill
-            css={{ gap: '2', display: 'flex', alignItems: 'center' }}
-            color="gray"
-          >
+          <Flex css={{ gap: '2', alignItems: 'center' }}>
             <Text style="subtitle2">
               {externalLiquidtySelected ? 'Native' : 'Relay'}
             </Text>
             {supportsExternalLiquidity || externalLiquidtySelected ? (
               <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-                <FontAwesomeIcon icon={faChevronDown} width={14} />
+                <FontAwesomeIcon icon={faChevronRight} width={14} />
               </Box>
             ) : null}
-          </Pill>
+          </Flex>
         </Button>
       }
     >

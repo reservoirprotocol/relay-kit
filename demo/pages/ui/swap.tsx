@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import { SwapWidget } from '@reservoir0x/relay-kit-ui'
+import { SlippageToleranceConfig, SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import {
@@ -54,6 +54,10 @@ const SwapWidgetPage: NextPage = () => {
   const [slippageTolerance, setSlippageTolerance] = useState<
     string | undefined
   >(undefined)
+
+  const formattedSlippageTolerance = slippageTolerance
+    ? (Number(slippageTolerance) * 100).toString()
+    : undefined
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.reduce((linkedWallets, wallet) => {
@@ -130,143 +134,162 @@ const SwapWidgetPage: NextPage = () => {
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '100%',
-          paddingTop: 50
+          paddingTop: 50,
+          gap: 20
         }}
       >
-        <SwapWidget
-          key={`swap-widget-${singleChainMode ? 'single' : 'multi'}-chain`}
-          lockChainId={singleChainMode ? 8453 : undefined}
-          singleChainMode={singleChainMode}
-          supportedWalletVMs={['evm', 'bvm', 'svm']}
-          defaultToToken={
-            singleChainMode
-              ? {
-                  chainId: 8453,
-                  address: '0x4200000000000000000000000000000000000006',
-                  decimals: 18,
-                  name: 'WETH',
-                  symbol: 'WETH',
-                  logoURI:
-                    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
-                }
-              : {
-                  chainId: 10,
-                  address: '0x0000000000000000000000000000000000000000',
-                  decimals: 18,
-                  name: 'ETH',
-                  symbol: 'ETH',
-                  logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-                }
-          }
-          // defaultToToken={{
-          //   chainId: 10,
-          //   address: '0x0000000000000000000000000000000000000000',
-          //   decimals: 18,
-          //   name: 'ETH',
-          //   symbol: 'ETH',
-          //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-          // }}
-          // lockToToken={true}
-          // lockFromToken={true}
-          defaultFromToken={{
-            chainId: 8453,
-            address: '0x0000000000000000000000000000000000000000',
-            decimals: 18,
-            name: 'ETH',
-            symbol: 'ETH',
-            logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: 'max-content',
+            gap: 8
           }}
-          // defaultFromToken={{
-          //   chainId: 1,
-          //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
-          //   decimals: 8,
-          //   name: 'SOLVE',
-          //   symbol: 'SOLVE',
-          //   logoURI:
-          //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
-          // }}
-          // defaultAmount={'5'}
-          wallet={wallet}
-          multiWalletSupportEnabled={true}
-          linkedWallets={linkedWallets}
-          onLinkNewWallet={({ chain, direction }) => {
-            if (linkWalletPromise) {
-              linkWalletPromise.reject()
-              setLinkWalletPromise(undefined)
+        >
+          <div
+            style={{ width: '100%', display: 'flex', justifyContent: 'end' }}
+          >
+            <SlippageToleranceConfig
+              slippageTolerance={slippageTolerance}
+              setSlippageTolerance={setSlippageTolerance}
+            />
+          </div>
+          <SwapWidget
+            key={`swap-widget-${singleChainMode ? 'single' : 'multi'}-chain`}
+            lockChainId={singleChainMode ? 8453 : undefined}
+            singleChainMode={singleChainMode}
+            supportedWalletVMs={['evm', 'bvm', 'svm']}
+            defaultToToken={
+              singleChainMode
+                ? {
+                    chainId: 8453,
+                    address: '0x4200000000000000000000000000000000000006',
+                    decimals: 18,
+                    name: 'WETH',
+                    symbol: 'WETH',
+                    logoURI:
+                      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+                  }
+                : {
+                    chainId: 10,
+                    address: '0x0000000000000000000000000000000000000000',
+                    decimals: 18,
+                    name: 'ETH',
+                    symbol: 'ETH',
+                    logoURI:
+                      'https://assets.relay.link/icons/currencies/eth.png'
+                  }
             }
-            if (chain?.vmType === 'evm') {
-              setWalletFilter('EVM')
-            } else if (chain?.id === 792703809) {
-              setWalletFilter('SOL')
-            } else if (chain?.id === 8253038) {
-              setWalletFilter('BTC')
-            } else if (chain?.id === 9286185) {
-              setWalletFilter('ECLIPSE')
-            } else {
-              setWalletFilter(undefined)
-            }
-            const promise = new Promise<LinkedWallet>((resolve, reject) => {
-              setLinkWalletPromise({
-                resolve,
-                reject,
-                params: {
-                  chain,
-                  direction
-                }
+            // defaultToToken={{
+            //   chainId: 10,
+            //   address: '0x0000000000000000000000000000000000000000',
+            //   decimals: 18,
+            //   name: 'ETH',
+            //   symbol: 'ETH',
+            //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+            // }}
+            // lockToToken={true}
+            // lockFromToken={true}
+            defaultFromToken={{
+              chainId: 8453,
+              address: '0x0000000000000000000000000000000000000000',
+              decimals: 18,
+              name: 'ETH',
+              symbol: 'ETH',
+              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+            }}
+            // defaultFromToken={{
+            //   chainId: 1,
+            //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
+            //   decimals: 8,
+            //   name: 'SOLVE',
+            //   symbol: 'SOLVE',
+            //   logoURI:
+            //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
+            // }}
+            // defaultAmount={'5'}
+            wallet={wallet}
+            multiWalletSupportEnabled={true}
+            linkedWallets={linkedWallets}
+            onLinkNewWallet={({ chain, direction }) => {
+              if (linkWalletPromise) {
+                linkWalletPromise.reject()
+                setLinkWalletPromise(undefined)
+              }
+              if (chain?.vmType === 'evm') {
+                setWalletFilter('EVM')
+              } else if (chain?.id === 792703809) {
+                setWalletFilter('SOL')
+              } else if (chain?.id === 8253038) {
+                setWalletFilter('BTC')
+              } else if (chain?.id === 9286185) {
+                setWalletFilter('ECLIPSE')
+              } else {
+                setWalletFilter(undefined)
+              }
+              const promise = new Promise<LinkedWallet>((resolve, reject) => {
+                setLinkWalletPromise({
+                  resolve,
+                  reject,
+                  params: {
+                    chain,
+                    direction
+                  }
+                })
               })
-            })
-            setShowLinkNewWalletModal(true)
-            return promise
-          }}
-          onSetPrimaryWallet={async (address: string) => {
-            //In some cases there's a race condition between connecting the wallet and having it available to switch to so we need to poll for it
-            const maxAttempts = 20
-            let attemptCount = 0
-            const timer = setInterval(async () => {
-              attemptCount++
-              const newPrimaryWallet = wallets.current?.find(
-                (wallet) =>
-                  wallet.address === address ||
-                  wallet.additionalAddresses.find(
-                    (_address) => _address.address === address
-                  )
-              )
-              if (attemptCount >= maxAttempts) {
-                clearInterval(timer)
-                return
-              }
-              if (!newPrimaryWallet || !switchWallet.current) {
-                return
-              }
-              try {
-                await switchWallet.current(newPrimaryWallet?.id)
-                clearInterval(timer)
-              } catch (e) {}
-            }, 200)
-          }}
-          onConnectWallet={() => {
-            setShowAuthFlow(true)
-          }}
-          onAnalyticEvent={(eventName, data) => {
-            console.log('Analytic Event', eventName, data)
-          }}
-          onFromTokenChange={(token) =>
-            console.log('From token changed to: ', token)
-          }
-          onToTokenChange={(token) =>
-            console.log('To token changed to: ', token)
-          }
-          onSwapError={(e, data) => {
-            console.log('onSwapError Triggered', e, data)
-          }}
-          onSwapSuccess={(data) => {
-            console.log('onSwapSuccess Triggered', data)
-          }}
-          slippageTolerance={slippageTolerance}
-        />
+              setShowLinkNewWalletModal(true)
+              return promise
+            }}
+            onSetPrimaryWallet={async (address: string) => {
+              //In some cases there's a race condition between connecting the wallet and having it available to switch to so we need to poll for it
+              const maxAttempts = 20
+              let attemptCount = 0
+              const timer = setInterval(async () => {
+                attemptCount++
+                const newPrimaryWallet = wallets.current?.find(
+                  (wallet) =>
+                    wallet.address === address ||
+                    wallet.additionalAddresses.find(
+                      (_address) => _address.address === address
+                    )
+                )
+                if (attemptCount >= maxAttempts) {
+                  clearInterval(timer)
+                  return
+                }
+                if (!newPrimaryWallet || !switchWallet.current) {
+                  return
+                }
+                try {
+                  await switchWallet.current(newPrimaryWallet?.id)
+                  clearInterval(timer)
+                } catch (e) {}
+              }, 200)
+            }}
+            onConnectWallet={() => {
+              setShowAuthFlow(true)
+            }}
+            onAnalyticEvent={(eventName, data) => {
+              console.log('Analytic Event', eventName, data)
+            }}
+            onFromTokenChange={(token) =>
+              console.log('From token changed to: ', token)
+            }
+            onToTokenChange={(token) =>
+              console.log('To token changed to: ', token)
+            }
+            onSwapError={(e, data) => {
+              console.log('onSwapError Triggered', e, data)
+            }}
+            onSwapSuccess={(data) => {
+              console.log('onSwapSuccess Triggered', data)
+            }}
+            slippageTolerance={formattedSlippageTolerance}
+          />
+        </div>
       </div>
       <div
         style={{
@@ -282,23 +305,6 @@ const SwapWidgetPage: NextPage = () => {
             type="checkbox"
             checked={singleChainMode}
             onChange={(e) => setSingleChainMode(e.target.checked)}
-          />
-        </div>
-        <div style={{ marginTop: '20px' }}>
-          <label>
-            Slippage Tolerance (basis points - 50 for 0.5% slippage):{' '}
-          </label>
-          <input
-            type="number"
-            min="0"
-            max="10000"
-            value={slippageTolerance ?? ''}
-            onChange={(e) =>
-              setSlippageTolerance(
-                e.target.value === '' ? undefined : e.target.value
-              )
-            }
-            placeholder="auto"
           />
         </div>
       </div>

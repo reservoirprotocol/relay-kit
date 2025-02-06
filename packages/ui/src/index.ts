@@ -14,6 +14,7 @@ export { default as SwapWidget } from './components/widgets/SwapWidget/index.js'
 
 //components
 export { default as TokenSelector } from './components/common/TokenSelector/TokenSelector.js'
+export { SlippageToleranceConfig } from './components/common/SlippageToleranceConfig.js'
 
 //types
 export type { LinkedWallet } from './types/index.js'
