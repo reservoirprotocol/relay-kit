@@ -13,7 +13,7 @@ import {
 import TokenSelector from '../../../common/TokenSelector/TokenSelector.js'
 import { EventNames } from '../../../../constants/events.js'
 import { TokenTrigger } from '../../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { FiatCurrency, LinkedWallet } from '../../../../types/index.js'
+import type { LinkedWallet } from '../../../../types/index.js'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
@@ -124,7 +124,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     : amount.endsWith('0') && amount.includes('.')
                       ? 2
                       : 0,
-                  maximumFractionDigits: amount.includes('.') ? 2 : 0
+                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                  minimumSignificantDigits: 1,
+                  maximumSignificantDigits: 4
                 }).format(+amount)
 
         return (
@@ -253,7 +255,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 {notEnoughFiat ? (
                   <Text color="red" css={{ mb: 24, textAlign: 'center' }}>
                     Minimum amount is{' '}
-                    {displayCurrency ? minAmountCurrency ?? '$20' : '$20'}
+                    {displayCurrency && minAmountCurrency
+                      ? `${minAmountCurrency} ${token.symbol}`
+                      : '$20'}
                   </Text>
                 ) : undefined}
                 <button
@@ -270,8 +274,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     const _displayCurrency = !displayCurrency
                     setDisplayCurrency(_displayCurrency)
                     if (_displayCurrency) {
+                      const _amountToToken = 21 / usdRate
                       setInputValue(
-                        formatBN(parseFloat(amountToToken), 5, token.decimals),
+                        formatBN(_amountToToken, 5, token.decimals, false),
                         _displayCurrency
                       )
                     }
@@ -299,8 +304,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 </button>
                 <TokenSelector
                   type={'token'}
-                  // address={address} //TODO
-                  // isValidAddress={isValidFromAddress}
+                  address={recipient}
+                  isValidAddress={isValidRecipient}
                   token={token}
                   onAnalyticEvent={onAnalyticEvent}
                   depositAddressOnly={true}
