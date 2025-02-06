@@ -174,13 +174,80 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   onChange={(e) => {
                     setInputValue((e.target as HTMLInputElement).value)
                   }}
+                  onKeyDown={(e) => {
+                    const input = e.target as HTMLInputElement
+                    const cursorPosition = input.selectionStart
+                    if (e.key === 'ArrowLeft' && cursorPosition !== null) {
+                      const valueBeforeCursor = input.value.substring(
+                        0,
+                        cursorPosition
+                      )
+                      const charBeforeCursor = valueBeforeCursor.charAt(
+                        cursorPosition - 1
+                      )
+                      if (charBeforeCursor === '$') {
+                        e.preventDefault()
+                      }
+                    }
+                    if (e.key === 'ArrowRight' && cursorPosition !== null) {
+                      const valueAfterCursor = input.value.substring(
+                        0,
+                        cursorPosition + 1
+                      )
+                      const charAfterCursor =
+                        valueAfterCursor.charAt(cursorPosition)
+                      if (charAfterCursor === ' ') {
+                        e.preventDefault()
+                      }
+                    }
+                  }}
+                  onMouseDown={(e) => {
+                    const input = e.target as HTMLInputElement
+                    input.style.caretColor = 'transparent'
+                  }}
+                  onMouseUp={(e) => {
+                    const input = e.target as HTMLInputElement
+                    const cursorPosition = input.selectionStart // Get the current cursor position
+                    if (cursorPosition !== null) {
+                      const valueAfterCursor = input.value.substring(
+                        0,
+                        cursorPosition + 1
+                      )
+                      const charAfterCursor =
+                        valueAfterCursor.charAt(cursorPosition)
+                      const valueBeforeCursor = input.value.substring(
+                        0,
+                        cursorPosition
+                      )
+                      const charBeforeCursor = valueBeforeCursor.charAt(
+                        cursorPosition - 1
+                      )
+                      const specialCharacterRegex = /[ a-zA-Z]/
+                      const alphaRegex = /[a-zA-Z]/
+                      if (
+                        charAfterCursor === '$' ||
+                        alphaRegex.test(charAfterCursor) ||
+                        specialCharacterRegex.test(charBeforeCursor)
+                      ) {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        input.setSelectionRange(1, 1)
+                      }
+                    }
+                    input.style.caretColor = 'initial'
+                  }}
                   css={{
                     fontWeight: '700',
                     fontSize: 48,
                     lineHeight: '58px',
-                    py: 0,
                     textAlign: 'center',
-                    mb: '2'
+                    _placeholder: {
+                      color: 'text-subtle'
+                    }
+                  }}
+                  containerCss={{
+                    mb: '2',
+                    width: '100%'
                   }}
                 />
                 {notEnoughFiat ? (
@@ -196,7 +263,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: '16px'
+                    marginBottom: '16px',
+                    alignSelf: 'center'
                   }}
                   onClick={() => {
                     const _displayCurrency = !displayCurrency
@@ -262,7 +330,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '100' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('100', false)
@@ -273,7 +349,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '300' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('300', false)
@@ -284,7 +368,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '1000' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('1000', false)

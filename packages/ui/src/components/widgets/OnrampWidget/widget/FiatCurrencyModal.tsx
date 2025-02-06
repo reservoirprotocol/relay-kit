@@ -171,40 +171,43 @@ const FiatCurrencyModal: FC<Props> = ({
         }}
       >
         <AccessibleListItem value="input" asChild>
-          <Input
-            placeholder="Search for a currency"
-            icon={
-              <Box css={{ color: 'gray9' }}>
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  width={16}
-                  height={16}
-                />
-              </Box>
-            }
-            containerCss={{
-              width: '100%',
-              height: 40,
-              scrollSnapAlign: 'start'
-            }}
-            style={{
-              marginTop: '8px',
-              marginBottom: '8px',
-              position: 'sticky',
-              top: '8px',
-              zIndex: 1
-            }}
+          <Box
             css={{
-              width: '100%',
-              _placeholder_parent: {
-                textOverflow: 'ellipsis'
+              bg: 'modal-background',
+              position: 'sticky',
+              py: '2',
+              zIndex: 1,
+              top: 0
+            }}
+          >
+            <Input
+              placeholder="Search for a currency"
+              icon={
+                <Box css={{ color: 'gray9' }}>
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    width={16}
+                    height={16}
+                  />
+                </Box>
               }
-            }}
-            value={currencySearchInput}
-            onChange={(e) => {
-              setCurrencySearchInput((e.target as HTMLInputElement).value)
-            }}
-          />
+              containerCss={{
+                width: '100%',
+                height: 40,
+                scrollSnapAlign: 'start'
+              }}
+              css={{
+                width: '100%',
+                _placeholder_parent: {
+                  textOverflow: 'ellipsis'
+                }
+              }}
+              value={currencySearchInput}
+              onChange={(e) => {
+                setCurrencySearchInput((e.target as HTMLInputElement).value)
+              }}
+            />
+          </Box>
         </AccessibleListItem>
         {filteredCurrencies.map((currency, i) => {
           const active = fiatCurrency.code === currency.code

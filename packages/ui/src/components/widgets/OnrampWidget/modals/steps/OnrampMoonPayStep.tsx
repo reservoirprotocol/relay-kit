@@ -114,7 +114,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             '--borderColor': 'colors.subtle-border-color',
             border: '1px solid var(--borderColor)',
             p: '4',
-            gap: 2
+            gap: 2,
+            mb: '2'
           }}
         >
           <ChainTokenIcon
