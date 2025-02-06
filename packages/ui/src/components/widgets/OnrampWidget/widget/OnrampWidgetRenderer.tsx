@@ -100,7 +100,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     }
   )
   const usdRate = usdTokenPriceResponse?.price ?? 0
-  const minAmountCurrency = formatBN(20 / usdRate, 5, token.decimals)
+  const minAmountCurrency = formatBN(20 / usdRate, 5, token.decimals, false)
 
   const toChain = useMemo(
     () => client?.chains.find((chain) => chain.id === token.chainId),
