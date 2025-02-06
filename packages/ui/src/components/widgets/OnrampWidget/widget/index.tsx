@@ -240,7 +240,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     fontWeight: '700',
                     fontSize: 48,
                     lineHeight: '58px',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    _placeholder: {
+                      color: 'text-subtle'
+                    }
                   }}
                   containerCss={{
                     mb: '2',
@@ -327,7 +330,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '100' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('100', false)
@@ -338,7 +349,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '300' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('300', false)
@@ -349,7 +368,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <Button
                     color="white"
                     corners="pill"
-                    css={{ minHeight: 28, px: 3, py: 1 }}
+                    css={{
+                      minHeight: 28,
+                      px: 3,
+                      py: 1,
+                      filter:
+                        amount === '1000' && !displayCurrency
+                          ? 'brightness(97%)'
+                          : undefined
+                    }}
                     onClick={() => {
                       setDisplayCurrency(false)
                       setInputValue('1000', false)
