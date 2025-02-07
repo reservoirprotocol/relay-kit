@@ -40,7 +40,9 @@ export const OnrampProcessingPassthroughStep: FC<
           width: '100%',
           p: '3',
           mb: '2',
-          gap: '2'
+          gap: '2',
+          background: 'gray2',
+          borderRadius: 12
         }}
       >
         <ChainTokenIcon

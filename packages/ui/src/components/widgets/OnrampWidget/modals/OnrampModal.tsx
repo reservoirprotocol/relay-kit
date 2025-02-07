@@ -174,7 +174,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         }`
       : amount
   const ethTotalAmount = formatBN(
-    totalAmount ? +totalAmount / (ethTokenPriceResponse?.price ?? 0) : '0',
+    totalAmount ? +totalAmount / (ethTokenPriceResponse?.price ?? 0) : 0,
     5,
     18
   )
@@ -245,12 +245,14 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   )
 
   const transaction = transactions && transactions[0] ? transactions[0] : null
-  const toAmountFormatted =
-    formatBN(
-      transaction?.data?.metadata?.currencyOut?.amountFormatted,
-      5,
-      transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
-    ) ?? undefined
+  const toAmountFormatted = transaction?.data?.metadata?.currencyOut
+    ?.amountFormatted
+    ? formatBN(
+        +transaction.data.metadata.currencyOut.amountFormatted,
+        5,
+        transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
+      ) ?? undefined
+    : undefined
 
   const fillTxUrl = fillTxHash
     ? getTxBlockExplorerUrl(toToken.chainId, client?.chains, fillTxHash)
@@ -402,6 +404,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
             ethTotalAmount
           })
         }}
+        moonPayRequestId={moonPayRequestId}
       />
       {step === OnrampStep.ProcessingPassthrough ? (
         <OnrampProcessingPassthroughStep

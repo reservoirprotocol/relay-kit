@@ -1,5 +1,10 @@
 import { lazy, memo, Suspense, useCallback, useEffect, type FC } from 'react'
-import { ChainTokenIcon, Flex, Text } from '../../../../primitives/index.js'
+import {
+  Box,
+  ChainTokenIcon,
+  Flex,
+  Text
+} from '../../../../primitives/index.js'
 import type { FiatCurrency, Token } from '../../../../../types/index.js'
 import { OnrampProcessingStep, OnrampStep } from '../OnrampModal.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
@@ -18,6 +23,7 @@ type OnrampMoonPayStepProps = {
   fiatCurrency: FiatCurrency
   isPassthrough?: boolean
   moonPayCurrencyCode?: string
+  moonPayRequestId?: string
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
   setProcessingStep: (processingStep?: OnrampProcessingStep) => void
@@ -54,6 +60,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   fiatCurrency,
   isPassthrough,
   moonPayCurrencyCode,
+  moonPayRequestId,
   onAnalyticEvent,
   setStep,
   setProcessingStep,
@@ -118,11 +125,33 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             mb: '2'
           }}
         >
-          <ChainTokenIcon
-            chainId={fromToken?.chainId}
-            tokenlogoURI={fromToken?.logoURI}
-            css={{ width: 32, height: 32 }}
-          />
+          <Box
+            css={{ position: 'relative', width: 48, height: 52, flexShrink: 0 }}
+          >
+            <ChainTokenIcon
+              chainId={toToken?.chainId}
+              tokenlogoURI={toToken?.logoURI}
+              css={{
+                width: 32,
+                height: 32,
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                zIndex: 1
+              }}
+            />
+            <ChainTokenIcon
+              chainId={fromToken?.chainId}
+              tokenlogoURI={fromToken?.logoURI}
+              css={{
+                width: 32,
+                height: 32,
+                position: 'absolute',
+                bottom: 0,
+                left: 0
+              }}
+            />
+          </Box>
           <Text style="subtitle2">
             Purchase {fromToken?.symbol} ({fromChain?.displayName}) via your
             card for Relay to convert to {toToken?.symbol} (
@@ -166,18 +195,20 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             }
           }}
           onTransactionCompleted={async (props) => {
-            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-              ...props
-            })
-            if (
-              window &&
-              (window as any).relayOnrampStep === OnrampStep.Processing &&
-              !(window as any).relayIsPassthrough
-            ) {
-              setProcessingStep(OnrampProcessingStep.Relaying)
-            } else if (window && (window as any).relayIsPassthrough) {
-              setProcessingStep(undefined)
-              onPassthroughSuccess()
+            if (moonPayRequestId === props.id) {
+              onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
+                ...props
+              })
+              if (
+                window &&
+                (window as any).relayOnrampStep === OnrampStep.Processing &&
+                !(window as any).relayIsPassthrough
+              ) {
+                setProcessingStep(OnrampProcessingStep.Relaying)
+              } else if (window && (window as any).relayIsPassthrough) {
+                setProcessingStep(undefined)
+                onPassthroughSuccess()
+              }
             }
           }}
         />
