@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import {
+  Anchor,
   Box,
   Button,
   ChainTokenIcon,
@@ -100,7 +101,14 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
       <Text style="subtitle2">
         This transaction occurs in two steps. MoonPay powers only your purchase
         of {fromToken?.symbol} ({fromChain?.displayName}) which Relay then
-        converts to {toToken?.symbol} ({toChain?.displayName}).
+        converts to {toToken?.symbol} ({toChain?.displayName}).{' '}
+        <Anchor
+          href="https://support.relay.link/en/articles/10517947-fiat-on-ramps"
+          target="_blank"
+          css={{ ml: '2' }}
+        >
+          Learn more
+        </Anchor>
       </Text>
       <Button
         disabled={!depositAddress || isFetchingQuote}
