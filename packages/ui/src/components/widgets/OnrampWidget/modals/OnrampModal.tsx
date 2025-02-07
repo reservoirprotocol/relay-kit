@@ -252,7 +252,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         5,
         transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
       ) ?? undefined
-    : undefined
+    : amountToTokenFormatted
 
   const fillTxUrl = fillTxHash
     ? getTxBlockExplorerUrl(toToken.chainId, client?.chains, fillTxHash)
