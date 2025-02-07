@@ -35,7 +35,7 @@ const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
         },
         ...inputProps.css
       }}
-      placeholder="0"
+      placeholder={inputProps.placeholder ?? '0'}
       value={value}
       onChange={
         inputProps.onChange

@@ -105,7 +105,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
         <Anchor
           href="https://support.relay.link/en/articles/10517947-fiat-on-ramps"
           target="_blank"
-          css={{ ml: '2' }}
+          css={{ ml: '1' }}
         >
           Learn more
         </Anchor>

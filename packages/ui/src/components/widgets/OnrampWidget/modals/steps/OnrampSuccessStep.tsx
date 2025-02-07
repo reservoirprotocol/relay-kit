@@ -22,6 +22,7 @@ type OnrampSuccessStepProps = {
   fillTxHash?: string
   isLoadingTransaction?: boolean
   toAmountFormatted?: string
+  baseTransactionUrl?: string
   onOpenChange: (open: boolean) => void
 }
 
@@ -32,6 +33,7 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
   toAmountFormatted,
   fillTxHash,
   fillTxUrl,
+  baseTransactionUrl,
   onOpenChange
 }) => {
   return (
@@ -94,7 +96,7 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
             </Text>
           )}
         </Pill>
-        <Flex direction="column" css={{ gap: '2', justifyItems: 'center' }}>
+        <Flex direction="column" css={{ gap: '2' }} align="center">
           <Anchor
             href={moonpayTxUrl}
             target="_blank"
@@ -110,18 +112,39 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
           ) : null}
         </Flex>
       </Flex>
-      <Button
-        onClick={() => {
-          onOpenChange(false)
-        }}
-        css={{
-          justifyContent: 'center',
-          width: '100%',
-          mt: '24px'
-        }}
-      >
-        Done
-      </Button>
+      <Flex css={{ width: '100%', mt: '24px', gap: '3' }}>
+        {fillTxHash ? (
+          <a
+            href={`${baseTransactionUrl}/transaction/${fillTxHash}`}
+            style={{ width: '100%' }}
+            target="_blank"
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
+          >
+            <Button
+              color="secondary"
+              css={{
+                justifyContent: 'center',
+                width: 'max-content'
+              }}
+            >
+              View Details
+            </Button>
+          </a>
+        ) : null}
+        <Button
+          onClick={() => {
+            onOpenChange(false)
+          }}
+          css={{
+            justifyContent: 'center',
+            width: '100%'
+          }}
+        >
+          Done
+        </Button>
+      </Flex>
     </Flex>
   )
 }

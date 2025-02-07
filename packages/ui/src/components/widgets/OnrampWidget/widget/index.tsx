@@ -126,7 +126,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       : 0,
                   maximumFractionDigits: amount.includes('.') ? 2 : 0,
                   minimumSignificantDigits: 1,
-                  maximumSignificantDigits: 4
+                  maximumSignificantDigits: amount.length
                 }).format(+amount)
 
         return (
@@ -166,13 +166,15 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                 <AmountInput
                   value={
                     displayCurrency
-                      ? `${amountToToken} ${token.symbol}`
+                      ? amountToToken !== ''
+                        ? `${amountToToken} ${token.symbol}`
+                        : ''
                       : formattedAmount
                   }
                   setValue={(e) => {
                     //unused
                   }}
-                  placeholder={displayCurrency ? '0' : '$0'}
+                  placeholder={`   0`}
                   onChange={(e) => {
                     setInputValue((e.target as HTMLInputElement).value)
                   }}
@@ -243,6 +245,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     fontSize: 48,
                     lineHeight: '58px',
                     textAlign: 'center',
+                    textIndent:
+                      amount === '' || amountToToken === ''
+                        ? '-36px'
+                        : undefined,
+                    whiteSpace: 'pre',
                     _placeholder: {
                       color: 'text-subtle'
                     }
@@ -274,7 +281,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     const _displayCurrency = !displayCurrency
                     setDisplayCurrency(_displayCurrency)
                     if (_displayCurrency) {
-                      const _amountToToken = 21 / usdRate
+                      let _amountToToken = 21 / usdRate
+                      if (+amountToToken > _amountToToken) {
+                        _amountToToken = +amountToToken
+                      }
                       setInputValue(
                         formatBN(_amountToToken, 5, token.decimals, false),
                         _displayCurrency
@@ -339,10 +349,18 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       minHeight: 28,
                       px: 3,
                       py: 1,
-                      filter:
-                        amount === '100' && !displayCurrency
-                          ? 'brightness(97%)'
-                          : undefined
+                      _light: {
+                        filter:
+                          amount === '100' && !displayCurrency
+                            ? 'brightness(97%)'
+                            : undefined
+                      },
+                      _dark: {
+                        filter:
+                          amount === '100' && !displayCurrency
+                            ? 'brightness(130%)'
+                            : undefined
+                      }
                     }}
                     onClick={() => {
                       setDisplayCurrency(false)
@@ -358,10 +376,18 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       minHeight: 28,
                       px: 3,
                       py: 1,
-                      filter:
-                        amount === '300' && !displayCurrency
-                          ? 'brightness(97%)'
-                          : undefined
+                      _light: {
+                        filter:
+                          amount === '300' && !displayCurrency
+                            ? 'brightness(97%)'
+                            : undefined
+                      },
+                      _dark: {
+                        filter:
+                          amount === '300' && !displayCurrency
+                            ? 'brightness(130%)'
+                            : undefined
+                      }
                     }}
                     onClick={() => {
                       setDisplayCurrency(false)
@@ -377,10 +403,18 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       minHeight: 28,
                       px: 3,
                       py: 1,
-                      filter:
-                        amount === '1000' && !displayCurrency
-                          ? 'brightness(97%)'
-                          : undefined
+                      _light: {
+                        filter:
+                          amount === '1000' && !displayCurrency
+                            ? 'brightness(97%)'
+                            : undefined
+                      },
+                      _dark: {
+                        filter:
+                          amount === '1000' && !displayCurrency
+                            ? 'brightness(130%)'
+                            : undefined
+                      }
                     }}
                     onClick={() => {
                       setDisplayCurrency(false)

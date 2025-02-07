@@ -436,6 +436,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           fillTxUrl={fillTxUrl}
           moonpayTxUrl={moonpayTxUrl ?? undefined}
           toAmountFormatted={toAmountFormatted}
+          baseTransactionUrl={baseTransactionUrl}
           onOpenChange={onOpenChange}
         />
       ) : null}
