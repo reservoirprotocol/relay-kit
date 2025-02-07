@@ -1,14 +1,19 @@
-import type { FC } from 'react'
+import { useEffect, useState, type FC } from 'react'
 import {
   Anchor,
   Box,
+  Button,
   ChainTokenIcon,
   Flex,
   Pill,
   Text
 } from '../../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowUpRightFromSquare,
+  faCheck,
+  faUpRightFromSquare
+} from '@fortawesome/free-solid-svg-icons'
 import { truncateAddress } from '../../../../../utils/truncate.js'
 import type { Token } from '../../../../../types/index.js'
 import { OnrampProcessingStep } from '../OnrampModal.js'
@@ -40,6 +45,27 @@ export const OnrampProcessingStepUI: FC<OnrampProcessingStepUIProps> = ({
   baseTransactionUrl,
   requestId
 }) => {
+  const [delayedMoonpayTx, setDelayedMoonpayTx] = useState(false)
+
+  useEffect(() => {
+    let timer: number | undefined
+    if (processingStep === OnrampProcessingStep.Finalizing) {
+      timer = setTimeout(
+        () => {
+          setDelayedMoonpayTx(true)
+        },
+        1000 * 60 * 5
+      ) //5 minutes
+    }
+
+    return () => {
+      if (timer) {
+        setDelayedMoonpayTx(false)
+        clearTimeout(timer)
+      }
+    }
+  }, [processingStep])
+
   return (
     <Flex
       direction="column"
@@ -114,17 +140,58 @@ export const OnrampProcessingStepUI: FC<OnrampProcessingStepUIProps> = ({
           )}
         </Flex>
         {processingStep === OnrampProcessingStep.Finalizing ? (
-          <Pill
-            radius="rounded"
-            color="gray"
-            css={{ width: '100%', py: '2', px: '3', mt: '6px' }}
-          >
-            <Text style="subtitle2" color="subtle">
-              It might take a few minutes for the MoonPay transaction to
-              finalize.
-            </Text>
-          </Pill>
+          delayedMoonpayTx ? (
+            <Flex
+              direction="column"
+              css={{
+                width: '100%',
+                overflow: 'hidden',
+                borderRadius: 'widget-card-border-radius',
+                '--borderColor': 'colors.subtle-border-color',
+                border: '1px solid var(--borderColor)',
+                p: '2',
+                mb: '6px',
+                gap: '3',
+                mt: '6px'
+              }}
+            >
+              <Text color="warning" style="subtitle2">
+                Looks like its taking longer than expected. Please go to MoonPay
+                to track your transaction.
+              </Text>
+              <Button
+                color="warning"
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2',
+                  justifyContent: 'center'
+                }}
+                onClick={(e) => {
+                  window.open(moonpayTxUrl, '_blank')
+                }}
+              >
+                Go to MoonPay{' '}
+                <FontAwesomeIcon
+                  icon={faArrowUpRightFromSquare}
+                  style={{ width: 16, height: 16 }}
+                />
+              </Button>
+            </Flex>
+          ) : (
+            <Pill
+              radius="rounded"
+              color="gray"
+              css={{ width: '100%', py: '2', px: '3', mt: '6px' }}
+            >
+              <Text style="subtitle2" color="subtle">
+                It might take a few minutes for the MoonPay transaction to
+                finalize.
+              </Text>
+            </Pill>
+          )
         ) : null}
+
         <Box
           css={{
             height: 24,
