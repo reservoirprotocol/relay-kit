@@ -66,6 +66,8 @@ const OnrampPage: NextPage = () => {
           supportedWalletVMs={['evm', 'svm', 'bvm']}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
+          moonPayThemeId={process.env.NEXT_PUBLIC_MOONPAY_THEME_ID as string}
+          moonPayThemeMode={theme === 'light' ? 'light' : 'dark'}
           moonpayOnUrlSignatureRequested={async (
             url: string
           ): Promise<string> => {

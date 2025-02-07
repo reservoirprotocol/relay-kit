@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
-import { Box, Button, Flex, Pill, Text } from '../../../primitives/index.js'
+import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,7 +13,7 @@ import {
 import TokenSelector from '../../../common/TokenSelector/TokenSelector.js'
 import { EventNames } from '../../../../constants/events.js'
 import { TokenTrigger } from '../../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { LinkedWallet } from '../../../../types/index.js'
+import type { LinkedWallet, Token } from '../../../../types/index.js'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
@@ -26,6 +26,9 @@ type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
   supportedWalletVMs: ChainVM[]
   moonPayApiKey: string
+  moonPayThemeId?: string
+  moonPayThemeMode?: 'dark' | 'light'
+  defaultToken?: Token
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
@@ -61,6 +64,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   linkedWallets,
   multiWalletSupportEnabled,
   supportedWalletVMs,
+  moonPayThemeId,
+  moonPayThemeMode,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
@@ -602,6 +607,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               moonPayCurrencyCode={moonPayCurrencyCode}
               isPassthrough={isPassthrough}
               usdRate={usdRate}
+              moonPayThemeId={moonPayThemeId}
+              moonPayThemeMode={moonPayThemeMode}
             />
           </div>
         )
