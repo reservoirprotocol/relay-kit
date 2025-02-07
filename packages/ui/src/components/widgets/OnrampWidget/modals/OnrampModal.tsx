@@ -57,6 +57,8 @@ type OnrampModalProps = {
   isPassthrough?: boolean
   moonPayCurrencyCode?: string
   usdRate?: number
+  moonPayThemeId?: string
+  moonPayThemeMode?: 'dark' | 'light'
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -80,6 +82,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   amountToTokenFormatted,
   moonPayCurrencyCode,
   usdRate,
+  moonPayThemeId,
+  moonPayThemeMode,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
@@ -405,6 +409,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           })
         }}
         moonPayRequestId={moonPayRequestId}
+        moonPayThemeId={moonPayThemeId}
+        moonPayThemeMode={moonPayThemeMode}
       />
       {step === OnrampStep.ProcessingPassthrough ? (
         <OnrampProcessingPassthroughStep

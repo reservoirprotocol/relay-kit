@@ -65,6 +65,7 @@ type OnrampWidgetRendererProps = {
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   moonPayApiKey: string
+  defaultToken?: Token
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -74,19 +75,22 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   supportedWalletVMs,
   multiWalletSupportEnabled,
   moonPayApiKey,
+  defaultToken,
   children
 }) => {
   const client = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
-  const [token, setToken] = useState<Token>({
-    address: zeroAddress,
-    chainId: 7560,
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-  })
+  const [token, setToken] = useState<Token>(
+    defaultToken ?? {
+      address: zeroAddress,
+      chainId: 7560,
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+    }
+  )
   const [displayCurrency, setDisplayCurrency] = useState(false)
   const { data: usdTokenPriceResponse } = useTokenPrice(
     client?.baseApiUrl,

@@ -24,6 +24,8 @@ type OnrampMoonPayStepProps = {
   isPassthrough?: boolean
   moonPayCurrencyCode?: string
   moonPayRequestId?: string
+  moonPayThemeId?: string
+  moonPayThemeMode?: 'dark' | 'light'
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
   setProcessingStep: (processingStep?: OnrampProcessingStep) => void
@@ -61,6 +63,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   isPassthrough,
   moonPayCurrencyCode,
   moonPayRequestId,
+  moonPayThemeId,
+  moonPayThemeMode,
   onAnalyticEvent,
   setStep,
   setProcessingStep,
@@ -168,6 +172,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           currencyCode={moonPayCurrencyCode}
           paymentMethod="credit_debit_card"
           walletAddress={!isPassthrough ? depositAddress : recipient}
+          themeId={moonPayThemeId}
+          theme={moonPayThemeMode}
           showWalletAddressForm="false"
           visible
           style={{
