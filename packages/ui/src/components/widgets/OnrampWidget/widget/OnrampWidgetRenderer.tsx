@@ -227,7 +227,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
         setAmountToToken(_amountToToken)
         const _amount =
           _amountToToken && +_amountToToken > 0 ? +_amountToToken * usdRate : 0
-        setAmount(`${_amount}`)
+        setAmount(`${parseFloat(_amount.toFixed(2))}`)
       } else {
         let _amount = ''
         const numericValue = inputValue
