@@ -408,7 +408,6 @@ export const OnrampModal: FC<OnrampModalProps> = ({
             ethTotalAmount
           })
         }}
-        moonPayRequestId={moonPayRequestId}
         moonPayThemeId={moonPayThemeId}
         moonPayThemeMode={moonPayThemeMode}
       />
