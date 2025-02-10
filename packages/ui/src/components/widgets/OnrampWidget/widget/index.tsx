@@ -181,13 +181,13 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   }}
                   placeholder={`   0`}
                   onChange={(e) => {
-                    const input = e.target as HTMLInputElement
-                    const previousLength = input.value.length
+                    const input = e.target as any
                     setInputValue(input.value)
                     if (displayCurrency) {
                       setTimeout(() => {
-                        if (previousLength <= 1) {
-                          input.setSelectionRange(1, 1)
+                        const cursorPosition = input.selectionStart
+                        if (cursorPosition >= input.value.length) {
+                          input.setSelectionRange(0, 0)
                         }
                       }, 0)
                     }
