@@ -392,7 +392,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         locked={isChainLocked(
                           fromToken?.chainId,
                           lockChainId,
-                          toToken?.chainId
+                          toToken?.chainId,
+                          lockFromToken
                         )}
                         onClick={() => {
                           setFromTokenSelectorType('chain')
@@ -419,8 +420,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -467,7 +468,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           if (
                             token.address === toToken?.address &&
                             token.chainId === toToken?.chainId &&
-                            address === recipient
+                            address === recipient &&
+                            (!lockToToken || !fromToken)
                           ) {
                             handleSetFromToken(toToken)
                             handleSetToToken(fromToken)
@@ -481,12 +483,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                fromToken?.chainId,
-                                lockChainId,
-                                toToken?.chainId
-                              ) && fromToken?.chainId
-                            ? [fromToken.chainId]
-                            : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -763,7 +766,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         locked={isChainLocked(
                           toToken?.chainId,
                           lockChainId,
-                          fromToken?.chainId
+                          fromToken?.chainId,
+                          lockToToken
                         )}
                         onClick={() => {
                           setToTokenSelectorType('chain')
@@ -790,8 +794,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -843,7 +847,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           if (
                             token.address === fromToken?.address &&
                             token.chainId === fromToken?.chainId &&
-                            address === recipient
+                            address === recipient &&
+                            (!lockToToken || !fromToken)
                           ) {
                             handleSetToToken(fromToken)
                             handleSetFromToken(toToken)
@@ -880,12 +885,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                toToken?.chainId,
-                                lockChainId,
-                                fromToken?.chainId
-                              ) && toToken?.chainId
-                            ? [toToken.chainId]
-                            : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
