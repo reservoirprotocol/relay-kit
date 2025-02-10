@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.6
+
+### Patch Changes
+
+- af6c612: Fix token lock issues in SwapWidget
+
 ## 2.5.5
 
 ### Patch Changes
