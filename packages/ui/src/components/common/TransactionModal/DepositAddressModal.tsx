@@ -101,7 +101,8 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
           txHashes: [
             ...(executionStatus?.inTxHashes ?? []),
             ...(executionStatus?.txHashes ?? [])
-          ]
+          ],
+          steps: quote?.steps
         })
         onSuccess?.({
           steps: quote?.steps as Execute['steps'],
