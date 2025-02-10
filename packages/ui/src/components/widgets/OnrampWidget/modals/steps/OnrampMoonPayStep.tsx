@@ -9,6 +9,7 @@ import type { FiatCurrency, Token } from '../../../../../types/index.js'
 import { OnrampProcessingStep, OnrampStep } from '../OnrampModal.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { EventNames } from '../../../../../constants/events.js'
+import { arbitrum } from 'viem/chains'
 
 type OnrampMoonPayStepProps = {
   step: OnrampStep
@@ -23,7 +24,6 @@ type OnrampMoonPayStepProps = {
   fiatCurrency: FiatCurrency
   isPassthrough?: boolean
   moonPayCurrencyCode?: string
-  moonPayRequestId?: string
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -49,6 +49,8 @@ const MoonPayBuyWidget = memo(
   }
 )
 
+arbitrum
+
 export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   step,
   processingStep,
@@ -62,7 +64,6 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   fiatCurrency,
   isPassthrough,
   moonPayCurrencyCode,
-  moonPayRequestId,
   moonPayThemeId,
   moonPayThemeMode,
   onAnalyticEvent,
@@ -201,20 +202,18 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             }
           }}
           onTransactionCompleted={async (props) => {
-            if (moonPayRequestId === props.id) {
-              onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-                ...props
-              })
-              if (
-                window &&
-                (window as any).relayOnrampStep === OnrampStep.Processing &&
-                !(window as any).relayIsPassthrough
-              ) {
-                setProcessingStep(OnrampProcessingStep.Relaying)
-              } else if (window && (window as any).relayIsPassthrough) {
-                setProcessingStep(undefined)
-                onPassthroughSuccess()
-              }
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
+              ...props
+            })
+            if (
+              window &&
+              (window as any).relayOnrampStep === OnrampStep.Processing &&
+              !(window as any).relayIsPassthrough
+            ) {
+              setProcessingStep(OnrampProcessingStep.Relaying)
+            } else if (window && (window as any).relayIsPassthrough) {
+              setProcessingStep(undefined)
+              onPassthroughSuccess()
             }
           }}
         />
