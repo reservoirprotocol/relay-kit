@@ -443,7 +443,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         }
       : undefined
 
-  const onQuoteReceived: Parameters<typeof usePrice>['2'] = ({ details }) => {
+  const onQuoteReceived: Parameters<typeof usePrice>['2'] = ({
+    details,
+    steps
+  }) => {
     onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
       wallet_connector: connector?.name,
       amount_in: details?.currencyIn?.amountFormatted,
@@ -452,7 +455,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       amount_out: details?.currencyOut?.amountFormatted,
       currency_out: details?.currencyOut?.currency?.symbol,
       chain_id_out: details?.currencyOut?.currency?.chainId,
-      is_canonical: useExternalLiquidity
+      is_canonical: useExternalLiquidity,
+      steps
     })
   }
 
