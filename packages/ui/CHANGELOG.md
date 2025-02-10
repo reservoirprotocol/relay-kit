@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.5.5
+
+### Patch Changes
+
+- c205df0: Update logs to include steps
+
 ## 2.5.4
 
 ### Patch Changes
