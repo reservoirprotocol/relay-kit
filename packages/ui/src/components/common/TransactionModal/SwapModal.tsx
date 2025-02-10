@@ -144,7 +144,8 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
               })
               return txHashes
             })
-            .flat()
+            .flat(),
+          steps
         })
         onSuccess?.({
           steps: steps,
