@@ -181,7 +181,16 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   }}
                   placeholder={`   0`}
                   onChange={(e) => {
-                    setInputValue((e.target as HTMLInputElement).value)
+                    const input = e.target as HTMLInputElement
+                    const previousLength = input.value.length
+                    setInputValue(input.value)
+                    if (displayCurrency) {
+                      setTimeout(() => {
+                        if (previousLength <= 1) {
+                          input.setSelectionRange(1, 1)
+                        }
+                      }, 0)
+                    }
                   }}
                   onKeyDown={(e) => {
                     const input = e.target as HTMLInputElement
