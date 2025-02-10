@@ -65,7 +65,8 @@ function formatBN(
   amount: string | number | bigint | null | undefined,
   maximumFractionDigits: number,
   decimals: number = 18,
-  compact: boolean = true
+  compact: boolean = true,
+  formatOptionsParam: Intl.NumberFormatOptions = {}
 ) {
   if (typeof amount === 'undefined' || amount === null) return '-'
 
@@ -85,7 +86,8 @@ function formatBN(
     maximumFractionDigits: 20,
     useGrouping: true,
     notation: compact ? 'compact' : 'standard',
-    compactDisplay: 'short'
+    compactDisplay: 'short',
+    ...formatOptionsParam
   }
 
   // New issue introduced in Safari v16 causes a regression and now need lessPrecision flagged in format options

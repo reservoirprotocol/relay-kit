@@ -1,6 +1,7 @@
 import type { RelayTransaction } from './RelayTransaction.js'
 import type { BridgeFee } from './BridgeFee.js'
 import type { ChainVM } from '@reservoir0x/relay-sdk'
+import type { FiatCurrency } from './Fiat.js'
 
 type Token = {
   chainId: number
@@ -19,4 +20,4 @@ type LinkedWallet = {
   walletLogoUrl?: string
 }
 
-export type { Token, RelayTransaction, BridgeFee, LinkedWallet }
+export type { Token, RelayTransaction, BridgeFee, LinkedWallet, FiatCurrency }

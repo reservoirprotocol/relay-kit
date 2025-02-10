@@ -69,11 +69,10 @@ type Props = {
   toToken?: Token
   debouncedOutputAmountValue: string
   debouncedInputAmountValue: string
-  amountInputValue: string
-  amountOutputValue: string
   recipient?: string
   customToAddress?: Address
   wallet?: AdaptedWallet
+  defaultQuote?: Execute
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
@@ -93,6 +92,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   recipient,
+  defaultQuote,
   invalidateBalanceQueries,
   children,
   onSuccess,
@@ -163,7 +163,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           debouncedInputAmountValue.length > 0 &&
           Number(debouncedInputAmountValue) !== 0 &&
           fromToken !== undefined &&
-          toToken !== undefined
+          toToken !== undefined &&
+          !defaultQuote
       ),
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
@@ -184,7 +185,11 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     }
   )
 
-  const quote = isFetchingQuote || isRefetching ? undefined : quoteData
+  const quote = defaultQuote
+    ? defaultQuote
+    : isFetchingQuote || isRefetching
+      ? undefined
+      : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
