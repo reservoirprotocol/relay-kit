@@ -84,7 +84,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   const [token, setToken] = useState<Token>(
     defaultToken ?? {
       address: zeroAddress,
-      chainId: 7560,
+      chainId: 8453,
       name: 'ETH',
       symbol: 'ETH',
       decimals: 18,
