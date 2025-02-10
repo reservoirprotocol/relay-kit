@@ -18,7 +18,7 @@ export const convertApiCurrencyToToken = (
     symbol: currency?.symbol ?? '',
     decimals: currency?.decimals ?? 0,
     logoURI: `${ASSETS_RELAY_API}/icons/currencies/${
-      currency?.id ?? chainId
+      currency?.id ?? currency?.symbol ?? chainId
     }.png`,
     verified: true
   }
