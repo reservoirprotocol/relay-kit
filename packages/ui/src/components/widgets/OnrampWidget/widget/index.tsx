@@ -182,19 +182,33 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   placeholder={`   0`}
                   onChange={(e) => {
                     const input = e.target as any
+
                     setInputValue(input.value)
                     if (displayCurrency) {
                       setTimeout(() => {
-                        const cursorPosition = input.selectionStart
-                        if (cursorPosition >= input.value.length) {
-                          input.setSelectionRange(0, 0)
-                        }
+                        const numericValue = input.value.match(/\d+(\.\d*)?/)
+                        const numericValueLength =
+                          numericValue && numericValue[0].length
+                        input.setSelectionRange(
+                          numericValueLength,
+                          numericValueLength
+                        )
                       }, 0)
                     }
                   }}
                   onKeyDown={(e) => {
                     const input = e.target as HTMLInputElement
                     const cursorPosition = input.selectionStart
+
+                    // Prevent multiple decimals
+                    if (
+                      e.key === '.' &&
+                      (input.value.match(/\./g) || []).length > 0
+                    ) {
+                      e.preventDefault() // Prevent the key press if there's already a decimal
+                      return
+                    }
+
                     if (e.key === 'ArrowLeft' && cursorPosition !== null) {
                       const valueBeforeCursor = input.value.substring(
                         0,
