@@ -6,17 +6,17 @@ import {
   Text,
   Box,
   ChainTokenIcon
-} from '../../../../components/primitives/index.js'
+} from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faCoins } from '@fortawesome/free-solid-svg-icons'
 
-type SwapWidgetTokenTriggerProps = {
+type TokenTriggerProps = {
   token?: Token
   locked?: boolean
   isSingleChainLocked?: boolean
 }
 
-export const SwapWidgetTokenTrigger: FC<SwapWidgetTokenTriggerProps> = ({
+export const TokenTrigger: FC<TokenTriggerProps> = ({
   token,
   locked,
   isSingleChainLocked

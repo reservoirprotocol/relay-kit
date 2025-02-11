@@ -1,8 +1,9 @@
 import '@reservoir0x/relay-kit-ui/styles.css'
 import '../fonts.css'
+import '../global.css'
 
 import type { AppProps } from 'next/app'
-import React, { ReactNode, FC, useState, useEffect } from 'react'
+import React, { ReactNode, FC, useState, useEffect, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createConfig, http, WagmiProvider } from 'wagmi'
 import { Chain, mainnet } from 'wagmi/chains'
@@ -16,8 +17,7 @@ import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
 import {
   DynamicContextProvider,
-  FilterChain,
-  RemoveWallets
+  FilterChain
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
@@ -27,10 +27,15 @@ import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
-import { pipe } from '@dynamic-labs/utils'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
+
+const MoonPayProvider = lazy(() =>
+  import('@moonpay/moonpay-react').then((module) => ({
+    default: module.MoonPayProvider
+  }))
+)
 
 type AppWrapperProps = {
   children: ReactNode
@@ -50,12 +55,22 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
 
   useEffect(() => {
     const isTestnet = router.query.api === 'testnets'
-    setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
+    const newApi = isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API
+    if (relayApi !== newApi) {
+      setRelayApi(isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API)
+    }
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(relayApi, {
-    includeChains: '9286185,8253038'
-  })
+  const { chains, viemChains } = useRelayChains(
+    relayApi,
+    {
+      includeChains: '9286185,8253038'
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false
+    }
+  )
 
   useEffect(() => {
     if (chains && viemChains && !wagmiConfig) {
@@ -200,7 +215,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           }}
         >
           <WagmiProvider config={wagmiConfig}>
-            <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            <MoonPayProvider
+              apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY as string}
+              debug
+            >
+              <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            </MoonPayProvider>
           </WagmiProvider>
         </DynamicContextProvider>
       </RelayKitProvider>

@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "name": "relay-sdk-demo",
   "scripts": {
     "dev": "next dev",
@@ -17,7 +18,7 @@
     "@dynamic-labs/bitcoin": "4.2.2",
     "@dynamic-labs/eclipse": "4.2.2",
     "@dynamic-labs/ethereum": "4.2.2",
-    "@dynamic-labs/ethereum-core": "^4.2.3",
+    "@dynamic-labs/ethereum-core": "4.2.2",
     "@dynamic-labs/sdk-react-core": "4.2.2",
     "@dynamic-labs/solana": "4.2.2",
     "@dynamic-labs/utils": "4.2.2",
@@ -37,7 +38,8 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "viem": "^2.21.55",
-    "wagmi": "~2.14.3"
+    "wagmi": "~2.14.3",
+    "@moonpay/moonpay-react": "^1.8.3"
   },
   "devDependencies": {
     "@dynamic-labs/types": "4.2.2",
