@@ -191,7 +191,7 @@ const FeeBreakdown: FC<Props> = ({
   ]
 
   if (!isSingleChainLocked && fromChainWalletVMSupported) {
-    breakdown.push({
+    breakdown.unshift({
       title: 'Route',
       value: (
         <SwapRouteSelector
@@ -342,7 +342,9 @@ const FeeBreakdown: FC<Props> = ({
         <Flex
           direction="column"
           css={{
-            p: '3',
+            px: '3',
+            pb: '3',
+            pt: '0',
             gap: '2',
             backgroundColor: 'widget-background',
             borderRadius: '0 0 12px 12px'
@@ -366,20 +368,6 @@ const FeeBreakdown: FC<Props> = ({
               </Flex>
             </React.Fragment>
           ))}
-
-          {/* {!isSingleChainLocked && fromChainWalletVMSupported ? (
-            <>
-              <SwapRouteSelector
-                chain={toChain}
-                supportsExternalLiquidity={supportsExternalLiquidity}
-                externalLiquidtySelected={useExternalLiquidity}
-                onExternalLiquidityChange={(selected) => {
-                  setUseExternalLiquidity(selected)
-                }}
-                canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
-              />
-            </>
-          ) : null} */}
         </Flex>
       </CollapsibleContent>
     </CollapsibleRoot>

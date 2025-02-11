@@ -222,7 +222,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
                   }
                   onKeyDown={handleKeyDown}
                   onBlur={handleClose}
-                  placeholder="1.5" // @TODO: what should the placeholder be?
+                  placeholder="2"
                   css={{
                     height: '36px',
                     pr: '28px !important',
