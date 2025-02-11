@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.0
+
+### Minor Changes
+
+- dc81aac: OnrampWidget and useTokenPrice hook
+
+### Patch Changes
+
+- Updated dependencies [dc81aac]
+  - @reservoir0x/relay-kit-hooks@1.7.0
+
 ## 2.5.6
 
 ### Patch Changes
