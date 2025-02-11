@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.1
+
+### Patch Changes
+
+- 5a8bcfc: Fix bugs with onramping input
+
 ## 2.6.0
 
 ### Minor Changes
