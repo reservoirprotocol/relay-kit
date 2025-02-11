@@ -150,7 +150,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         currency_out: details?.currencyOut?.currency?.symbol,
         chain_id_out: details?.currencyOut?.currency?.chainId,
         is_canonical: false,
-        is_deposit_address: true
+        is_deposit_address: true,
+        steps
       })
     },
     {

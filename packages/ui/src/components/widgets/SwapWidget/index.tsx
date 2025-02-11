@@ -468,7 +468,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           if (
                             token.address === toToken?.address &&
                             token.chainId === toToken?.chainId &&
-                            address === recipient
+                            address === recipient &&
+                            (!lockToToken || !fromToken)
                           ) {
                             handleSetFromToken(toToken)
                             handleSetToToken(fromToken)
@@ -846,7 +847,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           if (
                             token.address === fromToken?.address &&
                             token.chainId === fromToken?.chainId &&
-                            address === recipient
+                            address === recipient &&
+                            (!lockToToken || !fromToken)
                           ) {
                             handleSetToToken(fromToken)
                             handleSetFromToken(toToken)
