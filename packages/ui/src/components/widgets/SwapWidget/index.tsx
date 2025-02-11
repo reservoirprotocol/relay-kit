@@ -292,6 +292,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           supportsExternalLiquidity &&
           !isSingleChainLocked
 
+        const isAutoSlippage = slippageTolerance === undefined
+
         return (
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
@@ -916,40 +918,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               Number(price.details.currencyOut.amountUsd)
                             )}
                           </Text>
-                          <PriceImpactTooltip feeBreakdown={feeBreakdown}>
-                            {
-                              <div>
-                                <Flex align="center" css={{ gap: '1' }}>
-                                  <Text
-                                    style="subtitle3"
-                                    color={
-                                      feeBreakdown?.totalFees.priceImpactColor
-                                    }
-                                    css={{
-                                      display: 'flex',
-                                      alignItems: 'center'
-                                    }}
-                                  >
-                                    (
-                                    {
-                                      feeBreakdown?.totalFees
-                                        .priceImpactPercentage
-                                    }
-                                    )
-                                  </Text>
-                                  <Flex css={{ color: 'gray9' }}>
-                                    <FontAwesomeIcon
-                                      icon={faInfoCircle}
-                                      width={16}
-                                      style={{
-                                        display: 'inline-block'
-                                      }}
-                                    />
-                                  </Flex>
-                                </Flex>
-                              </div>
-                            }
-                          </PriceImpactTooltip>
+                          <Text
+                            style="subtitle3"
+                            color={feeBreakdown?.totalFees.priceImpactColor}
+                            css={{
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ({feeBreakdown?.totalFees.priceImpactPercentage})
+                          </Text>
                         </Flex>
                       ) : null}
                       <Flex css={{ marginLeft: 'auto' }}>
@@ -1009,6 +987,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     timeEstimate={timeEstimate}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     useExternalLiquidity={useExternalLiquidity}
+                    isAutoSlippage={isAutoSlippage}
                     toChain={toChain}
                     setUseExternalLiquidity={(enabled) => {
                       setUseExternalLiquidity(enabled)

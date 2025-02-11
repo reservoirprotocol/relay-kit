@@ -88,6 +88,7 @@ export type ChildrenProps = {
     }
   } | null
   isLoadingTransaction: boolean
+  isAutoSlippage: boolean
 }
 
 type Props = {
@@ -470,6 +471,8 @@ export const TransactionModalRenderer: FC<Props> = ({
       : null
   }, [quote, fromToken, toToken, relayClient])
 
+  const isAutoSlippage = slippageTolerance === undefined
+
   return (
     <>
       {children({
@@ -502,7 +505,8 @@ export const TransactionModalRenderer: FC<Props> = ({
         quoteUpdatedAt,
         requestId,
         feeBreakdown,
-        isLoadingTransaction
+        isLoadingTransaction,
+        isAutoSlippage
       })}
     </>
   )

@@ -71,7 +71,7 @@ const Tooltip = ({
         onOpenChange={onOpenChange}
         delayDuration={250}
       >
-        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Trigger>{children}</TooltipPrimitive.Trigger>
         <TooltipPrimitive.Content
           sideOffset={2}
           side="bottom"
