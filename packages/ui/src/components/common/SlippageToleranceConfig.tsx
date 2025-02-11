@@ -156,11 +156,11 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
             <Tooltip
               content={
                 <Text
-                  style="subtitle3"
-                  css={{ display: 'inline-block', maxWidth: 210 }}
+                  style="tiny"
+                  css={{ display: 'inline-block', maxWidth: 190 }}
                 >
-                  If it exceeds the max slippage percentage, the transaction
-                  will revert.
+                  If the price exceeds the maximum slippage percentage, the
+                  transaction will revert.
                 </Text>
               }
             >
@@ -222,7 +222,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
                   }
                   onKeyDown={handleKeyDown}
                   onBlur={handleClose}
-                  placeholder="2.5" // @TODO: add placeholder
+                  placeholder="1.5" // @TODO: what should the placeholder be?
                   css={{
                     height: '36px',
                     pr: '28px !important',

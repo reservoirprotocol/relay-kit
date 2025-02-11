@@ -1,5 +1,5 @@
-import { useState, type FC } from 'react'
-import { Box, Button, Flex, Pill, Text } from '../primitives/index.js'
+import { useState, type FC, type ReactNode } from 'react'
+import { Box, Button, Flex, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
@@ -11,6 +11,7 @@ type Props = {
   onExternalLiquidityChange: (externalLiquiditySelected: boolean) => void
   chain?: RelayChain
   canonicalTimeEstimate?: string
+  trigger?: ReactNode
 }
 
 const SwapRouteSelector: FC<Props> = ({
@@ -18,7 +19,8 @@ const SwapRouteSelector: FC<Props> = ({
   externalLiquidtySelected,
   onExternalLiquidityChange,
   chain,
-  canonicalTimeEstimate
+  canonicalTimeEstimate,
+  trigger
 }) => {
   const [open, setOpen] = useState(false)
   return (
@@ -41,44 +43,46 @@ const SwapRouteSelector: FC<Props> = ({
         }
       }}
       trigger={
-        <Button
-          color="ghost"
-          size="none"
-          css={{
-            display: 'flex',
-            width: '100%',
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: '3',
-            p: '12',
-            borderRadius: 'widget-card-border-radius',
+        trigger ?? (
+          <Button
+            color="ghost"
+            size="none"
+            css={{
+              display: 'flex',
+              width: '100%',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: '3',
+              p: '12',
+              borderRadius: 'widget-card-border-radius',
 
-            '&:disabled': {
-              cursor: 'default',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                backgroundColor: 'transparent'
+              '&:disabled': {
+                cursor: 'default',
+                backgroundColor: 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent'
+                }
+              },
+              _focusVisible: {
+                boxShadow: 'none'
               }
-            },
-            _focusVisible: {
-              boxShadow: 'none'
-            }
-          }}
-          disabled={!(supportsExternalLiquidity || externalLiquidtySelected)}
-        >
-          <Text style="subtitle2">Route</Text>
-          <Flex css={{ gap: '2', alignItems: 'center' }}>
-            <Text style="subtitle2">
-              {externalLiquidtySelected ? 'Native' : 'Relay'}
-            </Text>
-            {supportsExternalLiquidity || externalLiquidtySelected ? (
-              <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-                <FontAwesomeIcon icon={faChevronRight} width={14} />
-              </Box>
-            ) : null}
-          </Flex>
-        </Button>
+            }}
+            disabled={!(supportsExternalLiquidity || externalLiquidtySelected)}
+          >
+            <Text style="subtitle2">Route</Text>
+            <Flex css={{ gap: '2', alignItems: 'center' }}>
+              <Text style="subtitle2">
+                {externalLiquidtySelected ? 'Native' : 'Relay'}
+              </Text>
+              {supportsExternalLiquidity || externalLiquidtySelected ? (
+                <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
+                  <FontAwesomeIcon icon={faChevronRight} width={14} />
+                </Box>
+              ) : null}
+            </Flex>
+          </Button>
+        )
       }
     >
       <Flex direction="column" css={{ borderRadius: 8, maxWidth: 260 }}>
