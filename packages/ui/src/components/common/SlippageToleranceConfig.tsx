@@ -16,15 +16,18 @@ import {
   ratingToColor,
   type SlippageToleranceMode
 } from '../../utils/slippage.js'
+import { EventNames } from '../../constants/events.js'
 
 type SlippageToleranceConfigProps = {
   slippageTolerance: string | undefined
   setSlippageTolerance: (slippageTolerance: string | undefined) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
   slippageTolerance,
-  setSlippageTolerance
+  setSlippageTolerance,
+  onAnalyticEvent
 }) => {
   const [mode, setMode] = useState<SlippageToleranceMode>('Auto')
   const [open, setOpen] = useState(false)
@@ -93,16 +96,20 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
   }
 
   const handleClose = () => {
-    if (slippageTolerance === undefined) {
-      return
-    }
-    if (mode === 'Auto') {
+    const value = parseFloat(slippageTolerance ?? '0')
+    const isAuto =
+      mode === 'Auto' ||
+      slippageTolerance === undefined ||
+      isNaN(value) ||
+      value < 0.1
+
+    if (isAuto) {
       setSlippageTolerance(undefined)
     }
-    const value = parseFloat(slippageTolerance)
-    if (isNaN(value) || value < 0.1) {
-      setSlippageTolerance(undefined)
-    }
+
+    onAnalyticEvent?.(EventNames.SWAP_SLIPPAGE_TOLERANCE_SET, {
+      value: isAuto ? 'auto' : slippageTolerance
+    })
   }
 
   return (
@@ -144,7 +151,8 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
         contentProps={{
           align: 'end',
           sideOffset: 5,
-          css: { maxWidth: 188, mx: 0 }
+          css: { maxWidth: 188, mx: 0 },
+          avoidCollisions: false
         }}
       >
         <Flex
@@ -237,7 +245,8 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
                     position: 'absolute',
                     right: 8,
                     top: '50%',
-                    transform: 'translateY(-50%)'
+                    transform: 'translateY(-50%)',
+                    color: slippageRatingColor
                   }}
                 >
                   %
@@ -245,12 +254,12 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
               </Flex>
               {slippageRating === 'very-high' ? (
                 <Text style="body3" css={{ color: 'red11' }}>
-                  Very high slippage.
+                  Very high slippage
                 </Text>
               ) : null}
               {slippageRating === 'high' ? (
                 <Text style="body3" css={{ color: 'amber11' }}>
-                  High slippage.
+                  High slippage
                 </Text>
               ) : null}
             </TabsContent>

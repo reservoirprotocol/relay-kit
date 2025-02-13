@@ -56,7 +56,7 @@ const SwapWidgetPage: NextPage = () => {
   >(undefined)
 
   const formattedSlippageTolerance = slippageTolerance
-    ? (Number(slippageTolerance) * 100).toString()
+    ? Number((Number(slippageTolerance) * 100).toFixed(2)).toString()
     : undefined
 
   const linkedWallets = useMemo(() => {
@@ -155,6 +155,9 @@ const SwapWidgetPage: NextPage = () => {
             <SlippageToleranceConfig
               slippageTolerance={slippageTolerance}
               setSlippageTolerance={setSlippageTolerance}
+              onAnalyticEvent={(eventName, data) => {
+                console.log('Analytic Event', eventName, data)
+              }}
             />
           </div>
           <SwapWidget
