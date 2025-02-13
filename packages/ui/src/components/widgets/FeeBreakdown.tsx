@@ -278,7 +278,7 @@ const FeeBreakdown: FC<Props> = ({
             p: '3'
           }}
         >
-          <button
+          <span
             style={{ cursor: 'pointer' }}
             onClick={(e) => {
               setRateMode(rateMode === 'input' ? 'output' : 'input')
@@ -296,7 +296,7 @@ const FeeBreakdown: FC<Props> = ({
                 {fromToken?.symbol}
               </Text>
             )}
-          </button>
+          </span>
 
           <Flex
             css={{

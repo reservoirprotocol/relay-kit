@@ -33,7 +33,7 @@ const Tooltip = ({
         defaultOpen={defaultOpen}
         onOpenChange={onOpenChange}
       >
-        <Popover.Trigger asChild>{children}</Popover.Trigger>
+        <Popover.Trigger>{children}</Popover.Trigger>
         <Popover.Content
           sideOffset={2}
           side="bottom"
