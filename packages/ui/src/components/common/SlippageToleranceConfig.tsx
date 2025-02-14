@@ -152,7 +152,10 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
           align: 'end',
           sideOffset: 5,
           css: { maxWidth: 188, mx: 0 },
-          avoidCollisions: false
+          avoidCollisions: false,
+          onCloseAutoFocus: (e) => {
+            e.preventDefault()
+          }
         }}
       >
         <Flex
