@@ -32,7 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleRoot,
   CollapsibleTrigger
-} from '../../../primitives/Collapisble.js'
+} from '../../../primitives/Collapsible.js'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { getSlippageRating, ratingToColor } from '../../../../utils/slippage.js'
 

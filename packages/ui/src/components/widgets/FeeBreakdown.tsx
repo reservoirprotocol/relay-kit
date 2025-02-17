@@ -12,7 +12,7 @@ import {
   CollapsibleContent,
   CollapsibleRoot,
   CollapsibleTrigger
-} from '../primitives/Collapisble.js'
+} from '../primitives/Collapsible.js'
 import {
   faChevronRight,
   faClock,
