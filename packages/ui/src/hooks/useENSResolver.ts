@@ -28,8 +28,13 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const response = (useQuery as QueryType)({
     queryKey: ['useENSResolver', address],
     queryFn: () => fetch(url).then((response) => response.json()),
-    enabled: address ? true : false,
-    ...queryOptions
+    ...queryOptions,
+    enabled:
+      address && address.length > 0
+        ? queryOptions?.enabled !== undefined
+          ? queryOptions.enabled
+          : true
+        : false
   })
 
   const shortAddress = address ? truncateAddress(address) : ''
