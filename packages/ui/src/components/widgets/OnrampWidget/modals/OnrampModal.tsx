@@ -129,24 +129,6 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     }
   }, [open])
 
-  useEffect(() => {
-    if (moonPayRequestId && quote) {
-      appendMetadataToRequest(
-        client?.baseApiUrl,
-        quote.steps as Execute['steps'],
-        undefined,
-        {
-          moonPayId: moonPayRequestId
-        }
-      )?.then(() => {
-        client?.log(
-          ['Posting MoonPay request id', moonPayRequestId, requestId],
-          LogLevel.Verbose
-        )
-      })
-    }
-  }, [moonPayRequestId])
-
   const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
 
   const {
@@ -343,6 +325,32 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setSwapError(swapError)
     }
   }, [executionStatus, quoteError])
+
+  useEffect(() => {
+    if (
+      moonPayRequestId &&
+      quote &&
+      executionStatus?.inTxHashes &&
+      executionStatus?.inTxHashes[0]
+    ) {
+      executionStatus
+        ?.appendMetadataToRequest(
+          client?.baseApiUrl,
+          {},
+          `${fromChain?.id}`,
+          `${requestId}`,
+          {
+            moonPayId: moonPayRequestId
+          }
+        )
+        ?.then(() => {
+          client?.log(
+            ['Posting MoonPay request id', moonPayRequestId, requestId],
+            LogLevel.Verbose
+          )
+        })
+    }
+  }, [moonPayRequestId, executionStatus])
 
   const allTxHashes = useMemo(() => {
     const isRefund = executionStatus?.status === 'refund'
