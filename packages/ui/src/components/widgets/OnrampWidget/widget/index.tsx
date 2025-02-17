@@ -188,9 +188,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     setInputValue(input.value)
                     if (displayCurrency) {
                       setTimeout(() => {
-                        const numericValue = input.value.match(/\d+(\.\d*)?/)
+                        const numericValue = input.value.match(/[\d.]+/g)
                         const numericValueLength =
-                          numericValue && numericValue[0].length
+                          numericValue !== null
+                            ? numericValue.join('').length
+                            : 0
                         input.setSelectionRange(
                           numericValueLength,
                           numericValueLength
