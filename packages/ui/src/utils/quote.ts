@@ -258,17 +258,17 @@ export const calculatePriceTimeEstimate = (
 
 export const appendMetadataToRequest = (
   baseUrl?: string,
-  steps?: Execute['steps'],
-  chainId?: number,
+  calldata?: any,
+  chainId?: string,
+  requestId?: string,
   additionalMetadata?: paths['/transactions/single']['post']['requestBody']['content']['application/json']['additionalMetadata']
 ) => {
-  const depositStep = steps?.find((step) => step.id === 'deposit')
-  if (depositStep?.items && depositStep?.items[0] && additionalMetadata) {
+  if (calldata && chainId && requestId && additionalMetadata) {
     const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
       {
-        tx: depositStep.items[0].data,
-        chainId: chainId ?? depositStep.items[0].data.chainId,
-        requestId: depositStep.requestId as string,
+        tx: JSON.stringify(calldata),
+        chainId,
+        requestId,
         additionalMetadata
       }
 
