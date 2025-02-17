@@ -211,7 +211,8 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
   useExternalLiquidity,
   fromChain,
   waitingForSteps,
-  isLoadingTransaction
+  isLoadingTransaction,
+  isAutoSlippage
 }) => {
   const { isSupported: isAtomicBatchSupported } = useAtomicBatchSupport(
     wallet,
@@ -307,6 +308,7 @@ const InnerSwapModal: FC<InnerSwapModalProps> = ({
             multiWalletSupportEnabled={multiWalletSupportEnabled}
             useExternalLiquidity={useExternalLiquidity}
             waitingForSteps={waitingForSteps}
+            isAutoSlippage={isAutoSlippage}
           />
         ) : null}
 

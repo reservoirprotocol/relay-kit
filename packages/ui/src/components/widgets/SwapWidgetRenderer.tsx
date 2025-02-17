@@ -456,6 +456,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       currency_out: details?.currencyOut?.currency?.symbol,
       chain_id_out: details?.currencyOut?.currency?.chainId,
       is_canonical: useExternalLiquidity,
+      slippage_tolerance_destination_percentage:
+        details?.slippageTolerance?.destination?.percent,
+      slippage_tolerance_origin_percentage:
+        details?.slippageTolerance?.origin?.percent,
       steps
     })
   }

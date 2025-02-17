@@ -292,6 +292,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           supportsExternalLiquidity &&
           !isSingleChainLocked
 
+        const isAutoSlippage = slippageTolerance === undefined
+
         return (
           <WidgetContainer
             transactionModalOpen={transactionModalOpen}
@@ -420,8 +422,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            ? formatFixedLength(amountInputValue, 8)
+                            : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -483,13 +485,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                fromToken?.chainId,
+                                lockChainId,
+                                toToken?.chainId,
+                                lockFromToken
+                              ) && fromToken?.chainId
+                            ? [fromToken.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -794,8 +796,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                            ? formatFixedLength(amountOutputValue, 8)
+                            : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -885,13 +887,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                toToken?.chainId,
+                                lockChainId,
+                                fromToken?.chainId,
+                                lockToToken
+                              ) && toToken?.chainId
+                            ? [toToken.chainId]
+                            : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
@@ -916,40 +918,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               Number(price.details.currencyOut.amountUsd)
                             )}
                           </Text>
-                          <PriceImpactTooltip feeBreakdown={feeBreakdown}>
-                            {
-                              <div>
-                                <Flex align="center" css={{ gap: '1' }}>
-                                  <Text
-                                    style="subtitle3"
-                                    color={
-                                      feeBreakdown?.totalFees.priceImpactColor
-                                    }
-                                    css={{
-                                      display: 'flex',
-                                      alignItems: 'center'
-                                    }}
-                                  >
-                                    (
-                                    {
-                                      feeBreakdown?.totalFees
-                                        .priceImpactPercentage
-                                    }
-                                    )
-                                  </Text>
-                                  <Flex css={{ color: 'gray9' }}>
-                                    <FontAwesomeIcon
-                                      icon={faInfoCircle}
-                                      width={16}
-                                      style={{
-                                        display: 'inline-block'
-                                      }}
-                                    />
-                                  </Flex>
-                                </Flex>
-                              </div>
-                            }
-                          </PriceImpactTooltip>
+                          <Text
+                            style="subtitle3"
+                            color={feeBreakdown?.totalFees.priceImpactColor}
+                            css={{
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ({feeBreakdown?.totalFees.priceImpactPercentage})
+                          </Text>
                         </Flex>
                       ) : null}
                       <Flex css={{ marginLeft: 'auto' }}>
@@ -1009,6 +987,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     timeEstimate={timeEstimate}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     useExternalLiquidity={useExternalLiquidity}
+                    isAutoSlippage={isAutoSlippage}
                     toChain={toChain}
                     setUseExternalLiquidity={(enabled) => {
                       setUseExternalLiquidity(enabled)
