@@ -66,6 +66,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   supportedWalletVMs,
   moonPayThemeId,
   moonPayThemeMode,
+  defaultToken,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
@@ -83,6 +84,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       moonPayApiKey={moonPayApiKey}
+      defaultToken={defaultToken}
     >
       {({
         displayCurrency,
