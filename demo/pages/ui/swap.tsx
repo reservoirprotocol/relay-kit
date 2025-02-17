@@ -55,11 +55,6 @@ const SwapWidgetPage: NextPage = () => {
   const [slippageTolerance, setSlippageTolerance] = useState<
     string | undefined
   >(undefined)
-  const [debouncedSlippageTolerance] = useDebounceValue(slippageTolerance, 500)
-
-  const formattedSlippageTolerance = debouncedSlippageTolerance
-    ? Number((Number(debouncedSlippageTolerance) * 100).toFixed(2)).toString()
-    : undefined
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.reduce((linkedWallets, wallet) => {
@@ -292,7 +287,7 @@ const SwapWidgetPage: NextPage = () => {
             onSwapSuccess={(data) => {
               console.log('onSwapSuccess Triggered', data)
             }}
-            slippageTolerance={formattedSlippageTolerance}
+            slippageTolerance={slippageTolerance}
           />
         </div>
       </div>
