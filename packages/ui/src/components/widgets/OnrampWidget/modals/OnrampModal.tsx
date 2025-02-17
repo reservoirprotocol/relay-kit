@@ -388,8 +388,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           isPassthrough
             ? toTokenTotalAmount
             : fromToken.symbol === 'ETH'
-              ? ethTotalAmount
-              : totalAmount ?? undefined
+            ? ethTotalAmount
+            : totalAmount ?? undefined
         }
         fiatCurrency={fiatCurrency}
         isPassthrough={isPassthrough}

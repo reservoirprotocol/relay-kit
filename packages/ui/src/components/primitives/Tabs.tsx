@@ -14,9 +14,10 @@ const TabsListCss = cva({
   base: {
     display: 'flex',
     alignItems: 'center',
-    borderRadius: 12,
-    p: '1px',
-    backgroundColor: 'gray3'
+    borderRadius: 8,
+    p: '1',
+    backgroundColor: 'gray2',
+    border: 'none'
   }
 })
 
@@ -24,10 +25,18 @@ const TabsTriggerCss = cva({
   base: {
     width: '100%',
     fontWeight: '500',
+    fontSize: '14px',
     cursor: 'pointer',
-    p: '2',
-    color: 'black',
-    borderRadius: 12
+    py: '2px',
+    color: 'gray12',
+    borderRadius: 8,
+    backgroundColor: 'transparent',
+    border: 'none',
+    '&[data-state="active"]': {
+      backgroundColor: 'subtle-background-color',
+      '--borderColor': 'colors.gray.5',
+      border: '1px solid var(--borderColor)'
+    }
   }
 })
 
@@ -82,4 +91,21 @@ const TabsContent = forwardRef<
   )
 })
 
-export { TabsList, TabsTrigger, TabsContent }
+const TabsRoot = forwardRef<
+  ElementRef<typeof TabsPrimitive.Root>,
+  ComponentPropsWithoutRef<typeof TabsPrimitive.Root> & {
+    css?: Styles
+  }
+>(({ children, css, ...props }, forwardedRef) => {
+  return (
+    <TabsPrimitive.Root
+      {...props}
+      ref={forwardedRef}
+      className={designCss(designCss.raw(css))}
+    >
+      {children}
+    </TabsPrimitive.Root>
+  )
+})
+
+export { TabsRoot, TabsList, TabsTrigger, TabsContent }
