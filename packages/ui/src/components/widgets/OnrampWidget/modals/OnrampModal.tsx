@@ -1,6 +1,8 @@
 import {
   getDeadAddress,
+  LogLevel,
   type Execute,
+  type paths,
   type RelayChain
 } from '@reservoir0x/relay-sdk'
 import { type FC, useEffect, useMemo, useState } from 'react'
@@ -16,7 +18,10 @@ import {
 } from '@reservoir0x/relay-kit-hooks'
 import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
 import { parseUnits, zeroAddress } from 'viem'
-import { extractDepositAddress } from '../../../../utils/quote.js'
+import {
+  appendMetadataToRequest,
+  extractDepositAddress
+} from '../../../../utils/quote.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
 import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
@@ -123,6 +128,24 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
     }
   }, [open])
+
+  useEffect(() => {
+    if (moonPayRequestId && quote) {
+      appendMetadataToRequest(
+        client?.baseApiUrl,
+        quote.steps as Execute['steps'],
+        undefined,
+        {
+          moonPayId: moonPayRequestId
+        }
+      )?.then(() => {
+        client?.log(
+          ['Posting MoonPay request id', moonPayRequestId, requestId],
+          LogLevel.Verbose
+        )
+      })
+    }
+  }, [moonPayRequestId])
 
   const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
 

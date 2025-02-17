@@ -1,4 +1,4 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
@@ -6,6 +6,7 @@ import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
+import axios from 'axios'
 
 type QuoteResponse = ReturnType<typeof useQuote>['data']
 
@@ -252,5 +253,29 @@ export const calculatePriceTimeEstimate = (
   return {
     time,
     formattedTime
+  }
+}
+
+export const appendMetadataToRequest = (
+  baseUrl?: string,
+  steps?: Execute['steps'],
+  chainId?: number,
+  additionalMetadata?: paths['/transactions/single']['post']['requestBody']['content']['application/json']['additionalMetadata']
+) => {
+  const depositStep = steps?.find((step) => step.id === 'deposit')
+  if (depositStep?.items && depositStep?.items[0] && additionalMetadata) {
+    const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
+      {
+        tx: depositStep.items[0].data,
+        chainId: chainId ?? depositStep.items[0].data.chainId,
+        requestId: depositStep.requestId as string,
+        additionalMetadata
+      }
+
+    return axios.request({
+      url: `${baseUrl}/transactions/single`,
+      method: 'POST',
+      data: triggerData
+    })
   }
 }
