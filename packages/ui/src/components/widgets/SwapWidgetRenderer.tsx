@@ -251,10 +251,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const recipient = customToAddress ?? defaultRecipient ?? address
 
-  const { displayName: toDisplayName } = useENSResolver(recipient, {
-    enabled: toChain?.vmType === 'evm'
-  })
-
   const {
     value: fromBalance,
     queryKey: fromBalanceQueryKey,
@@ -406,6 +402,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromChainWalletVMSupported
       ? true
       : false
+
+  const { displayName: toDisplayName } = useENSResolver(recipient, {
+    enabled: toChain?.vmType === 'evm' && isValidToAddress
+  })
 
   const [currentSlippageTolerance, setCurrentSlippageTolerance] = useState<
     string | undefined
