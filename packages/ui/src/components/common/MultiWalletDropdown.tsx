@@ -91,7 +91,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   const showDropdown = context !== 'origin' || filteredWallets.length > 0
 
   const { displayName } = useENSResolver(selectedWalletAddress, {
-    enabled: chain?.vmType === 'evm'
+    enabled: chain?.vmType === 'evm' && isSupportedSelectedWallet
   })
 
   return (

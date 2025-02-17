@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.2
+
+### Patch Changes
+
+- 9ae33f8: Fix default chain icons
+
+## 2.6.1
+
+### Patch Changes
+
+- 5a8bcfc: Fix bugs with onramping input
+
 ## 2.6.0
 
 ### Minor Changes
