@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.3
+
+### Patch Changes
+
+- 620e41d: OnrampModal bugs
+- 773f61e: Fix useEnsResolver hook undefined address
+
 ## 2.6.2
 
 ### Patch Changes
