@@ -103,6 +103,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
   const client = useRelayClient()
   const { connector } = useAccount()
+  const [moonPayIdAppended, setMoonPayIdAppended] = useState(false)
   const { data: ethTokenPriceResponse } = useTokenPrice(
     client?.baseApiUrl,
     {
@@ -120,6 +121,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
       setMoonPayRequestId(undefined)
+      setMoonPayIdAppended(false)
       setSwapError(null)
     } else {
       if (isPassthrough) {
@@ -128,24 +130,6 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
     }
   }, [open])
-
-  useEffect(() => {
-    if (moonPayRequestId && quote) {
-      appendMetadataToRequest(
-        client?.baseApiUrl,
-        quote.steps as Execute['steps'],
-        undefined,
-        {
-          moonPayId: moonPayRequestId
-        }
-      )?.then(() => {
-        client?.log(
-          ['Posting MoonPay request id', moonPayRequestId, requestId],
-          LogLevel.Verbose
-        )
-      })
-    }
-  }, [moonPayRequestId])
 
   const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
 
@@ -343,6 +327,31 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setSwapError(swapError)
     }
   }, [executionStatus, quoteError])
+
+  useEffect(() => {
+    if (
+      moonPayRequestId &&
+      quote &&
+      executionStatus?.inTxHashes &&
+      executionStatus?.inTxHashes[0] &&
+      moonPayIdAppended
+    ) {
+      setMoonPayIdAppended(true)
+      appendMetadataToRequest(client?.baseApiUrl, `${requestId}`, {
+        moonPayId: moonPayRequestId
+      })
+        ?.then(() => {
+          client?.log(
+            ['Posting MoonPay request id', moonPayRequestId, requestId],
+            LogLevel.Verbose
+          )
+        })
+        .catch((e) => {
+          setMoonPayIdAppended(false)
+          throw e
+        })
+    }
+  }, [moonPayRequestId, executionStatus])
 
   const allTxHashes = useMemo(() => {
     const isRefund = executionStatus?.status === 'refund'

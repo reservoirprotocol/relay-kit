@@ -21,6 +21,7 @@ export const routes = [
   "/requests/{requestId}/signature/v2",
   "/requests",
   "/requests/v2",
+  "/requests/metadata",
   "/transactions/index",
   "/transactions/single",
   "/transactions/status",

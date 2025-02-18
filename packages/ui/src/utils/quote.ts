@@ -258,22 +258,18 @@ export const calculatePriceTimeEstimate = (
 
 export const appendMetadataToRequest = (
   baseUrl?: string,
-  steps?: Execute['steps'],
-  chainId?: number,
-  additionalMetadata?: paths['/transactions/single']['post']['requestBody']['content']['application/json']['additionalMetadata']
+  requestId?: string,
+  additionalMetadata?: paths['/requests/metadata']['post']['requestBody']['content']['application/json']['additionalMetadata']
 ) => {
-  const depositStep = steps?.find((step) => step.id === 'deposit')
-  if (depositStep?.items && depositStep?.items[0] && additionalMetadata) {
-    const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
+  if (requestId && additionalMetadata) {
+    const triggerData: paths['/requests/metadata']['post']['requestBody']['content']['application/json'] =
       {
-        tx: depositStep.items[0].data,
-        chainId: chainId ?? depositStep.items[0].data.chainId,
-        requestId: depositStep.requestId as string,
+        requestId,
         additionalMetadata
       }
 
     return axios.request({
-      url: `${baseUrl}/transactions/single`,
+      url: `${baseUrl}/requests/metadata`,
       method: 'POST',
       data: triggerData
     })
