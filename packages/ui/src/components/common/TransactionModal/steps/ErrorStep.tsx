@@ -24,6 +24,7 @@ import {
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
+import { JSONToError } from '../../../../utils/errors.js'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -42,12 +43,15 @@ export const ErrorStep: FC<ErrorStepProps> = ({
   fromChain,
   onOpenChange
 }) => {
-  const errorMessage = transaction?.data?.failReason ?? error?.message
+  const parsedError = JSONToError(error)
+  const errorMessage = transaction?.data?.failReason ?? parsedError?.message
   const isRefund =
     errorMessage?.toLowerCase()?.includes('refunded') ||
     transaction?.status === 'refund'
   const hasTxHashes = allTxHashes && allTxHashes.length > 0
-  const isSolverStatusTimeout = error?.message?.includes('solver status check')
+  const isSolverStatusTimeout = parsedError?.message?.includes(
+    'solver status check'
+  )
   const relayClient = useRelayClient()
   const baseTransactionUrl = relayClient?.baseApiUrl.includes('testnets')
     ? 'https://testnets.relay.link'
@@ -78,7 +82,8 @@ export const ErrorStep: FC<ErrorStepProps> = ({
     fillTx?.txHash
   )
 
-  const mergedError = isRefund && errorMessage ? new Error(errorMessage) : error
+  const mergedError =
+    isRefund && errorMessage ? new Error(errorMessage) : parsedError
   const refundDetails = transaction?.data?.refundCurrencyData
   const refundChain = transaction?.data?.refundCurrencyData?.currency?.chainId
     ? relayClient?.chains.find(

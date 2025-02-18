@@ -14,7 +14,10 @@ import type {
   AxiosResponse
 } from 'axios'
 import { getClient } from '../client.js'
-import { SolverStatusTimeoutError } from '../errors/index.js'
+import {
+  DepositTransactionTimeoutError,
+  SolverStatusTimeoutError
+} from '../errors/index.js'
 import { repeatUntilOk } from '../utils/repeatUntilOk.js'
 
 /**
@@ -191,7 +194,14 @@ export async function sendTransactionSafely(
     }
 
     if (attemptCount >= maximumAttempts) {
-      throw new SolverStatusTimeoutError(txHash as Address, attemptCount)
+      if (receipt) {
+        throw new SolverStatusTimeoutError(txHash as Address, attemptCount)
+      } else {
+        throw new DepositTransactionTimeoutError(
+          txHash as Address,
+          attemptCount
+        )
+      }
     }
 
     if (transactionCancelled) {
