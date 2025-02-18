@@ -15,3 +15,21 @@ export const errorToJSON = (error: any) => {
     return error
   }
 }
+
+export const JSONToError = <T>(json?: T): Error | T | undefined => {
+  if (!json || typeof json !== 'string') {
+    return json
+  }
+
+  try {
+    const parsed = JSON.parse(json)
+    const error = new Error(parsed.message)
+    error.name = parsed.name
+    error.stack = parsed.stack
+    // Restore any additional properties from the original error
+    Object.assign(error, parsed)
+    return error
+  } catch (e) {
+    return json
+  }
+}

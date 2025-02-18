@@ -25,8 +25,11 @@ const ErrorWell: React.FC<Props> = ({ error, hasTxHashes, fromChain }) => {
     ) {
       return `Your wallet does not support ${fromChain?.displayName ?? 'this chain'}`
     }
-    if (!hasTxHashes) {
-      return 'Oops, something went wrong while initiating the bridge. Your request was not submitted. Please try again.'
+    if (
+      !hasTxHashes ||
+      error?.message?.includes('Deposit transaction with hash')
+    ) {
+      return 'Oops, something went wrong while initiating the swap. Your request was not submitted. Please try again.'
     } else if (error?.message?.includes('solver status check')) {
       return `Oops, it seems we can't check the status of your transaction at the moment. Please visit the transaction page for more details.`
     }
