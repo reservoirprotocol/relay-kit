@@ -258,22 +258,18 @@ export const calculatePriceTimeEstimate = (
 
 export const appendMetadataToRequest = (
   baseUrl?: string,
-  calldata?: any,
-  chainId?: string,
   requestId?: string,
-  additionalMetadata?: paths['/transactions/single']['post']['requestBody']['content']['application/json']['additionalMetadata']
+  additionalMetadata?: paths['/requests/metadata']['post']['requestBody']['content']['application/json']['additionalMetadata']
 ) => {
-  if (calldata && chainId && requestId && additionalMetadata) {
-    const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
+  if (requestId && additionalMetadata) {
+    const triggerData: paths['/requests/metadata']['post']['requestBody']['content']['application/json'] =
       {
-        tx: JSON.stringify(calldata),
-        chainId,
         requestId,
         additionalMetadata
       }
 
     return axios.request({
-      url: `${baseUrl}/transactions/single`,
+      url: `${baseUrl}/requests/metadata`,
       method: 'POST',
       data: triggerData
     })

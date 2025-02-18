@@ -103,6 +103,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
   const client = useRelayClient()
   const { connector } = useAccount()
+  const [moonPayIdAppended, setMoonPayIdAppended] = useState(false)
   const { data: ethTokenPriceResponse } = useTokenPrice(
     client?.baseApiUrl,
     {
@@ -120,6 +121,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
       setMoonPayRequestId(undefined)
+      setMoonPayIdAppended(false)
       setSwapError(null)
     } else {
       if (isPassthrough) {
@@ -331,23 +333,22 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       moonPayRequestId &&
       quote &&
       executionStatus?.inTxHashes &&
-      executionStatus?.inTxHashes[0]
+      executionStatus?.inTxHashes[0] &&
+      moonPayIdAppended
     ) {
-      executionStatus
-        ?.appendMetadataToRequest(
-          client?.baseApiUrl,
-          {},
-          `${fromChain?.id}`,
-          `${requestId}`,
-          {
-            moonPayId: moonPayRequestId
-          }
-        )
+      setMoonPayIdAppended(true)
+      appendMetadataToRequest(client?.baseApiUrl, `${requestId}`, {
+        moonPayId: moonPayRequestId
+      })
         ?.then(() => {
           client?.log(
             ['Posting MoonPay request id', moonPayRequestId, requestId],
             LogLevel.Verbose
           )
+        })
+        .catch((e) => {
+          setMoonPayIdAppended(false)
+          throw e
         })
     }
   }, [moonPayRequestId, executionStatus])

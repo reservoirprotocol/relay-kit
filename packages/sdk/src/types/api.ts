@@ -28,6 +28,8 @@ export interface paths {
                   explorerName?: string;
                   /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
+                  /** @enum {string} */
+                  tokenSupport?: "All" | "Limited";
                   /** @description If relaying to and from this chain is disabled */
                   disabled?: boolean;
                   /** @description The value limit at which the chain is partially disabled, if 0, the chain is not partially disabled. i.e, 1000000000000000000 to designate 1 ETH max withdrawal/deposit */
@@ -329,7 +331,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -839,7 +841,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -3927,6 +3929,30 @@ export interface paths {
       };
     };
   };
+  "/requests/metadata": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            requestId: string;
+            additionalMetadata: {
+              moonPayId: string;
+            };
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/transactions/index": {
     post: {
       requestBody: {
@@ -3957,9 +3983,6 @@ export interface paths {
             requestId: string;
             chainId: string;
             tx: string;
-            additionalMetadata?: {
-              moonPayId: string;
-            };
           };
         };
       };
