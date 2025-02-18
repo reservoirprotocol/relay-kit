@@ -1,4 +1,4 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
@@ -6,6 +6,7 @@ import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
+import axios from 'axios'
 
 type QuoteResponse = ReturnType<typeof useQuote>['data']
 
@@ -252,5 +253,25 @@ export const calculatePriceTimeEstimate = (
   return {
     time,
     formattedTime
+  }
+}
+
+export const appendMetadataToRequest = (
+  baseUrl?: string,
+  requestId?: string,
+  additionalMetadata?: paths['/requests/metadata']['post']['requestBody']['content']['application/json']['additionalMetadata']
+) => {
+  if (requestId && additionalMetadata) {
+    const triggerData: paths['/requests/metadata']['post']['requestBody']['content']['application/json'] =
+      {
+        requestId,
+        additionalMetadata
+      }
+
+    return axios.request({
+      url: `${baseUrl}/requests/metadata`,
+      method: 'POST',
+      data: triggerData
+    })
   }
 }

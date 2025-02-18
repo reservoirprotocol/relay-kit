@@ -28,6 +28,8 @@ export interface paths {
                   explorerName?: string;
                   /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
+                  /** @enum {string} */
+                  tokenSupport?: "All" | "Limited";
                   /** @description If relaying to and from this chain is disabled */
                   disabled?: boolean;
                   /** @description The value limit at which the chain is partially disabled, if 0, the chain is not partially disabled. i.e, 1000000000000000000 to designate 1 ETH max withdrawal/deposit */
@@ -91,6 +93,8 @@ export interface paths {
                   } | null;
                   /** @description The chain id which the chain rolls up to. This is always set as Ethereum for L1 chains */
                   baseChainId?: number | null;
+                  /** @description If applicable, a status message for the chain */
+                  statusMessage?: string | null;
                 })[];
             };
           };
@@ -175,7 +179,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
         };
       };
       responses: {
@@ -228,7 +232,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -327,7 +331,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -338,10 +342,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -403,7 +407,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -837,7 +841,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -848,10 +852,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "xai" | "weth" | "apeeth" | "ape";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu";
               };
               /**
                * @example {
@@ -1746,10 +1750,18 @@ export interface paths {
               }[];
             destinationCurrency: string;
             destinationChainId: number;
+            amount?: string;
+            txs?: {
+                to?: string;
+                value?: string;
+                data?: string;
+              }[];
             partial?: boolean;
             /** @enum {string} */
-            tradeType: "EXACT_INPUT";
+            tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
             useUserOperation?: boolean;
+            userOperationGasOverhead?: number;
+            gasLimitForDepositSpecifiedTxs?: number;
           };
         };
       };
@@ -2258,11 +2270,6 @@ export interface paths {
              * @default true
              */
             useReceiver?: boolean;
-            /**
-             * @description Specify the method for routing the deposit to the solver
-             * @enum {string}
-             */
-            depositMethod?: "receiver" | "depositor-v1";
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
@@ -2279,6 +2286,10 @@ export interface paths {
               }[];
             /** @description If the request involves specifying transactions to be executed during the deposit transaction, an explicit gas limit must be set when requesting the quote */
             gasLimitForDepositSpecifiedTxs?: number;
+            /** @description Gas overhead for 4337 user operations, to be used for fees calculation */
+            userOperationGasOverhead?: number;
+            /** @description Force executing swap requests via the solver (by default, same-chain swap requests are self-executed) */
+            forceSolverExecution?: boolean;
           };
         };
       };
@@ -3192,7 +3203,6 @@ export interface paths {
                 value?: string;
               };
               requestId?: string;
-              shortRequestId?: string;
               currency?: string;
               price?: string;
               relayerFee?: string;
@@ -3715,6 +3725,8 @@ export interface paths {
                   user?: string;
                   recipient?: string;
                   data?: {
+                    /** @description Slippage tolerance for the swap. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
+                    slippageTolerance?: string;
                     /** @enum {string} */
                     failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "N/A";
                     fees?: {
@@ -3917,6 +3929,30 @@ export interface paths {
       };
     };
   };
+  "/requests/metadata": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            requestId: string;
+            additionalMetadata: {
+              moonPayId: string;
+            };
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/transactions/index": {
     post: {
       requestBody: {
@@ -3924,6 +3960,29 @@ export interface paths {
           "application/json": {
             chainId: string;
             txHash: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/transactions/single": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            requestId: string;
+            chainId: string;
+            tx: string;
           };
         };
       };
@@ -3961,6 +4020,26 @@ export interface paths {
           content: {
             "application/json": {
               status?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/loadforge.txt": {
+    get: {
+      responses: {
+        /** @description Verification string */
+        200: {
+          content: {
+            "application/json": string;
+          };
+        };
+        /** @description Default Response */
+        404: {
+          content: {
+            "application/json": {
+              message?: string;
             };
           };
         };
@@ -4065,6 +4144,10 @@ export interface paths {
               TOPIA?: number;
               ANIME?: number;
               APE?: number;
+              G?: number;
+              DMT?: number;
+              G7?: number;
+              POWER?: number;
             };
           };
         };
@@ -4113,7 +4196,7 @@ export interface paths {
                   name?: string;
                   decimals?: number;
                   /** @enum {string} */
-                  vmType?: "bvm" | "evm" | "svm" | "tvm";
+                  vmType?: "bvm" | "evm" | "svm" | "tvm" | "tonvm";
                   metadata?: {
                     logoURI?: string;
                     verified?: boolean;
@@ -4140,11 +4223,11 @@ export interface paths {
               name?: string;
               logoURI?: string;
               tokens?: {
-                  name?: string;
-                  decimals?: number;
-                  symbol?: string;
-                  address?: string;
-                  chainId?: number;
+                  name: string;
+                  decimals: number;
+                  symbol: string;
+                  address: string;
+                  chainId: number;
                   logoURI?: string;
                 }[];
               timestamp?: string;

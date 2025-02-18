@@ -355,12 +355,12 @@ const postSameChainTransactionToSolver = async ({
       LogLevel.Verbose
     )
     try {
-      //TODO: add the proper type
-      const triggerData: any = {
-        tx: calldata,
-        chainId: chainId.toString(),
-        requestId: step.requestId
-      }
+      const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
+        {
+          tx: calldata,
+          chainId: chainId.toString(),
+          requestId: step.requestId
+        }
 
       axios
         .request({
