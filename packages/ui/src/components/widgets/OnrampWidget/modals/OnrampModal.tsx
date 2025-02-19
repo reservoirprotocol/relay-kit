@@ -1,6 +1,8 @@
 import {
   getDeadAddress,
+  LogLevel,
   type Execute,
+  type paths,
   type RelayChain
 } from '@reservoir0x/relay-sdk'
 import { type FC, useEffect, useMemo, useState } from 'react'
@@ -16,7 +18,10 @@ import {
 } from '@reservoir0x/relay-kit-hooks'
 import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
 import { parseUnits, zeroAddress } from 'viem'
-import { extractDepositAddress } from '../../../../utils/quote.js'
+import {
+  appendMetadataToRequest,
+  extractDepositAddress
+} from '../../../../utils/quote.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { OnrampConfirmingStep } from './steps/OnrampConfirmingStep.js'
 import { OnrampProcessingStepUI } from './steps/OnrampProcessingStepUI.js'
@@ -98,6 +103,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const [moonPayRequestId, setMoonPayRequestId] = useState<string | undefined>()
   const client = useRelayClient()
   const { connector } = useAccount()
+  const [moonPayIdAppended, setMoonPayIdAppended] = useState(false)
   const { data: ethTokenPriceResponse } = useTokenPrice(
     client?.baseApiUrl,
     {
@@ -115,6 +121,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setStep(OnrampStep.Confirming)
       setProcessingStep(undefined)
       setMoonPayRequestId(undefined)
+      setMoonPayIdAppended(false)
       setSwapError(null)
     } else {
       if (isPassthrough) {
@@ -124,7 +131,10 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     }
   }, [open])
 
-  const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
+  const ethAmount =
+    ethTokenPriceResponse && ethTokenPriceResponse.price
+      ? +(amount ?? '0') / ethTokenPriceResponse.price
+      : 0
 
   const {
     data: quote,
@@ -320,6 +330,31 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setSwapError(swapError)
     }
   }, [executionStatus, quoteError])
+
+  useEffect(() => {
+    if (
+      moonPayRequestId &&
+      quote &&
+      executionStatus?.inTxHashes &&
+      executionStatus?.inTxHashes[0] &&
+      !moonPayIdAppended
+    ) {
+      setMoonPayIdAppended(true)
+      appendMetadataToRequest(client?.baseApiUrl, `${requestId}`, {
+        moonPayId: moonPayRequestId
+      })
+        ?.then(() => {
+          client?.log(
+            ['Posting MoonPay request id', moonPayRequestId, requestId],
+            LogLevel.Verbose
+          )
+        })
+        .catch((e) => {
+          setMoonPayIdAppended(false)
+          throw e
+        })
+    }
+  }, [moonPayRequestId, executionStatus])
 
   const allTxHashes = useMemo(() => {
     const isRefund = executionStatus?.status === 'refund'

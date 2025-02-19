@@ -1,5 +1,25 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.4
+
+### Patch Changes
+
+- 7c7d3ce: Fix onramp modal parseUnits error with eth amount
+
+## 2.6.3
+
+### Patch Changes
+
+- 869d750: Fix onramping bugs: hide suggested tokens, avoid same chain swaps
+- 620e41d: OnrampModal bugs
+- 773f61e: Fix useEnsResolver hook undefined address
+- 1bf4aa7: Sync api types, append moonpay id to relay request
+- 4215d2e: Fix solver status timeout ui bug and split error into sub error
+- Updated dependencies [1bf4aa7]
+- Updated dependencies [4215d2e]
+  - @reservoir0x/relay-sdk@1.6.2
+  - @reservoir0x/relay-kit-hooks@1.7.1
+
 ## 2.6.2
 
 ### Patch Changes

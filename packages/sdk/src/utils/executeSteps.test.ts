@@ -277,11 +277,55 @@ describe('Should test the executeSteps method.', () => {
     )
   })
 
-  it('Should throw: Failed to receive a successful response', async () => {
+  it('Should throw: Deposit Tx Timeout', async () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API,
       pollingInterval: 1,
       maxPollingAttemptsBeforeTimeout: 0
+    })
+
+    wallet.handleConfirmTransactionStep = vi.fn().mockResolvedValue(null)
+
+    await expect(
+      executeSteps(
+        1,
+        {},
+        wallet,
+        ({ steps, fees, breakdown, details }) => {},
+        bridgeData,
+        undefined
+      )
+    ).rejects.toThrow(
+      `Deposit transaction with hash '0x' is pending after 0 attempt(s).`
+    )
+  })
+
+  it('Should throw: Solver Status Timeout', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      pollingInterval: 250,
+      maxPollingAttemptsBeforeTimeout: 1
+    })
+
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('intents/status')) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              data: { status: 'waiting' },
+              status: 200
+            })
+          }, 500)
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
     })
 
     await expect(
@@ -294,8 +338,12 @@ describe('Should test the executeSteps method.', () => {
         undefined
       )
     ).rejects.toThrow(
-      `Failed to receive a successful response for solver status check with hash '0x' after 0 attempt(s).`
+      `Failed to receive a successful response for solver status check with hash '0x' after 1 attempt(s).`
     )
+
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
   })
 
   it('Should post to solver', async () => {
