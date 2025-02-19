@@ -334,7 +334,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       quote &&
       executionStatus?.inTxHashes &&
       executionStatus?.inTxHashes[0] &&
-      moonPayIdAppended
+      !moonPayIdAppended
     ) {
       setMoonPayIdAppended(true)
       appendMetadataToRequest(client?.baseApiUrl, `${requestId}`, {

@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.2
+
+### Patch Changes
+
+- 1bf4aa7: Sync api types, append moonpay id to relay request
+- 4215d2e: Fix solver status timeout ui bug and split error into sub error
+
 ## 1.6.1
 
 ### Patch Changes
