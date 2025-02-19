@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.5
+
+### Patch Changes
+
+- a89bedd: Fix onramping bugs
+
 ## 2.6.4
 
 ### Patch Changes
