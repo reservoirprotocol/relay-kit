@@ -131,7 +131,10 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     }
   }, [open])
 
-  const ethAmount = +(amount ?? '0') / (ethTokenPriceResponse?.price ?? 0)
+  const ethAmount =
+    ethTokenPriceResponse && ethTokenPriceResponse.price
+      ? +(amount ?? '0') / ethTokenPriceResponse.price
+      : 0
 
   const {
     data: quote,
