@@ -28,6 +28,7 @@ import {
 import useWalletAddress from '../../../../hooks/useWalletAddress.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 import { formatBN } from '../../../../utils/numbers.js'
+import { UnsupportedDepositAddressChainIds } from '../../../../constants/depositAddresses.js'
 
 export type ChildrenProps = {
   displayCurrency: boolean
@@ -82,14 +83,17 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const [token, setToken] = useState<Token>(
-    defaultToken ?? {
-      address: zeroAddress,
-      chainId: 8453,
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18,
-      logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-    }
+    defaultToken &&
+      !UnsupportedDepositAddressChainIds.includes(defaultToken.chainId)
+      ? defaultToken
+      : {
+          address: zeroAddress,
+          chainId: 8453,
+          name: 'ETH',
+          symbol: 'ETH',
+          decimals: 18,
+          logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+        }
   )
   const [displayCurrency, setDisplayCurrency] = useState(false)
   const { data: usdTokenPriceResponse } = useTokenPrice(
