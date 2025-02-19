@@ -114,20 +114,27 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
   const moonPayCurrency = useSupportedMoonPayCurrencyCode(
-    ['usdc_base', 'usdc_polygon', 'usdc', 'eth'],
-    moonPayApiKey
+    [
+      'usdc_base',
+      'usdc_polygon',
+      'usdc',
+      'eth',
+      'eth_arbitrum',
+      'eth_optimism'
+    ],
+    moonPayApiKey,
+    token
   )
 
   const fromToken: Token = {
     chainId: +moonPayCurrency.chainId,
     address: moonPayCurrency.contractAddress,
-    symbol: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
-    name: moonPayCurrency.code === 'eth' ? 'ETH' : 'USDC',
-    logoURI:
-      moonPayCurrency.code === 'eth'
-        ? 'https://assets.relay.link/icons/1/light.png'
-        : 'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
-    decimals: moonPayCurrency.code === 'eth' ? 18 : 6
+    symbol: moonPayCurrency.code.includes('eth') ? 'ETH' : 'USDC',
+    name: moonPayCurrency.code.includes('eth') ? 'ETH' : 'USDC',
+    logoURI: moonPayCurrency.code.includes('eth')
+      ? 'https://assets.relay.link/icons/1/light.png'
+      : 'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+    decimals: moonPayCurrency.code.includes('eth') ? 18 : 6
   }
 
   const fromChain = useMemo(

@@ -401,7 +401,9 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
             </Flex>
 
             {/* Suggested Tokens */}
-            {chainFilter.id && tokenSearchInput.length === 0 ? (
+            {chainFilter.id &&
+            tokenSearchInput.length === 0 &&
+            !depositAddressOnly ? (
               <>
                 <SuggestedTokens
                   chainId={chainFilter.id}
