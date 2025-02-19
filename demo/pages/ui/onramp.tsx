@@ -15,6 +15,7 @@ import {
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { RelayChain } from '@reservoir0x/relay-sdk'
+import { zeroAddress } from 'viem'
 
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()

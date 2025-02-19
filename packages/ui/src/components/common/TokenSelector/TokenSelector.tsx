@@ -35,6 +35,7 @@ import { evmDeadAddress } from '@reservoir0x/relay-sdk'
 import { solDeadAddress } from '@reservoir0x/relay-sdk'
 import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
 import { mergeTokenLists } from '../../../utils/tokens.js'
+import { UnsupportedDepositAddressChainIds } from '../../../constants/depositAddresses.js'
 
 export type TokenSelectorProps = {
   openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -124,6 +125,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     if (!multiWalletSupportEnabled && context === 'from') {
       chains = chains.filter((chain) => chain.vmType === 'evm')
     }
+    if (depositAddressOnly) {
+      chains = chains.filter(
+        ({ id }) => !UnsupportedDepositAddressChainIds.includes(id)
+      )
+    }
     return chains
   }, [relayClient?.chains, multiWalletSupportEnabled])
 
@@ -131,12 +137,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     if (lockedChainIds) {
       return lockedChainIds
     }
+
     let _chainIds = configuredChains.map((chain) => chain.id)
     if (chainIdsFilter) {
       _chainIds = _chainIds.filter((id) => !chainIdsFilter.includes(id))
     }
     return _chainIds
-  }, [configuredChains, lockedChainIds, chainIdsFilter])
+  }, [configuredChains, lockedChainIds, chainIdsFilter, depositAddressOnly])
 
   const chainFilterOptions =
     context === 'from'
