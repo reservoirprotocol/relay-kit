@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.4
+
+### Patch Changes
+
+- 7c7d3ce: Fix onramp modal parseUnits error with eth amount
+
 ## 2.6.3
 
 ### Patch Changes
