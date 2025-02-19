@@ -64,5 +64,5 @@ export default function useIsPassthrough(token: Token, apiKey?: string) {
       isPassthrough: false,
       moonPayCurrency: null
     }
-  }, [token, moonPayCurrencies])
+  }, [token, moonPayCurrencies, geolocationResponse])
 }
