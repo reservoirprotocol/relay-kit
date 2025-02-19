@@ -3,10 +3,12 @@ import useIpAddress from './useIpAddress.js'
 import useMoonPayCurrencies from './useMoonPayCurrencies.js'
 import useMoonPayGeolocation from './useMoonPayGeolocation.js'
 import { convertSupportedCurrencies } from '../utils/moonPay.js'
+import type { Token } from '../types/index.js'
 
 export default function useSupportedMoonPayCurrencyCode(
   codes: string[],
-  apiKey?: string
+  apiKey?: string,
+  token?: Token
 ) {
   const { data: ipAddressResponse } = useIpAddress({
     staleTime: Infinity,
@@ -31,18 +33,6 @@ export default function useSupportedMoonPayCurrencyCode(
   )
 
   return useMemo(() => {
-    if (!geolocationResponse) {
-      return {
-        name: 'USD Coin (Base)',
-        type: 'crypto',
-        notAllowedCountries: ['CA'],
-        notAllowedUSStates: ['NY', 'VI'],
-        code: 'usdc_base',
-        chainId: '8453',
-        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-      }
-    }
-
     const supportedCurrencies = convertSupportedCurrencies(moonPayCurrencies)
     const supportedCurrenciesMap = supportedCurrencies.reduce(
       (map, currency) => {
@@ -52,24 +42,40 @@ export default function useSupportedMoonPayCurrencyCode(
       {} as Record<string, (typeof supportedCurrencies)[0]>
     )
 
-    const supportedMoonPayCurrency = codes.find((code) => {
-      const currency = supportedCurrenciesMap[code]
-      if (currency) {
-        const countryCode = geolocationResponse?.alpha2
-        const state = geolocationResponse?.state
-        if (countryCode) {
-          const unsupportedCountry =
-            currency.notAllowedCountries.includes(countryCode)
-          const unsupportedState =
-            countryCode === 'US' &&
-            state &&
-            currency.notAllowedUSStates.includes(state)
-          return !unsupportedCountry && !unsupportedState
-        } else {
-          return false
+    let supportedMoonPayCurrencyCode: string | undefined
+
+    if (!geolocationResponse) {
+      supportedMoonPayCurrencyCode = codes.find((code) => {
+        const currency = supportedCurrenciesMap[code]
+        return token?.chainId
+          ? currency && currency.chainId !== `${token.chainId}`
+          : currency !== undefined
+      })
+    } else {
+      supportedMoonPayCurrencyCode = codes.find((code) => {
+        const currency = supportedCurrenciesMap[code]
+        if (currency) {
+          const countryCode = geolocationResponse?.alpha2
+          const state = geolocationResponse?.state
+          if (countryCode) {
+            const unsupportedCountry =
+              currency.notAllowedCountries.includes(countryCode)
+            const unsupportedState =
+              countryCode === 'US' &&
+              state &&
+              currency.notAllowedUSStates.includes(state)
+            return (
+              !unsupportedCountry &&
+              !unsupportedState &&
+              (token?.chainId ? currency.chainId !== `${token.chainId}` : true)
+            )
+          } else {
+            return false
+          }
         }
-      }
-    })
-    return supportedCurrenciesMap[supportedMoonPayCurrency ?? 'eth']
-  }, [codes, moonPayCurrencies, geolocationResponse])
+      })
+    }
+
+    return supportedCurrenciesMap[supportedMoonPayCurrencyCode ?? 'eth']
+  }, [codes, moonPayCurrencies, geolocationResponse, token])
 }
