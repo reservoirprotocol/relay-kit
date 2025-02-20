@@ -141,7 +141,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         return (
           <div
             className="relay-kit-reset"
-            style={{ maxWidth: 400, minWidth: 408, width: '100%' }}
+            style={{ maxWidth: 400, minWidth: 308, width: '100%' }}
           >
             <Flex
               direction="column"
