@@ -29,6 +29,7 @@ type BaseOnrampWidgetProps = {
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
   defaultToken?: Token
+  onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
@@ -67,6 +68,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   moonPayThemeId,
   moonPayThemeMode,
   defaultToken,
+  onTokenChange,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
@@ -358,6 +360,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       token_symbol: token.symbol
                     })
                     setToken(token)
+                    onTokenChange?.(token)
                   }}
                   context="to"
                   size={'desktop'}

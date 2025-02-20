@@ -111,6 +111,9 @@ const OnrampPage: NextPage = () => {
           onAnalyticEvent={(eventName, data) => {
             console.log('Analytic Event', eventName, data)
           }}
+          onTokenChange={(token) => {
+            console.log('onTokenChange', token)
+          }}
         />
       </div>
     </Layout>
