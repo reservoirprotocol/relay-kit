@@ -563,11 +563,12 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <FontAwesomeIcon style={{ width: 16 }} icon={faCreditCard} />
                   <Text style="subtitle2">Card</Text>
                 </Flex>
+                {/* Hiding this until issues are resolved with MoonPay
                 <FiatCurrencyModal
                   fiatCurrency={fiatCurrency}
                   setFiatCurrency={setFiatCurrency}
                   moonPayApiKey={moonPayApiKey}
-                />
+                /> */}
               </Flex>
             </Flex>
             <Button
