@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 20.x
       - name: Setup pnpm
-        run: sudo npm i -g pnpm@9.5.10
+        run: sudo npm i -g pnpm@10.4.1
       - name: Install Dependencies
         run: pnpm install
       - name: Build
