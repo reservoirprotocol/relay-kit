@@ -4,15 +4,18 @@ import { http, zeroAddress } from 'viem'
 import { mainnet } from 'viem/chains'
 import { MAINNET_RELAY_API } from '../constants'
 import { executeBridge } from '../../tests/data/executeBridge'
-import type { Execute } from '../types'
+import type { AdaptedWallet, Execute } from '../types'
 
 let client: RelayClient | undefined
-let wallet = {
+let wallet: AdaptedWallet = {
   getChainId: () => Promise.resolve(1),
   transport: http(mainnet.rpcUrls.default.http[0]),
   address: () => Promise.resolve(zeroAddress),
   handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
-  handleSendTransactionStep: vi.fn().mockResolvedValue('0x')
+  handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+  handleConfirmTransactionStep: vi.fn().mockResolvedValue('0x'),
+  switchChain: vi.fn().mockResolvedValue(undefined),
+  vmType: 'evm'
 }
 let quote = executeBridge
 let executeStepsSpy = vi
