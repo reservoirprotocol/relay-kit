@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.10
+
+### Patch Changes
+
+- 5be1e1d: Fix slippage displayed for same-chain-swaps
+
 ## 2.6.9
 
 ### Patch Changes
