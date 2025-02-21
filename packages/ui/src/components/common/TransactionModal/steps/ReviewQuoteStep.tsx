@@ -28,6 +28,13 @@ import { useRelayClient } from '../../../../hooks/index.js'
 import type { Address } from 'viem'
 import type { LinkedWallet } from '../../../../types/index.js'
 import Tooltip from '../../../primitives/Tooltip.js'
+import {
+  CollapsibleContent,
+  CollapsibleRoot,
+  CollapsibleTrigger
+} from '../../../primitives/Collapsible.js'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { getSlippageRating, ratingToColor } from '../../../../utils/slippage.js'
 
 type ReviewQuoteProps = {
   fromToken?: Token
@@ -45,6 +52,7 @@ type ReviewQuoteProps = {
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   useExternalLiquidity?: boolean
+  isAutoSlippage: boolean
 }
 
 const SECONDS_TO_UPDATE = 30
@@ -64,7 +72,8 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   address,
   linkedWallets,
   multiWalletSupportEnabled,
-  useExternalLiquidity
+  useExternalLiquidity,
+  isAutoSlippage
 }) => {
   const client = useRelayClient()
   const details = quote?.details
@@ -95,6 +104,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   )
 
   const [timeLeft, setTimeLeft] = useState<number>(SECONDS_TO_UPDATE)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const updateTimer = () => {
@@ -150,61 +160,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
   }
 
   let breakdown: { title: string; value: ReactNode }[] = []
-
-  const slippage = Number(
-    quote?.details?.slippageTolerance?.destination?.percent ??
-      quote?.details?.slippageTolerance?.origin?.percent ??
-      0
-  )
-
-  if (minimumAmountFormatted && slippage && slippage != 0) {
-    breakdown.push({
-      title: 'Min. Received',
-      value: (
-        <Flex
-          align="end"
-          direction="column"
-          css={{
-            gap: '1'
-          }}
-        >
-          <Text style="subtitle2">
-            {minimumAmountFormatted} {toToken?.symbol}
-          </Text>
-          <Tooltip
-            align="end"
-            side="top"
-            content={
-              <Text style="subtitle2" css={{ maxWidth: 235 }}>
-                Automatic slippage tolerance is applied to every trade. The
-                option to adjust slippage will be available soon.
-              </Text>
-            }
-          >
-            <div>
-              <Flex css={{ gap: '1' }} align="center">
-                <Text style="body3" color="subtle">
-                  Slippage:{' '}
-                  {quote?.details?.slippageTolerance?.destination?.percent ?? 0}
-                  %
-                </Text>
-                <Flex css={{ color: 'gray8' }}>
-                  <FontAwesomeIcon
-                    icon={faInfoCircle}
-                    width={14}
-                    height={14}
-                    style={{
-                      display: 'inline-block'
-                    }}
-                  />
-                </Flex>
-              </Flex>
-            </div>
-          </Tooltip>
-        </Flex>
-      )
-    })
-  }
+  let collapsibleBreakdown: { title: string; value: ReactNode }[] = []
 
   if (timeEstimate.time) {
     breakdown.push({
@@ -213,7 +169,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
         <Flex
           align="center"
           css={{
-            gap: '2',
+            gap: '1',
             color:
               timeEstimate && timeEstimate.time <= 30
                 ? '{colors.green.9}'
@@ -227,129 +183,174 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     })
   }
 
-  breakdown = [
-    ...breakdown,
-    {
-      title: 'Network cost',
+  breakdown.push({
+    title: 'Network cost',
+    value: (
+      <Flex align="center" css={{ gap: '1' }}>
+        <FontAwesomeIcon
+          icon={faGasPump}
+          width={16}
+          style={{ color: '#C1C8CD' }}
+        />
+        <Text style="subtitle2">
+          {formatDollar(Number(quote?.fees?.gas?.amountUsd ?? 0))}
+        </Text>
+      </Flex>
+    )
+  })
+
+  collapsibleBreakdown.push({
+    title: 'Price Impact',
+    value: (
+      <PriceImpactTooltip
+        feeBreakdown={feeBreakdown}
+        tooltipProps={{ side: 'top', align: 'end' }}
+      >
+        {
+          <div>
+            <Flex align="center" css={{ gap: '1', color: 'gray8' }}>
+              <Text
+                style="subtitle2"
+                css={{
+                  color: isHighPriceImpact ? 'red11' : undefined
+                }}
+              >
+                {feeBreakdown?.totalFees?.priceImpactPercentage}
+              </Text>
+              <FontAwesomeIcon
+                icon={faInfoCircle}
+                width={14}
+                height={14}
+                style={{
+                  display: 'inline-block',
+                  marginLeft: 4
+                }}
+              />
+            </Flex>
+          </div>
+        }
+      </PriceImpactTooltip>
+    )
+  })
+
+  const slippage =
+    quote?.details?.slippageTolerance?.destination?.percent ??
+    quote?.details?.slippageTolerance?.origin?.percent ??
+    '0'
+
+  const slippageRating = getSlippageRating(slippage)
+  const slippageRatingColor = ratingToColor[slippageRating]
+
+  if (slippage && slippage != '0') {
+    collapsibleBreakdown.push({
+      title: 'Max Slippage',
       value: (
-        <Flex align="center" css={{ gap: '2' }}>
-          <FontAwesomeIcon
-            icon={faGasPump}
-            width={16}
-            style={{ color: '#C1C8CD' }}
-          />
-          <Text style="subtitle2">
-            {formatDollar(Number(quote?.fees?.gas?.amountUsd ?? 0))}
-          </Text>
+        <Flex align="center" css={{ gap: '1' }}>
+          {isAutoSlippage ? (
+            <Text
+              style="subtitle3"
+              css={{ py: '1px', px: '4px', bg: 'gray3', borderRadius: 100 }}
+            >
+              Auto
+            </Text>
+          ) : null}
+
+          <Tooltip
+            side="top"
+            align="end"
+            content={
+              minimumAmountFormatted ? (
+                <Flex direction="row" css={{ gap: '2' }}>
+                  <Text style="subtitle2" color="subtle">
+                    Min. received
+                  </Text>
+                  <Text style="subtitle2">
+                    {minimumAmountFormatted} {toToken?.symbol}
+                  </Text>
+                </Flex>
+              ) : null
+            }
+          >
+            <Text style="subtitle2" css={{ color: slippageRatingColor }}>
+              {slippage}%
+            </Text>
+          </Tooltip>
         </Flex>
       )
-    },
-    {
-      title: 'Price Impact',
-      value: (
-        <PriceImpactTooltip
-          feeBreakdown={feeBreakdown}
-          tooltipProps={{ side: 'top', align: 'end' }}
-        >
-          {
-            <div>
-              <Flex align="center" css={{ gap: '1', color: 'gray8' }}>
-                <Text
-                  style="subtitle2"
-                  css={{
-                    color: isHighPriceImpact ? 'red11' : undefined
-                  }}
-                >
-                  {feeBreakdown?.totalFees?.priceImpactPercentage}
-                </Text>
-                <FontAwesomeIcon
-                  icon={faInfoCircle}
-                  width={14}
-                  height={14}
-                  style={{
-                    display: 'inline-block',
-                    marginLeft: 4
-                  }}
-                />
-              </Flex>
-            </div>
-          }
-        </PriceImpactTooltip>
-      )
-    },
-    {
-      title: 'From address',
-      value: (
-        <Button
-          color="secondary"
-          size="none"
-          corners="pill"
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1',
-            py: '2px',
-            px: '2',
-            lineHeight: '17px',
-            minHeight: 21
-          }}
-          onClick={() => {
-            window.open(
-              `${fromChain?.explorerUrl}/address/${quote?.details?.sender}`,
-              '_blank'
-            )
-          }}
-        >
-          {fromWallet?.walletLogoUrl ? (
-            <img
-              src={fromWallet.walletLogoUrl}
-              style={{ width: 16, height: 16, borderRadius: 4 }}
-            />
-          ) : null}
-          <Text style="subtitle2" css={{ color: 'inherit' }}>
-            {truncateAddress(quote?.details?.sender)}
-          </Text>
-        </Button>
-      )
-    },
-    {
-      title: 'To address',
-      value: (
-        <Button
-          color={
-            multiWalletSupportEnabled && !toWallet ? 'warning' : 'secondary'
-          }
-          size="none"
-          corners="pill"
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1',
-            py: '2px',
-            px: '2',
-            lineHeight: '17px',
-            minHeight: 21
-          }}
-          onClick={() => {
-            window.open(
-              `${toChain?.explorerUrl}/address/${quote?.details?.recipient}`,
-              '_blank'
-            )
-          }}
-        >
-          {toWallet?.walletLogoUrl ? (
-            <img
-              src={toWallet.walletLogoUrl}
-              style={{ width: 16, height: 16, borderRadius: 4 }}
-            />
-          ) : null}
-          <Text style="subtitle2" css={{ color: 'inherit' }}>
-            {truncateAddress(quote?.details?.recipient)}
-          </Text>
-        </Button>
-      )
-    }
-  ]
+    })
+  }
+
+  collapsibleBreakdown.push({
+    title: 'From address',
+    value: (
+      <Button
+        color="secondary"
+        size="none"
+        corners="pill"
+        css={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1',
+          py: '2px',
+          px: '2',
+          lineHeight: '17px',
+          minHeight: 21
+        }}
+        onClick={() => {
+          window.open(
+            `${fromChain?.explorerUrl}/address/${quote?.details?.sender}`,
+            '_blank'
+          )
+        }}
+      >
+        {fromWallet?.walletLogoUrl ? (
+          <img
+            src={fromWallet.walletLogoUrl}
+            style={{ width: 16, height: 16, borderRadius: 4 }}
+          />
+        ) : null}
+        <Text style="subtitle2" css={{ color: 'inherit' }}>
+          {truncateAddress(quote?.details?.sender)}
+        </Text>
+      </Button>
+    )
+  })
+
+  collapsibleBreakdown.push({
+    title: 'To address',
+    value: (
+      <Button
+        color={multiWalletSupportEnabled && !toWallet ? 'warning' : 'secondary'}
+        size="none"
+        corners="pill"
+        css={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1',
+          py: '2px',
+          px: '2',
+          lineHeight: '17px',
+          minHeight: 21
+        }}
+        onClick={() => {
+          window.open(
+            `${toChain?.explorerUrl}/address/${quote?.details?.recipient}`,
+            '_blank'
+          )
+        }}
+      >
+        {toWallet?.walletLogoUrl ? (
+          <img
+            src={toWallet.walletLogoUrl}
+            style={{ width: 16, height: 16, borderRadius: 4 }}
+          />
+        ) : null}
+        <Text style="subtitle2" css={{ color: 'inherit' }}>
+          {truncateAddress(quote?.details?.recipient)}
+        </Text>
+      </Button>
+    )
+  })
 
   return (
     <>
@@ -440,7 +441,7 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
           border: '1px solid var(--borderColor)',
           borderRadius: 12,
           p: '3',
-          gap: '3',
+          gap: '2',
           width: '100%'
         }}
       >
@@ -489,6 +490,68 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
             ) : null}
           </React.Fragment>
         ))}
+        <CollapsibleRoot
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          css={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%'
+          }}
+        >
+          <CollapsibleContent css={{}}>
+            <Flex direction="column" css={{ width: '100%', gap: '2' }}>
+              {collapsibleBreakdown.map((item) => (
+                <React.Fragment key={item.title}>
+                  <Flex
+                    justify="between"
+                    align="center"
+                    css={{ width: '100%', gap: '4' }}
+                  >
+                    <Text
+                      style="subtitle2"
+                      color="subtle"
+                      css={{ alignSelf: 'flex-start' }}
+                    >
+                      {item.title}
+                    </Text>
+                    {isFetchingQuote ? (
+                      <Skeleton css={{ width: 80, height: 21 }} />
+                    ) : (
+                      item.value
+                    )}
+                  </Flex>
+                </React.Fragment>
+              ))}
+            </Flex>
+          </CollapsibleContent>
+          <CollapsibleTrigger
+            css={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '2',
+              cursor: 'pointer',
+              '&:hover': {
+                opacity: 0.8
+              }
+            }}
+          >
+            <Text style="subtitle2" color="subtle">
+              {isOpen ? 'Show less' : 'Show more'}
+            </Text>
+            <Box
+              css={{
+                transition: 'transform 300ms',
+                transform: isOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                color: 'gray9'
+              }}
+            >
+              <FontAwesomeIcon icon={faChevronDown} width={12} />
+            </Box>
+          </CollapsibleTrigger>
+        </CollapsibleRoot>
       </Flex>
       {showHighPriceImpactWarning ? (
         <Flex

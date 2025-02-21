@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.7
+
+### Patch Changes
+
+- a5e77cc: Hide fiat currency selector
+
 ## 2.6.6
 
 ### Patch Changes
