@@ -71,10 +71,10 @@ const FeeBreakdown: FC<Props> = ({
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
 
   const isHighPriceImpact = Number(price?.details?.totalImpact?.percent) < -3.5
-  const slippage =
-    price?.details?.slippageTolerance?.destination?.percent ??
-    price?.details?.slippageTolerance?.origin?.percent ??
-    '0'
+  const isSameChain = toToken?.chainId === fromToken?.chainId
+  const slippage = isSameChain
+    ? price?.details?.slippageTolerance?.origin?.percent ?? '0'
+    : price?.details?.slippageTolerance?.destination?.percent ?? '0'
 
   const slippageRating = getSlippageRating(slippage)
   const slippageRatingColor = ratingToColor[slippageRating]
