@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.9
+
+### Patch Changes
+
+- 6772e0f: Fix slippage config bug on rerender
+
 ## 2.6.8
 
 ### Patch Changes
