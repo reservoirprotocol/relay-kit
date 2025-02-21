@@ -20,18 +20,16 @@ import { EventNames } from '../../constants/events.js'
 import { useDebounceValue } from 'usehooks-ts'
 
 type SlippageToleranceConfigProps = {
-  slippageTolerance: string | undefined
   setSlippageTolerance: (value: string | undefined) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
-  slippageTolerance: externalValue,
   setSlippageTolerance: externalSetValue,
   onAnalyticEvent
 }) => {
   const [displayValue, setDisplayValue] = useState<string | undefined>(
-    externalValue
+    undefined
   )
   const [debouncedDisplayValue] = useDebounceValue(displayValue, 500)
 
