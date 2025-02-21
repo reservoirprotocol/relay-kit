@@ -119,31 +119,31 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
           amount === ''
             ? ''
             : amount.endsWith('.')
-              ? new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(+amount) + '.'
-              : new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: amount.includes('.0')
-                    ? 1
-                    : amount.endsWith('0') && amount.includes('.')
-                      ? 2
-                      : 0,
-                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
-                  minimumSignificantDigits: 1,
-                  maximumSignificantDigits: amount.length
-                }).format(+amount)
+            ? new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(+amount) + '.'
+            : new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: amount.includes('.0')
+                  ? 1
+                  : amount.endsWith('0') && amount.includes('.')
+                  ? 2
+                  : 0,
+                maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                minimumSignificantDigits: 1,
+                maximumSignificantDigits: amount.length
+              }).format(+amount)
 
         return (
           <div
             className="relay-kit-reset"
-            style={{ maxWidth: 400, minWidth: 308, width: '100%' }}
+            style={{ maxWidth: 408, minWidth: 308, width: '100%' }}
           >
             <Flex
               direction="column"
