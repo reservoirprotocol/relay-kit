@@ -29,7 +29,6 @@ import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
 const MoonPayProvider = lazy(() =>
   import('@moonpay/moonpay-react').then((module) => ({
@@ -188,8 +187,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
-              EclipseWalletConnectors,
-              AbstractEvmWalletConnectors
+              EclipseWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {
