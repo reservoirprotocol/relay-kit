@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.7
+
+### Patch Changes
+
+- a5e77cc: Hide fiat currency selector
+
+## 2.6.6
+
+### Patch Changes
+
+- a90dc24: Add onTokenChange callback handler to OnrampWidget
+
 ## 2.6.5
 
 ### Patch Changes

@@ -88,6 +88,7 @@ export type ChildrenProps = {
     }
   } | null
   isLoadingTransaction: boolean
+  isAutoSlippage: boolean
 }
 
 type Props = {
@@ -211,6 +212,10 @@ export const TransactionModalRenderer: FC<Props> = ({
         currency_out: details?.currencyOut?.currency?.symbol,
         chain_id_out: details?.currencyOut?.currency?.chainId,
         is_canonical: useExternalLiquidity,
+        slippage_tolerance_destination_percentage:
+          details?.slippageTolerance?.destination?.percent,
+        slippage_tolerance_origin_percentage:
+          details?.slippageTolerance?.origin?.percent,
         steps
       })
     },
@@ -470,6 +475,8 @@ export const TransactionModalRenderer: FC<Props> = ({
       : null
   }, [quote, fromToken, toToken, relayClient])
 
+  const isAutoSlippage = slippageTolerance === undefined
+
   return (
     <>
       {children({
@@ -502,7 +509,8 @@ export const TransactionModalRenderer: FC<Props> = ({
         quoteUpdatedAt,
         requestId,
         feeBreakdown,
-        isLoadingTransaction
+        isLoadingTransaction,
+        isAutoSlippage
       })}
     </>
   )

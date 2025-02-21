@@ -29,6 +29,7 @@ type BaseOnrampWidgetProps = {
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
   defaultToken?: Token
+  onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
@@ -67,6 +68,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   moonPayThemeId,
   moonPayThemeMode,
   defaultToken,
+  onTokenChange,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
@@ -120,12 +122,14 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               ? new Intl.NumberFormat(undefined, {
                   style: 'currency',
                   currency: 'USD',
+                  currencyDisplay: 'narrowSymbol',
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0
                 }).format(+amount) + '.'
               : new Intl.NumberFormat(undefined, {
                   style: 'currency',
                   currency: 'USD',
+                  currencyDisplay: 'narrowSymbol',
                   minimumFractionDigits: amount.includes('.0')
                     ? 1
                     : amount.endsWith('0') && amount.includes('.')
@@ -139,7 +143,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         return (
           <div
             className="relay-kit-reset"
-            style={{ maxWidth: 400, minWidth: 408, width: '100%' }}
+            style={{ maxWidth: 400, minWidth: 308, width: '100%' }}
           >
             <Flex
               direction="column"
@@ -358,6 +362,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                       token_symbol: token.symbol
                     })
                     setToken(token)
+                    onTokenChange?.(token)
                   }}
                   context="to"
                   size={'desktop'}
@@ -560,11 +565,12 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   <FontAwesomeIcon style={{ width: 16 }} icon={faCreditCard} />
                   <Text style="subtitle2">Card</Text>
                 </Flex>
+                {/* Hiding this until issues are resolved with MoonPay
                 <FiatCurrencyModal
                   fiatCurrency={fiatCurrency}
                   setFiatCurrency={setFiatCurrency}
                   moonPayApiKey={moonPayApiKey}
-                />
+                /> */}
               </Flex>
             </Flex>
             <Button
@@ -572,10 +578,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               disabled={notEnoughFiat}
               onClick={() => {
                 if (!recipient && toChainWalletVMSupported) {
-                  if (
-                    (!linkedWallets || linkedWallets.length === 0) &&
-                    toChainWalletVMSupported
-                  ) {
+                  if (!linkedWallets || linkedWallets.length === 0) {
                     onConnectWallet?.()
                   } else {
                     onLinkNewWallet?.({

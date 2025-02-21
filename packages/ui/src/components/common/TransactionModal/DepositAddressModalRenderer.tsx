@@ -149,6 +149,10 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         amount_out: details?.currencyOut?.amountFormatted,
         currency_out: details?.currencyOut?.currency?.symbol,
         chain_id_out: details?.currencyOut?.currency?.chainId,
+        slippage_tolerance_destination_percentage:
+          details?.slippageTolerance?.destination?.percent,
+        slippage_tolerance_origin_percentage:
+          details?.slippageTolerance?.origin?.percent,
         is_canonical: false,
         is_deposit_address: true,
         steps
@@ -188,8 +192,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const quote = defaultQuote
     ? defaultQuote
     : isFetchingQuote || isRefetching
-      ? undefined
-      : quoteData
+    ? undefined
+    : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
