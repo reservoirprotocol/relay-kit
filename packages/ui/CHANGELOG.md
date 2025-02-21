@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.8
+
+### Patch Changes
+
+- c876fdf: Add slippage configuration component
+- 914af94: Fix ChainTokenIcon fallback dimensions
+- 46e6c73: Fix onramping dollar formatting
+- 1cabbd1: Increase width of onramp widget
+
 ## 2.6.7
 
 ### Patch Changes
