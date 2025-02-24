@@ -268,7 +268,12 @@ export async function sendTransactionSafely(
             return
           }
           receipt = data
-          if (receipt && 'status' in receipt && receipt.status === 'reverted') {
+          if (
+            receipt &&
+            typeof receipt === 'object' &&
+            'status' in receipt &&
+            receipt.status === 'reverted'
+          ) {
             throw 'Transaction Reverted'
           }
           getClient()?.log(
