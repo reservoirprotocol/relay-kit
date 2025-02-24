@@ -144,7 +144,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       supportedWalletVMs={supportedWalletVMs}
     >
       {({
-        price,
+        quote,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -313,7 +313,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             debouncedInputAmountValue={debouncedInputAmountValue}
             debouncedOutputAmountValue={debouncedOutputAmountValue}
             tradeType={tradeType}
-            onSwapModalOpenChange={(open) => {
+            onTransactionModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
               }
@@ -532,11 +532,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      {price?.details?.currencyIn?.amountUsd &&
-                      Number(price.details.currencyIn.amountUsd) > 0 ? (
+                      {quote?.details?.currencyIn?.amountUsd &&
+                      Number(quote.details.currencyIn.amountUsd) > 0 ? (
                         <Text style="subtitle3" color="subtleSecondary">
                           {formatDollar(
-                            Number(price.details.currencyIn.amountUsd)
+                            Number(quote.details.currencyIn.amountUsd)
                           )}
                         </Text>
                       ) : null}
@@ -910,12 +910,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      {price?.details?.currencyOut?.amountUsd &&
-                      Number(price.details.currencyOut.amountUsd) > 0 ? (
+                      {quote?.details?.currencyOut?.amountUsd &&
+                      Number(quote.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
                           <Text style="subtitle3" color="subtleSecondary">
                             {formatDollar(
-                              Number(price.details.currencyOut.amountUsd)
+                              Number(quote.details.currencyOut.amountUsd)
                             )}
                           </Text>
                           <Text
@@ -983,7 +983,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isFetchingQuote={isFetchingQuote}
                     toToken={toToken}
                     fromToken={fromToken}
-                    price={price}
+                    quote={quote}
                     timeEstimate={timeEstimate}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     useExternalLiquidity={useExternalLiquidity}
@@ -1002,7 +1002,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     error={error}
-                    quote={price}
+                    quote={quote}
                     currency={fromToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
@@ -1057,7 +1057,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       context={'Swap'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
-                      price={price}
+                      quote={quote}
                       address={address}
                       hasInsufficientBalance={hasInsufficientBalance}
                       isInsufficientLiquidityError={

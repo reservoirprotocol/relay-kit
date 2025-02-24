@@ -38,7 +38,6 @@ const Index: NextPage = () => {
         </h2>
         <nav style={{ display: 'flex', gap: 15 }}>
           <Link href="/sdk/actions/getSolverCapacity">getSolverCapacity</Link>
-          <Link href="/sdk/actions/getPrice">getPrice</Link>
           <Link href="/sdk/actions/getCallQuote">getCallQuote</Link>
           <Link href="/sdk/actions/getBridgeQuote">getBridgeQuote</Link>
           <Link href="/sdk/actions/getSwapQuote">getSwapQuote</Link>
@@ -51,7 +50,6 @@ const Index: NextPage = () => {
           <Link href="/hooks/useRelayChains">useRelayChains</Link>
           <Link href="/hooks/useRequests">useRequests</Link>
           <Link href="/hooks/useTokenList">useTokenList</Link>
-          <Link href="/hooks/usePrice">usePrice</Link>
         </nav>
       </div>
     </Layout>

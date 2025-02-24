@@ -2,13 +2,11 @@ import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
-import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
+import type { QuoteResponse, useQuote } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
-
-type QuoteResponse = ReturnType<typeof useQuote>['data']
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -220,7 +218,7 @@ export const extractDepositAddress = (steps?: Execute['steps']) => {
 }
 
 export const calculatePriceTimeEstimate = (
-  details?: PriceResponse['details']
+  details?: QuoteResponse['details']
 ) => {
   const isBitcoin =
     details?.currencyIn?.currency?.chainId === bitcoin.id ||

@@ -16,13 +16,13 @@ import { ReviewQuoteStep } from './steps/ReviewQuoteStep.js'
 import { type Token } from '../../../types/index.js'
 import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
-import type { TradeType } from '../../../components/widgets/SwapWidgetRenderer.js'
+import type { TradeType } from '../../widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
 import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
 import { useAtomicBatchSupport } from '../../../hooks/index.js'
 
-type SwapModalProps = {
+type TransactionModalProps = {
   open: boolean
   fromChain?: RelayChain
   fromToken?: Token
@@ -49,7 +49,9 @@ type SwapModalProps = {
   onSwapValidating?: (data: Execute) => void
 }
 
-export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
+export const TransactionModal: FC<TransactionModalProps> = (
+  transactionModalProps
+) => {
   const {
     open,
     address,
@@ -71,7 +73,7 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     onAnalyticEvent,
     onSuccess,
     onSwapValidating
-  } = swapModalProps
+  } = transactionModalProps
   return (
     <TransactionModalRenderer
       open={open}
@@ -156,12 +158,12 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
     >
       {(rendererProps) => {
         return (
-          <InnerSwapModal
+          <InnerTransactionModal
             address={address}
             onAnalyticEvent={onAnalyticEvent}
             timeEstimate={timeEstimate}
             isCanonical={isCanonical}
-            {...swapModalProps}
+            {...transactionModalProps}
             {...rendererProps}
           />
         )
@@ -170,9 +172,9 @@ export const SwapModal: FC<SwapModalProps> = (swapModalProps) => {
   )
 }
 
-type InnerSwapModalProps = ChildrenProps & SwapModalProps
+type InnerTransactionModalProps = ChildrenProps & TransactionModalProps
 
-const InnerSwapModal: FC<InnerSwapModalProps> = ({
+const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   open,
   onOpenChange,
   wallet,

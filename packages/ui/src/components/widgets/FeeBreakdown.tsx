@@ -27,7 +27,7 @@ type Props = Pick<
   ChildrenProps,
   | 'feeBreakdown'
   | 'isFetchingQuote'
-  | 'price'
+  | 'quote'
   | 'toToken'
   | 'fromToken'
   | 'timeEstimate'
@@ -49,7 +49,7 @@ const formatSwapRate = (rate: number) => {
 const FeeBreakdown: FC<Props> = ({
   feeBreakdown,
   isFetchingQuote,
-  price,
+  quote,
   toToken,
   fromToken,
   toChain,
@@ -63,24 +63,24 @@ const FeeBreakdown: FC<Props> = ({
   isAutoSlippage
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const swapRate = price?.details?.rate
+  const swapRate = quote?.details?.rate
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
   )
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
 
-  const isHighPriceImpact = Number(price?.details?.totalImpact?.percent) < -3.5
+  const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
   const isSameChain = toToken?.chainId === fromToken?.chainId
   const slippage = isSameChain
-    ? price?.details?.slippageTolerance?.origin?.percent ?? '0'
-    : price?.details?.slippageTolerance?.destination?.percent ?? '0'
+    ? quote?.details?.slippageTolerance?.origin?.percent ?? '0'
+    : quote?.details?.slippageTolerance?.destination?.percent ?? '0'
 
   const slippageRating = getSlippageRating(slippage)
   const slippageRatingColor = ratingToColor[slippageRating]
-  const minimumAmountFormatted = price?.details?.currencyOut?.minimumAmount
+  const minimumAmountFormatted = quote?.details?.currencyOut?.minimumAmount
     ? formatBN(
-        price.details.currencyOut.minimumAmount,
+        quote.details.currencyOut.minimumAmount,
         6,
         toToken?.decimals,
         false
