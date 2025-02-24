@@ -16,7 +16,8 @@ import type {
 import { getClient } from '../client.js'
 import {
   DepositTransactionTimeoutError,
-  SolverStatusTimeoutError
+  SolverStatusTimeoutError,
+  TransactionConfirmationError
 } from '../errors/index.js'
 import { repeatUntilOk } from '../utils/repeatUntilOk.js'
 
@@ -61,6 +62,7 @@ export async function sendTransactionSafely(
   }
   let receipt: TransactionReceipt | SvmReceipt | undefined
   let transactionCancelled = false
+  let confirmationError = false
   const pollingInterval = client.pollingInterval ?? 5000
   const maximumAttempts =
     client.maxPollingAttemptsBeforeTimeout ??
@@ -171,7 +173,8 @@ export async function sendTransactionSafely(
     while (
       waitingForConfirmation &&
       attemptCount < maximumAttempts &&
-      !transactionCancelled
+      !transactionCancelled &&
+      !confirmationError
     ) {
       let res
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
@@ -265,6 +268,9 @@ export async function sendTransactionSafely(
             return
           }
           receipt = data
+          if (receipt && 'status' in receipt && receipt.status === 'reverted') {
+            throw 'Transaction Reverted'
+          }
           getClient()?.log(
             ['Transaction Receipt obtained', receipt],
             LogLevel.Verbose
@@ -280,6 +286,9 @@ export async function sendTransactionSafely(
           )
           if (error.message === 'Transaction cancelled') {
             transactionCancelled = true
+          } else {
+            confirmationError = true
+            throw new TransactionConfirmationError(error, receipt)
           }
         }),
       controller
