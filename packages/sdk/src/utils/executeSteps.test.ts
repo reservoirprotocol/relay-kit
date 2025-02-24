@@ -300,6 +300,53 @@ describe('Should test the executeSteps method.', () => {
     )
   })
 
+  it('Should throw: TransactionConfirmationError', async () => {
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('intents/status')) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              data: { status: 'pending' },
+              status: 200
+            })
+          }, 500)
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
+    wallet.handleConfirmTransactionStep = vi.fn().mockResolvedValue({
+      status: 'reverted',
+      gasUsed: 1
+    })
+    await expect(
+      executeSteps(
+        1,
+        {},
+        wallet,
+        ({ steps, fees, breakdown, details }) => {},
+        bridgeData,
+        undefined
+      )
+    )
+      .rejects.toThrow(`Transaction Reverted`)
+      .catch((error) => {
+        expect(error.receipt).toBe({
+          status: 'reverted',
+          gasUsed: 1
+        })
+      })
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
+  })
+
   it('Should throw: Solver Status Timeout', async () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API,

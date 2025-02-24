@@ -31,7 +31,9 @@ const ErrorWell: React.FC<Props> = ({ error, hasTxHashes, fromChain }) => {
     ) {
       return 'Oops, something went wrong while initiating the swap. Your request was not submitted. Please try again.'
     } else if (error?.message?.includes('solver status check')) {
-      return `Oops, it seems we can't check the status of your transaction at the moment. Please visit the transaction page for more details.`
+      return "Oops, it seems we can't check the status of your transaction at the moment. Please visit the transaction page for more details."
+    } else if (error.name === 'TransactionConfirmationError') {
+      return 'Transaction Failed. Try adjusting slippage or gas limits and try again.'
     }
     return error?.message
   }, [error?.message, hasTxHashes])

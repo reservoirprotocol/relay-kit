@@ -211,27 +211,7 @@ export const extractMaxCapacity = (
 }
 
 export const extractQuoteId = (steps?: Execute['steps']) => {
-  if (
-    steps &&
-    steps[0] &&
-    steps[0].items &&
-    steps[0].items[0] &&
-    steps[0].items[0].data &&
-    steps[0].items[0].data.data
-  ) {
-    return (steps[0].items[0].data as any)?.data ?? ''
-  } else if (
-    steps &&
-    steps[0] &&
-    steps[0].items &&
-    steps[0].items[0] &&
-    steps[0].items[0].check?.endpoint
-  ) {
-    const endpoint = steps[0].items[0].check?.endpoint ?? ''
-    const matches = endpoint.match(/requestId=([^&]*)/)
-    return matches ? matches[1] : null
-  }
-  return ''
+  return steps && steps[0] ? steps[0].requestId : undefined
 }
 
 export const extractDepositAddress = (steps?: Execute['steps']) => {

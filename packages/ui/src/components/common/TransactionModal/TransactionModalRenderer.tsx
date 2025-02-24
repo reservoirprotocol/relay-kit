@@ -283,7 +283,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       onAnalyticEvent?.(EventNames.SWAP_ERROR, {
         error_message: errorMessage,
         wallet_connector: connector?.name,
-        quote_id: steps ? extractQuoteId(steps) : undefined,
+        quote_id: extractQuoteId(steps ?? (quote?.steps as Execute['steps'])),
         amount_in: parseFloat(`${debouncedInputAmountValue}`),
         currency_in: fromToken?.symbol,
         chain_id_in: fromToken?.chainId,
@@ -291,7 +291,7 @@ export const TransactionModalRenderer: FC<Props> = ({
         currency_out: toToken?.symbol,
         chain_id_out: toToken?.chainId,
         is_canonical: useExternalLiquidity,
-        txHashes: steps
+        txHashes: (steps ?? (quote?.steps as Execute['steps']))
           ?.map((step) => {
             let txHashes: { chainId: number; txHash: string }[] = []
             step.items?.forEach((item) => {
