@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.6.11
+
+### Patch Changes
+
+- a601dfa: Handle confirmation error appropriately
+- Updated dependencies [a601dfa]
+  - @reservoir0x/relay-sdk@1.6.3
+  - @reservoir0x/relay-kit-hooks@1.7.2
+
 ## 2.6.10
 
 ### Patch Changes

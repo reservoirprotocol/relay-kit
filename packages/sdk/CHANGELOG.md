@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.3
+
+### Patch Changes
+
+- a601dfa: Handle confirmation error appropriately
+
 ## 1.6.2
 
 ### Patch Changes
