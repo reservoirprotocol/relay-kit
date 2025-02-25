@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.1
+
+### Patch Changes
+
+- 5af363f: Fix dialog and dropdown menu incompatibility
+
 ## 2.7.0
 
 ### Minor Changes
