@@ -13,7 +13,7 @@ type SwapButtonProps = {
   context: 'Swap' | 'Deposit' | 'Withdraw'
 } & Pick<
   ChildrenProps,
-  | 'price'
+  | 'quote'
   | 'address'
   | 'hasInsufficientBalance'
   | 'isInsufficientLiquidityError'
@@ -33,7 +33,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   isValidToAddress,
   context,
   onConnectWallet,
-  price,
+  quote,
   address,
   hasInsufficientBalance,
   isInsufficientLiquidityError,
@@ -49,7 +49,7 @@ const SwapButton: FC<SwapButtonProps> = ({
 
   if (isMounted && (address || !fromChainWalletVMSupported)) {
     const invalidAmount =
-      !price ||
+      !quote ||
       Number(debouncedInputAmountValue) === 0 ||
       Number(debouncedOutputAmountValue) === 0
 

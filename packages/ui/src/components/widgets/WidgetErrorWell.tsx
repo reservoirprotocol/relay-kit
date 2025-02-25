@@ -7,11 +7,12 @@ import { type Currency } from '../../constants/currencies.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
+import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
 
 type Props = {
   error: any
   hasInsufficientBalance: boolean
-  quote?: Partial<Execute>
+  quote?: Partial<Execute> | QuoteResponse
   currency?: Currency
   relayerFeeProportion?: bigint | 0
   isHighRelayerServiceFee?: boolean

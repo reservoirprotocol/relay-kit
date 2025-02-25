@@ -1,6 +1,6 @@
 import { type FC, type ReactNode } from 'react'
 import { CustomAddressModal } from '../common/CustomAddressModal.js'
-import { SwapModal } from '../common/TransactionModal/SwapModal.js'
+import { TransactionModal } from '../common/TransactionModal/TransactionModal.js'
 import { DepositAddressModal } from '../common/TransactionModal/DepositAddressModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
@@ -21,7 +21,7 @@ export type WidgetContainerProps = {
   setDepositAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   setAddressModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   children: () => ReactNode
-  onSwapModalOpenChange: (open: boolean) => void
+  onTransactionModalOpenChange: (open: boolean) => void
   onDepositAddressModalOpenChange: (open: boolean) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapSuccess?: (data: Execute) => void
@@ -71,7 +71,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   wallet,
   linkedWallets,
   multiWalletSupportEnabled,
-  onSwapModalOpenChange,
+  onTransactionModalOpenChange,
   onDepositAddressModalOpenChange,
   onSwapSuccess,
   onSwapValidating,
@@ -86,10 +86,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       {children()}
       {isMounted ? (
         <>
-          <SwapModal
+          <TransactionModal
             open={transactionModalOpen}
             onOpenChange={(open) => {
-              onSwapModalOpenChange(open)
+              onTransactionModalOpenChange(open)
               setTransactionModalOpen(open)
             }}
             fromChain={fromChain}
