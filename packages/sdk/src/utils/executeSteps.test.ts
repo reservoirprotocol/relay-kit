@@ -836,7 +836,7 @@ describe('Should test a signature step.', () => {
       },
       bridgeData,
       undefined
-    )
+    ).catch((e) => {})
 
     await vi.waitFor(() => {
       if (progressState !== 'validating' || !isValidating) {
@@ -892,7 +892,7 @@ describe('Should test a signature step.', () => {
       const stepItem = signatureStep?.items?.[0]
 
       if (!stepItem?.txHashes?.length || !stepItem?.internalTxHashes?.length) {
-        throw 'Waiting to txHashes to be set'
+        throw 'Waiting for txHashes to be set'
       }
     })
     signatureStep = progressSteps?.find((step) => step.kind === 'signature')

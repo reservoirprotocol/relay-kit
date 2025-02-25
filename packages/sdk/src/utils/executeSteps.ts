@@ -412,6 +412,7 @@ export async function executeSteps(
                             ],
                             LogLevel.Verbose
                           )
+
                           //set status
                           if (
                             res?.data?.status === 'success' &&
