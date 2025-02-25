@@ -9,9 +9,9 @@ import {
   useDisconnected,
   usePreviousValueChange
 } from '../../hooks/index.js'
-import type { Address } from 'viem'
+import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
@@ -36,7 +36,7 @@ import {
   isValidAddress,
   findSupportedWallet
 } from '../../utils/address.js'
-import { getDeadAddress } from '@reservoir0x/relay-sdk'
+import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
@@ -63,6 +63,8 @@ type SwapWidgetRendererProps = {
 
 export type ChildrenProps = {
   quote?: ReturnType<typeof useQuote>['data']
+  steps: Execute['steps'] | null
+  swap: () => void
   transactionModalOpen: boolean
   details: null | Execute['details']
   feeBreakdown: {
@@ -157,6 +159,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const relayClient = useRelayClient()
   const { connector } = useAccount()
+  const walletClient = useWalletClient()
   const [customToAddress, setCustomToAddress] = useState<
     Address | string | undefined
   >(defaultToAddress)
@@ -168,6 +171,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
+  const [steps, setSteps] = useState<null | Execute['steps']>(null)
+  const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
 
   const {
@@ -484,7 +489,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const {
     data: _quoteData,
     error: quoteError,
-    isLoading: isFetchingQuote
+    isLoading: isFetchingQuote,
+    executeQuote: executeSwap
   } = useQuote(
     relayClient ? relayClient : undefined,
     wallet,
@@ -513,7 +519,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
-  //Here we fetch the price data and quote data in parallel and then merge into one data model
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
 
@@ -653,6 +658,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   } else if (transactionModalOpen) {
     ctaCopy = 'Review'
   }
+  // @TODO: add review quote cta logic
 
   usePreviousValueChange(
     isCapacityExceededError && supportsExternalLiquidity,
@@ -667,10 +673,124 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
+  const swap = useCallback(async () => {
+    const swapErrorHandler = (error: any) => {
+      if (
+        error &&
+        ((typeof error.message === 'string' &&
+          error.message.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Plugin Closed')))
+      ) {
+        onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
+        return
+      }
+
+      const errorMessage = errorToJSON(
+        error?.response?.data?.message
+          ? new Error(error?.response?.data?.message)
+          : error
+      )
+
+      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+        error_message: errorMessage,
+        wallet_connector: connector?.name,
+        quote_id: extractQuoteId(steps ?? (quote?.steps as Execute['steps'])),
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        is_canonical: useExternalLiquidity,
+        txHashes: (steps ?? (quote?.steps as Execute['steps']))
+          ?.map((step) => {
+            let txHashes: { chainId: number; txHash: string }[] = []
+            step.items?.forEach((item) => {
+              if (item.txHashes) {
+                txHashes = txHashes.concat([
+                  ...(item.txHashes ?? []),
+                  ...(item.internalTxHashes ?? [])
+                ])
+              }
+            })
+            return txHashes
+          })
+          .flat()
+      })
+      setSwapError(errorMessage)
+      // onSwapError?.(errorMessage, quote as Execute)
+    }
+
+    try {
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
+      setWaitingForSteps(true)
+
+      if (!executeSwap) {
+        throw 'Missing a quote'
+      }
+
+      if (!wallet && !walletClient.data) {
+        throw 'Missing a wallet'
+      }
+
+      const _wallet =
+        wallet ?? adaptViemWallet(walletClient.data as WalletClient)
+
+      const activeWalletChainId = await _wallet?.getChainId()
+      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
+        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
+          activeWalletChainId,
+          chainId: fromToken.chainId
+        })
+        await _wallet?.switchChain(fromToken.chainId)
+      }
+
+      executeSwap(({ steps: currentSteps }) => {
+        setSteps(currentSteps)
+      })
+        ?.catch((error: any) => {
+          swapErrorHandler(error)
+        })
+        .finally(() => {
+          setWaitingForSteps(false)
+          invalidateBalanceQueries()
+        })
+    } catch (error: any) {
+      swapErrorHandler(error)
+      setWaitingForSteps(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    relayClient,
+    address,
+    connector,
+    wallet,
+    walletClient,
+    fromToken,
+    toToken,
+    customToAddress,
+    recipient,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    tradeType,
+    useExternalLiquidity,
+    waitingForSteps,
+    executeSwap,
+    setSteps,
+    invalidateBalanceQueries
+  ])
+
   return (
     <>
       {children({
         quote,
+        steps,
+        swap,
         transactionModalOpen,
         feeBreakdown,
         fromToken,

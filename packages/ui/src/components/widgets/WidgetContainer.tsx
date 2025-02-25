@@ -7,8 +7,13 @@ import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 import { useAccount } from 'wagmi'
 import type { LinkedWallet } from '../../types/index.js'
+import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 export type WidgetContainerProps = {
+  swap: () => void
+  steps: Execute['steps'] | null
+  quote: ReturnType<typeof useQuote>['data']
+
   transactionModalOpen: boolean
   depositAddressModalOpen: boolean
   addressModalOpen: boolean
@@ -46,6 +51,9 @@ export type WidgetContainerProps = {
 >
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
+  swap,
+  steps,
+  quote,
   transactionModalOpen,
   setTransactionModalOpen,
   depositAddressModalOpen,
@@ -87,6 +95,9 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       {isMounted ? (
         <>
           <TransactionModal
+            swap={swap}
+            steps={steps}
+            quote={quote}
             open={transactionModalOpen}
             onOpenChange={(open) => {
               onTransactionModalOpenChange(open)
@@ -95,15 +106,9 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             fromChain={fromChain}
             fromToken={fromToken}
             toToken={toToken}
-            amountInputValue={amountInputValue}
-            amountOutputValue={amountOutputValue}
-            debouncedInputAmountValue={debouncedInputAmountValue}
-            debouncedOutputAmountValue={debouncedOutputAmountValue}
-            tradeType={tradeType}
             useExternalLiquidity={useExternalLiquidity}
             slippageTolerance={slippageTolerance}
             address={address}
-            recipient={recipient}
             isCanonical={useExternalLiquidity}
             timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
