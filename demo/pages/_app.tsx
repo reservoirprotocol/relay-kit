@@ -29,7 +29,6 @@ import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 
 const MoonPayProvider = lazy(() =>
   import('@moonpay/moonpay-react').then((module) => ({
@@ -117,7 +116,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           logLevel: LogLevel.Verbose,
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
           chains,
-          appName: 'Relay Demo'
+          appName: 'Relay Demo',
+          useGasFeeEstimations: false
           // appFees: [
           //   {
           //     recipient: '0x0000000000000000000000000000000000000000',
@@ -188,8 +188,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
-              EclipseWalletConnectors,
-              AbstractEvmWalletConnectors
+              EclipseWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

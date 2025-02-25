@@ -7,17 +7,17 @@ import { type Currency } from '../../constants/currencies.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
+import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
 
 type Props = {
   error: any
   hasInsufficientBalance: boolean
-  quote?: Partial<Execute>
+  quote?: Partial<Execute> | QuoteResponse
   currency?: Currency
   relayerFeeProportion?: bigint | 0
   isHighRelayerServiceFee?: boolean
   isCapacityExceededError?: boolean
   isCouldNotExecuteError?: boolean
-  maxCapacity?: string
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
 }
@@ -31,7 +31,6 @@ export const WidgetErrorWell: FC<Props> = ({
   isHighRelayerServiceFee,
   isCapacityExceededError,
   isCouldNotExecuteError,
-  maxCapacity,
   supportsExternalLiquidity,
   containerCss
 }) => {
@@ -73,13 +72,9 @@ export const WidgetErrorWell: FC<Props> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'amber12' }}>
-            {maxCapacity
-              ? `Due to high demand, only ${maxCapacity} ${currency.symbol} can be
-            bridged instantly. Set to max instant capacity or switch to the
-            native route for unlimited capacity.`
-              : `Due to high demand the input amount can only be
-            bridged natively. Reduce the amount to bridge instantly or switch to the
-            native route for unlimited capacity.`}
+            Due to high demand the input amount can only be bridged natively.
+            Reduce the amount to bridge instantly or switch to the native route
+            for unlimited capacity.
           </Text>
         </Flex>
       )
@@ -128,9 +123,7 @@ export const WidgetErrorWell: FC<Props> = ({
           </Box>
           <Text style="subtitle3" css={{ color: 'red12' }}>
             {isCapacityExceededError
-              ? maxCapacity
-                ? `Amount is higher than the available liquidity. Max amount is ${maxCapacity} ${currency?.symbol}`
-                : `Amount is higher than the available liquidity.`
+              ? `Amount is higher than the available liquidity.`
               : fetchQuoteErrorMessage}
           </Text>
         </Flex>

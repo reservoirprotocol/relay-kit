@@ -2,13 +2,11 @@ import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds } from './time.js'
-import type { useQuote, PriceResponse } from '@reservoir0x/relay-kit-hooks'
+import type { QuoteResponse, useQuote } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
-
-type QuoteResponse = ReturnType<typeof useQuote>['data']
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -197,41 +195,8 @@ export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
   )
 }
 
-export const extractMaxCapacity = (
-  errorMessage?: string,
-  decimals: number = 18
-) => {
-  const value = errorMessage?.match(/(\d+)/)?.[0]
-  const formatted = value ? formatBN(BigInt(value), 2, decimals) : undefined
-
-  return {
-    value,
-    formatted
-  }
-}
-
 export const extractQuoteId = (steps?: Execute['steps']) => {
-  if (
-    steps &&
-    steps[0] &&
-    steps[0].items &&
-    steps[0].items[0] &&
-    steps[0].items[0].data &&
-    steps[0].items[0].data.data
-  ) {
-    return (steps[0].items[0].data as any)?.data ?? ''
-  } else if (
-    steps &&
-    steps[0] &&
-    steps[0].items &&
-    steps[0].items[0] &&
-    steps[0].items[0].check?.endpoint
-  ) {
-    const endpoint = steps[0].items[0].check?.endpoint ?? ''
-    const matches = endpoint.match(/requestId=([^&]*)/)
-    return matches ? matches[1] : null
-  }
-  return ''
+  return steps && steps[0] ? steps[0].requestId : undefined
 }
 
 export const extractDepositAddress = (steps?: Execute['steps']) => {
@@ -240,7 +205,7 @@ export const extractDepositAddress = (steps?: Execute['steps']) => {
 }
 
 export const calculatePriceTimeEstimate = (
-  details?: PriceResponse['details']
+  details?: QuoteResponse['details']
 ) => {
   const isBitcoin =
     details?.currencyIn?.currency?.chainId === bitcoin.id ||

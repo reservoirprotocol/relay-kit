@@ -1,5 +1,49 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.0
+
+### Minor Changes
+
+- df2820a: Remove usePrice hook, queryPrice action, and PriceResponse type
+
+### Patch Changes
+
+- 2aaf42a: Remap max liquidity error
+- Updated dependencies [df2820a]
+- Updated dependencies [0ccd0d7]
+  - @reservoir0x/relay-kit-hooks@1.8.0
+  - @reservoir0x/relay-sdk@1.6.4
+
+## 2.6.11
+
+### Patch Changes
+
+- a601dfa: Handle confirmation error appropriately
+- Updated dependencies [a601dfa]
+  - @reservoir0x/relay-sdk@1.6.3
+  - @reservoir0x/relay-kit-hooks@1.7.2
+
+## 2.6.10
+
+### Patch Changes
+
+- 5be1e1d: Fix slippage displayed for same-chain-swaps
+
+## 2.6.9
+
+### Patch Changes
+
+- 6772e0f: Fix slippage config bug on rerender
+
+## 2.6.8
+
+### Patch Changes
+
+- c876fdf: Add slippage configuration component
+- 914af94: Fix ChainTokenIcon fallback dimensions
+- 46e6c73: Fix onramping dollar formatting
+- 1cabbd1: Increase width of onramp widget
+
 ## 2.6.7
 
 ### Patch Changes

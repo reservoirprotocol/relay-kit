@@ -2,8 +2,8 @@
   "name": "relay",
   "private": true,
   "engines": {
-    "node": "^18.x",
-    "pnpm": ">=8.15.1"
+    "node": "^20.x",
+    "pnpm": ">=9.5.10"
   },
   "type": "module",
   "workspaces": [

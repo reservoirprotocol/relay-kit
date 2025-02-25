@@ -32,7 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleRoot,
   CollapsibleTrigger
-} from '../../../primitives/Collapisble.js'
+} from '../../../primitives/Collapsible.js'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { getSlippageRating, ratingToColor } from '../../../../utils/slippage.js'
 
@@ -233,11 +233,10 @@ export const ReviewQuoteStep: FC<ReviewQuoteProps> = ({
     )
   })
 
-  const slippage =
-    quote?.details?.slippageTolerance?.destination?.percent ??
-    quote?.details?.slippageTolerance?.origin?.percent ??
-    '0'
-
+  const isSameChain = toToken?.chainId === fromToken?.chainId
+  const slippage = isSameChain
+    ? quote?.details?.slippageTolerance?.origin?.percent ?? '0'
+    : quote?.details?.slippageTolerance?.destination?.percent ?? '0'
   const slippageRating = getSlippageRating(slippage)
   const slippageRatingColor = ratingToColor[slippageRating]
 

@@ -1,5 +1,17 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.4
+
+### Patch Changes
+
+- 0ccd0d7: SDK config option to omit gas fee estimates
+
+## 1.6.3
+
+### Patch Changes
+
+- a601dfa: Handle confirmation error appropriately
+
 ## 1.6.2
 
 ### Patch Changes

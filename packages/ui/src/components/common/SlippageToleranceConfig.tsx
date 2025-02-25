@@ -17,18 +17,30 @@ import {
   type SlippageToleranceMode
 } from '../../utils/slippage.js'
 import { EventNames } from '../../constants/events.js'
+import { useDebounceValue } from 'usehooks-ts'
 
 type SlippageToleranceConfigProps = {
-  slippageTolerance: string | undefined
-  setSlippageTolerance: (slippageTolerance: string | undefined) => void
+  setSlippageTolerance: (value: string | undefined) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
-  slippageTolerance,
-  setSlippageTolerance,
+  setSlippageTolerance: externalSetValue,
   onAnalyticEvent
 }) => {
+  const [displayValue, setDisplayValue] = useState<string | undefined>(
+    undefined
+  )
+  const [debouncedDisplayValue] = useDebounceValue(displayValue, 500)
+
+  const bpsValue = debouncedDisplayValue
+    ? Number((Number(debouncedDisplayValue) * 100).toFixed(2)).toString()
+    : undefined
+
+  useEffect(() => {
+    externalSetValue(bpsValue)
+  }, [bpsValue, externalSetValue])
+
   const [mode, setMode] = useState<SlippageToleranceMode>('Auto')
   const [open, setOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -41,8 +53,8 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
     }
   }, [open, mode])
 
-  const slippageRating = slippageTolerance
-    ? getSlippageRating(slippageTolerance)
+  const slippageRating = displayValue
+    ? getSlippageRating(displayValue)
     : undefined
   const slippageRatingColor = slippageRating
     ? ratingToColor[slippageRating]
@@ -54,13 +66,13 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
 
     // Handle empty input
     if (sanitizedValue === '') {
-      setSlippageTolerance(undefined)
+      setDisplayValue(undefined)
       return
     }
 
     // Handle single decimal point input
     if (sanitizedValue === '.') {
-      setSlippageTolerance('0.')
+      setDisplayValue('0.')
       return
     }
 
@@ -81,12 +93,12 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
     const numValue = parseFloat(sanitizedValue)
     if (!isNaN(numValue)) {
       if (numValue > 100) {
-        setSlippageTolerance('100')
+        setDisplayValue('100')
         return
       }
     }
 
-    setSlippageTolerance(sanitizedValue)
+    setDisplayValue(sanitizedValue)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -96,19 +108,19 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
   }
 
   const handleClose = () => {
-    const value = parseFloat(slippageTolerance ?? '0')
+    const value = parseFloat(displayValue ?? '0')
     const isAuto =
       mode === 'Auto' ||
-      slippageTolerance === undefined ||
+      displayValue === undefined ||
       isNaN(value) ||
       value < 0.1
 
     if (isAuto) {
-      setSlippageTolerance(undefined)
+      setDisplayValue(undefined)
     }
 
     onAnalyticEvent?.(EventNames.SWAP_SLIPPAGE_TOLERANCE_SET, {
-      value: isAuto ? 'auto' : slippageTolerance
+      value: isAuto ? 'auto' : displayValue
     })
   }
 
@@ -140,9 +152,9 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
               px: '10px'
             }}
           >
-            {open === false && slippageTolerance && (
+            {open === false && displayValue && (
               <Text style="subtitle2" css={{ color: slippageRatingColor }}>
-                {slippageTolerance}%
+                {displayValue}%
               </Text>
             )}
             <FontAwesomeIcon icon={faGear} />
@@ -186,7 +198,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
             onValueChange={(value) => {
               setMode(value as SlippageToleranceMode)
               if (value === 'Auto') {
-                setSlippageTolerance(undefined)
+                setDisplayValue(undefined)
               }
             }}
             css={{
@@ -227,7 +239,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
               >
                 <Input
                   ref={inputRef}
-                  value={slippageTolerance || ''}
+                  value={displayValue || ''}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     handleInputChange(e.target.value)
                   }

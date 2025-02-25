@@ -17,6 +17,7 @@ export const executeBridge: Execute = {
                         "value": "1001599368867232",
                         "maxFeePerGas": "19138328136",
                         "maxPriorityFeePerGas": "3244774195",
+                        "gas": "10000",
                         "chainId": 1
                     },
                     "check": {

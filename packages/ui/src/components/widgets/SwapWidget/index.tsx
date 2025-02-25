@@ -144,7 +144,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       supportedWalletVMs={supportedWalletVMs}
     >
       {({
-        price,
+        quote,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -180,7 +180,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isInsufficientLiquidityError,
         isCapacityExceededError,
         isCouldNotExecuteError,
-        maxCapacityFormatted,
         ctaCopy,
         isFromNative,
         timeEstimate,
@@ -313,7 +312,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             debouncedInputAmountValue={debouncedInputAmountValue}
             debouncedOutputAmountValue={debouncedOutputAmountValue}
             tradeType={tradeType}
-            onSwapModalOpenChange={(open) => {
+            onTransactionModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
               }
@@ -422,8 +421,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -485,13 +484,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                fromToken?.chainId,
-                                lockChainId,
-                                toToken?.chainId,
-                                lockFromToken
-                              ) && fromToken?.chainId
-                            ? [fromToken.chainId]
-                            : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -532,11 +531,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      {price?.details?.currencyIn?.amountUsd &&
-                      Number(price.details.currencyIn.amountUsd) > 0 ? (
+                      {quote?.details?.currencyIn?.amountUsd &&
+                      Number(quote.details.currencyIn.amountUsd) > 0 ? (
                         <Text style="subtitle3" color="subtleSecondary">
                           {formatDollar(
-                            Number(price.details.currencyIn.amountUsd)
+                            Number(quote.details.currencyIn.amountUsd)
                           )}
                         </Text>
                       ) : null}
@@ -796,8 +795,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -887,13 +886,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                toToken?.chainId,
-                                lockChainId,
-                                fromToken?.chainId,
-                                lockToToken
-                              ) && toToken?.chainId
-                            ? [toToken.chainId]
-                            : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
@@ -910,12 +909,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       justify="between"
                       css={{ gap: '3', width: '100%' }}
                     >
-                      {price?.details?.currencyOut?.amountUsd &&
-                      Number(price.details.currencyOut.amountUsd) > 0 ? (
+                      {quote?.details?.currencyOut?.amountUsd &&
+                      Number(quote.details.currencyOut.amountUsd) > 0 ? (
                         <Flex align="center" css={{ gap: '1' }}>
                           <Text style="subtitle3" color="subtleSecondary">
                             {formatDollar(
-                              Number(price.details.currencyOut.amountUsd)
+                              Number(quote.details.currencyOut.amountUsd)
                             )}
                           </Text>
                           <Text
@@ -983,7 +982,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isFetchingQuote={isFetchingQuote}
                     toToken={toToken}
                     fromToken={fromToken}
-                    price={price}
+                    quote={quote}
                     timeEstimate={timeEstimate}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     useExternalLiquidity={useExternalLiquidity}
@@ -1002,12 +1001,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   <WidgetErrorWell
                     hasInsufficientBalance={hasInsufficientBalance}
                     error={error}
-                    quote={price}
+                    quote={quote}
                     currency={fromToken}
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
                     isCouldNotExecuteError={isCouldNotExecuteError}
-                    maxCapacity={maxCapacityFormatted}
                     relayerFeeProportion={relayerFeeProportion}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     containerCss={{
@@ -1015,38 +1013,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     }}
                   />
                   {promptSwitchRoute ? (
-                    <Flex css={{ gap: '3' }}>
-                      {isCapacityExceededError &&
-                      maxCapacityFormatted &&
-                      maxCapacityFormatted != '0' ? (
-                        <Button
-                          color="white"
-                          css={{ flexGrow: '1', justifyContent: 'center' }}
-                          onClick={() => {
-                            if (maxCapacityFormatted) {
-                              setAmountInputValue(maxCapacityFormatted)
-                            } else {
-                              console.error('Missing max capacity')
-                            }
-                            onAnalyticEvent?.(
-                              EventNames.CTA_SET_MAX_CAPACITY_CLICKED
-                            )
-                          }}
-                        >
-                          Set to {maxCapacityFormatted} {toToken?.symbol}
-                        </Button>
-                      ) : null}
-                      <Button
-                        color="primary"
-                        css={{ flexGrow: '1', justifyContent: 'center' }}
-                        onClick={() => {
-                          setUseExternalLiquidity(true)
-                          onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
-                        }}
-                      >
-                        Switch Route
-                      </Button>
-                    </Flex>
+                    <Button
+                      color="primary"
+                      css={{ flexGrow: '1', justifyContent: 'center' }}
+                      onClick={() => {
+                        setUseExternalLiquidity(true)
+                        onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
+                      }}
+                    >
+                      Switch Route
+                    </Button>
                   ) : (
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}
@@ -1057,7 +1033,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       context={'Swap'}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
-                      price={price}
+                      quote={quote}
                       address={address}
                       hasInsufficientBalance={hasInsufficientBalance}
                       isInsufficientLiquidityError={

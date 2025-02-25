@@ -1,6 +1,6 @@
 {
     "name": "@reservoir0x/relay-bitcoin-wallet-adapter",
-    "version": "3.0.2",
+    "version": "3.0.4",
     "description": "A Bitcoin adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",

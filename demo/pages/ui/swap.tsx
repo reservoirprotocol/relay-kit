@@ -25,7 +25,6 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
-import { useDebounceValue } from 'usehooks-ts'
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -55,11 +54,6 @@ const SwapWidgetPage: NextPage = () => {
   const [slippageTolerance, setSlippageTolerance] = useState<
     string | undefined
   >(undefined)
-  const [debouncedSlippageTolerance] = useDebounceValue(slippageTolerance, 500)
-
-  const formattedSlippageTolerance = debouncedSlippageTolerance
-    ? Number((Number(debouncedSlippageTolerance) * 100).toFixed(2)).toString()
-    : undefined
 
   const linkedWallets = useMemo(() => {
     const _wallets = userWallets.reduce((linkedWallets, wallet) => {
@@ -155,7 +149,6 @@ const SwapWidgetPage: NextPage = () => {
             style={{ width: '100%', display: 'flex', justifyContent: 'end' }}
           >
             <SlippageToleranceConfig
-              slippageTolerance={slippageTolerance}
               setSlippageTolerance={setSlippageTolerance}
               onAnalyticEvent={(eventName, data) => {
                 console.log('Analytic Event', eventName, data)
@@ -292,7 +285,7 @@ const SwapWidgetPage: NextPage = () => {
             onSwapSuccess={(data) => {
               console.log('onSwapSuccess Triggered', data)
             }}
-            slippageTolerance={formattedSlippageTolerance}
+            slippageTolerance={slippageTolerance}
           />
         </div>
       </div>

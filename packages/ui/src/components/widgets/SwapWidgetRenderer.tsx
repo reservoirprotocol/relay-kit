@@ -19,11 +19,10 @@ import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
-  extractMaxCapacity,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { usePrice, useQuote } from '@reservoir0x/relay-kit-hooks'
+import { useQuote } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
@@ -61,7 +60,7 @@ type SwapWidgetRendererProps = {
 }
 
 export type ChildrenProps = {
-  price?: ReturnType<typeof usePrice>['data']
+  quote?: ReturnType<typeof useQuote>['data']
   transactionModalOpen: boolean
   details: null | Execute['details']
   feeBreakdown: {
@@ -111,8 +110,6 @@ export type ChildrenProps = {
   isInsufficientLiquidityError?: boolean
   isCapacityExceededError?: boolean
   isCouldNotExecuteError?: boolean
-  maxCapacityWei?: string
-  maxCapacityFormatted?: string
   ctaCopy: string
   isFromNative: boolean
   useExternalLiquidity: boolean
@@ -368,8 +365,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     toChain?.id
   )
 
-  const externalLiquiditySupport = usePrice(
+  const externalLiquiditySupport = useQuote(
     relayClient ? relayClient : undefined,
+    wallet,
     fromToken && toToken
       ? {
           user: getDeadAddress(fromChain?.vmType, fromChain?.id),
@@ -385,6 +383,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity: true
         }
       : undefined,
+    undefined,
     undefined,
     {
       enabled:
@@ -443,7 +442,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         }
       : undefined
 
-  const onQuoteReceived: Parameters<typeof usePrice>['2'] = ({
+  const onQuoteReceived: Parameters<typeof useQuote>['4'] = ({
     details,
     steps
   }) => {
@@ -512,7 +511,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   //Here we fetch the price data and quote data in parallel and then merge into one data model
   let error = _quoteData || isFetchingQuote ? null : quoteError
-  let price = error ? undefined : _quoteData
+  let quote = error ? undefined : _quoteData
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -520,29 +519,29 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   useEffect(() => {
     if (tradeType === 'EXACT_INPUT') {
-      const amountOut = price?.details?.currencyOut?.amount ?? ''
+      const amountOut = quote?.details?.currencyOut?.amount ?? ''
       setAmountOutputValue(
         amountOut !== ''
           ? formatUnits(
               BigInt(amountOut),
-              Number(price?.details?.currencyOut?.currency?.decimals ?? 18)
+              Number(quote?.details?.currencyOut?.currency?.decimals ?? 18)
             )
           : ''
       )
     } else if (tradeType === 'EXPECTED_OUTPUT') {
-      const amountIn = price?.details?.currencyIn?.amount ?? ''
+      const amountIn = quote?.details?.currencyIn?.amount ?? ''
       setAmountInputValue(
         amountIn !== ''
           ? formatUnits(
               BigInt(amountIn),
-              Number(price?.details?.currencyIn?.currency?.decimals ?? 18)
+              Number(quote?.details?.currencyIn?.currency?.decimals ?? 18)
             )
           : ''
       )
     }
     debouncedAmountInputControls.flush()
     debouncedAmountOutputControls.flush()
-  }, [price, tradeType])
+  }, [quote, tradeType])
 
   useEffect(() => {
     if (
@@ -562,12 +561,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const chains = relayClient?.chains
     const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
     const toChain = chains?.find((chain) => chain.id === toToken?.chainId)
-    return fromToken && toToken && fromChain && toChain && price
-      ? parseFees(toChain, fromChain, price)
+    return fromToken && toToken && fromChain && toChain && quote
+      ? parseFees(toChain, fromChain, quote)
       : null
-  }, [price, fromToken, toToken, relayClient])
+  }, [quote, fromToken, toToken, relayClient])
 
-  const totalAmount = BigInt(price?.details?.currencyIn?.amount ?? 0n)
+  const totalAmount = BigInt(quote?.details?.currencyIn?.amount ?? 0n)
 
   const hasInsufficientBalance = Boolean(
     !fromBalanceErrorFetching &&
@@ -597,9 +596,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ) || fetchQuoteDataErrorMessage?.includes('Insufficient relayer liquidity')
   const isCouldNotExecuteError =
     fetchQuoteDataErrorMessage?.includes('Could not execute')
-  const highRelayerServiceFee = isHighRelayerServiceFeeUsd(price)
-  const relayerFeeProportion = calculateRelayerFeeProportionUsd(price)
-  const timeEstimate = calculatePriceTimeEstimate(price?.details)
+  const highRelayerServiceFee = isHighRelayerServiceFeeUsd(quote)
+  const relayerFeeProportion = calculateRelayerFeeProportionUsd(quote)
+  const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const canonicalTimeEstimate = calculatePriceTimeEstimate(
     externalLiquiditySupport.data?.details
   )
@@ -610,15 +609,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-  const operation = price?.details?.operation || 'swap'
-  const maxCapacity = isCapacityExceededError
-    ? extractMaxCapacity(
-        fetchQuoteDataErrorMessage ?? undefined,
-        toToken?.decimals
-      )
-    : undefined
-  const maxCapacityWei = maxCapacity?.value
-  const maxCapacityFormatted = maxCapacity?.formatted
 
   let ctaCopy: string = 'Review'
 
@@ -666,7 +656,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   return (
     <>
       {children({
-        price,
+        quote,
         transactionModalOpen,
         feeBreakdown,
         fromToken,
@@ -705,8 +695,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isInsufficientLiquidityError,
         isCapacityExceededError,
         isCouldNotExecuteError,
-        maxCapacityFormatted,
-        maxCapacityWei,
         ctaCopy,
         isFromNative,
         useExternalLiquidity,
