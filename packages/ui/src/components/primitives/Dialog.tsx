@@ -14,6 +14,7 @@ import {
   css as designCss,
   type Styles
 } from '@reservoir0x/relay-design-system/css'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 const OverlayStyle = cva({
   base: {
@@ -141,6 +142,9 @@ const AnimatedContent = forwardRef<
         transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.3 }}
         {...animation}
       >
+        <VisuallyHidden>
+          <DialogPrimitive.Title>Title</DialogPrimitive.Title>
+        </VisuallyHidden>
         {children}
       </motion.div>
     </DialogPrimitive.DialogContent>
