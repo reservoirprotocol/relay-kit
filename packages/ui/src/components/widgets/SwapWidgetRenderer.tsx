@@ -43,6 +43,7 @@ export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
+  setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   defaultFromToken?: Token
@@ -140,6 +141,7 @@ export type ChildrenProps = {
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   transactionModalOpen,
+  setTransactionModalOpen,
   depositAddressModalOpen,
   defaultFromToken,
   defaultToToken,
@@ -629,7 +631,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const maxCapacityWei = maxCapacity?.value
   const maxCapacityFormatted = maxCapacity?.formatted
 
-  let ctaCopy: string = 'Review'
+  let ctaCopy: string = 'Confirm'
+  const firstStep = quote?.steps?.[0]
+  const firstStepItem = firstStep?.items?.[0]
+
+  // @TODO: break this out into a function
 
   if (!fromToken || !toToken) {
     ctaCopy = 'Select a token'
@@ -655,10 +661,39 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     ctaCopy = 'Insufficient Liquidity'
   } else if (!toChainWalletVMSupported && !isValidToAddress) {
     ctaCopy = `Enter ${toChain.displayName} Address`
-  } else if (transactionModalOpen) {
-    ctaCopy = 'Review'
+  } else if (
+    firstStep?.id === 'approve' &&
+    firstStepItem?.status === 'incomplete'
+  ) {
+    ctaCopy = 'Approve & Swap'
+  } else {
+    switch (operation) {
+      case 'wrap': {
+        ctaCopy = 'Wrap'
+        break
+      }
+      case 'unwrap': {
+        ctaCopy = 'Unwrap'
+        break
+      }
+      case 'send': {
+        ctaCopy = 'Send'
+        break
+      }
+      case 'swap': {
+        ctaCopy = 'Swap'
+        break
+      }
+      case 'bridge': {
+        ctaCopy = 'Bridge'
+        break
+      }
+      default: {
+        ctaCopy = 'Confirm'
+        break
+      }
+    }
   }
-  // @TODO: add review quote cta logic
 
   usePreviousValueChange(
     isCapacityExceededError && supportsExternalLiquidity,
@@ -686,6 +721,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           (typeof error.message === 'string' &&
             error.message.includes('Plugin Closed')))
       ) {
+        // Close the transaction modal if the user rejects the tx
+        setTransactionModalOpen(false)
         onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
         return
       }

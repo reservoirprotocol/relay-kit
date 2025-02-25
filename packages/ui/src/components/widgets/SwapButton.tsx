@@ -11,6 +11,7 @@ type SwapButtonProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onClick: () => void
   context: 'Swap' | 'Deposit' | 'Withdraw'
+  showHighPriceImpactWarning: boolean
 } & Pick<
   ChildrenProps,
   | 'quote'
@@ -32,6 +33,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   isValidFromAddress,
   isValidToAddress,
   context,
+  showHighPriceImpactWarning,
   onConnectWallet,
   quote,
   address,
@@ -56,6 +58,7 @@ const SwapButton: FC<SwapButtonProps> = ({
     return (
       <Button
         css={{ justifyContent: 'center' }}
+        color={showHighPriceImpactWarning ? 'error' : 'primary'}
         aria-label={context}
         disabled={
           isValidToAddress &&

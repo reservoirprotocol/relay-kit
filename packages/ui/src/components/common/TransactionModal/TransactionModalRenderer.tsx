@@ -26,9 +26,7 @@ import { useRelayClient } from '../../../hooks/index.js'
 import { parseFees } from '../../../utils/quote.js'
 
 export enum TransactionProgressStep {
-  // ReviewQuote,
-  WalletConfirmation,
-  // Validating,
+  Confirmation,
   Success,
   Error
 }
@@ -119,7 +117,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   const relayClient = useRelayClient()
 
   const [progressStep, setProgressStep] = useState(
-    TransactionProgressStep.WalletConfirmation
+    TransactionProgressStep.Confirmation
   )
   const [currentStep, setCurrentStep] = useState<
     null | NonNullable<Execute['steps']>['0']
@@ -132,6 +130,9 @@ export const TransactionModalRenderer: FC<Props> = ({
   const [waitingForSteps, setWaitingForSteps] = useState(false)
 
   const [swapError, setSwapError] = useState<Error | null>(null)
+
+  console.log('steps: ', steps)
+  console.log('currentStep: ', currentStep)
 
   useEffect(() => {
     if (swapError) {
@@ -175,7 +176,7 @@ export const TransactionModalRenderer: FC<Props> = ({
 
     if (
       (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
-      progressStep === TransactionProgressStep.WalletConfirmation
+      progressStep === TransactionProgressStep.Confirmation
     ) {
       onValidating?.(quote as Execute)
       // setProgressStep(TransactionProgressStep.Validating)

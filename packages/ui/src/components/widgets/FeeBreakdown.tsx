@@ -16,6 +16,7 @@ import {
 import {
   faChevronRight,
   faClock,
+  faExclamationCircle,
   faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { PriceImpactTooltip } from './PriceImpactTooltip.js'
@@ -350,24 +351,51 @@ const FeeBreakdown: FC<Props> = ({
             borderRadius: '0 0 12px 12px'
           }}
         >
-          {breakdown.map((item) => (
-            <React.Fragment key={item.title}>
-              <Flex
-                justify="between"
-                align="center"
-                css={{ width: '100%', gap: '4' }}
-              >
-                <Text
-                  style="subtitle2"
-                  color="subtle"
-                  css={{ alignSelf: 'flex-start' }}
+          {breakdown.map((item) => {
+            const showNativeBridgeWarning =
+              item.title === 'Estimated time' &&
+              useExternalLiquidity &&
+              timeEstimate?.time &&
+              timeEstimate?.time > 86400
+            return (
+              <React.Fragment key={item.title}>
+                <Flex
+                  justify="between"
+                  align="center"
+                  css={{ width: '100%', gap: '4' }}
                 >
-                  {item.title}
-                </Text>
-                {item.value}
-              </Flex>
-            </React.Fragment>
-          ))}
+                  <Text
+                    style="subtitle2"
+                    color={
+                      showNativeBridgeWarning ? 'warningSecondary' : 'subtle'
+                    }
+                    css={{ alignSelf: 'flex-start' }}
+                  >
+                    {item.title}
+                  </Text>
+                  {item.value}
+                </Flex>
+                {showNativeBridgeWarning ? (
+                  <Flex
+                    align="center"
+                    css={{
+                      gap: '2',
+                      py: '2',
+                      px: '3',
+                      backgroundColor: 'amber2',
+                      borderRadius: 12
+                    }}
+                  >
+                    <Text style="subtitle3" css={{ color: 'amber12' }}>
+                      Native bridge routes are expected to take{' '}
+                      {timeEstimate.formattedTime} but could be longer due to
+                      unexpected delays
+                    </Text>
+                  </Flex>
+                ) : null}
+              </React.Fragment>
+            )
+          })}
         </Flex>
       </CollapsibleContent>
     </CollapsibleRoot>

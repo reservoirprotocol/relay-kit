@@ -9,13 +9,11 @@ import {
 import { Modal } from '../Modal.js'
 import { Flex, Text } from '../../primitives/index.js'
 import { ErrorStep } from './steps/ErrorStep.js'
-import { ValidatingStep } from './steps/ValidatingStep.js'
 import { EventNames } from '../../../constants/events.js'
 import { SwapConfirmationStep } from './steps/SwapConfirmationStep.js'
 import { type Token } from '../../../types/index.js'
 import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
-import type { TradeType } from '../../widgets/SwapWidgetRenderer.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
 import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
@@ -232,8 +230,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setSwapError(null)
     } else {
       // setSteps(null)
-      swap()
-      setProgressStep(TransactionProgressStep.WalletConfirmation)
+      // swap()
+      setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -318,7 +316,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
           />
         ) : null} */}
 
-        {progressStep === TransactionProgressStep.WalletConfirmation &&
+        {progressStep === TransactionProgressStep.Confirmation &&
         !isApprovalPlusSwap ? (
           <SwapConfirmationStep
             fromToken={fromToken}
@@ -328,14 +326,6 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
             quote={quote}
           />
         ) : null}
-        {/* {progressStep === TransactionProgressStep.Validating &&
-        !isApprovalPlusSwap ? (
-          <ValidatingStep
-            currentStep={currentStep}
-            currentStepItem={currentStepItem}
-            requestId={requestId}
-          />
-        ) : null} */}
         {progressStep === TransactionProgressStep.Success ? (
           <SwapSuccessStep
             fromToken={fromToken}
