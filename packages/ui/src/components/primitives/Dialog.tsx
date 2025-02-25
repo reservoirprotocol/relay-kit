@@ -151,7 +151,7 @@ AnimatedContent.displayName = 'AnimatedContent'
 
 type Props = {
   trigger: ReactNode
-  portalProps?: DialogPrimitive.PortalProps
+  portalProps?: DialogPrimitive.DialogPortalProps
 }
 
 const Dialog = forwardRef<
