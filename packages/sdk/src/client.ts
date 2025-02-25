@@ -27,6 +27,7 @@ export type RelayClientOptions = {
   pollingInterval?: number
   maxPollingAttemptsBeforeTimeout?: number
   chains?: RelayChain[]
+  useGasFeeEstimations?: boolean
 }
 
 let _client: RelayClient
@@ -48,6 +49,7 @@ export class RelayClient {
   logLevel: LogLevel
   pollingInterval?: number
   maxPollingAttemptsBeforeTimeout?: number
+  useGasFeeEstimations: boolean
   chains: RelayChain[]
   log(
     message: Parameters<typeof logUtil>['0'],
@@ -66,6 +68,7 @@ export class RelayClient {
     this.pollingInterval = options.pollingInterval
     this.maxPollingAttemptsBeforeTimeout =
       options.maxPollingAttemptsBeforeTimeout
+    this.useGasFeeEstimations = options.useGasFeeEstimations ?? true
     if (options.chains) {
       this.chains = options.chains
     } else if (options.baseApiUrl?.includes('testnets')) {
@@ -101,7 +104,12 @@ export class RelayClient {
     this.maxPollingAttemptsBeforeTimeout =
       options.maxPollingAttemptsBeforeTimeout
         ? options.maxPollingAttemptsBeforeTimeout
-        : options.maxPollingAttemptsBeforeTimeout
+        : this.maxPollingAttemptsBeforeTimeout
+    this.useGasFeeEstimations =
+      options.useGasFeeEstimations !== undefined
+        ? options.useGasFeeEstimations
+        : this.useGasFeeEstimations
+
     if (options.chains) {
       this.chains = options.chains
     }

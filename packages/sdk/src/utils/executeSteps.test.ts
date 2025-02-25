@@ -4,12 +4,13 @@ import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
 import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
-import { http } from 'viem'
+import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { ChainVM, Execute } from '../types'
 import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
 import { swapWithApproval } from '../../tests/data/swapWithApproval'
+import { adaptViemWallet } from './viemWallet'
 
 const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
   blobGasPrice: 100n,
@@ -278,10 +279,28 @@ describe('Should test the executeSteps method.', () => {
   })
 
   it('Should throw: Deposit Tx Timeout', async () => {
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
+    vi.spyOn(axios, 'request').mockImplementation((config) => {
+      if (config.url?.includes('intents/status')) {
+        return new Promise((resolve) => {
+          resolve({
+            data: { status: 'waiting' },
+            status: 200
+          })
+        })
+      }
+
+      return Promise.resolve({
+        data: { status: 'success' },
+        status: 200
+      })
+    })
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API,
-      pollingInterval: 1,
-      maxPollingAttemptsBeforeTimeout: 0
+      pollingInterval: 50,
+      maxPollingAttemptsBeforeTimeout: 1
     })
 
     wallet.handleConfirmTransactionStep = vi.fn().mockResolvedValue(null)
@@ -296,8 +315,11 @@ describe('Should test the executeSteps method.', () => {
         undefined
       )
     ).rejects.toThrow(
-      `Deposit transaction with hash '0x' is pending after 0 attempt(s).`
+      `Deposit transaction with hash '0x' is pending after 1 attempt(s).`
     )
+    vi.spyOn(axios, 'request').mockRestore()
+    vi.spyOn(axios, 'request').mockClear()
+    vi.spyOn(axios, 'request').mockReset()
   })
 
   it('Should throw: TransactionConfirmationError', async () => {
@@ -350,7 +372,7 @@ describe('Should test the executeSteps method.', () => {
   it('Should throw: Solver Status Timeout', async () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API,
-      pollingInterval: 250,
+      pollingInterval: 50,
       maxPollingAttemptsBeforeTimeout: 1
     })
 
@@ -1096,6 +1118,59 @@ describe('Base tests', () => {
         step.items?.every((item) => item.status === 'complete')
       )
     ).toBeTruthy()
+  })
+
+  it('Should use gas fee estimations by default', async () => {
+    const walletClient = createWalletClient({
+      chain: mainnet,
+      transport: http()
+    })
+    walletClient.sendTransaction = vi.fn().mockResolvedValue('0x')
+    const adaptedWallet = adaptViemWallet(walletClient)
+    await executeSteps(
+      1,
+      {},
+      adaptedWallet,
+      ({ steps, fees, breakdown, details }) => {},
+      bridgeData,
+      undefined
+    )
+
+    expect(walletClient.sendTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        maxFeePerGas: 19138328136n,
+        maxPriorityFeePerGas: 3244774195n,
+        gas: 10000n
+      })
+    )
+  })
+
+  it('Should omit gas fee estimations', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      useGasFeeEstimations: false
+    })
+    const walletClient = createWalletClient({
+      chain: mainnet,
+      transport: http()
+    })
+    walletClient.sendTransaction = vi.fn().mockResolvedValue('0x')
+    const adaptedWallet = adaptViemWallet(walletClient)
+    await executeSteps(
+      1,
+      {},
+      adaptedWallet,
+      ({ steps, fees, breakdown, details }) => {},
+      bridgeData,
+      undefined
+    )
+    expect(walletClient.sendTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        maxFeePerGas: 19138328136n,
+        maxPriorityFeePerGas: 3244774195n,
+        gas: 10000n
+      })
+    )
   })
 })
 
