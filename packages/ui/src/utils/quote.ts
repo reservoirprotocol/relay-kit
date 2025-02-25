@@ -195,19 +195,6 @@ export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
   )
 }
 
-export const extractMaxCapacity = (
-  errorMessage?: string,
-  decimals: number = 18
-) => {
-  const value = errorMessage?.match(/(\d+)/)?.[0]
-  const formatted = value ? formatBN(BigInt(value), 2, decimals) : undefined
-
-  return {
-    value,
-    formatted
-  }
-}
-
 export const extractQuoteId = (steps?: Execute['steps']) => {
   return steps && steps[0] ? steps[0].requestId : undefined
 }
