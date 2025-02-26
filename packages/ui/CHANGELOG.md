@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.2
+
+### Patch Changes
+
+- 3a6fdd7: Update slippage tolerance logic to handle remote swaps
+
 ## 2.7.1
 
 ### Patch Changes
