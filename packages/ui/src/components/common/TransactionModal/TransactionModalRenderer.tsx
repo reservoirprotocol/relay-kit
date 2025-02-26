@@ -80,7 +80,6 @@ type Props = {
   open: boolean
   address?: Address | string
   fromToken?: Token
-  fromChain?: RelayChain
   toToken?: Token
   slippageTolerance?: string
   wallet?: AdaptedWallet
@@ -101,7 +100,6 @@ type Props = {
 export const TransactionModalRenderer: FC<Props> = ({
   open,
   address,
-  fromChain,
   fromToken,
   toToken,
   slippageTolerance,

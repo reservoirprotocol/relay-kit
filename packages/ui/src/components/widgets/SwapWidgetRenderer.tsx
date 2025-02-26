@@ -15,7 +15,7 @@ import { useAccount, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
@@ -38,6 +38,7 @@ import {
 } from '../../utils/address.js'
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
+import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -598,8 +599,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? ((error as any)?.response?.data.message as string)
       : 'Unknown Error'
     : null
-  const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
-    'No quotes available'
+  const isInsufficientLiquidityError = Boolean(
+    fetchQuoteErrorMessage?.includes('No quotes available')
   )
   const isCapacityExceededError =
     fetchQuoteDataErrorMessage?.includes(
@@ -631,69 +632,23 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const maxCapacityWei = maxCapacity?.value
   const maxCapacityFormatted = maxCapacity?.formatted
 
-  let ctaCopy: string = 'Confirm'
-  const firstStep = quote?.steps?.[0]
-  const firstStepItem = firstStep?.items?.[0]
-
-  // @TODO: break this out into a function
-
-  if (!fromToken || !toToken) {
-    ctaCopy = 'Select a token'
-  } else if (
-    multiWalletSupportEnabled &&
-    !isValidFromAddress &&
-    fromChainWalletVMSupported
-  ) {
-    ctaCopy = `Select ${fromChain?.displayName} Wallet`
-  } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = toChainWalletVMSupported
-      ? `Select ${toChain?.displayName} Wallet`
-      : `Enter ${toChain?.displayName} Address`
-  } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
-    ctaCopy = `Enter ${toChain?.displayName} Address`
-  } else if (isSameCurrencySameRecipientSwap) {
-    ctaCopy = 'Invalid recipient'
-  } else if (!debouncedInputAmountValue || !debouncedOutputAmountValue) {
-    ctaCopy = 'Enter an amount'
-  } else if (hasInsufficientBalance) {
-    ctaCopy = 'Insufficient Balance'
-  } else if (isInsufficientLiquidityError) {
-    ctaCopy = 'Insufficient Liquidity'
-  } else if (!toChainWalletVMSupported && !isValidToAddress) {
-    ctaCopy = `Enter ${toChain.displayName} Address`
-  } else if (
-    firstStep?.id === 'approve' &&
-    firstStepItem?.status === 'incomplete'
-  ) {
-    ctaCopy = 'Approve & Swap'
-  } else {
-    switch (operation) {
-      case 'wrap': {
-        ctaCopy = 'Wrap'
-        break
-      }
-      case 'unwrap': {
-        ctaCopy = 'Unwrap'
-        break
-      }
-      case 'send': {
-        ctaCopy = 'Send'
-        break
-      }
-      case 'swap': {
-        ctaCopy = 'Swap'
-        break
-      }
-      case 'bridge': {
-        ctaCopy = 'Bridge'
-        break
-      }
-      default: {
-        ctaCopy = 'Confirm'
-        break
-      }
-    }
-  }
+  const ctaCopy = useSwapButtonCta({
+    fromToken,
+    toToken,
+    multiWalletSupportEnabled,
+    isValidFromAddress,
+    fromChainWalletVMSupported,
+    isValidToAddress,
+    toChainWalletVMSupported,
+    toChain,
+    isSameCurrencySameRecipientSwap,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    hasInsufficientBalance,
+    isInsufficientLiquidityError,
+    quote,
+    operation: quote?.details?.operation
+  })
 
   usePreviousValueChange(
     isCapacityExceededError && supportsExternalLiquidity,

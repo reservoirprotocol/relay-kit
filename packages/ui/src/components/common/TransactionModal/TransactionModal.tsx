@@ -23,6 +23,7 @@ import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 type TransactionModalProps = {
   open: boolean
   fromChain?: RelayChain
+  toChain?: RelayChain
   fromToken?: Token
   toToken?: Token
   address?: Address | string
@@ -76,7 +77,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
   return (
     <TransactionModalRenderer
       open={open}
-      fromChain={fromChain}
       fromToken={fromToken}
       toToken={toToken}
       quote={quote}
@@ -202,6 +202,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   multiWalletSupportEnabled,
   useExternalLiquidity,
   fromChain,
+  toChain,
   waitingForSteps,
   isLoadingTransaction,
   isAutoSlippage
@@ -321,9 +322,12 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
           <SwapConfirmationStep
             fromToken={fromToken}
             toToken={toToken}
+            fromChain={fromChain}
+            toChain={toChain}
             fromAmountFormatted={fromAmountFormatted}
             toAmountFormatted={toAmountFormatted}
             quote={quote}
+            steps={steps}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Success ? (

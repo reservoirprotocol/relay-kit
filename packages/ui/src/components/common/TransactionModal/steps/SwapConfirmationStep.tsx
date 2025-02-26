@@ -1,33 +1,32 @@
 import { type FC } from 'react'
-import {
-  Button,
-  Flex,
-  Text,
-  ChainTokenIcon
-} from '../../../primitives/index.js'
+import { Flex, Text, ChainTokenIcon } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { LoadingSpinner } from '../../LoadingSpinner.js'
 import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { formatDollar } from '../../../../utils/numbers.js'
+import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 
 type SwapConfirmationStepProps = {
   fromToken?: Token
   toToken?: Token
-  quote?: ReturnType<typeof useQuote>['data']
+  fromChain?: RelayChain
+  toChain?: RelayChain
   fromAmountFormatted: string
   toAmountFormatted: string
+  quote?: ReturnType<typeof useQuote>['data']
+  steps: Execute['steps'] | null
 }
 
 export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
   fromToken,
   toToken,
-  quote,
+  fromChain,
+  toChain,
   fromAmountFormatted,
-  toAmountFormatted
+  toAmountFormatted,
+  quote,
+  steps
 }) => {
-  const details = quote?.details
   return (
     <>
       <Flex
@@ -46,21 +45,17 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             width: '100%'
           }}
         >
-          <Flex
-            direction="column"
-            align="start"
-            css={{ gap: '1', cursor: 'pointer' }}
-          >
+          <Flex direction="column" align="start" css={{ gap: '1' }}>
             <ChainTokenIcon
               chainId={fromToken?.chainId}
               tokenlogoURI={fromToken?.logoURI}
               css={{ height: 32, width: 32 }}
             />
-            <Text style="h6" ellipsify>
-              {fromAmountFormatted} {fromToken?.symbol}
+            <Text color="subtle" style="subtitle2">
+              {fromChain?.displayName}
             </Text>
-            <Text style="subtitle3" color="subtle">
-              {formatDollar(Number(details?.currencyIn?.amountUsd))}
+            <Text style="h6" ellipsify css={{ lineHeight: '20px' }}>
+              {fromAmountFormatted} {fromToken?.symbol}
             </Text>
           </Flex>
         </Flex>
@@ -68,7 +63,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           style="body1"
           css={{
             color: 'gray9',
-            p: '0 16px',
+            p: '0 12px',
             bp400Down: { transform: 'rotate(90deg)' }
           }}
         >
@@ -84,38 +79,32 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
             width: '100%'
           }}
         >
-          <Flex
-            direction="column"
-            align="start"
-            css={{ gap: '1', cursor: 'pointer' }}
-          >
+          <Flex direction="column" align="start" css={{ gap: '1' }}>
             <ChainTokenIcon
               chainId={toToken?.chainId}
               tokenlogoURI={toToken?.logoURI}
               css={{ height: 32, width: 32 }}
             />
-            <Text style="h6" ellipsify>
-              {toAmountFormatted} {toToken?.symbol}
+            <Text color="subtle" style="subtitle2">
+              {toChain?.displayName}
             </Text>
-            <Text style="subtitle3" color="subtle">
-              {formatDollar(Number(details?.currencyOut?.amountUsd))}
+            <Text style="h6" ellipsify css={{ lineHeight: '20px' }}>
+              {toAmountFormatted} {toToken?.symbol}
             </Text>
           </Flex>
         </Flex>
       </Flex>
-      <Button
-        disabled={true}
+      <Flex
+        direction="column"
         css={{
-          color: 'button-disabled-color !important',
-          mt: 8,
-          justifyContent: 'center'
+          '--borderColor': 'colors.gray3',
+          border: '1px solid var(--borderColor)',
+          borderRadius: 12,
+          px: '3',
+          py: '2',
+          gap: '8px'
         }}
-      >
-        <LoadingSpinner
-          css={{ height: 16, width: 16, fill: 'button-disabled-color' }}
-        />
-        Waiting for Wallet Confirmation
-      </Button>
+      ></Flex>
     </>
   )
 }

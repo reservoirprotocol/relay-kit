@@ -104,6 +104,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
               setTransactionModalOpen(open)
             }}
             fromChain={fromChain}
+            toChain={toChain}
             fromToken={fromToken}
             toToken={toToken}
             useExternalLiquidity={useExternalLiquidity}
