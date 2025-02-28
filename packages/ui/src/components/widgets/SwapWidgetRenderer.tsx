@@ -157,7 +157,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   children,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onSwapError
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
@@ -201,7 +202,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const [swapError, setSwapError] = useState<Error | null>(null)
-  console.log('swapError', swapError)
   const [fromToken, setFromToken] = useState<Token | undefined>(
     defaultFromToken
   )
@@ -524,13 +524,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
-  console.log('quoteError', quoteError)
-  console.log('_quoteData: ', _quoteData)
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
-
-  console.log('error', error)
-  console.log('quote', quote)
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -722,7 +717,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           .flat()
       })
       setSwapError(errorMessage)
-      // onSwapError?.(errorMessage, quote as Execute)
+      onSwapError?.(errorMessage, quote as Execute)
     }
 
     try {

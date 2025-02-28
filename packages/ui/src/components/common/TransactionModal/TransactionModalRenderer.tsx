@@ -127,11 +127,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   const [startTimestamp, setStartTimestamp] = useState(0)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
 
-  // const [swapError, setSwapError] = useState<Error | null>(null)
-
-  console.log('steps: ', steps)
-  console.log('currentStep: ', currentStep)
-
   useEffect(() => {
     if (swapError) {
       setProgressStep(TransactionProgressStep.Error)
@@ -177,7 +172,6 @@ export const TransactionModalRenderer: FC<Props> = ({
       progressStep === TransactionProgressStep.Confirmation
     ) {
       onValidating?.(quote as Execute)
-      // setProgressStep(TransactionProgressStep.Validating)
       setStartTimestamp(new Date().getTime())
     }
 

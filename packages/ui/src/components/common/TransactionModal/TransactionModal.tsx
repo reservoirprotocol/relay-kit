@@ -197,7 +197,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   useEffect(() => {
     if (!open) {
       if (currentStep) {
-        onAnalyticEvent?.(EventNames.SWAP_MODAL_CLOSED) // @TODO: Change event name to TRANSACTION_MODAL_CLOSED
+        onAnalyticEvent?.(EventNames.SWAP_MODAL_CLOSED)
       }
       setCurrentStep(null)
       setCurrentStepItem(null)
