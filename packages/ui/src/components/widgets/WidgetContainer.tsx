@@ -13,7 +13,6 @@ export type WidgetContainerProps = {
   swap: () => void
   steps: Execute['steps'] | null
   quote: ReturnType<typeof useQuote>['data']
-
   transactionModalOpen: boolean
   depositAddressModalOpen: boolean
   addressModalOpen: boolean
@@ -48,11 +47,15 @@ export type WidgetContainerProps = {
   | 'useExternalLiquidity'
   | 'timeEstimate'
   | 'slippageTolerance'
+  | 'setSteps'
+  | 'swapError'
+  | 'setSwapError'
 >
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
   swap,
   steps,
+  setSteps,
   quote,
   transactionModalOpen,
   setTransactionModalOpen,
@@ -79,6 +82,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   wallet,
   linkedWallets,
   multiWalletSupportEnabled,
+  swapError,
+  setSwapError,
   onTransactionModalOpenChange,
   onDepositAddressModalOpenChange,
   onSwapSuccess,
@@ -97,7 +102,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           <TransactionModal
             swap={swap}
             steps={steps}
+            setSteps={setSteps}
             quote={quote}
+            swapError={swapError}
+            setSwapError={setSwapError}
             open={transactionModalOpen}
             onOpenChange={(open) => {
               onTransactionModalOpenChange(open)

@@ -12,8 +12,7 @@ import {
   type AdaptedWallet,
   type Execute,
   type ExecuteStep,
-  type ExecuteStepItem,
-  type RelayChain
+  type ExecuteStepItem
 } from '@reservoir0x/relay-sdk'
 import {
   calculateExecutionTime,
@@ -83,11 +82,11 @@ type Props = {
   toToken?: Token
   slippageTolerance?: string
   wallet?: AdaptedWallet
-  // New
   swap: () => void
   steps: Execute['steps'] | null
   quote: ReturnType<typeof useQuote>['data']
-
+  swapError: Error | null
+  setSwapError: Dispatch<SetStateAction<Error | null>>
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
@@ -104,10 +103,11 @@ export const TransactionModalRenderer: FC<Props> = ({
   toToken,
   slippageTolerance,
   wallet,
-  // New
   swap,
   steps,
   quote,
+  swapError,
+  setSwapError,
   children,
   onSuccess,
   onValidating
@@ -127,7 +127,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   const [startTimestamp, setStartTimestamp] = useState(0)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
 
-  const [swapError, setSwapError] = useState<Error | null>(null)
+  // const [swapError, setSwapError] = useState<Error | null>(null)
 
   console.log('steps: ', steps)
   console.log('currentStep: ', currentStep)
@@ -251,9 +251,7 @@ export const TransactionModalRenderer: FC<Props> = ({
         quote,
         swap,
         steps,
-        // setSteps,
         waitingForSteps,
-        // quoteError,
         swapError,
         setSwapError,
         allTxHashes,
@@ -265,7 +263,6 @@ export const TransactionModalRenderer: FC<Props> = ({
         executionTimeSeconds,
         startTimestamp,
         setStartTimestamp,
-        // quoteUpdatedAt,
         requestId,
         feeBreakdown,
         isLoadingTransaction,

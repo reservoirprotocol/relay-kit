@@ -66,6 +66,7 @@ type SwapWidgetRendererProps = {
 export type ChildrenProps = {
   quote?: ReturnType<typeof useQuote>['data']
   steps: Execute['steps'] | null
+  setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
   swap: () => void
   transactionModalOpen: boolean
   details: null | Execute['details']
@@ -200,6 +201,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const [swapError, setSwapError] = useState<Error | null>(null)
+  console.log('swapError', swapError)
   const [fromToken, setFromToken] = useState<Token | undefined>(
     defaultFromToken
   )
@@ -522,8 +524,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
+  console.log('quoteError', quoteError)
+  console.log('_quoteData: ', _quoteData)
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
+
+  console.log('error', error)
+  console.log('quote', quote)
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -622,7 +629,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
 
-  const operation = quote?.details?.operation || 'swap'
   const maxCapacity = isCapacityExceededError
     ? extractMaxCapacity(
         fetchQuoteDataErrorMessage ?? undefined,
@@ -640,6 +646,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromChainWalletVMSupported,
     isValidToAddress,
     toChainWalletVMSupported,
+    fromChain,
     toChain,
     isSameCurrencySameRecipientSwap,
     debouncedInputAmountValue,
@@ -730,6 +737,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         throw 'Missing a wallet'
       }
 
+      setSteps(quote?.steps as Execute['steps'])
+      setTransactionModalOpen(true)
+
       const _wallet =
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
@@ -782,6 +792,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       {children({
         quote,
         steps,
+        setSteps,
         swap,
         transactionModalOpen,
         feeBreakdown,

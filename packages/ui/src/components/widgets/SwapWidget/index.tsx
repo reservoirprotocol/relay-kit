@@ -149,6 +149,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         quote,
         steps,
         swap,
+        setSteps,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -199,8 +200,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
-        setUseExternalLiquidity,
+        swapError,
         setSwapError,
+        setUseExternalLiquidity,
         invalidateBalanceQueries
       }) => {
         const handleSetFromToken = (token?: Token) => {
@@ -309,6 +311,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             swap={swap}
             steps={steps}
+            setSteps={setSteps}
             quote={quote}
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
@@ -330,6 +333,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onTransactionModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                setSteps(null)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
@@ -339,7 +343,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             }}
             useExternalLiquidity={useExternalLiquidity}
             slippageTolerance={slippageTolerance}
-            onSwapSuccess={onSwapSuccess}
+            swapError={swapError}
+            setSwapError={setSwapError}
+            onSwapSuccess={(data) => {
+              onSwapSuccess?.(data)
+            }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}
@@ -1136,9 +1144,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               setAddressModalOpen(true)
                             }
                           } else {
-                            setTransactionModalOpen(true)
                             swap()
-                            // @TODO: call swap function
                           }
                         } else {
                           if (!isValidToAddress) {

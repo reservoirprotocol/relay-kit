@@ -11,6 +11,7 @@ export type UseSwapButtonCtaParams = {
   fromChainWalletVMSupported: boolean
   isValidToAddress: boolean
   toChainWalletVMSupported: boolean
+  fromChain?: RelayChain
   toChain?: RelayChain
   isSameCurrencySameRecipientSwap: boolean
   debouncedInputAmountValue?: string
@@ -34,6 +35,7 @@ export const useSwapButtonCta = ({
   fromChainWalletVMSupported,
   isValidToAddress,
   toChainWalletVMSupported,
+  fromChain,
   toChain,
   isSameCurrencySameRecipientSwap,
   debouncedInputAmountValue,
@@ -56,7 +58,7 @@ export const useSwapButtonCta = ({
       !isValidFromAddress &&
       fromChainWalletVMSupported
     ) {
-      return `Select ${toChain?.displayName} Wallet`
+      return `Select ${fromChain?.displayName} Wallet`
     }
 
     if (multiWalletSupportEnabled && !isValidToAddress) {

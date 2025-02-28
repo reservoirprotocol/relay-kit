@@ -1,6 +1,6 @@
 import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { type Address } from 'viem'
-import { type FC, useEffect } from 'react'
+import { type Dispatch, type FC, type SetStateAction, useEffect } from 'react'
 import {
   type ChildrenProps,
   TransactionModalRenderer,
@@ -16,8 +16,6 @@ import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
-import { ApprovalPlusSwapStep } from './steps/ApprovalPlusSwapStep.js'
-import { useAtomicBatchSupport } from '../../../hooks/index.js'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 type TransactionModalProps = {
@@ -29,22 +27,17 @@ type TransactionModalProps = {
   address?: Address | string
   timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
-  // debouncedOutputAmountValue: string
-  // debouncedInputAmountValue: string
-  // amountInputValue: string
-  // amountOutputValue: string
-  // recipient?: Address | string
-  // customToAddress?: Address | string
-  // tradeType: TradeType
   useExternalLiquidity: boolean
   slippageTolerance?: string
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
-  // New
   swap: () => void
   steps: Execute['steps'] | null
+  setSteps: Dispatch<SetStateAction<Execute['steps'] | null>>
   quote: ReturnType<typeof useQuote>['data']
+  swapError: Error | null
+  setSwapError: Dispatch<SetStateAction<Error | null>>
   invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -59,6 +52,8 @@ export const TransactionModal: FC<TransactionModalProps> = (
     quote,
     steps,
     swap,
+    swapError,
+    setSwapError,
     open,
     address,
     fromChain,
@@ -82,6 +77,8 @@ export const TransactionModal: FC<TransactionModalProps> = (
       quote={quote}
       steps={steps}
       swap={swap}
+      swapError={swapError}
+      setSwapError={setSwapError}
       slippageTolerance={slippageTolerance}
       address={address}
       wallet={wallet}
@@ -171,22 +168,18 @@ type InnerTransactionModalProps = ChildrenProps & TransactionModalProps
 const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   open,
   onOpenChange,
-  wallet,
   fromToken,
   toToken,
   quote,
   address,
-  requestId,
-  swap,
   swapError,
   setSwapError,
   progressStep,
   setProgressStep,
   steps,
-  // setSteps,
+  setSteps,
   currentStep,
   setCurrentStep,
-  currentStepItem,
   setCurrentStepItem,
   allTxHashes,
   setAllTxHashes,
@@ -197,28 +190,10 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   onAnalyticEvent,
   timeEstimate,
   isCanonical,
-  feeBreakdown,
-  linkedWallets,
-  multiWalletSupportEnabled,
-  useExternalLiquidity,
   fromChain,
   toChain,
-  waitingForSteps,
-  isLoadingTransaction,
-  isAutoSlippage
+  isLoadingTransaction
 }) => {
-  const { isSupported: isAtomicBatchSupported } = useAtomicBatchSupport(
-    wallet,
-    fromToken?.chainId
-  )
-  const firstStep = quote?.steps?.[0]
-  const secondStep = quote?.steps?.[1]
-  const isApprovalPlusSwap =
-    firstStep?.id === 'approve' &&
-    firstStep?.items?.[0]?.status === 'incomplete' &&
-    (secondStep?.id === 'deposit' || secondStep?.id === 'swap') &&
-    !isAtomicBatchSupported
-
   useEffect(() => {
     if (!open) {
       if (currentStep) {
@@ -229,9 +204,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setAllTxHashes([])
       setStartTimestamp(0)
       setSwapError(null)
+      setSteps(null)
     } else {
-      // setSteps(null)
-      // swap()
       setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
     }
@@ -282,43 +256,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
         <Text style="h6" css={{ mb: 8 }}>
           Transaction Details
         </Text>
-        {/* 
-        {progressStep === TransactionProgressStep.ReviewQuote ? (
-          <ReviewQuoteStep
-            fromToken={fromToken}
-            toToken={toToken}
-            fromAmountFormatted={fromAmountFormatted}
-            toAmountFormatted={toAmountFormatted}
-            feeBreakdown={feeBreakdown}
-            isFetchingQuote={isFetchingQuote}
-            isRefetchingQuote={isRefetchingQuote}
-            quoteUpdatedAt={quoteUpdatedAt}
-            quote={quote}
-            swap={swap}
-            address={address}
-            linkedWallets={linkedWallets}
-            multiWalletSupportEnabled={multiWalletSupportEnabled}
-            useExternalLiquidity={useExternalLiquidity}
-            waitingForSteps={waitingForSteps}
-            isAutoSlippage={isAutoSlippage}
-          />
-        ) : null} */}
-
-        {/* {(progressStep === TransactionProgressStep.WalletConfirmation ||
-          progressStep === TransactionProgressStep.Validating) &&
-        isApprovalPlusSwap ? (
-          <ApprovalPlusSwapStep
-            fromToken={fromToken}
-            toToken={toToken}
-            fromAmountFormatted={fromAmountFormatted}
-            toAmountFormatted={toAmountFormatted}
-            steps={steps}
-            quote={quote}
-          />
-        ) : null} */}
-
-        {progressStep === TransactionProgressStep.Confirmation &&
-        !isApprovalPlusSwap ? (
+        {progressStep === TransactionProgressStep.Confirmation ? (
           <SwapConfirmationStep
             fromToken={fromToken}
             toToken={toToken}
