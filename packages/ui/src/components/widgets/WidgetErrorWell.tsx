@@ -20,6 +20,7 @@ type Props = {
   isCouldNotExecuteError?: boolean
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
+  recipientWalletSupportsChain?: boolean | null
 }
 
 export const WidgetErrorWell: FC<Props> = ({
@@ -32,7 +33,8 @@ export const WidgetErrorWell: FC<Props> = ({
   isCapacityExceededError,
   isCouldNotExecuteError,
   supportsExternalLiquidity,
-  containerCss
+  containerCss,
+  recipientWalletSupportsChain
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
@@ -51,6 +53,31 @@ export const WidgetErrorWell: FC<Props> = ({
 
   if (isInsufficientLiquidityError) {
     return null
+  }
+
+  if (!recipientWalletSupportsChain) {
+    return (
+      <Flex
+        align="center"
+        css={{
+          gap: '2',
+          p: '3',
+          backgroundColor: 'amber2',
+          borderRadius: 12,
+          mb: '3',
+          ...containerCss
+        }}
+        id={'widget-error-well-section'}
+      >
+        <Box css={{ color: 'amber9' }}>
+          <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+        </Box>
+        <Text style="subtitle3" css={{ color: 'amber12' }}>
+          Your selected wallet doesn't support the destination chain. Please
+          choose a different wallet.
+        </Text>
+      </Flex>
+    )
   }
 
   if (fetchQuoteErrorMessage && !quote) {

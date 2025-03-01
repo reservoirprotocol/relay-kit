@@ -14,6 +14,8 @@ import useMoonPayGeolocation from './useMoonPayGeolocation.js'
 import useIpAddress from './useIpAddress.js'
 import useIsPassthrough from './useIsPassthrough.js'
 import useSupportedMoonPayCurrencyCode from './useSupportedMoonPayCurrencyCode.js'
+import useIsWalletCompatible from './useIsWalletCompatible.js'
+import useIsAGW from './useIsAGW.js'
 
 export {
   useMounted,
@@ -31,5 +33,7 @@ export {
   useMoonPayGeolocation,
   useIpAddress,
   useIsPassthrough,
-  useSupportedMoonPayCurrencyCode
+  useSupportedMoonPayCurrencyCode,
+  useIsWalletCompatible,
+  useIsAGW
 }
