@@ -55,7 +55,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
     const uniqueTokens: Record<string, Token> = {}
 
     ;[
-      depositAddressOnly && !chainCurrency?.supportsBridging
+      depositAddressOnly || !chainCurrency?.supportsBridging
         ? undefined
         : nativeCurrency,
       ...suggestedErc20Tokens,
