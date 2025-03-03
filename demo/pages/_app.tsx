@@ -63,7 +63,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const { chains, viemChains } = useRelayChains(
     relayApi,
     {
-      includeChains: '9286185,8253038'
+      includeChains: process.env.NEXT_PUBLIC_INCLUDE_CHAINS
     },
     {
       refetchOnWindowFocus: false,
