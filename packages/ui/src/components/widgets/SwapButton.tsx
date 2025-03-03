@@ -68,7 +68,7 @@ const SwapButton: FC<SwapButtonProps> = ({
             transactionModalOpen ||
             depositAddressModalOpen ||
             isSameCurrencySameRecipientSwap ||
-            recipientWalletSupportsChain)
+            !recipientWalletSupportsChain)
         }
         onClick={() => {
           onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {
