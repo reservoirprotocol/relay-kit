@@ -185,7 +185,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isInsufficientLiquidityError,
         isCapacityExceededError,
         isCouldNotExecuteError,
-        maxCapacityFormatted,
         ctaCopy,
         isFromNative,
         timeEstimate,
@@ -444,8 +443,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXACT_INPUT'
                             ? amountInputValue
                             : amountInputValue
-                            ? formatFixedLength(amountInputValue, 8)
-                            : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                         }
                         setValue={(e) => {
                           setAmountInputValue(e)
@@ -507,13 +506,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                fromToken?.chainId,
-                                lockChainId,
-                                toToken?.chainId,
-                                lockFromToken
-                              ) && fromToken?.chainId
-                            ? [fromToken.chainId]
-                            : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && toToken
@@ -818,8 +817,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           tradeType === 'EXPECTED_OUTPUT'
                             ? amountOutputValue
                             : amountOutputValue
-                            ? formatFixedLength(amountOutputValue, 8)
-                            : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                         }
                         setValue={(e) => {
                           setAmountOutputValue(e)
@@ -909,13 +908,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isSingleChainLocked
                             ? [lockChainId]
                             : isChainLocked(
-                                toToken?.chainId,
-                                lockChainId,
-                                fromToken?.chainId,
-                                lockToToken
-                              ) && toToken?.chainId
-                            ? [toToken.chainId]
-                            : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                         }
                         chainIdsFilter={
                           !fromChainWalletVMSupported && fromToken
@@ -1029,7 +1028,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     isHighRelayerServiceFee={highRelayerServiceFee}
                     isCapacityExceededError={isCapacityExceededError}
                     isCouldNotExecuteError={isCouldNotExecuteError}
-                    maxCapacity={maxCapacityFormatted}
                     relayerFeeProportion={relayerFeeProportion}
                     supportsExternalLiquidity={supportsExternalLiquidity}
                     containerCss={{
@@ -1060,38 +1058,16 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     </Flex>
                   ) : null}
                   {promptSwitchRoute ? (
-                    <Flex css={{ gap: '3' }}>
-                      {isCapacityExceededError &&
-                      maxCapacityFormatted &&
-                      maxCapacityFormatted != '0' ? (
-                        <Button
-                          color="white"
-                          css={{ flexGrow: '1', justifyContent: 'center' }}
-                          onClick={() => {
-                            if (maxCapacityFormatted) {
-                              setAmountInputValue(maxCapacityFormatted)
-                            } else {
-                              console.error('Missing max capacity')
-                            }
-                            onAnalyticEvent?.(
-                              EventNames.CTA_SET_MAX_CAPACITY_CLICKED
-                            )
-                          }}
-                        >
-                          Set to {maxCapacityFormatted} {toToken?.symbol}
-                        </Button>
-                      ) : null}
-                      <Button
-                        color="primary"
-                        css={{ flexGrow: '1', justifyContent: 'center' }}
-                        onClick={() => {
-                          setUseExternalLiquidity(true)
-                          onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
-                        }}
-                      >
-                        Switch Route
-                      </Button>
-                    </Flex>
+                    <Button
+                      color="primary"
+                      css={{ flexGrow: '1', justifyContent: 'center' }}
+                      onClick={() => {
+                        setUseExternalLiquidity(true)
+                        onAnalyticEvent?.(EventNames.CTA_SWITCH_ROUTE_CLICKED)
+                      }}
+                    >
+                      Switch Route
+                    </Button>
                   ) : (
                     <SwapButton
                       transactionModalOpen={transactionModalOpen}

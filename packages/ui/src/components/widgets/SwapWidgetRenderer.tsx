@@ -19,7 +19,6 @@ import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
-  extractMaxCapacity,
   extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
@@ -117,8 +116,6 @@ export type ChildrenProps = {
   isInsufficientLiquidityError?: boolean
   isCapacityExceededError?: boolean
   isCouldNotExecuteError?: boolean
-  maxCapacityWei?: string
-  maxCapacityFormatted?: string
   ctaCopy: string
   isFromNative: boolean
   useExternalLiquidity: boolean
@@ -624,15 +621,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
 
-  const maxCapacity = isCapacityExceededError
-    ? extractMaxCapacity(
-        fetchQuoteDataErrorMessage ?? undefined,
-        toToken?.decimals
-      )
-    : undefined
-  const maxCapacityWei = maxCapacity?.value
-  const maxCapacityFormatted = maxCapacity?.formatted
-
   const ctaCopy = useSwapButtonCta({
     fromToken,
     toToken,
@@ -827,8 +815,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isInsufficientLiquidityError,
         isCapacityExceededError,
         isCouldNotExecuteError,
-        maxCapacityFormatted,
-        maxCapacityWei,
         ctaCopy,
         isFromNative,
         useExternalLiquidity,

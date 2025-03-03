@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.8.0
+
+### Minor Changes
+
+- df2820a: Remove usePrice hook, queryPrice action, and PriceResponse type
+
+### Patch Changes
+
+- Updated dependencies [0ccd0d7]
+  - @reservoir0x/relay-sdk@1.6.4
+
 ## 1.7.2
 
 ### Patch Changes

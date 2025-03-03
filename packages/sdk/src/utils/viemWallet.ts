@@ -64,6 +64,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     },
     handleSendTransactionStep: async (chainId, stepItem) => {
       const stepData = stepItem.data
+      const client = getClient()
       const chain = getClient().chains.find(
         (chain) => chain.id === chainId
       )?.viemChain
@@ -77,17 +78,20 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         account: wallet.account ?? stepData.from, // use signer.account if it's defined
         to: stepData.to,
         value: hexToBigInt((stepData.value as any) || 0),
-        ...(stepData.maxFeePerGas && {
-          maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
-        }),
-        ...(stepData.maxPriorityFeePerGas && {
-          maxPriorityFeePerGas: hexToBigInt(
-            stepData.maxPriorityFeePerGas as any
-          )
-        }),
-        ...(stepData.gas && {
-          gas: hexToBigInt(stepData.gas as any)
-        })
+        ...(stepData.maxFeePerGas &&
+          client.useGasFeeEstimations && {
+            maxFeePerGas: hexToBigInt(stepData.maxFeePerGas as any)
+          }),
+        ...(stepData.maxPriorityFeePerGas &&
+          client.useGasFeeEstimations && {
+            maxPriorityFeePerGas: hexToBigInt(
+              stepData.maxPriorityFeePerGas as any
+            )
+          }),
+        ...(stepData.gas &&
+          client.useGasFeeEstimations && {
+            gas: hexToBigInt(stepData.gas as any)
+          })
       })
     },
     handleConfirmTransactionStep: async (
