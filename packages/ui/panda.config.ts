@@ -295,6 +295,10 @@ export default defineConfig({
           opacity: '0.5'
         }
       },
+      'pulse-shadow': {
+        '0%': { boxShadow: '0 0 0 0px currentColor' },
+        '100%': { boxShadow: '0 0 0 4px currentColor' }
+      },
       spin: {
         '100%': {
           transform: 'rotate(360deg)'
