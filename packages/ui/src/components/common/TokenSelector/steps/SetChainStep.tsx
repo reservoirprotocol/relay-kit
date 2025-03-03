@@ -30,6 +30,7 @@ import type { Token } from '../../../../types/index.js'
 import { eclipse, solana } from '../../../../utils/solana.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
+import { tron } from '../../../../utils/tron.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -98,7 +99,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           chain.vmType === 'evm' ||
           chain.id === solana.id ||
           chain.id === eclipse.id ||
-          chain.id === bitcoin.id) &&
+          chain.id === bitcoin.id ||
+          chain.id === tron.id) &&
         (context !== 'from' ||
           multiWalletSupportEnabled ||
           chain.vmType === 'evm') &&
