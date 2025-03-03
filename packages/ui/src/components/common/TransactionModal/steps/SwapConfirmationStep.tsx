@@ -308,7 +308,7 @@ export const StepRow: FC<StepRowProps> = ({
               : isActive
               ? 'primary6'
               : 'gray5',
-            color: isCompleted ? 'green11' : isActive ? 'primary3' : 'gray9',
+            color: isCompleted ? 'green11' : isActive ? 'primary4' : 'gray9',
             animation:
               isActive && !isCompleted ? 'pulse-shadow 1.5s infinite' : 'none'
           }}
