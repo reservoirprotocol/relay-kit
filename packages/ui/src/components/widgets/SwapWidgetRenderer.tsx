@@ -673,10 +673,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           error.message.includes('rejected')) ||
           (typeof error === 'string' && error.includes('rejected')) ||
           (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error === 'string' && error.includes('denied transaction')) ||
           (typeof error.message === 'string' &&
             error.message.includes('Approval Denied')) ||
           (typeof error.message === 'string' &&
-            error.message.includes('Plugin Closed')))
+            error.message.includes('Plugin Closed')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('denied transaction')))
       ) {
         // Close the transaction modal if the user rejects the tx
         setTransactionModalOpen(false)

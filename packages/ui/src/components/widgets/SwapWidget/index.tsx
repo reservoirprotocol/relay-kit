@@ -199,8 +199,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
-        recipientWalletSupportsChain,
         swapError,
+        recipientWalletSupportsChain,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries
