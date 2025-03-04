@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.3
+
+### Patch Changes
+
+- 5eefe1f: Fix default selected token
+- a662444: Wallet compatibility for major wallets and abstract address detection
+
 ## 2.7.2
 
 ### Patch Changes
