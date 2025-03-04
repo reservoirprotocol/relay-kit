@@ -167,21 +167,23 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         css={{ flexShrink: 0, bp500: { flexDirection: 'row' } }}
       >
         <Flex
-          direction="column"
+          direction="row"
           css={{
             backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
-            gap: 1,
-            width: '100%'
+            gap: 2,
+            width: '100%',
+            alignItems: 'center',
+            bp500: { flexDirection: 'column', gap: 1, alignItems: 'flex-start' }
           }}
         >
+          <ChainTokenIcon
+            chainId={fromToken?.chainId}
+            tokenlogoURI={fromToken?.logoURI}
+            css={{ height: 32, width: 32 }}
+          />
           <Flex direction="column" align="start" css={{ gap: '1' }}>
-            <ChainTokenIcon
-              chainId={fromToken?.chainId}
-              tokenlogoURI={fromToken?.logoURI}
-              css={{ height: 32, width: 32 }}
-            />
             <Text color="subtle" style="subtitle2">
               {fromChain?.displayName}
             </Text>
@@ -195,27 +197,29 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           css={{
             color: 'gray9',
             p: '0 12px',
-            bp400Down: { transform: 'rotate(90deg)' }
+            bp400Down: { transform: 'rotate(90deg)', p: '12px 0' }
           }}
         >
           <FontAwesomeIcon icon={faArrowRight} width={16} />
         </Text>
         <Flex
-          direction="column"
+          direction="row"
           css={{
             backgroundColor: 'subtle-background-color',
             p: '12px 16px',
             borderRadius: 12,
-            gap: 1,
-            width: '100%'
+            gap: 2,
+            width: '100%',
+            alignItems: 'center',
+            bp500: { flexDirection: 'column', gap: 1, alignItems: 'flex-start' }
           }}
         >
+          <ChainTokenIcon
+            chainId={toToken?.chainId}
+            tokenlogoURI={toToken?.logoURI}
+            css={{ height: 32, width: 32 }}
+          />
           <Flex direction="column" align="start" css={{ gap: '1' }}>
-            <ChainTokenIcon
-              chainId={toToken?.chainId}
-              tokenlogoURI={toToken?.logoURI}
-              css={{ height: 32, width: 32 }}
-            />
             <Text color="subtle" style="subtitle2">
               {toChain?.displayName}
             </Text>
