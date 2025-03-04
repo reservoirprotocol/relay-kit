@@ -192,6 +192,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
+        recipientWalletSupportsChain,
         setUseExternalLiquidity,
         setSwapError,
         invalidateBalanceQueries
@@ -1009,6 +1010,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     containerCss={{
                       mb: 'widget-card-section-gutter'
                     }}
+                    recipientWalletSupportsChain={recipientWalletSupportsChain}
                   />
                   {promptSwitchRoute ? (
                     <Button
@@ -1036,6 +1038,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       hasInsufficientBalance={hasInsufficientBalance}
                       isInsufficientLiquidityError={
                         isInsufficientLiquidityError
+                      }
+                      recipientWalletSupportsChain={
+                        recipientWalletSupportsChain
                       }
                       debouncedInputAmountValue={debouncedInputAmountValue}
                       debouncedOutputAmountValue={debouncedOutputAmountValue}
