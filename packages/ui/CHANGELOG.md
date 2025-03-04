@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.4
+
+### Patch Changes
+
+- 99c4dbd: Fixes for suggested tokens and default token
+
 ## 2.7.3
 
 ### Patch Changes
