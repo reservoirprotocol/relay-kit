@@ -29,6 +29,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { eclipse, solana } from '../../../../utils/solana.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
+import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -169,17 +170,37 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               (chain) => chain.id.toString() === value
             )
             if (chain) {
-              let token =
-                chain.isSupported && chain.currency?.metadata?.verified
-                  ? (chain.currency as Currency)
-                  : {
-                      ...chain.relayChain.currency,
-                      chainId: chain.id,
-                      metadata: {
-                        logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
-                        verified: true
-                      }
-                    }
+              const currency = convertApiCurrencyToToken(
+                chain.relayChain.currency?.supportsBridging
+                  ? chain.relayChain.currency
+                  : chain.relayChain.erc20Currencies
+                      ?.filter((currency) => currency.supportsBridging)
+                      .sort((a, b) => {
+                        const order: Record<string, number> = {
+                          ETH: 1,
+                          USDC: 2,
+                          USDT: 3
+                        }
+                        const aOrder =
+                          a.symbol && order[a.symbol] ? order[a.symbol] : 4
+                        const bOrder =
+                          b.symbol && order[b.symbol] ? order[b.symbol] : 4
+                        return (
+                          aOrder - bOrder ||
+                          (a?.symbol ?? '').localeCompare(b?.symbol ?? '')
+                        )
+                      })[0],
+                chain.id
+              )
+              let token: NonNullable<SetChainStepProps['tokenList']>['0']['0'] =
+                {
+                  ...currency,
+                  chainId: chain.id,
+                  metadata: {
+                    logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                    verified: true
+                  }
+                }
 
               if (
                 token.chainId === restrictedToken?.chainId &&

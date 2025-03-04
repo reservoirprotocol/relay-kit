@@ -7,7 +7,8 @@ import {
   useDebounceState,
   useWalletAddress,
   useDisconnected,
-  usePreviousValueChange
+  usePreviousValueChange,
+  useIsWalletCompatible
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -132,6 +133,7 @@ export type ChildrenProps = {
   fromChainWalletVMSupported: boolean
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
+  recipientWalletSupportsChain?: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -222,7 +224,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
-      (linkedWallet) => address === linkedWallet.address
+      (linkedWallet) =>
+        address ===
+        (linkedWallet.vmType === 'evm'
+          ? linkedWallet.address.toLowerCase()
+          : linkedWallet.address)
     )
     const _isValidToAddress = isValidAddress(
       toChain?.vmType,
@@ -614,6 +620,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     externalLiquiditySupport.data?.details
   )
 
+  const recipientWalletSupportsChain = useIsWalletCompatible(
+    toChain?.id,
+    recipient,
+    linkedWallets
+  )
+
   const isFromNative = fromToken?.address === fromChain?.currency?.address
 
   const isSameCurrencySameRecipientSwap =
@@ -661,10 +673,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           error.message.includes('rejected')) ||
           (typeof error === 'string' && error.includes('rejected')) ||
           (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error === 'string' && error.includes('denied transaction')) ||
           (typeof error.message === 'string' &&
             error.message.includes('Approval Denied')) ||
           (typeof error.message === 'string' &&
-            error.message.includes('Plugin Closed')))
+            error.message.includes('Plugin Closed')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('denied transaction')))
       ) {
         // Close the transaction modal if the user rejects the tx
         setTransactionModalOpen(false)
@@ -831,6 +846,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
+        recipientWalletSupportsChain,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,
