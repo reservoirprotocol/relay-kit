@@ -7,7 +7,8 @@ import {
   useDebounceState,
   useWalletAddress,
   useDisconnected,
-  usePreviousValueChange
+  usePreviousValueChange,
+  useIsWalletCompatible
 } from '../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -126,6 +127,7 @@ export type ChildrenProps = {
   fromChainWalletVMSupported: boolean
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
+  recipientWalletSupportsChain?: boolean
   invalidateBalanceQueries: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
@@ -211,7 +213,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
-      (linkedWallet) => address === linkedWallet.address
+      (linkedWallet) =>
+        address ===
+        (linkedWallet.vmType === 'evm'
+          ? linkedWallet.address.toLowerCase()
+          : linkedWallet.address)
     )
     const _isValidToAddress = isValidAddress(
       toChain?.vmType,
@@ -603,6 +609,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     externalLiquiditySupport.data?.details
   )
 
+  const recipientWalletSupportsChain = useIsWalletCompatible(
+    toChain?.id,
+    recipient,
+    linkedWallets
+  )
+
   const isFromNative = fromToken?.address === fromChain?.currency?.address
 
   const isSameCurrencySameRecipientSwap =
@@ -626,6 +638,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : `Enter ${toChain?.displayName} Address`
   } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
     ctaCopy = `Enter ${toChain?.displayName} Address`
+  } else if (!recipientWalletSupportsChain) {
+    ctaCopy = 'Select a different wallet'
   } else if (isSameCurrencySameRecipientSwap) {
     ctaCopy = 'Invalid recipient'
   } else if (!debouncedInputAmountValue || !debouncedOutputAmountValue) {
@@ -711,6 +725,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
+        recipientWalletSupportsChain,
         invalidateBalanceQueries,
         setUseExternalLiquidity,
         setDetails,

@@ -15,7 +15,6 @@ import {
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { RelayChain } from '@reservoir0x/relay-sdk'
-import { zeroAddress } from 'viem'
 
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
@@ -34,7 +33,7 @@ const OnrampPage: NextPage = () => {
     | undefined
   >()
   const { setWalletFilter } = useWalletFilter()
-  const { setShowAuthFlow, primaryWallet } = useDynamicContext()
+  const { setShowAuthFlow } = useDynamicContext()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
   const wallets = useRef<Wallet<any>[]>()
