@@ -10,16 +10,17 @@ import {
   usePreviousValueChange,
   useIsWalletCompatible
 } from '../../hooks/index.js'
-import type { Address } from 'viem'
+import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
+  extractQuoteId,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
@@ -35,13 +36,15 @@ import {
   isValidAddress,
   findSupportedWallet
 } from '../../utils/address.js'
-import { getDeadAddress } from '@reservoir0x/relay-sdk'
+import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
+import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
+  setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   defaultFromToken?: Token
@@ -62,6 +65,9 @@ type SwapWidgetRendererProps = {
 
 export type ChildrenProps = {
   quote?: ReturnType<typeof useQuote>['data']
+  steps: Execute['steps'] | null
+  setSteps: Dispatch<React.SetStateAction<Execute['steps'] | null>>
+  swap: () => void
   transactionModalOpen: boolean
   details: null | Execute['details']
   feeBreakdown: {
@@ -136,6 +142,7 @@ export type ChildrenProps = {
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   transactionModalOpen,
+  setTransactionModalOpen,
   depositAddressModalOpen,
   defaultFromToken,
   defaultToToken,
@@ -149,12 +156,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   linkedWallets,
   supportedWalletVMs,
   children,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onSwapError
 }) => {
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const relayClient = useRelayClient()
   const { connector } = useAccount()
+  const walletClient = useWalletClient()
   const [customToAddress, setCustomToAddress] = useState<
     Address | string | undefined
   >(defaultToAddress)
@@ -166,6 +175,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
+  const [steps, setSteps] = useState<null | Execute['steps']>(null)
+  const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
 
   const {
@@ -486,7 +497,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const {
     data: _quoteData,
     error: quoteError,
-    isLoading: isFetchingQuote
+    isLoading: isFetchingQuote,
+    executeQuote: executeSwap
   } = useQuote(
     relayClient ? relayClient : undefined,
     wallet,
@@ -515,7 +527,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
-  //Here we fetch the price data and quote data in parallel and then merge into one data model
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
 
@@ -593,8 +604,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ? ((error as any)?.response?.data.message as string)
       : 'Unknown Error'
     : null
-  const isInsufficientLiquidityError = fetchQuoteErrorMessage?.includes(
-    'No quotes available'
+  const isInsufficientLiquidityError = Boolean(
+    fetchQuoteErrorMessage?.includes('No quotes available')
   )
   const isCapacityExceededError =
     fetchQuoteDataErrorMessage?.includes(
@@ -622,37 +633,24 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
 
-  let ctaCopy: string = 'Review'
-
-  if (!fromToken || !toToken) {
-    ctaCopy = 'Select a token'
-  } else if (
-    multiWalletSupportEnabled &&
-    !isValidFromAddress &&
-    fromChainWalletVMSupported
-  ) {
-    ctaCopy = `Select ${fromChain?.displayName} Wallet`
-  } else if (multiWalletSupportEnabled && !isValidToAddress) {
-    ctaCopy = toChainWalletVMSupported
-      ? `Select ${toChain?.displayName} Wallet`
-      : `Enter ${toChain?.displayName} Address`
-  } else if (toChain?.vmType !== 'evm' && !isValidToAddress) {
-    ctaCopy = `Enter ${toChain?.displayName} Address`
-  } else if (!recipientWalletSupportsChain) {
-    ctaCopy = 'Select a different wallet'
-  } else if (isSameCurrencySameRecipientSwap) {
-    ctaCopy = 'Invalid recipient'
-  } else if (!debouncedInputAmountValue || !debouncedOutputAmountValue) {
-    ctaCopy = 'Enter an amount'
-  } else if (hasInsufficientBalance) {
-    ctaCopy = 'Insufficient Balance'
-  } else if (isInsufficientLiquidityError) {
-    ctaCopy = 'Insufficient Liquidity'
-  } else if (!toChainWalletVMSupported && !isValidToAddress) {
-    ctaCopy = `Enter ${toChain.displayName} Address`
-  } else if (transactionModalOpen) {
-    ctaCopy = 'Review'
-  }
+  const ctaCopy = useSwapButtonCta({
+    fromToken,
+    toToken,
+    multiWalletSupportEnabled,
+    isValidFromAddress,
+    fromChainWalletVMSupported,
+    isValidToAddress,
+    toChainWalletVMSupported,
+    fromChain,
+    toChain,
+    isSameCurrencySameRecipientSwap,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    hasInsufficientBalance,
+    isInsufficientLiquidityError,
+    quote,
+    operation: quote?.details?.operation
+  })
 
   usePreviousValueChange(
     isCapacityExceededError && supportsExternalLiquidity,
@@ -667,10 +665,133 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   )
 
+  const swap = useCallback(async () => {
+    const swapErrorHandler = (error: any) => {
+      if (
+        error &&
+        ((typeof error.message === 'string' &&
+          error.message.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('rejected')) ||
+          (typeof error === 'string' && error.includes('Approval Denied')) ||
+          (typeof error === 'string' && error.includes('denied transaction')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Approval Denied')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Plugin Closed')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('denied transaction')))
+      ) {
+        // Close the transaction modal if the user rejects the tx
+        setTransactionModalOpen(false)
+        onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
+        return
+      }
+
+      const errorMessage = errorToJSON(
+        error?.response?.data?.message
+          ? new Error(error?.response?.data?.message)
+          : error
+      )
+
+      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
+        error_message: errorMessage,
+        wallet_connector: connector?.name,
+        quote_id: extractQuoteId(steps ?? (quote?.steps as Execute['steps'])),
+        amount_in: parseFloat(`${debouncedInputAmountValue}`),
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        is_canonical: useExternalLiquidity,
+        txHashes: (steps ?? (quote?.steps as Execute['steps']))
+          ?.map((step) => {
+            let txHashes: { chainId: number; txHash: string }[] = []
+            step.items?.forEach((item) => {
+              if (item.txHashes) {
+                txHashes = txHashes.concat([
+                  ...(item.txHashes ?? []),
+                  ...(item.internalTxHashes ?? [])
+                ])
+              }
+            })
+            return txHashes
+          })
+          .flat()
+      })
+      setSwapError(errorMessage)
+      onSwapError?.(errorMessage, quote as Execute)
+    }
+
+    try {
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
+      setWaitingForSteps(true)
+
+      if (!executeSwap) {
+        throw 'Missing a quote'
+      }
+
+      if (!wallet && !walletClient.data) {
+        throw 'Missing a wallet'
+      }
+
+      setSteps(quote?.steps as Execute['steps'])
+      setTransactionModalOpen(true)
+
+      const _wallet =
+        wallet ?? adaptViemWallet(walletClient.data as WalletClient)
+
+      const activeWalletChainId = await _wallet?.getChainId()
+      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
+        onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
+          activeWalletChainId,
+          chainId: fromToken.chainId
+        })
+        await _wallet?.switchChain(fromToken.chainId)
+      }
+
+      executeSwap(({ steps: currentSteps }) => {
+        setSteps(currentSteps)
+      })
+        ?.catch((error: any) => {
+          swapErrorHandler(error)
+        })
+        .finally(() => {
+          setWaitingForSteps(false)
+          invalidateBalanceQueries()
+        })
+    } catch (error: any) {
+      swapErrorHandler(error)
+      setWaitingForSteps(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    relayClient,
+    address,
+    connector,
+    wallet,
+    walletClient,
+    fromToken,
+    toToken,
+    customToAddress,
+    recipient,
+    debouncedInputAmountValue,
+    debouncedOutputAmountValue,
+    tradeType,
+    useExternalLiquidity,
+    waitingForSteps,
+    executeSwap,
+    setSteps,
+    invalidateBalanceQueries
+  ])
+
   return (
     <>
       {children({
         quote,
+        steps,
+        setSteps,
+        swap,
         transactionModalOpen,
         feeBreakdown,
         fromToken,

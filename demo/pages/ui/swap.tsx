@@ -17,6 +17,7 @@ import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
+  ChainVM,
   RelayChain
 } from '@reservoir0x/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
@@ -25,6 +26,8 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
+
+const WALLET_VM_TYPES = ['evm', 'bvm', 'svm'] as const
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -37,6 +40,9 @@ const SwapWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
   const [singleChainMode, setSingleChainMode] = useState(false)
+  const [supportedWalletVMs, setSupportedWalletVMs] = useState<ChainVM[]>([
+    ...WALLET_VM_TYPES
+  ])
   const _switchWallet = useSwitchWallet()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const userWallets = useUserWallets()
@@ -159,7 +165,7 @@ const SwapWidgetPage: NextPage = () => {
             key={`swap-widget-${singleChainMode ? 'single' : 'multi'}-chain`}
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
-            supportedWalletVMs={['evm', 'bvm', 'svm']}
+            supportedWalletVMs={supportedWalletVMs}
             defaultToToken={
               singleChainMode
                 ? {
@@ -294,7 +300,8 @@ const SwapWidgetPage: NextPage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginTop: '40px'
+          marginTop: '40px',
+          gap: '20px'
         }}
       >
         <div>
@@ -304,6 +311,34 @@ const SwapWidgetPage: NextPage = () => {
             checked={singleChainMode}
             onChange={(e) => setSingleChainMode(e.target.checked)}
           />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+            Supported Wallet VMs:
+          </div>
+          {WALLET_VM_TYPES.map((vm) => (
+            <div
+              key={vm}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+            >
+              <label htmlFor={`vm-${vm}`}>{vm.toUpperCase()}: </label>
+              <input
+                id={`vm-${vm}`}
+                type="checkbox"
+                checked={supportedWalletVMs.includes(vm)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSupportedWalletVMs((prev) => [...prev, vm])
+                  } else {
+                    setSupportedWalletVMs((prev) =>
+                      prev.filter((item) => item !== vm)
+                    )
+                  }
+                }}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </Layout>
