@@ -309,7 +309,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         return (
           <WidgetContainer
-            swap={swap}
             steps={steps}
             setSteps={setSteps}
             quote={quote}

@@ -32,7 +32,6 @@ type TransactionModalProps = {
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
-  swap: () => void
   steps: Execute['steps'] | null
   setSteps: Dispatch<SetStateAction<Execute['steps'] | null>>
   quote: ReturnType<typeof useQuote>['data']
@@ -51,7 +50,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
   const {
     quote,
     steps,
-    swap,
     swapError,
     setSwapError,
     open,
@@ -76,7 +74,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
       toToken={toToken}
       quote={quote}
       steps={steps}
-      swap={swap}
       swapError={swapError}
       setSwapError={setSwapError}
       slippageTolerance={slippageTolerance}

@@ -47,7 +47,6 @@ export type ChildrenProps = {
     SetStateAction<ExecuteStepItem | null | undefined>
   >
   quote: ReturnType<typeof useQuote>['data']
-  swap: () => void
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   steps: Execute['steps'] | null
@@ -82,7 +81,6 @@ type Props = {
   toToken?: Token
   slippageTolerance?: string
   wallet?: AdaptedWallet
-  swap: () => void
   steps: Execute['steps'] | null
   quote: ReturnType<typeof useQuote>['data']
   swapError: Error | null
@@ -103,7 +101,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   toToken,
   slippageTolerance,
   wallet,
-  swap,
   steps,
   quote,
   swapError,
@@ -243,7 +240,6 @@ export const TransactionModalRenderer: FC<Props> = ({
         currentStepItem,
         setCurrentStepItem,
         quote,
-        swap,
         steps,
         waitingForSteps,
         swapError,
