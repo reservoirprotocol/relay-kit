@@ -10,7 +10,6 @@ import type { LinkedWallet } from '../../types/index.js'
 import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 export type WidgetContainerProps = {
-  swap: () => void
   steps: Execute['steps'] | null
   quote: ReturnType<typeof useQuote>['data']
   transactionModalOpen: boolean
@@ -53,7 +52,6 @@ export type WidgetContainerProps = {
 >
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
-  swap,
   steps,
   setSteps,
   quote,
@@ -100,7 +98,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       {isMounted ? (
         <>
           <TransactionModal
-            swap={swap}
             steps={steps}
             setSteps={setSteps}
             quote={quote}
