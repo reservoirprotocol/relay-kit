@@ -234,7 +234,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       address !== bitcoinDeadAddress &&
       isValidAddress
       ? address
-      : undefined
+      : undefined,
+    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet'
   )
 
   const restrictedTokenAddresses = filteredRestrictedTokenList?.map((token) =>
