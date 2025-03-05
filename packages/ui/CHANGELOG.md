@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.5
+
+### Patch Changes
+
+- 5107aee: Dune token api chain_ids update
+- a173c5a: Remove 'Review Quote' step and consolidate tx flow into one ui state
+
 ## 2.7.4
 
 ### Patch Changes
