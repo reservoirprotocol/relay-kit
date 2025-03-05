@@ -193,7 +193,7 @@ export const StepRow: FC<StepRowProps> = ({
 
   return (
     <Flex align="center" justify="between" css={{ width: '100%', gap: '3' }}>
-      <Flex align="center" css={{ gap: '2', height: 40 }}>
+      <Flex align="center" css={{ gap: '3', height: 40 }}>
         <Flex
           css={{
             height: 24,
@@ -207,9 +207,10 @@ export const StepRow: FC<StepRowProps> = ({
               : isActive
               ? 'primary6'
               : 'gray5',
-            color: isCompleted ? 'green11' : isActive ? 'primary5' : 'gray9',
+            color: isCompleted ? 'green11' : isActive ? 'primary6' : 'gray9',
             animation:
-              isActive && !isCompleted ? 'pulse-shadow 1.5s infinite' : 'none'
+              isActive && !isCompleted ? 'pulse-shadow 1s infinite' : 'none',
+            animationDirection: 'alternate-reverse'
           }}
         >
           {isCompleted ? (
@@ -223,7 +224,8 @@ export const StepRow: FC<StepRowProps> = ({
                 width: 24,
                 borderRadius: 9999999,
                 overflow: 'hidden',
-                filter: isActive ? 'none' : 'grayscale(100%)'
+                filter: isActive ? 'none' : 'grayscale(100%)',
+                opacity: isActive ? 1 : 0.6
               }}
             />
           )}
