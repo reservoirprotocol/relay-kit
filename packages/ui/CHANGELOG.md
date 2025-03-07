@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.7
+
+### Patch Changes
+
+- 62952a9: Ensure quote is always fresh when TransactionModal closes
+
 ## 2.7.6
 
 ### Patch Changes
