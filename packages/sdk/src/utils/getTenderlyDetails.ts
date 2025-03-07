@@ -18,7 +18,8 @@ export const getTenderlyDetails = (
         resolve(null)
       })
       .catch((e) => {
-        reject(e)
+        console.warn(`Tenderly api failed: ${e}`)
+        resolve(null)
       })
   })
 }
