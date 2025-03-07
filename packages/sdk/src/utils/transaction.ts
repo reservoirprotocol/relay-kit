@@ -20,6 +20,10 @@ import {
   TransactionConfirmationError
 } from '../errors/index.js'
 import { repeatUntilOk } from '../utils/repeatUntilOk.js'
+import {
+  getTenderlyDetails,
+  type TenderlyErrorInfo
+} from '../utils/getTenderlyDetails.js'
 
 /**
  * Safe txhash.wait which handles replacements when users speed up the transaction
@@ -281,9 +285,15 @@ export async function sendTransactionSafely(
             LogLevel.Verbose
           )
         })
-        .catch((error) => {
+        .catch(async (error) => {
           if (signal.aborted) {
             return
+          }
+          let tenderlyError: TenderlyErrorInfo | null = null
+          if (receipt && (receipt as TransactionReceipt).transactionHash) {
+            tenderlyError = await getTenderlyDetails(
+              (receipt as TransactionReceipt).transactionHash
+            )
           }
           getClient()?.log(
             ['Error in handleConfirmTransactionStep', error],
@@ -293,7 +303,11 @@ export async function sendTransactionSafely(
             transactionCancelled = true
           } else {
             confirmationError = true
-            throw new TransactionConfirmationError(error, receipt)
+            throw new TransactionConfirmationError(
+              error,
+              receipt,
+              tenderlyError
+            )
           }
         }),
       controller
