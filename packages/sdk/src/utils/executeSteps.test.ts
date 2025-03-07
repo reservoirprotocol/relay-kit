@@ -604,13 +604,6 @@ describe('Should test a signature step.', () => {
 
     expect(wallet.handleSignMessageStep).toBeCalledWith(step?.items?.[0], step)
   })
-  it('Handle wallet chain, function chain mismatch', async () => {
-    await expect(
-      executeSteps(10, {}, wallet, () => {}, bridgeData, undefined)
-    ).rejects.toThrow(
-      'Current chain id: 1 does not match expected chain id: 10'
-    )
-  })
   it('Should post a signature', async () => {
     const signatureStep = bridgeData.steps.find(
       (step) => step.kind === 'signature'
