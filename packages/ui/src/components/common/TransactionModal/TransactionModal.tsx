@@ -37,11 +37,11 @@ type TransactionModalProps = {
   quote: ReturnType<typeof useQuote>['data']
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
-  invalidateBalanceQueries: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
   onSuccess?: (data: Execute) => void
   onSwapValidating?: (data: Execute) => void
+  invalidateQuoteQuery: () => void
 }
 
 export const TransactionModal: FC<TransactionModalProps> = (
@@ -54,7 +54,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
     setSwapError,
     open,
     address,
-    fromChain,
     fromToken,
     toToken,
     useExternalLiquidity,
@@ -62,10 +61,10 @@ export const TransactionModal: FC<TransactionModalProps> = (
     timeEstimate,
     isCanonical,
     wallet,
-    invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess,
-    onSwapValidating
+    onSwapValidating,
+    invalidateQuoteQuery
   } = transactionModalProps
   return (
     <TransactionModalRenderer
@@ -79,7 +78,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
       slippageTolerance={slippageTolerance}
       address={address}
       wallet={wallet}
-      invalidateBalanceQueries={invalidateBalanceQueries}
       onValidating={(quote) => {
         const steps = quote?.steps
         const details = quote?.details
@@ -189,7 +187,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   isCanonical,
   fromChain,
   toChain,
-  isLoadingTransaction
+  isLoadingTransaction,
+  invalidateQuoteQuery
 }) => {
   useEffect(() => {
     if (!open) {
@@ -202,6 +201,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setStartTimestamp(0)
       setSwapError(null)
       setSteps(null)
+      invalidateQuoteQuery()
     } else {
       setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)
