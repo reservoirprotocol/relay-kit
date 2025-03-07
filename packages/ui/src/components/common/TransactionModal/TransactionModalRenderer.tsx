@@ -85,7 +85,6 @@ type Props = {
   quote: ReturnType<typeof useQuote>['data']
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
-  invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
     quote: ReturnType<typeof useQuote>['data'],

@@ -135,6 +135,7 @@ export type ChildrenProps = {
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
   invalidateBalanceQueries: () => void
+  invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
@@ -498,7 +499,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     data: _quoteData,
     error: quoteError,
     isLoading: isFetchingQuote,
-    executeQuote: executeSwap
+    executeQuote: executeSwap,
+    queryKey: quoteQueryKey
   } = useQuote(
     relayClient ? relayClient : undefined,
     wallet,
@@ -526,6 +528,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       })
     }
   )
+
+  const invalidateQuoteQuery = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: quoteQueryKey })
+  }, [queryClient, quoteQueryKey])
 
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
@@ -848,6 +854,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isRecipientLinked,
         recipientWalletSupportsChain,
         invalidateBalanceQueries,
+        invalidateQuoteQuery,
         setUseExternalLiquidity,
         setDetails,
         setSwapError
