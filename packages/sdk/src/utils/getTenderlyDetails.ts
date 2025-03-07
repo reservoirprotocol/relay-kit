@@ -8,9 +8,11 @@ export type TenderlyErrorInfo = {
 export const getTenderlyDetails = (
   txHash: string
 ): Promise<TenderlyErrorInfo | null> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     axios
-      .get(`https://api.tenderly.co/api/v1/explorer/${txHash}`)
+      .get(`https://api.tenderly.co/api/v1/explorer/${txHash}`, {
+        timeout: 5000
+      })
       .then((response) => {
         if (response && response.data && response.data.error_info) {
           resolve(response.data.error_info)
