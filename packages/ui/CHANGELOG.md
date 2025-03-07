@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.6
+
+### Patch Changes
+
+- 4f5f328: Fix transaction validating event getting triggered multiple times
+- Updated dependencies [e0133b1]
+  - @reservoir0x/relay-sdk@1.6.5
+  - @reservoir0x/relay-kit-hooks@1.8.1
+
 ## 2.7.5
 
 ### Patch Changes
