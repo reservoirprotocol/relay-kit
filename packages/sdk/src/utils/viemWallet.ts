@@ -144,14 +144,9 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         if (!chain) {
           throw 'Chain missing from Relay Client'
         }
-        try {
-          await wallet.addChain({
-            chain: chain?.viemChain!
-          })
-        } catch (e) {
-          console.warn(e)
-          // throw 'Add chain failed'
-        }
+        await wallet.addChain({
+          chain: chain?.viemChain!
+        })
         return
       }
     },
