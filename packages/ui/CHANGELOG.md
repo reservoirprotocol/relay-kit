@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.9
+
+### Patch Changes
+
+- f1f6d42: Tron support
+- Updated dependencies [f1f6d42]
+  - @reservoir0x/relay-sdk@1.6.7
+  - @reservoir0x/relay-kit-hooks@1.8.3
+
 ## 2.7.8
 
 ### Patch Changes
