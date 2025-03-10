@@ -199,7 +199,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   ...currency,
                   chainId: chain.id,
                   metadata: {
-                    logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                    logoURI: `${ASSETS_RELAY_API}/icons/currencies/${currency?.symbol?.toLowerCase()}.png`,
                     verified: true
                   }
                 }
