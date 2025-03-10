@@ -7,7 +7,7 @@ export const solDeadAddress =
 export const eclipseDeadAddress =
   'CrfbABN2sSvmoZLu9eDDfXpaC2nHg42R7AXbHs9eg4S9' as const
 export const bitcoinDeadAddress = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
-export const zeroDeadAddress = '0x03508bB71268BBA25ECaCC8F620e01866650532c'
+export const zeroDeadAddress = '0x00000000000000000000000000000000000dead0'
 
 export const getDeadAddress = (vmType?: ChainVM, chainId?: number) => {
   if (vmType === 'svm') {
