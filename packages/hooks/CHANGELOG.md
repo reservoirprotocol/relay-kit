@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.8.2
+
+### Patch Changes
+
+- 7a675e3: Swallow useQuote error if onError handler is passed
+- Updated dependencies [b0d1c88]
+  - @reservoir0x/relay-sdk@1.6.6
+
 ## 1.8.1
 
 ### Patch Changes
