@@ -150,6 +150,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? configuredChains?.filter(
           (chain) =>
             (chain.vmType === 'evm' ||
+              chain.vmType === 'suivm' ||
               chain.id === solana.id ||
               chain.id === eclipse.id ||
               chain.id === bitcoin.id) &&

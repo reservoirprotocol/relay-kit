@@ -94,11 +94,13 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const isDesktop = size === 'desktop' && !isSmallDevice
 
   const supportedChains = selectedCurrencyList?.chains || []
+  debugger
   const allChains =
     client?.chains?.filter(
       (chain: RelayChain) =>
         (context !== 'from' ||
           chain.vmType === 'evm' ||
+          chain.vmType === 'suivm' ||
           chain.id === solana.id ||
           chain.id === eclipse.id ||
           chain.id === bitcoin.id ||
