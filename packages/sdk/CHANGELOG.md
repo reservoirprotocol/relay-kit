@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.7
+
+### Patch Changes
+
+- f1f6d42: Tron support
+
 ## 1.6.6
 
 ### Patch Changes
