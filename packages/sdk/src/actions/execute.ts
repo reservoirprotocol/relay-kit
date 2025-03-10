@@ -54,6 +54,10 @@ export async function execute(data: ExecuteActionParameters) {
       throw new Error('Recipient should never be burn address')
     }
 
+    if (isDeadAddress(quote?.details?.sender)) {
+      throw new Error('Sender should never be burn address')
+    }
+
     const { request, ...restOfQuote } = quote
     const _quote = safeStructuredClone(restOfQuote)
 
