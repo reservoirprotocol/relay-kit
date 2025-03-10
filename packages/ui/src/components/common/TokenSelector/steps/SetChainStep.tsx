@@ -30,6 +30,7 @@ import type { Token } from '../../../../types/index.js'
 import { eclipse, solana } from '../../../../utils/solana.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
+import { tron } from '../../../../utils/tron.js'
 import ChainSuggestedTokens from '../../../../constants/ChainSuggestedTokens.js'
 import { zeroAddress } from 'viem'
 
@@ -93,6 +94,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   const isDesktop = size === 'desktop' && !isSmallDevice
 
   const supportedChains = selectedCurrencyList?.chains || []
+  debugger
   const allChains =
     client?.chains?.filter(
       (chain: RelayChain) =>
@@ -101,7 +103,8 @@ export const SetChainStep: FC<SetChainStepProps> = ({
           chain.vmType === 'suivm' ||
           chain.id === solana.id ||
           chain.id === eclipse.id ||
-          chain.id === bitcoin.id) &&
+          chain.id === bitcoin.id ||
+          chain.id === tron.id) &&
         (context !== 'from' ||
           multiWalletSupportEnabled ||
           chain.vmType === 'evm') &&
@@ -214,7 +217,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
                   ...currency,
                   chainId: chain.id,
                   metadata: {
-                    logoURI: `${ASSETS_RELAY_API}/icons/currencies/${chain.relayChain.currency?.id}.png`,
+                    logoURI: `${ASSETS_RELAY_API}/icons/currencies/${currency?.symbol?.toLowerCase()}.png`,
                     verified: true
                   }
                 }
