@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.6
+
+### Patch Changes
+
+- b0d1c88: Fix sender sometimes being set to dead address
+
 ## 1.6.5
 
 ### Patch Changes
