@@ -151,6 +151,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           (chain) =>
             (chain.vmType === 'evm' ||
               chain.vmType === 'suivm' ||
+              chain.vmType === 'tvm' ||
               chain.id === solana.id ||
               chain.id === eclipse.id ||
               chain.id === bitcoin.id) &&

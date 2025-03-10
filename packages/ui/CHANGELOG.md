@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.10
+
+### Patch Changes
+
+- 0cad99d: Fix tvm filter
+
 ## 2.7.9
 
 ### Patch Changes
