@@ -1,4 +1,4 @@
-import { formatUnits, zeroAddress } from 'viem'
+import { formatUnits, isAddress, zeroAddress } from 'viem'
 import { ProviderOptionsContext } from '../providers/RelayKitProvider.js'
 import { useContext } from 'react'
 import {
@@ -40,8 +40,8 @@ export default (
 ) => {
   const providerOptions = useContext(ProviderOptionsContext)
   const queryKey = ['useDuneBalances', address]
+  const isEvmAddress = isAddress(address ?? '')
   const isSvmAddress = isSolanaAddress(address ?? '')
-  const isBvmAddress = isBitcoinAddress(address ?? '')
 
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
@@ -51,7 +51,7 @@ export default (
         url = `https://api.dune.com/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
-      if (isBvmAddress) {
+      if (!isSvmAddress && !isEvmAddress) {
         return null
       }
 
@@ -103,7 +103,7 @@ export default (
       address !== undefined &&
       providerOptions.duneApiKey !== undefined &&
       queryOptions?.enabled &&
-      !isBvmAddress
+      (isSvmAddress || isEvmAddress)
   })
 
   response?.data?.balances?.forEach((balance) => {
