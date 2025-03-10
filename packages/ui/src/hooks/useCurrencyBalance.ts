@@ -12,6 +12,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import { isValidAddress } from '../utils/address.js'
+import useRelayClient from './useRelayClient.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -41,6 +42,7 @@ const useCurrencyBalance = ({
 }: UseBalanceProps): UseCurrencyBalanceData => {
   const isErc20Currency = currency && currency !== zeroAddress
   const isValidEvmAddress = address && isAddress(address)
+  const relayClient = useRelayClient()
 
   const {
     data: ethBalance,
@@ -89,11 +91,15 @@ const useCurrencyBalance = ({
 
   const _isValidAddress = isValidAddress(chain?.vmType, address, chain?.id)
 
-  const duneBalances = useDuneBalances(address, {
-    enabled: Boolean(
-      chain && chain.vmType === 'svm' && address && _isValidAddress && enabled
-    )
-  })
+  const duneBalances = useDuneBalances(
+    address,
+    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet',
+    {
+      enabled: Boolean(
+        chain && chain.vmType === 'svm' && address && _isValidAddress && enabled
+      )
+    }
+  )
 
   const bitcoinBalances = useBitcoinBalance(address, {
     enabled: Boolean(

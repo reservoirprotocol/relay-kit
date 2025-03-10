@@ -1,5 +1,40 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.7
+
+### Patch Changes
+
+- 62952a9: Ensure quote is always fresh when TransactionModal closes
+
+## 2.7.6
+
+### Patch Changes
+
+- 4f5f328: Fix transaction validating event getting triggered multiple times
+- Updated dependencies [e0133b1]
+  - @reservoir0x/relay-sdk@1.6.5
+  - @reservoir0x/relay-kit-hooks@1.8.1
+
+## 2.7.5
+
+### Patch Changes
+
+- 5107aee: Dune token api chain_ids update
+- a173c5a: Remove 'Review Quote' step and consolidate tx flow into one ui state
+
+## 2.7.4
+
+### Patch Changes
+
+- 99c4dbd: Fixes for suggested tokens and default token
+
+## 2.7.3
+
+### Patch Changes
+
+- 5eefe1f: Fix default selected token
+- a662444: Wallet compatibility for major wallets and abstract address detection
+
 ## 2.7.2
 
 ### Patch Changes

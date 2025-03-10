@@ -11,6 +11,7 @@ type SwapButtonProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onClick: () => void
   context: 'Swap' | 'Deposit' | 'Withdraw'
+  showHighPriceImpactWarning: boolean
 } & Pick<
   ChildrenProps,
   | 'quote'
@@ -24,6 +25,7 @@ type SwapButtonProps = {
   | 'isValidFromAddress'
   | 'isValidToAddress'
   | 'fromChainWalletVMSupported'
+  | 'recipientWalletSupportsChain'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
@@ -32,6 +34,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   isValidFromAddress,
   isValidToAddress,
   context,
+  showHighPriceImpactWarning,
   onConnectWallet,
   quote,
   address,
@@ -41,6 +44,7 @@ const SwapButton: FC<SwapButtonProps> = ({
   debouncedOutputAmountValue,
   isSameCurrencySameRecipientSwap,
   fromChainWalletVMSupported,
+  recipientWalletSupportsChain,
   onClick,
   ctaCopy,
   onAnalyticEvent
@@ -56,6 +60,7 @@ const SwapButton: FC<SwapButtonProps> = ({
     return (
       <Button
         css={{ justifyContent: 'center' }}
+        color={showHighPriceImpactWarning ? 'error' : 'primary'}
         aria-label={context}
         disabled={
           isValidToAddress &&
@@ -65,7 +70,8 @@ const SwapButton: FC<SwapButtonProps> = ({
             isInsufficientLiquidityError ||
             transactionModalOpen ||
             depositAddressModalOpen ||
-            isSameCurrencySameRecipientSwap)
+            isSameCurrencySameRecipientSwap ||
+            !recipientWalletSupportsChain)
         }
         onClick={() => {
           onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {

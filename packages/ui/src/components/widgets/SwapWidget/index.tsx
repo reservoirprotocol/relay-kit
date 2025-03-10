@@ -20,7 +20,10 @@ import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
-import { faClipboard } from '@fortawesome/free-solid-svg-icons'
+import {
+  faClipboard,
+  faExclamationCircle
+} from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
@@ -127,6 +130,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     <SwapWidgetRenderer
       context="Swap"
       transactionModalOpen={transactionModalOpen}
+      setTransactionModalOpen={setTransactionModalOpen}
       depositAddressModalOpen={depositAddressModalOpen}
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
@@ -143,6 +147,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     >
       {({
         quote,
+        steps,
+        swap,
+        setSteps,
         feeBreakdown,
         fromToken,
         setFromToken,
@@ -192,9 +199,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         fromChainWalletVMSupported,
         toChainWalletVMSupported,
         isRecipientLinked,
-        setUseExternalLiquidity,
+        swapError,
+        recipientWalletSupportsChain,
         setSwapError,
-        invalidateBalanceQueries
+        setUseExternalLiquidity,
+        invalidateBalanceQueries,
+        invalidateQuoteQuery
       }) => {
         const handleSetFromToken = (token?: Token) => {
           let _token = token
@@ -291,8 +301,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         const isAutoSlippage = slippageTolerance === undefined
 
+        const isHighPriceImpact =
+          Number(quote?.details?.totalImpact?.percent) < -3.5
+        const totalImpactUsd = quote?.details?.totalImpact?.usd
+        const showHighPriceImpactWarning = Boolean(
+          isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
+        )
+
         return (
           <WidgetContainer
+            steps={steps}
+            setSteps={setSteps}
+            quote={quote}
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
             depositAddressModalOpen={depositAddressModalOpen}
@@ -313,6 +333,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onTransactionModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                setSteps(null)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
@@ -322,10 +343,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             }}
             useExternalLiquidity={useExternalLiquidity}
             slippageTolerance={slippageTolerance}
-            onSwapSuccess={onSwapSuccess}
+            swapError={swapError}
+            setSwapError={setSwapError}
+            onSwapSuccess={(data) => {
+              onSwapSuccess?.(data)
+            }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
             invalidateBalanceQueries={invalidateBalanceQueries}
+            invalidateQuoteQuery={invalidateQuoteQuery}
             customToAddress={customToAddress}
             setCustomToAddress={setCustomToAddress}
             timeEstimate={timeEstimate}
@@ -1009,7 +1035,31 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     containerCss={{
                       mb: 'widget-card-section-gutter'
                     }}
+                    recipientWalletSupportsChain={recipientWalletSupportsChain}
                   />
+                  {showHighPriceImpactWarning ? (
+                    <Flex
+                      align="center"
+                      css={{
+                        gap: '2',
+                        py: '2',
+                        px: '3',
+                        backgroundColor: 'red2',
+                        borderRadius: 12,
+                        mb: 'widget-card-section-gutter'
+                      }}
+                    >
+                      <Box css={{ color: 'red9' }}>
+                        <FontAwesomeIcon
+                          icon={faExclamationCircle}
+                          width={16}
+                        />
+                      </Box>
+                      <Text style="subtitle3" css={{ color: 'amber12' }}>
+                        The price impact is high.
+                      </Text>
+                    </Flex>
+                  ) : null}
                   {promptSwitchRoute ? (
                     <Button
                       color="primary"
@@ -1029,6 +1079,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       isValidToAddress={isValidToAddress}
                       fromChainWalletVMSupported={fromChainWalletVMSupported}
                       context={'Swap'}
+                      showHighPriceImpactWarning={showHighPriceImpactWarning}
                       onConnectWallet={onConnectWallet}
                       onAnalyticEvent={onAnalyticEvent}
                       quote={quote}
@@ -1036,6 +1087,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       hasInsufficientBalance={hasInsufficientBalance}
                       isInsufficientLiquidityError={
                         isInsufficientLiquidityError
+                      }
+                      recipientWalletSupportsChain={
+                        recipientWalletSupportsChain
                       }
                       debouncedInputAmountValue={debouncedInputAmountValue}
                       debouncedOutputAmountValue={debouncedOutputAmountValue}
@@ -1072,7 +1126,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               setAddressModalOpen(true)
                             }
                           } else {
-                            setTransactionModalOpen(true)
+                            swap()
                           }
                         } else {
                           if (!isValidToAddress) {

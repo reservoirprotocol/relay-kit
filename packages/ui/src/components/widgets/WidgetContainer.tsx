@@ -7,8 +7,11 @@ import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 import { useAccount } from 'wagmi'
 import type { LinkedWallet } from '../../types/index.js'
+import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 export type WidgetContainerProps = {
+  steps: Execute['steps'] | null
+  quote: ReturnType<typeof useQuote>['data']
   transactionModalOpen: boolean
   depositAddressModalOpen: boolean
   addressModalOpen: boolean
@@ -27,6 +30,7 @@ export type WidgetContainerProps = {
   onSwapSuccess?: (data: Execute) => void
   onSwapValidating?: (data: Execute) => void
   invalidateBalanceQueries: () => void
+  invalidateQuoteQuery: () => void
 } & Pick<
   ChildrenProps,
   | 'fromToken'
@@ -43,9 +47,15 @@ export type WidgetContainerProps = {
   | 'useExternalLiquidity'
   | 'timeEstimate'
   | 'slippageTolerance'
+  | 'setSteps'
+  | 'swapError'
+  | 'setSwapError'
 >
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
+  steps,
+  setSteps,
+  quote,
   transactionModalOpen,
   setTransactionModalOpen,
   depositAddressModalOpen,
@@ -58,9 +68,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   toToken,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
-  amountInputValue,
-  amountOutputValue,
-  tradeType,
   customToAddress,
   address,
   useExternalLiquidity,
@@ -71,12 +78,15 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   wallet,
   linkedWallets,
   multiWalletSupportEnabled,
+  swapError,
+  setSwapError,
   onTransactionModalOpenChange,
   onDepositAddressModalOpenChange,
   onSwapSuccess,
   onSwapValidating,
   onAnalyticEvent,
   invalidateBalanceQueries,
+  invalidateQuoteQuery,
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
@@ -87,32 +97,32 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
       {isMounted ? (
         <>
           <TransactionModal
+            steps={steps}
+            setSteps={setSteps}
+            quote={quote}
+            swapError={swapError}
+            setSwapError={setSwapError}
             open={transactionModalOpen}
             onOpenChange={(open) => {
               onTransactionModalOpenChange(open)
               setTransactionModalOpen(open)
             }}
             fromChain={fromChain}
+            toChain={toChain}
             fromToken={fromToken}
             toToken={toToken}
-            amountInputValue={amountInputValue}
-            amountOutputValue={amountOutputValue}
-            debouncedInputAmountValue={debouncedInputAmountValue}
-            debouncedOutputAmountValue={debouncedOutputAmountValue}
-            tradeType={tradeType}
             useExternalLiquidity={useExternalLiquidity}
             slippageTolerance={slippageTolerance}
             address={address}
-            recipient={recipient}
             isCanonical={useExternalLiquidity}
             timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
             onSwapValidating={onSwapValidating}
-            invalidateBalanceQueries={invalidateBalanceQueries}
             wallet={wallet}
             linkedWallets={linkedWallets}
             multiWalletSupportEnabled={multiWalletSupportEnabled}
+            invalidateQuoteQuery={invalidateQuoteQuery}
           />
           <DepositAddressModal
             open={depositAddressModalOpen}

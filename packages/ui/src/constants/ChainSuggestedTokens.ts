@@ -41,6 +41,12 @@ export enum ChainId {
   SOLANA = 792703809,
   ANCIENT8 = 888888888,
   RARI = 1380012617,
+  BERA = 80094,
+  BNB = 56,
+  SEI = 1329,
+  CELO = 42220,
+  STORY = 1514,
+  SONIC = 146,
 
   // Testnets
   BOBA_TESTNET = 111,
@@ -550,6 +556,16 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
   [ChainId.SOLANA]: [
     {
       chainId: ChainId.SOLANA,
+      address: '11111111111111111111111111111111',
+      name: 'Solana',
+      symbol: 'SOL',
+      decimals: 9,
+      logoURI:
+        'https://coin-images.coingecko.com/coins/images/21629/large/solana.jpg?1696520989',
+      verified: true
+    },
+    {
+      chainId: ChainId.SOLANA,
       address: 'So11111111111111111111111111111111111111112',
       name: 'Wrapped SOL',
       symbol: 'WSOL',
@@ -568,6 +584,73 @@ const ChainSuggestedTokens: Record<number, Token[]> = {
       decimals: 18,
       logoURI:
         'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+      verified: true
+    }
+  ],
+  [ChainId.BERA]: [
+    {
+      chainId: ChainId.BERA,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'BERA Token',
+      symbol: 'BERA',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/bera.png',
+      verified: true
+    }
+  ],
+  //
+  [ChainId.BNB]: [
+    {
+      chainId: ChainId.BNB,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'Binance Coin',
+      symbol: 'BNB',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/bnb.png',
+      verified: true
+    }
+  ],
+  [ChainId.CELO]: [
+    {
+      chainId: ChainId.CELO,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'CELO',
+      symbol: 'CELO',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/celo.png',
+      verified: true
+    }
+  ],
+  [ChainId.SEI]: [
+    {
+      chainId: ChainId.SEI,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'Sei',
+      symbol: 'SEI',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/sei.png',
+      verified: true
+    }
+  ],
+  [ChainId.SONIC]: [
+    {
+      chainId: ChainId.SONIC,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'S',
+      symbol: 'S',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/s.png',
+      verified: true
+    }
+  ],
+  [ChainId.STORY]: [
+    {
+      chainId: ChainId.STORY,
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'IP',
+      symbol: 'IP',
+      decimals: 18,
+      logoURI: 'https://assets.relay.link/icons/currencies/ip.png',
       verified: true
     }
   ]

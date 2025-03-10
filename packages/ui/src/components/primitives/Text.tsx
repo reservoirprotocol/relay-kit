@@ -83,6 +83,9 @@ const TextCss = cva({
       },
       warning: {
         color: 'amber12'
+      },
+      warningSecondary: {
+        color: 'amber11'
       }
     },
     italic: {

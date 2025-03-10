@@ -33,7 +33,11 @@ type QueryType = typeof useQuery<
 >
 type QueryOptions = Parameters<QueryType>['0']
 
-export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
+export default (
+  address?: string,
+  evmChainIds: 'mainnet' | 'testnet' = 'mainnet',
+  queryOptions?: Partial<QueryOptions>
+) => {
   const providerOptions = useContext(ProviderOptionsContext)
   const queryKey = ['useDuneBalances', address]
   const isEvmAddress = isAddress(address ?? '')
@@ -42,7 +46,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=all&exclude_spam_tokens=true`
+      let url = `https://api.dune.com/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
       if (isSvmAddress) {
         url = `https://api.dune.com/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }

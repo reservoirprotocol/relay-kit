@@ -12,6 +12,7 @@ import { convertApiCurrencyToToken } from '../../../utils/tokens.js'
 import { useMemo } from 'react'
 import ChainSuggestedTokens from '../../../constants/ChainSuggestedTokens.js'
 import { type Currency } from '@reservoir0x/relay-kit-hooks'
+import { zeroAddress } from 'viem'
 
 type SuggestedTokensProps = {
   chainId: number
@@ -66,7 +67,27 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
       }
     })
 
-    return Object.values(uniqueTokens)
+    return Object.values(uniqueTokens).sort((a, b) => {
+      const order: Record<string, number> = {
+        ETH: 1,
+        SOL: 1,
+        USDC: 2,
+        USDT: 3
+      }
+      const aOrder =
+        a.address === zeroAddress
+          ? -1
+          : a.symbol && order[a.symbol]
+            ? order[a.symbol]
+            : 4
+      const bOrder =
+        b.address === zeroAddress
+          ? -1
+          : b.symbol && order[b.symbol]
+            ? order[b.symbol]
+            : 4
+      return aOrder - bOrder || (a?.symbol ?? '').localeCompare(b?.symbol ?? '')
+    })
   }, [nativeCurrency, suggestedErc20Tokens, staticSuggestedTokens])
 
   if (!allSuggestedTokens) {

@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.5
+
+### Patch Changes
+
+- e0133b1: Check tx confirmation error with tenderly api to enhance error data
+
 ## 1.6.4
 
 ### Patch Changes
