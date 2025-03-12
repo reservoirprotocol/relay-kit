@@ -9,19 +9,27 @@ import {
   faExternalLink
 } from '@fortawesome/free-solid-svg-icons'
 import useRelayClient from '../../hooks/useRelayClient.js'
+import {
+  alreadyAcceptedToken,
+  getRelayUiKitData,
+  setRelayUiKitData
+} from '../../utils/localStorage.js'
+import { EventNames } from '../../constants/events.js'
 
 type UnverifiedTokenModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   token?: Token
   onAcceptToken: (token?: Token) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
   open,
   onOpenChange,
   token,
-  onAcceptToken
+  onAcceptToken,
+  onAnalyticEvent
 }) => {
   const client = useRelayClient()
   const chain = client?.chains?.find((chain) => chain.id === token?.chainId)
@@ -125,6 +133,22 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
             </Button>
             <Button
               onClick={() => {
+                if (token) {
+                  const tokenIdentifier = `${token.chainId}:${token.address}`
+                  const alreadyAccepted = alreadyAcceptedToken(token)
+                  const currentData = getRelayUiKitData()
+                  if (!alreadyAccepted) {
+                    setRelayUiKitData({
+                      acceptedUnverifiedTokens: [
+                        ...currentData.acceptedUnverifiedTokens,
+                        tokenIdentifier
+                      ]
+                    })
+                  }
+                  onAnalyticEvent?.(EventNames.UNVERIFIED_TOKEN_ACCEPTED, {
+                    token
+                  })
+                }
                 onAcceptToken(token)
               }}
               color="warning"
