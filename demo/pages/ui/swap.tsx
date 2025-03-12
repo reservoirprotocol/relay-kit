@@ -166,27 +166,27 @@ const SwapWidgetPage: NextPage = () => {
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
             supportedWalletVMs={supportedWalletVMs}
-            defaultToToken={
-              singleChainMode
-                ? {
-                    chainId: 8453,
-                    address: '0x4200000000000000000000000000000000000006',
-                    decimals: 18,
-                    name: 'WETH',
-                    symbol: 'WETH',
-                    logoURI:
-                      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
-                  }
-                : {
-                    chainId: 10,
-                    address: '0x0000000000000000000000000000000000000000',
-                    decimals: 18,
-                    name: 'ETH',
-                    symbol: 'ETH',
-                    logoURI:
-                      'https://assets.relay.link/icons/currencies/eth.png'
-                  }
-            }
+            // defaultToToken={
+            //   singleChainMode
+            //     ? {
+            //         chainId: 8453,
+            //         address: '0x4200000000000000000000000000000000000006',
+            //         decimals: 18,
+            //         name: 'WETH',
+            //         symbol: 'WETH',
+            //         logoURI:
+            //           'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+            //       }
+            //     : {
+            //         chainId: 10,
+            //         address: '0x0000000000000000000000000000000000000000',
+            //         decimals: 18,
+            //         name: 'ETH',
+            //         symbol: 'ETH',
+            //         logoURI:
+            //           'https://assets.relay.link/icons/currencies/eth.png'
+            //       }
+            // }
             // defaultToToken={{
             //   chainId: 10,
             //   address: '0x0000000000000000000000000000000000000000',

@@ -1,11 +1,12 @@
 import { type FC, useState } from 'react'
 import { type Chain } from 'viem/chains'
-import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
-import { Button, Flex, Text } from '../primitives/index.js'
-import ChainIcon from '../primitives/ChainIcon.js'
+import { Dropdown, DropdownMenuItem } from '../../primitives/Dropdown.js'
+import { Button, Flex, Text } from '../../primitives/index.js'
+import ChainIcon from '../../primitives/ChainIcon.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import AllChainsLogo from '../../../img/AllChainsLogo.js'
 
 export type ChainFilterValue =
   | Chain
@@ -104,15 +105,16 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   width: '100%'
                 }}
               >
-                <ChainIcon
-                  css={{
-                    height: 20,
-                    width: 20,
-                    borderRadius: 4,
-                    overflow: 'hidden'
-                  }}
-                  chainId={option.id}
-                />
+                {option.id ? (
+                  <ChainIcon
+                    chainId={option.id}
+                    square
+                    width={24}
+                    height={24}
+                  />
+                ) : (
+                  <AllChainsLogo style={{ width: 24, height: 24 }} />
+                )}
                 <Text style="subtitle2">
                   {' '}
                   {('displayName' in option && option.displayName) ||

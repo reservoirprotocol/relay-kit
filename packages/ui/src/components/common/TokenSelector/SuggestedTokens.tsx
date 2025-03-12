@@ -78,14 +78,14 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
         a.address === zeroAddress
           ? -1
           : a.symbol && order[a.symbol]
-            ? order[a.symbol]
-            : 4
+          ? order[a.symbol]
+          : 4
       const bOrder =
         b.address === zeroAddress
           ? -1
           : b.symbol && order[b.symbol]
-            ? order[b.symbol]
-            : 4
+          ? order[b.symbol]
+          : 4
       return aOrder - bOrder || (a?.symbol ?? '').localeCompare(b?.symbol ?? '')
     })
   }, [nativeCurrency, suggestedErc20Tokens, staticSuggestedTokens])

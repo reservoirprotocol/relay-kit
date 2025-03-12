@@ -9,7 +9,7 @@ import {
 import { Flex } from '../../primitives/index.js'
 import { Modal } from '../Modal.js'
 import type { Token } from '../../../types/index.js'
-import { type ChainFilterValue } from '../ChainFilter.js'
+import { type ChainFilterValue } from './ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
 import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
