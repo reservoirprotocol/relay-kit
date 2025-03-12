@@ -39,6 +39,7 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
+import { alreadyAcceptedToken } from '../../utils/localStorage.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -203,9 +204,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const [swapError, setSwapError] = useState<Error | null>(null)
   const [fromToken, setFromToken] = useState<Token | undefined>(
-    defaultFromToken
+    defaultFromToken &&
+      'verified' in defaultFromToken &&
+      !defaultFromToken.verified &&
+      !alreadyAcceptedToken(defaultFromToken)
+      ? undefined
+      : defaultFromToken
   )
-  const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
+  const [toToken, setToToken] = useState<Token | undefined>(
+    defaultToToken &&
+      'verified' in defaultToToken &&
+      !defaultToToken.verified &&
+      !alreadyAcceptedToken(defaultToToken)
+      ? undefined
+      : defaultToToken
+  )
   const tokenPairIsCanonical =
     fromToken?.chainId !== undefined &&
     toToken?.chainId !== undefined &&

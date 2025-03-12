@@ -661,22 +661,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           token={unverifiedToken}
           onAcceptToken={(token) => {
             if (token) {
-              const currentData = getRelayUiKitData()
-              const tokenIdentifier = `${token.chainId}:${token.address}`
-
-              if (
-                !currentData.acceptedUnverifiedTokens.includes(tokenIdentifier)
-              ) {
-                setRelayUiKitData({
-                  acceptedUnverifiedTokens: [
-                    ...currentData.acceptedUnverifiedTokens,
-                    tokenIdentifier
-                  ]
-                })
-              }
-
               selectToken(token, token.chainId)
-              onAnalyticEvent?.(EventNames.UNVERIFIED_TOKEN_ACCEPTED, { token })
             }
             resetState()
             setOpen(false)
