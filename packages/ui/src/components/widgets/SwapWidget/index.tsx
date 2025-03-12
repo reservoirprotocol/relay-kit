@@ -750,7 +750,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             }
                             chain={toChain}
                             onLinkNewWallet={() => {
-                              if (!address && fromChainWalletVMSupported) {
+                              if (!address && toChainWalletVMSupported) {
                                 onConnectWallet?.()
                               } else {
                                 onLinkNewWallet?.({
