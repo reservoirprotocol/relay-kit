@@ -477,8 +477,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                                ? formatFixedLength(amountInputValue, 8)
-                                : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -541,13 +541,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    fromToken?.chainId,
-                                    lockChainId,
-                                    toToken?.chainId,
-                                    lockFromToken
-                                  ) && fromToken?.chainId
-                                ? [fromToken.chainId]
-                                : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -856,8 +856,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                                ? formatFixedLength(amountOutputValue, 8)
-                                : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -949,13 +949,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    toToken?.chainId,
-                                    lockChainId,
-                                    fromToken?.chainId,
-                                    lockToToken
-                                  ) && toToken?.chainId
-                                ? [toToken.chainId]
-                                : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
@@ -1078,29 +1078,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         recipientWalletSupportsChain
                       }
                     />
-                    {showHighPriceImpactWarning ? (
-                      <Flex
-                        align="center"
-                        css={{
-                          gap: '2',
-                          py: '2',
-                          px: '3',
-                          backgroundColor: 'red2',
-                          borderRadius: 12,
-                          mb: 'widget-card-section-gutter'
-                        }}
-                      >
-                        <Box css={{ color: 'red9' }}>
-                          <FontAwesomeIcon
-                            icon={faExclamationCircle}
-                            width={16}
-                          />
-                        </Box>
-                        <Text style="subtitle3" css={{ color: 'amber12' }}>
-                          The price impact is high.
-                        </Text>
-                      </Flex>
-                    ) : null}
                     {promptSwitchRoute ? (
                       <Button
                         color="primary"
