@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.11
+
+### Patch Changes
+
+- 00d34dd: Fix default unverified tokens not prompting approval
+
 ## 2.7.10
 
 ### Patch Changes
