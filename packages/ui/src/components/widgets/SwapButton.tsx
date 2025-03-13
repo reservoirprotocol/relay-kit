@@ -101,7 +101,7 @@ const SwapButton: FC<SwapButtonProps> = ({
         })
       }}
     >
-      Connect
+      Connect Wallet
     </Button>
   )
 }
