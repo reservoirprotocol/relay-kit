@@ -219,7 +219,6 @@ const SwapWidgetPage: NextPage = () => {
             multiWalletSupportEnabled={true}
             linkedWallets={linkedWallets}
             onLinkNewWallet={({ chain, direction }) => {
-              debugger
               if (linkWalletPromise) {
                 linkWalletPromise.reject()
                 setLinkWalletPromise(undefined)
