@@ -288,7 +288,8 @@ export const StepRow: FC<StepRowProps> = ({
                     gap: '1'
                   }}
                 >
-                  Deposit: {truncateAddress(txHash, '...', 6, 4)}{' '}
+                  {!isApproveStep ? 'Deposit: ' : ''}
+                  {truncateAddress(txHash, '...', 6, 4)}{' '}
                   <FontAwesomeIcon icon={faExternalLink} width={14} />
                 </Anchor>
               )
