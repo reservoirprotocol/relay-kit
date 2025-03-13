@@ -33,7 +33,7 @@ import Fuse from 'fuse.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Token } from '../../../../types/index.js'
 import { EventNames } from '../../../../constants/events.js'
-import { getRelayUiKitData } from '../../../../utils/localStorage.js'
+import { alreadyAcceptedToken } from '../../../../utils/localStorage.js'
 import { SuggestedTokens } from '../SuggestedTokens.js'
 
 type SetCurrencyProps = {
@@ -129,11 +129,7 @@ export const SetCurrencyStep: FC<SetCurrencyProps> = ({
       const isVerified = currencyList.chains[0].metadata?.verified
 
       if (!isVerified) {
-        const relayUiKitData = getRelayUiKitData()
-        const tokenKey = `${token.chainId}:${token.address}`
-        const isAlreadyAccepted =
-          relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
-
+        const isAlreadyAccepted = alreadyAcceptedToken(token as Token)
         if (isAlreadyAccepted) {
           selectToken(token, token.chainId)
           setCurrencyList(currencyList)
