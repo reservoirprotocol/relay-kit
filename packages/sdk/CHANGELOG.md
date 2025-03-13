@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.8
+
+### Patch Changes
+
+- 3993eb3: Update Tron dead address
+
 ## 1.6.7
 
 ### Patch Changes
