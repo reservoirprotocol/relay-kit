@@ -187,14 +187,14 @@ const SwapWidgetPage: NextPage = () => {
             //           'https://assets.relay.link/icons/currencies/eth.png'
             //       }
             // }
-            defaultToToken={{
-              chainId: 8453,
-              address: '0x0000000000000000000000000000000000000000',
-              decimals: 18,
-              name: 'ETH',
-              symbol: 'ETH',
-              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            }}
+            // defaultToToken={{
+            //   chainId: 8453,
+            //   address: '0x0000000000000000000000000000000000000000',
+            //   decimals: 18,
+            //   name: 'ETH',
+            //   symbol: 'ETH',
+            //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+            // }}
             // defaultToToken={{
             //   chainId: 10,
             //   address: '0x0000000000000000000000000000000000000000',
