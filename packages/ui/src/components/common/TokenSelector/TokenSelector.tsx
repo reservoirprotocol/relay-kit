@@ -378,150 +378,150 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               ) : null}
 
               {/* Main Token Content */}
-              <Flex
+              {/* <Flex
                 direction="column"
                 css={{
                   flex: 1,
                   overflow: 'hidden'
                 }}
+              > */}
+              <AccessibleList
+                onSelect={(value) => {
+                  if (value === 'input') return
+                  const [chainId, address] = value.split(':')
+                  const allTokens = [
+                    ...sortedUserTokens,
+                    ...sortedCombinedTokens
+                  ]
+                  const selectedToken = allTokens.find(
+                    (token) =>
+                      token.chainId === Number(chainId) &&
+                      token.address?.toLowerCase() === address?.toLowerCase()
+                  )
+                  if (selectedToken) {
+                    handleTokenSelection(selectedToken)
+                  }
+                }}
+                css={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  gap: '1',
+                  height: '100%',
+                  overflowY: 'auto',
+                  scrollPaddingTop: '40px'
+                }}
               >
-                <AccessibleList
-                  onSelect={(value) => {
-                    if (value === 'input') return
-                    const [chainId, address] = value.split(':')
-                    const allTokens = [
-                      ...sortedUserTokens,
-                      ...sortedCombinedTokens
-                    ]
-                    const selectedToken = allTokens.find(
-                      (token) =>
-                        token.chainId === Number(chainId) &&
-                        token.address?.toLowerCase() === address?.toLowerCase()
-                    )
-                    if (selectedToken) {
-                      handleTokenSelection(selectedToken)
-                    }
-                  }}
+                <Flex
+                  align="start"
                   css={{
-                    display: 'flex',
-                    flexDirection: 'column',
                     width: '100%',
-                    gap: '1',
-                    height: '100%',
-                    overflowY: 'auto',
-                    scrollPaddingTop: '40px'
+                    gap: '2',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1,
+                    background: 'modal-background'
                   }}
                 >
-                  <Flex
-                    align="start"
-                    css={{
-                      width: '100%',
-                      gap: '2',
-                      position: 'sticky',
-                      top: 0,
-                      zIndex: 1,
-                      background: 'modal-background'
-                    }}
-                  >
-                    <AccessibleListItem value="input" asChild>
-                      <Input
-                        placeholder="Search for a token or paste address"
-                        icon={
-                          <Box css={{ color: 'gray9' }}>
-                            <FontAwesomeIcon
-                              icon={faMagnifyingGlass}
-                              width={16}
-                              height={16}
-                            />
-                          </Box>
-                        }
-                        containerCss={{
-                          width: '100%',
-                          height: 40,
-                          scrollSnapAlign: 'start',
-                          mb: '2'
-                        }}
-                        css={{
-                          width: '100%',
-                          _placeholder_parent: {
-                            textOverflow: 'ellipsis'
-                          }
-                        }}
-                        value={tokenSearchInput}
-                        onChange={(e) =>
-                          setTokenSearchInput(
-                            (e.target as HTMLInputElement).value
-                          )
-                        }
-                      />
-                    </AccessibleListItem>
-                    {!isDesktop &&
-                    (!configuredChainIds || configuredChainIds.length > 1) ? (
-                      <ChainFilter
-                        options={allChains}
-                        value={chainFilter}
-                        onSelect={setChainFilter}
-                      />
-                    ) : null}
-                  </Flex>
-
-                  <Flex direction="column" css={{ gap: '3' }}>
-                    {/* Suggested Tokens */}
-                    {chainFilter.id &&
-                    tokenSearchInput.length === 0 &&
-                    !depositAddressOnly ? (
-                      <SuggestedTokens
-                        chainId={chainFilter.id}
-                        depositAddressOnly={depositAddressOnly}
-                        onSelect={(token) => {
-                          const newToken = convertApiCurrencyToToken(
-                            token,
-                            token.chainId!
-                          )
-                          handleTokenSelection(newToken)
-                        }}
-                      />
-                    ) : null}
-
-                    {/* Token Lists */}
-                    {debouncedTokenSearchValue ? (
-                      <TokenList
-                        title="Search Results"
-                        tokens={sortedCombinedTokens}
-                        isLoading={isLoadingTokenList || isLoadingExternalList}
-                        isLoadingBalances={isLoadingBalances}
-                      />
-                    ) : (
-                      <>
-                        {sortedUserTokens.length > 0 && (
-                          <TokenList
-                            title="Your Tokens"
-                            tokens={sortedUserTokens}
-                            isLoading={isLoadingUserTokens}
-                            isLoadingBalances={isLoadingBalances}
+                  <AccessibleListItem value="input" asChild>
+                    <Input
+                      placeholder="Search for a token or paste address"
+                      icon={
+                        <Box css={{ color: 'gray9' }}>
+                          <FontAwesomeIcon
+                            icon={faMagnifyingGlass}
+                            width={16}
+                            height={16}
                           />
-                        )}
+                        </Box>
+                      }
+                      containerCss={{
+                        width: '100%',
+                        height: 40,
+                        scrollSnapAlign: 'start',
+                        mb: '2'
+                      }}
+                      css={{
+                        width: '100%',
+                        _placeholder_parent: {
+                          textOverflow: 'ellipsis'
+                        }
+                      }}
+                      value={tokenSearchInput}
+                      onChange={(e) =>
+                        setTokenSearchInput(
+                          (e.target as HTMLInputElement).value
+                        )
+                      }
+                    />
+                  </AccessibleListItem>
+                  {!isDesktop &&
+                  (!configuredChainIds || configuredChainIds.length > 1) ? (
+                    <ChainFilter
+                      options={allChains}
+                      value={chainFilter}
+                      onSelect={setChainFilter}
+                    />
+                  ) : null}
+                </Flex>
+
+                <Flex direction="column" css={{ gap: '3' }}>
+                  {/* Suggested Tokens */}
+                  {chainFilter.id &&
+                  tokenSearchInput.length === 0 &&
+                  !depositAddressOnly ? (
+                    <SuggestedTokens
+                      chainId={chainFilter.id}
+                      depositAddressOnly={depositAddressOnly}
+                      onSelect={(token) => {
+                        const newToken = convertApiCurrencyToToken(
+                          token,
+                          token.chainId!
+                        )
+                        handleTokenSelection(newToken)
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Token Lists */}
+                  {debouncedTokenSearchValue ? (
+                    <TokenList
+                      title="Search Results"
+                      tokens={sortedCombinedTokens}
+                      isLoading={isLoadingTokenList || isLoadingExternalList}
+                      isLoadingBalances={isLoadingBalances}
+                    />
+                  ) : (
+                    <>
+                      {sortedUserTokens.length > 0 && (
                         <TokenList
-                          title="Popular Tokens"
-                          tokens={sortedCombinedTokens}
-                          isLoading={isLoadingTokenList}
+                          title="Your Tokens"
+                          tokens={sortedUserTokens}
+                          isLoading={isLoadingUserTokens}
                           isLoadingBalances={isLoadingBalances}
                         />
-                      </>
-                    )}
+                      )}
+                      <TokenList
+                        title="Popular Tokens"
+                        tokens={sortedCombinedTokens}
+                        isLoading={isLoadingTokenList}
+                        isLoadingBalances={isLoadingBalances}
+                      />
+                    </>
+                  )}
 
-                    {/* Empty State */}
-                    {!isLoadingTokenList &&
-                    !isLoadingExternalList &&
-                    tokenList?.length === 0 &&
-                    externalTokenList?.length === 0 ? (
-                      <Text css={{ textAlign: 'center', py: '5' }}>
-                        No results found.
-                      </Text>
-                    ) : null}
-                  </Flex>
-                </AccessibleList>
-              </Flex>
+                  {/* Empty State */}
+                  {!isLoadingTokenList &&
+                  !isLoadingExternalList &&
+                  tokenList?.length === 0 &&
+                  externalTokenList?.length === 0 ? (
+                    <Text css={{ textAlign: 'center', py: '5' }}>
+                      No results found.
+                    </Text>
+                  ) : null}
+                </Flex>
+              </AccessibleList>
+              {/* </Flex> */}
             </Flex>
           </Flex>
         </Modal>

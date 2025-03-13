@@ -2,7 +2,7 @@ import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useContext, useEffect, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, zeroAddress } from 'viem'
+import { formatUnits } from 'viem'
 import type { LinkedWallet, Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
@@ -18,7 +18,6 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { mainnet } from 'viem/chains'
 import {
   faClipboard,
   faExclamationCircle
@@ -30,8 +29,7 @@ import { findSupportedWallet } from '../../../utils/address.js'
 import {
   evmDeadAddress,
   solDeadAddress,
-  bitcoinDeadAddress,
-  ASSETS_RELAY_API
+  bitcoinDeadAddress
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
@@ -112,15 +110,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const hasLockedToken = lockFromToken || lockToToken
-  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
-  // const initialFromToken = defaultFromToken ?? {
-  //   chainId: defaultChainId,
-  //   address: zeroAddress,
-  //   name: 'ETH',
-  //   symbol: 'ETH',
-  //   decimals: 18,
-  //   logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
-  // }
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
   return (
