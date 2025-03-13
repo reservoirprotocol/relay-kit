@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.13
+
+### Patch Changes
+
+- 3b733af: Add analytic events for chain select
+- 38bfb4c: Rename connect CTA to "Connect Wallet"
+- 2b603a3: Fix approval tx display on swap confirmation screen
+
 ## 2.7.12
 
 ### Patch Changes
