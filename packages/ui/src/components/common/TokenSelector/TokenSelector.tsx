@@ -26,10 +26,6 @@ import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { eclipse, solana } from '../../../utils/solana.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
-import {
-  getRelayUiKitData,
-  setRelayUiKitData
-} from '../../../utils/localStorage.js'
 import { bitcoin } from '../../../utils/bitcoin.js'
 import { evmDeadAddress } from '@reservoir0x/relay-sdk'
 import { solDeadAddress } from '@reservoir0x/relay-sdk'
@@ -643,6 +639,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 chainSearchInput={chainSearchInput}
                 setChainSearchInput={setChainSearchInput}
                 selectToken={selectToken}
+                onAnalyticEvent={onAnalyticEvent}
                 selectedCurrencyList={selectedCurrencyList}
                 type={type}
                 size={size}
