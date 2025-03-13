@@ -30,10 +30,9 @@ import type { Token } from '../../../../types/index.js'
 import { eclipse, solana } from '../../../../utils/solana.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
-import { tron } from '../../../../utils/tron.js'
 import ChainSuggestedTokens from '../../../../constants/ChainSuggestedTokens.js'
 import { zeroAddress } from 'viem'
-import { EventNames } from '~sdk/constants/events.js'
+import { EventNames } from '../../../../constants/events.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
