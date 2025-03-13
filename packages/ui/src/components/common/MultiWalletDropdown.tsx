@@ -111,7 +111,11 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
         <Button
           aria-label={`Multi wallet dropdown`}
           color={
-            !selectedWallet && selectedWalletAddress ? 'warning' : 'secondary'
+            !selectedWallet && selectedWalletAddress
+              ? 'warning'
+              : isSupportedSelectedWallet
+                ? 'ghost'
+                : 'secondary'
           }
           onClick={() => {
             if (!showDropdown) {
