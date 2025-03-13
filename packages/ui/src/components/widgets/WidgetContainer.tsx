@@ -30,6 +30,7 @@ export type WidgetContainerProps = {
   onSwapSuccess?: (data: Execute) => void
   onSwapValidating?: (data: Execute) => void
   invalidateBalanceQueries: () => void
+  invalidateQuoteQuery: () => void
 } & Pick<
   ChildrenProps,
   | 'fromToken'
@@ -67,9 +68,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   toToken,
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
-  amountInputValue,
-  amountOutputValue,
-  tradeType,
   customToAddress,
   address,
   useExternalLiquidity,
@@ -88,6 +86,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
   onSwapValidating,
   onAnalyticEvent,
   invalidateBalanceQueries,
+  invalidateQuoteQuery,
   setCustomToAddress
 }) => {
   const isMounted = useMounted()
@@ -120,10 +119,10 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
             onSwapValidating={onSwapValidating}
-            invalidateBalanceQueries={invalidateBalanceQueries}
             wallet={wallet}
             linkedWallets={linkedWallets}
             multiWalletSupportEnabled={multiWalletSupportEnabled}
+            invalidateQuoteQuery={invalidateQuoteQuery}
           />
           <DepositAddressModal
             open={depositAddressModalOpen}

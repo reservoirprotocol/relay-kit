@@ -79,8 +79,11 @@ export default function (
           onResponse?.(response)
         })
         .catch((e) => {
-          onError?.(e)
-          throw e
+          if (onError) {
+            onError?.(e)
+          } else {
+            throw e
+          }
         })
       return promise
     },

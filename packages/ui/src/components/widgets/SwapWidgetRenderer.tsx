@@ -39,6 +39,7 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
+import { alreadyAcceptedToken } from '../../utils/localStorage.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -135,6 +136,7 @@ export type ChildrenProps = {
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
   invalidateBalanceQueries: () => void
+  invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
@@ -202,9 +204,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const [swapError, setSwapError] = useState<Error | null>(null)
   const [fromToken, setFromToken] = useState<Token | undefined>(
-    defaultFromToken
+    defaultFromToken &&
+      'verified' in defaultFromToken &&
+      !defaultFromToken.verified &&
+      !alreadyAcceptedToken(defaultFromToken)
+      ? undefined
+      : defaultFromToken
   )
-  const [toToken, setToToken] = useState<Token | undefined>(defaultToToken)
+  const [toToken, setToToken] = useState<Token | undefined>(
+    defaultToToken &&
+      'verified' in defaultToToken &&
+      !defaultToToken.verified &&
+      !alreadyAcceptedToken(defaultToToken)
+      ? undefined
+      : defaultToToken
+  )
   const tokenPairIsCanonical =
     fromToken?.chainId !== undefined &&
     toToken?.chainId !== undefined &&
@@ -498,7 +512,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     data: _quoteData,
     error: quoteError,
     isLoading: isFetchingQuote,
-    executeQuote: executeSwap
+    executeQuote: executeSwap,
+    queryKey: quoteQueryKey
   } = useQuote(
     relayClient ? relayClient : undefined,
     wallet,
@@ -526,6 +541,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       })
     }
   )
+
+  const invalidateQuoteQuery = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: quoteQueryKey })
+  }, [queryClient, quoteQueryKey])
 
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
@@ -848,6 +867,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         isRecipientLinked,
         recipientWalletSupportsChain,
         invalidateBalanceQueries,
+        invalidateQuoteQuery,
         setUseExternalLiquidity,
         setDetails,
         setSwapError

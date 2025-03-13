@@ -1,5 +1,60 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.12
+
+### Patch Changes
+
+- 8376d7f: Remove duplicate price impact warning
+- 63be014: Fix bug where deposit address origin prevented connecting a destination wallet
+- Updated dependencies [3993eb3]
+  - @reservoir0x/relay-sdk@1.6.8
+  - @reservoir0x/relay-kit-hooks@1.8.4
+
+## 2.7.11
+
+### Patch Changes
+
+- 00d34dd: Fix default unverified tokens not prompting approval
+
+## 2.7.10
+
+### Patch Changes
+
+- 0cad99d: Fix tvm filter
+
+## 2.7.9
+
+### Patch Changes
+
+- f1f6d42: Tron support
+- Updated dependencies [f1f6d42]
+  - @reservoir0x/relay-sdk@1.6.7
+  - @reservoir0x/relay-kit-hooks@1.8.3
+
+## 2.7.8
+
+### Patch Changes
+
+- Updated dependencies [7a675e3]
+- Updated dependencies [b0d1c88]
+  - @reservoir0x/relay-kit-hooks@1.8.2
+  - @reservoir0x/relay-sdk@1.6.6
+
+## 2.7.7
+
+### Patch Changes
+
+- 62952a9: Ensure quote is always fresh when TransactionModal closes
+
+## 2.7.6
+
+### Patch Changes
+
+- 4f5f328: Fix transaction validating event getting triggered multiple times
+- Updated dependencies [e0133b1]
+  - @reservoir0x/relay-sdk@1.6.5
+  - @reservoir0x/relay-kit-hooks@1.8.1
+
 ## 2.7.5
 
 ### Patch Changes

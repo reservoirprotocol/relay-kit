@@ -85,7 +85,6 @@ type Props = {
   quote: ReturnType<typeof useQuote>['data']
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
-  invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
     quote: ReturnType<typeof useQuote>['data'],
@@ -123,6 +122,13 @@ export const TransactionModalRenderer: FC<Props> = ({
   const [allTxHashes, setAllTxHashes] = useState<TxHashes>([])
   const [startTimestamp, setStartTimestamp] = useState(0)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
+  const [hasStartedValidation, setHasStartedValidation] = useState(false)
+
+  useEffect(() => {
+    if (!open) {
+      setHasStartedValidation(false)
+    }
+  }, [open])
 
   useEffect(() => {
     if (swapError) {
@@ -165,11 +171,13 @@ export const TransactionModalRenderer: FC<Props> = ({
     setAllTxHashes(txHashes)
 
     if (
+      !hasStartedValidation &&
       (txHashes.length > 0 || currentStepItem?.isValidatingSignature == true) &&
       progressStep === TransactionProgressStep.Confirmation
     ) {
       onValidating?.(quote as Execute)
       setStartTimestamp(new Date().getTime())
+      setHasStartedValidation(true)
     }
 
     if (!currentStep) {

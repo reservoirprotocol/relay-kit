@@ -63,7 +63,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const { chains, viemChains } = useRelayChains(
     relayApi,
     {
-      includeChains: '9286185,8253038'
+      includeChains: process.env.NEXT_PUBLIC_INCLUDE_CHAINS
     },
     {
       refetchOnWindowFocus: false,
@@ -117,7 +117,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
           chains,
           appName: 'Relay Demo',
-          useGasFeeEstimations: false
+          useGasFeeEstimations: true
           // appFees: [
           //   {
           //     recipient: '0x0000000000000000000000000000000000000000',

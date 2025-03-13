@@ -1,5 +1,29 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.8
+
+### Patch Changes
+
+- 3993eb3: Update Tron dead address
+
+## 1.6.7
+
+### Patch Changes
+
+- f1f6d42: Tron support
+
+## 1.6.6
+
+### Patch Changes
+
+- b0d1c88: Fix sender sometimes being set to dead address
+
+## 1.6.5
+
+### Patch Changes
+
+- e0133b1: Check tx confirmation error with tenderly api to enhance error data
+
 ## 1.6.4
 
 ### Patch Changes

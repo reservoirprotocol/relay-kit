@@ -9,7 +9,7 @@ type FeaturedTokens = NonNullable<
   paths['/chains']['get']['responses']['200']['content']['application/json']['chains']
 >['0']['featuredTokens']
 
-export type ChainVM = 'evm' | 'svm' | 'bvm'
+export type ChainVM = 'evm' | 'svm' | 'bvm' | 'tvm'
 
 export type RelayChain = {
   id: number

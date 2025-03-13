@@ -134,6 +134,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? configuredChains?.filter(
           (chain) =>
             (chain.vmType === 'evm' ||
+              chain.vmType === 'tvm' ||
               chain.id === solana.id ||
               chain.id === eclipse.id ||
               chain.id === bitcoin.id) &&
@@ -534,22 +535,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           token={unverifiedToken}
           onAcceptToken={(token) => {
             if (token) {
-              const currentData = getRelayUiKitData()
-              const tokenIdentifier = `${token.chainId}:${token.address}`
-
-              if (
-                !currentData.acceptedUnverifiedTokens.includes(tokenIdentifier)
-              ) {
-                setRelayUiKitData({
-                  acceptedUnverifiedTokens: [
-                    ...currentData.acceptedUnverifiedTokens,
-                    tokenIdentifier
-                  ]
-                })
-              }
-
-              handleTokenSelection(token)
-              onAnalyticEvent?.(EventNames.UNVERIFIED_TOKEN_ACCEPTED, { token })
+              setToken(token)
             }
             setUnverifiedTokenModalOpen(false)
           }}

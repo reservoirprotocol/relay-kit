@@ -5,6 +5,7 @@ import { mainnet } from 'viem/chains'
 import { MAINNET_RELAY_API } from '../constants'
 import { executeBridge } from '../../tests/data/executeBridge'
 import type { AdaptedWallet, Execute } from '../types'
+import { evmDeadAddress } from '../constants/address'
 
 let client: RelayClient | undefined
 let wallet: AdaptedWallet = {
@@ -121,5 +122,35 @@ describe('Should test the execute action.', () => {
       quote.details?.currencyIn?.currency?.chainId
     )
     expect(lastCall[5]).toBeUndefined()
+  })
+
+  it('Should throw an error when sender is dead address', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
+    if (quote.details?.sender) {
+      quote.details.sender = evmDeadAddress
+    }
+    await expect(
+      client?.actions?.execute({
+        wallet,
+        quote
+      })
+    ).rejects.toThrow('Sender should never be burn address')
+  })
+
+  it('Should throw an error when recipient is dead address', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API
+    })
+    if (quote.details?.sender) {
+      quote.details.recipient = evmDeadAddress
+    }
+    await expect(
+      client?.actions?.execute({
+        wallet,
+        quote
+      })
+    ).rejects.toThrow('Recipient should never be burn address')
   })
 })
