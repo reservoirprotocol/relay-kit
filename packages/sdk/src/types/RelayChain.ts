@@ -5,6 +5,10 @@ type Erc20Currencies = NonNullable<
   paths['/chains']['get']['responses']['200']['content']['application/json']['chains']
 >['0']['erc20Currencies']
 
+type FeaturedTokens = NonNullable<
+  paths['/chains']['get']['responses']['200']['content']['application/json']['chains']
+>['0']['featuredTokens']
+
 export type ChainVM = 'evm' | 'svm' | 'bvm'
 
 export type RelayChain = {
@@ -31,6 +35,7 @@ export type RelayChain = {
   depositEnabled?: boolean
   blockProductionLagging?: boolean
   erc20Currencies?: Erc20Currencies
+  featuredTokens?: FeaturedTokens
   iconUrl?: string | null
   logoUrl?: string | null
   brandColor?: string | null

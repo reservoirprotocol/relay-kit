@@ -10,7 +10,7 @@ export type EnhancedToken = {
   decimals: number
   logoURI: string
   verified?: boolean
-  vmType?: 'bvm' | 'evm' | 'svm' | 'tvm' | 'tonvm'
+  vmType?: 'bvm' | 'evm' | 'svm' | 'tvm' | 'tonvm' | 'suivm'
   balance?: {
     amount: string
     price_usd?: number

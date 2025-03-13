@@ -6,13 +6,10 @@ import {
   Flex,
   Text
 } from '../../primitives/index.js'
-import type { Token } from '../../../types/index.js'
-import { useRelayClient } from '../../../hooks/index.js'
+import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import { convertApiCurrencyToToken } from '../../../utils/tokens.js'
 import { useMemo } from 'react'
-import ChainSuggestedTokens from '../../../constants/ChainSuggestedTokens.js'
 import { type Currency } from '@reservoir0x/relay-kit-hooks'
-import { zeroAddress } from 'viem'
 
 type SuggestedTokensProps = {
   chainId: number
@@ -25,72 +22,24 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
   depositAddressOnly,
   onSelect
 }) => {
-  const client = useRelayClient()
-  const chain = client?.chains.find((c) => c.id === chainId)
-  const chainCurrency = chain?.currency
+  const { chains } = useRelayChains(undefined, undefined, {
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 30,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
+  })
 
-  // Convert native currency to token
-  const nativeCurrency = convertApiCurrencyToToken(chainCurrency, chainId)
+  const chain = chains?.find((c) => c.id === chainId)
 
-  // Filter and convert relevant ERC20 currencies to tokens
-  const suggestedErc20Tokens = useMemo(() => {
-    if (!chain?.erc20Currencies) return []
+  const suggestedTokens = useMemo(() => {
+    if (!chain?.featuredTokens) return []
 
-    return chain.erc20Currencies
-      .filter(
-        (currency) =>
-          (currency.id?.toUpperCase().includes('USD') ||
-            currency.id?.toUpperCase().includes('WETH')) &&
-          (depositAddressOnly ? currency.supportsBridging : true)
-      )
+    return chain.featuredTokens
+      .filter((token) => (depositAddressOnly ? token.supportsBridging : true))
       .map((currency) => convertApiCurrencyToToken(currency, chainId))
-  }, [chain?.erc20Currencies, chainId])
+  }, [chain?.featuredTokens, chainId, depositAddressOnly])
 
-  // Get additional static suggested tokens for this chain
-  const staticSuggestedTokens = !depositAddressOnly
-    ? ChainSuggestedTokens[chainId] || []
-    : []
-
-  // Combine all tokens and remove duplicates
-  const allSuggestedTokens = useMemo(() => {
-    const uniqueTokens: Record<string, Token> = {}
-
-    ;[
-      depositAddressOnly || !chainCurrency?.supportsBridging
-        ? undefined
-        : nativeCurrency,
-      ...suggestedErc20Tokens,
-      ...staticSuggestedTokens
-    ].forEach((token) => {
-      if (token) {
-        uniqueTokens[token.address] = token
-      }
-    })
-
-    return Object.values(uniqueTokens).sort((a, b) => {
-      const order: Record<string, number> = {
-        ETH: 1,
-        SOL: 1,
-        USDC: 2,
-        USDT: 3
-      }
-      const aOrder =
-        a.address === zeroAddress
-          ? -1
-          : a.symbol && order[a.symbol]
-          ? order[a.symbol]
-          : 4
-      const bOrder =
-        b.address === zeroAddress
-          ? -1
-          : b.symbol && order[b.symbol]
-          ? order[b.symbol]
-          : 4
-      return aOrder - bOrder || (a?.symbol ?? '').localeCompare(b?.symbol ?? '')
-    })
-  }, [nativeCurrency, suggestedErc20Tokens, staticSuggestedTokens])
-
-  if (!allSuggestedTokens) {
+  if (!suggestedTokens.length) {
     return null
   }
 
@@ -104,7 +53,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
         my: '2'
       }}
     >
-      {allSuggestedTokens?.map((token) => (
+      {suggestedTokens.map((token) => (
         <AccessibleListItem
           asChild
           key={`${token.chainId}:${token.address}`}
@@ -114,8 +63,8 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
             onClick={(e) => {
               e.preventDefault()
               onSelect({
-                ...token,
-                metadata: { logoURI: token.logoURI, verified: true }
+                ...token
+                // metadata: { logoURI: token.logoURI, verified: true }
               })
             }}
             color="ghost"
