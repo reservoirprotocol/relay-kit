@@ -33,6 +33,7 @@ import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
 import { tron } from '../../../../utils/tron.js'
 import ChainSuggestedTokens from '../../../../constants/ChainSuggestedTokens.js'
 import { zeroAddress } from 'viem'
+import { EventNames } from '~sdk/constants/events.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -47,6 +48,7 @@ type SetChainStepProps = {
   chainSearchInput: string
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
   selectedCurrencyList?: EnhancedCurrencyList
   chainIdsFilter?: number[]
 }
@@ -86,6 +88,7 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
+  onAnalyticEvent,
   chainIdsFilter,
   selectedCurrencyList
 }) => {
@@ -174,6 +177,11 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               (chain) => chain.id.toString() === value
             )
             if (chain) {
+              onAnalyticEvent?.(EventNames.SWAP_CHAIN_SELECT, {
+                searchTerm: chainSearchInput,
+                chainId: chain.id,
+                chainName: chain.displayName
+              })
               const suggestedTokens = ChainSuggestedTokens[chain.id]
               const erc20Currencies =
                 chain.relayChain.erc20Currencies?.filter(

@@ -643,6 +643,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 chainSearchInput={chainSearchInput}
                 setChainSearchInput={setChainSearchInput}
                 selectToken={selectToken}
+                onAnalyticEvent={onAnalyticEvent}
                 selectedCurrencyList={selectedCurrencyList}
                 type={type}
                 size={size}
