@@ -187,6 +187,14 @@ const SwapWidgetPage: NextPage = () => {
             //           'https://assets.relay.link/icons/currencies/eth.png'
             //       }
             // }
+            defaultToToken={{
+              chainId: 8453,
+              address: '0x0000000000000000000000000000000000000000',
+              decimals: 18,
+              name: 'ETH',
+              symbol: 'ETH',
+              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+            }}
             // defaultToToken={{
             //   chainId: 10,
             //   address: '0x0000000000000000000000000000000000000000',
@@ -197,14 +205,14 @@ const SwapWidgetPage: NextPage = () => {
             // }}
             // lockToToken={true}
             // lockFromToken={true}
-            defaultFromToken={{
-              chainId: 8453,
-              address: '0x0000000000000000000000000000000000000000',
-              decimals: 18,
-              name: 'ETH',
-              symbol: 'ETH',
-              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            }}
+            // defaultFromToken={{
+            //   chainId: 8453,
+            //   address: '0x0000000000000000000000000000000000000000',
+            //   decimals: 18,
+            //   name: 'ETH',
+            //   symbol: 'ETH',
+            //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+            // }}
             // defaultFromToken={{
             //   chainId: 1,
             //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',

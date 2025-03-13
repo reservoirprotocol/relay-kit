@@ -19,7 +19,6 @@ import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
-import FiatCurrencyModal from './FiatCurrencyModal.js'
 import { formatBN } from '../../../../utils/numbers.js'
 
 type BaseOnrampWidgetProps = {
@@ -349,13 +348,11 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   </Flex>
                 </button>
                 <TokenSelector
-                  type={'token'}
                   address={recipient}
                   isValidAddress={isValidRecipient}
                   token={token}
                   onAnalyticEvent={onAnalyticEvent}
                   depositAddressOnly={true}
-                  // restrictedToken={toToken}
                   setToken={(token) => {
                     onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                       direction: 'input',
@@ -365,7 +362,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     onTokenChange?.(token)
                   }}
                   context="to"
-                  size={'desktop'}
                   trigger={
                     <div
                       style={{

@@ -156,7 +156,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
                 height: 24
               }}
             />
-            <Text style="subtitle1" ellipsify>
+            <Text style="h6" ellipsify>
               {token.symbol}
             </Text>
           </Button>

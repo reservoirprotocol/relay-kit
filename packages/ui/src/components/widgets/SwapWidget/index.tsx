@@ -37,7 +37,7 @@ import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
-import TokenSelectorV2 from '../../../components/common/TokenSelector/TokenSelectorV2.js'
+import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -50,7 +50,6 @@ type BaseSwapWidgetProps = {
   lockFromToken?: boolean
   lockChainId?: number
   singleChainMode?: boolean
-  tokens?: Token[]
   wallet?: AdaptedWallet
   supportedWalletVMs: ChainVM[]
   onFromTokenChange?: (token?: Token) => void
@@ -92,7 +91,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   lockFromToken = false,
   lockChainId,
   singleChainMode = false,
-  tokens,
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
@@ -115,14 +113,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const hasLockedToken = lockFromToken || lockToToken
   const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
-  const initialFromToken = defaultFromToken ?? {
-    chainId: defaultChainId,
-    address: zeroAddress,
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
-  }
+  // const initialFromToken = defaultFromToken ?? {
+  //   chainId: defaultChainId,
+  //   address: zeroAddress,
+  //   name: 'ETH',
+  //   symbol: 'ETH',
+  //   decimals: 18,
+  //   logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
+  // }
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
   return (
@@ -134,7 +132,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={initialFromToken}
+      defaultFromToken={defaultFromToken}
       defaultToToken={defaultToToken}
       slippageTolerance={slippageTolerance}
       wallet={wallet}
@@ -438,7 +436,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                       />
-                      <TokenSelectorV2
+                      <TokenSelector
                         address={address}
                         isValidAddress={isValidFromAddress}
                         token={fromToken}
@@ -481,20 +479,21 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             ? [toToken.chainId]
                             : undefined
                         }
-                        restrictedTokensList={tokens?.filter(
-                          (token) => token.chainId === fromToken?.chainId
-                        )}
+                        // restrictedTokensList={tokens?.filter(
+                        //   (token) => token.chainId === fromToken?.chainId
+                        // )}
                         trigger={
                           <div style={{ width: 'max-content' }}>
                             <TokenTrigger
                               token={fromToken}
                               locked={
-                                lockFromToken ||
-                                (tokens &&
-                                  tokens.filter(
-                                    (token) =>
-                                      token.chainId === fromToken?.chainId
-                                  ).length === 1)
+                                lockFromToken
+                                // ||
+                                // (tokens &&
+                                //   tokens.filter(
+                                //     (token) =>
+                                //       token.chainId === fromToken?.chainId
+                                //   ).length === 1)
                               }
                               isSingleChainLocked={isSingleChainLocked}
                             />
@@ -783,7 +782,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                         }}
                       />
-                      <TokenSelectorV2
+                      <TokenSelector
                         address={recipient}
                         isValidAddress={isValidToAddress}
                         token={toToken}
@@ -813,12 +812,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             <TokenTrigger
                               token={toToken}
                               locked={
-                                lockToToken ||
-                                (tokens &&
-                                  tokens.filter(
-                                    (token) =>
-                                      token.chainId === toToken?.chainId
-                                  ).length === 1)
+                                lockToToken
+                                // ||
+                                // (tokens &&
+                                //   tokens.filter(
+                                //     (token) =>
+                                //       token.chainId === toToken?.chainId
+                                //   ).length === 1)
                               }
                               isSingleChainLocked={isSingleChainLocked}
                             />
@@ -842,9 +842,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             ? [fromToken.chainId]
                             : undefined
                         }
-                        restrictedTokensList={tokens?.filter(
-                          (token) => token.chainId === toToken?.chainId
-                        )}
+                        // restrictedTokensList={tokens?.filter(
+                        //   (token) => token.chainId === toToken?.chainId
+                        // )}
                       />
                     </Flex>
                     <Flex
