@@ -7,7 +7,7 @@ export const solDeadAddress =
 export const eclipseDeadAddress =
   'CrfbABN2sSvmoZLu9eDDfXpaC2nHg42R7AXbHs9eg4S9' as const
 export const bitcoinDeadAddress = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
-export const tronDeadAddress = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
+export const tronDeadAddress = 'THa7BwoPfacfiELa63pbmm3g5PGKYmtJyt'
 export const zeroDeadAddress = '0x00000000000000000000000000000000000dead0'
 export const suiDeadAddress =
   '0x000000000000000000000000000000000000000000000000000000000000dead'
