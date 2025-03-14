@@ -33,6 +33,7 @@ import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
 import ChainSuggestedTokens from '../../../../constants/ChainSuggestedTokens.js'
 import { zeroAddress } from 'viem'
 import { EventNames } from '../../../../constants/events.js'
+import { UnsupportedDepositAddressChainIds } from '../../../../constants/depositAddresses.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -50,6 +51,7 @@ type SetChainStepProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
   selectedCurrencyList?: EnhancedCurrencyList
   chainIdsFilter?: number[]
+  depositAddressOnly?: boolean
 }
 
 const fuseSearchOptions = {
@@ -89,13 +91,23 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   selectToken,
   onAnalyticEvent,
   chainIdsFilter,
-  selectedCurrencyList
+  selectedCurrencyList,
+  depositAddressOnly
 }) => {
   const client = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 660px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
 
-  const supportedChains = selectedCurrencyList?.chains || []
+  const supportedChains = useMemo(() => {
+    let supportedChains = selectedCurrencyList?.chains || []
+    if (depositAddressOnly) {
+      supportedChains = supportedChains?.filter(
+        ({ chainId }) => !UnsupportedDepositAddressChainIds.includes(chainId!)
+      )
+    }
+    return supportedChains
+  }, [selectedCurrencyList, depositAddressOnly])
+
   const allChains =
     client?.chains?.filter(
       (chain: RelayChain) =>
@@ -121,9 +133,15 @@ export const SetChainStep: FC<SetChainStepProps> = ({
     })),
     ...(type === 'chain'
       ? allChains
-          .filter(
-            (chain) => !supportedChains.some((sc) => sc.chainId === chain.id)
-          )
+          .filter((chain) => {
+            const existsInSupportedChains = supportedChains.some(
+              (sc) => sc.chainId === chain.id
+            )
+            const isUnsupportedChain = depositAddressOnly
+              ? UnsupportedDepositAddressChainIds.includes(chain.id)
+              : false
+            return !existsInSupportedChains && !isUnsupportedChain
+          })
           .map((chain) => ({
             id: chain.id,
             displayName: chain.displayName,

@@ -5,12 +5,11 @@ import { Button, Flex, Text } from '../primitives/index.js'
 import ChainIcon from '../primitives/ChainIcon.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 
 export type ChainFilterValue =
-  | Chain
   | RelayChain
-  | { id: undefined; name: string }
+  | { id: undefined; name: string; vmType?: ChainVM }
 
 type Props = {
   options: ChainFilterValue[]

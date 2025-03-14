@@ -354,7 +354,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   isValidAddress={isValidRecipient}
                   token={token}
                   onAnalyticEvent={onAnalyticEvent}
-                  depositAddressOnly={true}
+                  fromChainWalletVMSupported={false}
+                  supportedWalletVMs={[]}
                   // restrictedToken={toToken}
                   setToken={(token) => {
                     onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
