@@ -23,7 +23,7 @@ import {
 import { EventNames } from '../../../constants/events.js'
 import { SetChainStep } from './steps/SetChainStep.js'
 import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 import { eclipse, solana } from '../../../utils/solana.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import { bitcoin } from '../../../utils/bitcoin.js'
@@ -47,7 +47,8 @@ export type TokenSelectorProps = {
   address?: Address | string
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
-  depositAddressOnly?: boolean
+  fromChainWalletVMSupported?: boolean
+  supportedWalletVMs?: ChainVM[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -80,7 +81,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   address,
   isValidAddress,
   multiWalletSupportEnabled = false,
-  depositAddressOnly,
+  fromChainWalletVMSupported,
+  supportedWalletVMs,
   setToken,
   onAnalyticEvent
 }) => {
@@ -110,6 +112,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(
     null
   )
+
+  const depositAddressOnly =
+    context === 'from'
+      ? chainFilter?.vmType && type !== 'chain'
+        ? !supportedWalletVMs?.includes(chainFilter.vmType)
+        : !chainFilter.id || type === 'chain'
+          ? false
+          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+      : !fromChainWalletVMSupported
 
   const relayClient = useRelayClient()
   const configuredChains = useMemo(() => {
@@ -645,6 +656,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 size={size}
                 multiWalletSupportEnabled={multiWalletSupportEnabled}
                 chainIdsFilter={chainIdsFilter}
+                depositAddressOnly={depositAddressOnly}
               />
             ) : null}
           </Flex>
