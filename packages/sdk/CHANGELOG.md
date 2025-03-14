@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.9
+
+### Patch Changes
+
+- cdc8d92: Handle custom block explorer transaction page
+
 ## 1.6.8
 
 ### Patch Changes
