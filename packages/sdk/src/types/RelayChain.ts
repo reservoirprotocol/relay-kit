@@ -14,6 +14,12 @@ export type RelayChain = {
   httpRpcUrl?: string
   wsRpcUrl?: string
   explorerUrl?: string
+  explorerQueryParams?: {
+    [key: string]: unknown
+  } | null
+  explorerPaths?: {
+    transaction?: string
+  } | null
   icon?: {
     dark?: string
     light?: string
