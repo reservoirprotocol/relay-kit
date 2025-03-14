@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.14
+
+### Patch Changes
+
+- cdc8d92: Handle custom block explorer transaction page
+- Updated dependencies [cdc8d92]
+  - @reservoir0x/relay-sdk@1.6.9
+  - @reservoir0x/relay-kit-hooks@1.8.5
+
 ## 2.7.13
 
 ### Patch Changes
