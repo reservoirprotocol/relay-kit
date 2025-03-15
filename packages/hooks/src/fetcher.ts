@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 
 const fetcher = async (url: string, headers?: HeadersInit) => {
   const response = await fetch(url, { headers })
@@ -13,7 +13,11 @@ const fetcher = async (url: string, headers?: HeadersInit) => {
 
 export default fetcher
 
-export const axiosPostFetcher = async (url: string, params: any) => {
-  const { data } = await axios.post(url, params)
+export const axiosPostFetcher = async (
+  url: string,
+  params: any,
+  config?: AxiosRequestConfig
+) => {
+  const { data } = await axios.post(url, params, config)
   return data
 }

@@ -32,11 +32,12 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: QuoteBody
+  options?: QuoteBody,
+  config?: AxiosRequestConfig
 ): Promise<Execute> {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseApiUrl}/quote`)
-    axiosPostFetcher(url.href, options)
+    axiosPostFetcher(url.href, options, config)
       .then((response) => {
         const request: AxiosRequestConfig = {
           url: url.href,
@@ -63,7 +64,8 @@ export default function (
   onRequest?: () => void,
   onResponse?: (data: Execute) => void,
   queryOptions?: Partial<QueryOptions>,
-  onError?: (e: any) => void
+  onError?: (e: any) => void,
+  config?: AxiosRequestConfig
 ) {
   const queryKey = ['useQuote', options]
   const response = (useQuery as QueryType)({
@@ -73,7 +75,13 @@ export default function (
       if (options && client?.source && !options.referrer) {
         options.referrer = client.source
       }
-      const promise = queryQuote(client?.baseApiUrl, options)
+      const promise = queryQuote(client?.baseApiUrl, options, {
+        ...config,
+        headers: {
+          'relay-sdk-version': client?.version ?? 'unknown',
+          'relay-kit-ui-version': client?.uiVersion ?? 'unknown'
+        }
+      })
       promise
         .then((response: any) => {
           onResponse?.(response)
