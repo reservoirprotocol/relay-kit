@@ -350,7 +350,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -860,7 +860,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -4227,6 +4227,60 @@ export interface paths {
                     isNative?: boolean;
                   };
                 })[])[];
+          };
+        };
+      };
+    };
+  };
+  "/currencies/v2": {
+    post: {
+      requestBody?: {
+        content: {
+          "application/json": {
+            /** @description Return default currencies */
+            defaultList?: boolean;
+            /** @description Chain IDs to search for currencies */
+            chainIds?: number[];
+            /** @description Search term for currencies */
+            term?: string;
+            /** @description Address of the currency contract */
+            address?: string;
+            /** @description ID to search for a currency group */
+            currencyId?: string;
+            /** @description List of token addresses, like: chainId:address */
+            tokens?: string[];
+            /** @description Filter verified currencies */
+            verified?: boolean;
+            /** @description Limit the number of results */
+            limit?: number;
+            /** @description Include all chains for a currency when filtering by chainId and address */
+            includeAllChains?: boolean;
+            /** @description Uses 3rd party API's to search for a token, in case relay does not have it indexed */
+            useExternalSearch?: boolean;
+            /** @description Returns only currencies supported with deposit address bridging */
+            depositAddressOnly?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description List of currencies */
+        200: {
+          content: {
+            "application/json": ({
+                groupID?: string;
+                chainId?: number;
+                address?: string;
+                symbol?: string;
+                name?: string;
+                decimals?: number;
+                /** @enum {string} */
+                vmType?: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
+                metadata?: {
+                  logoURI?: string;
+                  verified?: boolean;
+                  isNative?: boolean;
+                };
+              })[];
           };
         };
       };

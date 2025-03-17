@@ -30,7 +30,7 @@ export const TokenList: FC<TokenListProps> = ({
   if (isLoading) {
     return (
       <>
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: 10 }).map((_, index) => (
           <Flex
             key={index}
             align="center"
@@ -38,8 +38,8 @@ export const TokenList: FC<TokenListProps> = ({
           >
             <Skeleton
               css={{
-                width: 32,
-                height: 32,
+                width: 40,
+                height: 40,
                 borderRadius: '50%',
                 flexShrink: 0
               }}
@@ -104,7 +104,7 @@ export const TokenList: FC<TokenListProps> = ({
                 <ChainTokenIcon
                   chainId={token.chainId}
                   tokenlogoURI={token.logoURI}
-                  css={{ width: 32, height: 32 }}
+                  size="lg"
                 />
                 <Flex direction="column" align="start" css={{ gap: '2px' }}>
                   <Text

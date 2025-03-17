@@ -445,7 +445,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             lineHeight: '36px',
                             py: 0,
                             color:
@@ -601,10 +601,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Box
                       css={{
                         position: 'relative',
-                        my: -15,
+                        my: -13,
                         mx: 'auto',
-                        height: 36,
-                        width: 36
+                        height: 32,
+                        width: 32
                       }}
                     >
                       {hasLockedToken ||
@@ -781,7 +781,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             color:
                               isFetchingQuote && tradeType === 'EXACT_INPUT'
                                 ? 'text-subtle'

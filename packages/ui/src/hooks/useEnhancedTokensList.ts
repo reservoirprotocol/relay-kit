@@ -20,7 +20,7 @@ export type EnhancedToken = {
 }
 
 export const useEnhancedTokensList = (
-  tokenLists: Currency[][] | undefined,
+  tokenLists: Currency[] | undefined,
   balanceMap: BalanceMap | undefined,
   context: 'from' | 'to',
   multiWalletSupportEnabled: boolean,
@@ -31,7 +31,7 @@ export const useEnhancedTokensList = (
 
     // Flatten the nested array of currencies and normalize each token
     const enhancedTokens = tokenLists
-      .flat()
+      // .flat()
       .map((currency) => {
         // Validate that all required fields exist
         if (

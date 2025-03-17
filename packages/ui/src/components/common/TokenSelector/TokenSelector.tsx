@@ -16,17 +16,14 @@ import useRelayClient from '../../../hooks/useRelayClient.js'
 import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { useTokenList } from '@reservoir0x/relay-kit-hooks'
+import { useRelayChains, useTokenList } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../../constants/events.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import { useEnhancedTokensList } from '../../../hooks/useEnhancedTokensList.js'
 import ChainFilter from './ChainFilter.js'
 import { TokenList } from './TokenList.js'
 import { UnsupportedDepositAddressChainIds } from '../../../constants/depositAddresses.js'
-import {
-  getRelayUiKitData,
-  setRelayUiKitData
-} from '../../../utils/localStorage.js'
+import { getRelayUiKitData } from '../../../utils/localStorage.js'
 import {
   AccessibleList,
   AccessibleListItem
@@ -44,6 +41,7 @@ import {
   evmDeadAddress,
   solDeadAddress
 } from '@reservoir0x/relay-sdk'
+import { sortChains } from '../../../utils/tokenSelector.js'
 
 export type TokenSelectorProps = {
   token?: Token
@@ -75,6 +73,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   onAnalyticEvent
 }) => {
   const relayClient = useRelayClient()
+  const { chains: allRelayChains } = useRelayChains(relayClient?.baseApiUrl)
   const isDesktop = useMediaQuery('(min-width: 660px)')
 
   const [open, setOpen] = useState(false)
@@ -97,8 +96,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   // Configure chains
   const configuredChains = useMemo(() => {
     let chains =
-      relayClient?.chains.sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
+      allRelayChains?.filter((chain) =>
+        relayClient?.chains?.find((relayChain) => relayChain.id === chain.id)
       ) ?? []
 
     if (!multiWalletSupportEnabled && context === 'from') {
@@ -109,8 +108,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         ({ id }) => !UnsupportedDepositAddressChainIds.includes(id)
       )
     }
-    return chains
+
+    return sortChains(chains)
   }, [
+    allRelayChains,
     relayClient?.chains,
     multiWalletSupportEnabled,
     context,
@@ -260,12 +261,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     chainFilter.id
   )
 
-  console.log('tokenList', tokenList)
-  console.log('externalTokenList', externalTokenList)
-  console.log('combinedTokenList', combinedTokenList)
-  console.log('sortedUserTokens', sortedUserTokens)
-  console.log('sortedCombinedTokens', sortedCombinedTokens)
-
   const resetState = useCallback(() => {
     setTokenSearchInput('')
     const chain = relayClient?.chains?.find(
@@ -318,6 +313,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       )
       if (chain) {
         setChainFilter(chain)
+        console.log('setting chain filter: ', chain)
       }
     }
   }, [open])
@@ -379,13 +375,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               ) : null}
 
               {/* Main Token Content */}
-              {/* <Flex
-                direction="column"
-                css={{
-                  flex: 1,
-                  overflow: 'hidden'
-                }}
-              > */}
               <AccessibleList
                 onSelect={(value) => {
                   if (value === 'input') return
@@ -485,15 +474,26 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   ) : null}
 
                   {/* Token Lists */}
-                  {debouncedTokenSearchValue ? (
+                  {tokenSearchInput.length > 0 ? (
                     <TokenList
-                      title="Search Results"
+                      title="Results"
                       tokens={sortedCombinedTokens}
-                      isLoading={isLoadingTokenList || isLoadingExternalList}
+                      isLoading={
+                        isLoadingTokenList ||
+                        tokenSearchInput !== debouncedTokenSearchValue
+                      }
                       isLoadingBalances={isLoadingBalances}
                     />
                   ) : (
-                    <>
+                    <Flex
+                      direction="column"
+                      css={{
+                        gap: '3',
+                        '& > *:first-child': {
+                          order: context === 'to' ? 1 : 0
+                        }
+                      }}
+                    >
                       {sortedUserTokens.length > 0 && (
                         <TokenList
                           title="Your Tokens"
@@ -508,7 +508,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                         isLoading={isLoadingTokenList}
                         isLoadingBalances={isLoadingBalances}
                       />
-                    </>
+                    </Flex>
                   )}
 
                   {/* Empty State */}
@@ -522,7 +522,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   ) : null}
                 </Flex>
               </AccessibleList>
-              {/* </Flex> */}
             </Flex>
           </Flex>
         </Modal>

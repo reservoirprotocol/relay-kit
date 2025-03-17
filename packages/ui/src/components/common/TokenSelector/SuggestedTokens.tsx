@@ -10,6 +10,7 @@ import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import { convertApiCurrencyToToken } from '../../../utils/tokens.js'
 import { useMemo } from 'react'
 import { type Currency } from '@reservoir0x/relay-kit-hooks'
+import useRelayClient from '../../../hooks/useRelayClient.js'
 
 type SuggestedTokensProps = {
   chainId: number
@@ -22,7 +23,8 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
   depositAddressOnly,
   onSelect
 }) => {
-  const { chains } = useRelayChains(undefined, undefined, {
+  const relayClient = useRelayClient()
+  const { chains } = useRelayChains(relayClient?.baseApiUrl, undefined, {
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 30,
     refetchOnMount: false,
@@ -64,7 +66,6 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
               e.preventDefault()
               onSelect({
                 ...token
-                // metadata: { logoURI: token.logoURI, verified: true }
               })
             }}
             color="ghost"
@@ -76,7 +77,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
               outline: 'none',
               p: '1',
               pr: '2',
-              gap: 2,
+              gap: 1,
               alignItems: 'center',
               maxWidth: 110,
               '--borderColor': 'colors.gray5',
@@ -100,10 +101,6 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
             <ChainTokenIcon
               chainId={token.chainId}
               tokenlogoURI={token.logoURI}
-              css={{
-                width: 24,
-                height: 24
-              }}
             />
             <Text style="h6" ellipsify>
               {token.symbol}

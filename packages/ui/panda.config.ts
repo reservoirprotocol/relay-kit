@@ -224,7 +224,7 @@ export default defineConfig({
           value: { base: '{colors.gray.3}' }
         },
         'widget-swap-currency-button-border-color': {
-          value: { base: '{colors.primary3}' }
+          value: { base: '{colors.primary4}' }
         },
 
         // Modal
@@ -247,10 +247,10 @@ export default defineConfig({
         'widget-border': { value: { base: '0x solid white' } },
         'modal-border': { value: { base: '0x solid white' } },
         'widget-swap-currency-button-border-width': {
-          value: { base: '4px' }
+          value: { base: '2px' }
         },
         'widget-card-border': {
-          value: { base: '0 solid transparent' }
+          value: { base: '1px solid {colors.primary4}' }
         }
       },
       shadows: {

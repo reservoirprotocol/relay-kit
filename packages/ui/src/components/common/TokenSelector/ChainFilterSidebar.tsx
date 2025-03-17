@@ -16,6 +16,7 @@ import type { ChainFilterValue } from './ChainFilter.js'
 import { EventNames } from '../../../constants/events.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import AllChainsLogo from '../../../img/AllChainsLogo.js'
+import { TagPill } from './TagPill.js'
 
 type ChainFilterSidebarProps = {
   options: (RelayChain | { id: undefined; name: string })[]
@@ -137,6 +138,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
         </AccessibleListItem>
         {filteredChains?.map((chain) => {
           const active = value.id === chain.id
+          const tag = 'tags' in chain ? chain.tags?.[0] : undefined
           return (
             <AccessibleListItem
               ref={active ? activeChainRef : null}
@@ -197,6 +199,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                 <Text style="subtitle1" ellipsify>
                   {('displayName' in chain && chain.displayName) || chain.name}
                 </Text>
+                {tag && <TagPill tag={tag} />}
               </Button>
             </AccessibleListItem>
           )

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import AllChainsLogo from '../../../img/AllChainsLogo.js'
+import { TagPill } from './TagPill.js'
 
 export type ChainFilterValue =
   | Chain
@@ -83,6 +84,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
         {options
           .filter((option) => option.name !== value.name)
           .map((option, idx) => {
+            const tag = 'tags' in option ? option.tags?.[0] : undefined
             return (
               <DropdownMenuItem
                 aria-label={option.name}
@@ -101,7 +103,6 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   },
                   flexShrink: 0,
                   alignContent: 'center',
-
                   width: '100%'
                 }}
               >
@@ -116,10 +117,10 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                   <AllChainsLogo style={{ width: 24, height: 24 }} />
                 )}
                 <Text style="subtitle2">
-                  {' '}
                   {('displayName' in option && option.displayName) ||
                     option.name}
                 </Text>
+                {tag && <TagPill tag={tag} />}
               </DropdownMenuItem>
             )
           })}
