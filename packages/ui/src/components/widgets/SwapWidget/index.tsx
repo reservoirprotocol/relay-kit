@@ -297,6 +297,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           'token' | 'chain'
         >('token')
 
+        //Handle switching to a new vm and finding supported wallet addresses for recipient and connected wallet
         useEffect(() => {
           if (
             multiWalletSupportEnabled &&
@@ -315,13 +316,35 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               onSetPrimaryWallet?.(supportedAddress)
             }
           }
+
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidToAddress
+          ) {
+            const supportedAddress = findSupportedWallet(
+              toChain,
+              recipient,
+              linkedWallets,
+              connectorKeyOverrides
+            )
+            if (supportedAddress) {
+              setCustomToAddress(supportedAddress)
+            } else {
+              setCustomToAddress(undefined)
+            }
+          }
         }, [
           multiWalletSupportEnabled,
-          fromChain,
+          fromChain?.id,
+          toChain?.id,
           address,
           linkedWallets,
           onSetPrimaryWallet,
           isValidFromAddress,
+          isValidToAddress,
           connectorKeyOverrides
         ])
 
