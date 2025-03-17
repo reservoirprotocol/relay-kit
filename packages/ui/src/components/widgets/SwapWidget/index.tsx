@@ -429,8 +429,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -491,13 +491,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -558,42 +558,116 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 BigInt(
                                   0.02 * 10 ** (fromToken?.decimals ?? 18)
                                 ))) ? (
-                            <AnchorButton
-                              aria-label="MAX"
-                              css={{ fontSize: 12 }}
-                              onClick={() => {
-                                const percentageBuffer =
-                                  (fromBalance * 1n) / 100n // 1% of the balance
-                                const fixedBuffer = BigInt(
-                                  0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                ) // Fixed buffer of 0.02 tokens
-                                const solanaBuffer =
-                                  percentageBuffer > fixedBuffer
-                                    ? percentageBuffer
-                                    : fixedBuffer
-
-                                if (fromToken) {
-                                  setAmountInputValue(
-                                    formatUnits(
-                                      isFromNative
-                                        ? fromChain?.vmType === 'svm'
-                                          ? fromBalance - solanaBuffer
-                                          : fromBalance - percentageBuffer
-                                        : fromBalance,
-                                      fromToken?.decimals
+                            <Flex css={{ gap: '1' }}>
+                              <Button
+                                aria-label="20%"
+                                css={{
+                                  fontSize: 12,
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: 'auto'
+                                }}
+                                color="secondary"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 20n) / 100n // 20% of the balance
+                                  if (fromToken) {
+                                    setAmountInputValue(
+                                      formatUnits(
+                                        fromBalance - percentageBuffer,
+                                        fromToken?.decimals
+                                      )
                                     )
-                                  )
-                                  setTradeType('EXACT_INPUT')
-                                  debouncedAmountOutputControls.cancel()
-                                  debouncedAmountInputControls.flush()
-                                  onAnalyticEvent?.(
-                                    EventNames.MAX_AMOUNT_CLICKED
-                                  )
-                                }
-                              }}
-                            >
-                              MAX
-                            </AnchorButton>
+                                    setTradeType('EXACT_INPUT')
+                                    debouncedAmountOutputControls.cancel()
+                                    debouncedAmountInputControls.flush()
+                                    onAnalyticEvent?.(
+                                      EventNames.MAX_AMOUNT_CLICKED,
+                                      {
+                                        percent: '25%'
+                                      }
+                                    )
+                                  }
+                                }}
+                              >
+                                20%
+                              </Button>
+                              <Button
+                                aria-label="50%"
+                                css={{
+                                  fontSize: 12,
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: 'auto'
+                                }}
+                                color="secondary"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 50n) / 100n // 50% of the balance
+                                  if (fromToken) {
+                                    setAmountInputValue(
+                                      formatUnits(
+                                        fromBalance - percentageBuffer,
+                                        fromToken?.decimals
+                                      )
+                                    )
+                                    setTradeType('EXACT_INPUT')
+                                    debouncedAmountOutputControls.cancel()
+                                    debouncedAmountInputControls.flush()
+                                    onAnalyticEvent?.(
+                                      EventNames.MAX_AMOUNT_CLICKED,
+                                      {
+                                        percent: '50%'
+                                      }
+                                    )
+                                  }
+                                }}
+                              >
+                                50%
+                              </Button>
+                              <Button
+                                aria-label="MAX"
+                                css={{
+                                  fontSize: 12,
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: 'auto'
+                                }}
+                                color="secondary"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 1n) / 100n // 1% of the balance
+                                  const fixedBuffer = BigInt(
+                                    0.02 * 10 ** (fromToken?.decimals ?? 18)
+                                  ) // Fixed buffer of 0.02 tokens
+                                  const solanaBuffer =
+                                    percentageBuffer > fixedBuffer
+                                      ? percentageBuffer
+                                      : fixedBuffer
+
+                                  if (fromToken) {
+                                    setAmountInputValue(
+                                      formatUnits(
+                                        isFromNative
+                                          ? fromChain?.vmType === 'svm'
+                                            ? fromBalance - solanaBuffer
+                                            : fromBalance - percentageBuffer
+                                          : fromBalance,
+                                        fromToken?.decimals
+                                      )
+                                    )
+                                    setTradeType('EXACT_INPUT')
+                                    debouncedAmountOutputControls.cancel()
+                                    debouncedAmountInputControls.flush()
+                                    onAnalyticEvent?.(
+                                      EventNames.MAX_AMOUNT_CLICKED
+                                    )
+                                  }
+                                }}
+                              >
+                                MAX
+                              </Button>
+                            </Flex>
                           ) : null}
                         </Flex>
                       </Flex>
@@ -764,8 +838,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -840,13 +914,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
