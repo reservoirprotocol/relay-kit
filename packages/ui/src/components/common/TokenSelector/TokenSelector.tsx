@@ -39,7 +39,8 @@ import {
 import {
   bitcoinDeadAddress,
   evmDeadAddress,
-  solDeadAddress
+  solDeadAddress,
+  type ChainVM
 } from '@reservoir0x/relay-sdk'
 import { sortChains } from '../../../utils/tokenSelector.js'
 
@@ -53,7 +54,8 @@ export type TokenSelectorProps = {
   address?: Address | string
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
-  depositAddressOnly?: boolean
+  fromChainWalletVMSupported?: boolean
+  supportedWalletVMs?: ChainVM[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -68,7 +70,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   address,
   isValidAddress,
   multiWalletSupportEnabled = false,
-  depositAddressOnly,
+  fromChainWalletVMSupported,
+  supportedWalletVMs,
   setToken,
   onAnalyticEvent
 }) => {
@@ -96,6 +99,15 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const [inputElement, setInputElement] = useState<HTMLInputElement | null>(
     null
   )
+
+  const depositAddressOnly =
+    context === 'from'
+      ? chainFilter?.vmType
+        ? !supportedWalletVMs?.includes(chainFilter.vmType)
+        : !chainFilter.id
+        ? false
+        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+      : !fromChainWalletVMSupported
 
   // Configure chains
   const configuredChains = useMemo(() => {

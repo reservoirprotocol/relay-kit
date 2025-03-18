@@ -118,26 +118,26 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
           amount === ''
             ? ''
             : amount.endsWith('.')
-              ? new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(+amount) + '.'
-              : new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: amount.includes('.0')
-                    ? 1
-                    : amount.endsWith('0') && amount.includes('.')
-                      ? 2
-                      : 0,
-                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
-                  minimumSignificantDigits: 1,
-                  maximumSignificantDigits: amount.length
-                }).format(+amount)
+            ? new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(+amount) + '.'
+            : new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: amount.includes('.0')
+                  ? 1
+                  : amount.endsWith('0') && amount.includes('.')
+                  ? 2
+                  : 0,
+                maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                minimumSignificantDigits: 1,
+                maximumSignificantDigits: amount.length
+              }).format(+amount)
 
         return (
           <div
@@ -352,7 +352,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   isValidAddress={isValidRecipient}
                   token={token}
                   onAnalyticEvent={onAnalyticEvent}
-                  depositAddressOnly={true}
+                  fromChainWalletVMSupported={false}
+                  supportedWalletVMs={[]}
+                  // restrictedToken={toToken}
                   setToken={(token) => {
                     onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                       direction: 'input',

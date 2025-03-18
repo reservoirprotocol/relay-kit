@@ -291,13 +291,35 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               onSetPrimaryWallet?.(supportedAddress)
             }
           }
+
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidToAddress
+          ) {
+            const supportedAddress = findSupportedWallet(
+              toChain,
+              recipient,
+              linkedWallets,
+              connectorKeyOverrides
+            )
+            if (supportedAddress) {
+              setCustomToAddress(supportedAddress)
+            } else {
+              setCustomToAddress(undefined)
+            }
+          }
         }, [
           multiWalletSupportEnabled,
-          fromChain,
+          fromChain?.id,
+          toChain?.id,
           address,
           linkedWallets,
           onSetPrimaryWallet,
           isValidFromAddress,
+          isValidToAddress,
           connectorKeyOverrides
         ])
 
@@ -466,7 +488,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           isValidAddress={isValidFromAddress}
                           token={fromToken}
                           onAnalyticEvent={onAnalyticEvent}
-                          depositAddressOnly={!fromChainWalletVMSupported}
+                          fromChainWalletVMSupported={
+                            fromChainWalletVMSupported
+                          }
+                          supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={toToken}
                           setToken={(token) => {
                             onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
@@ -805,7 +830,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           address={recipient}
                           isValidAddress={isValidToAddress}
                           token={toToken}
-                          depositAddressOnly={!fromChainWalletVMSupported}
+                          fromChainWalletVMSupported={
+                            fromChainWalletVMSupported
+                          }
+                          supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={fromToken}
                           setToken={(token) => {
                             onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {

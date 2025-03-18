@@ -1,5 +1,27 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.14
+
+### Patch Changes
+
+- 7f6c958: Detect changes to destination chain and select supporting wallet
+- bc77582: Add scripts for statically bundling versions
+- 842b547: Improve Deposit address logic in TokenSelector
+- 72f7f75: Fix a bug where changing the chain to a different vm would not find the supported linked wallet
+- cdc8d92: Handle custom block explorer transaction page
+- Updated dependencies [bc77582]
+- Updated dependencies [cdc8d92]
+  - @reservoir0x/relay-kit-hooks@1.8.5
+  - @reservoir0x/relay-sdk@1.6.9
+
+## 2.7.13
+
+### Patch Changes
+
+- 3b733af: Add analytic events for chain select
+- 38bfb4c: Rename connect CTA to "Connect Wallet"
+- 2b603a3: Fix approval tx display on swap confirmation screen
+
 ## 2.7.12
 
 ### Patch Changes

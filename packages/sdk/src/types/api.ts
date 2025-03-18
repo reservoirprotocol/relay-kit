@@ -26,6 +26,9 @@ export interface paths {
                   wsRpcUrl?: string;
                   explorerUrl?: string;
                   explorerName?: string;
+                  explorerPaths?: {
+                    transaction?: string;
+                  } | null;
                   /** @description If the network supports depositing to this chain, e.g. allows this chain to be set as the destination chain */
                   depositEnabled?: boolean;
                   /** @enum {string} */

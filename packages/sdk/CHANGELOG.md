@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.9
+
+### Patch Changes
+
+- bc77582: Add scripts for statically bundling versions
+- cdc8d92: Handle custom block explorer transaction page
+
 ## 1.6.8
 
 ### Patch Changes
