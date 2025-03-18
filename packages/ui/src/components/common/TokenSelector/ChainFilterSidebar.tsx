@@ -23,6 +23,7 @@ type ChainFilterSidebarProps = {
   value: ChainFilterValue
   onSelect: (value: ChainFilterValue) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onInputRef?: (element: HTMLInputElement | null) => void
 }
 
 const fuseSearchOptions = {
@@ -36,7 +37,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   options,
   value,
   onSelect,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onInputRef
 }) => {
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
@@ -101,6 +103,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
       >
         <AccessibleListItem value="input" asChild>
           <Input
+            ref={onInputRef}
             placeholder="Search chains"
             icon={
               <Box css={{ color: 'gray9' }}>

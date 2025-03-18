@@ -93,6 +93,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setValue: setTokenSearchInput
   } = useDebounceState<string>('', 500)
 
+  const [inputElement, setInputElement] = useState<HTMLInputElement | null>(
+    null
+  )
+
   // Configure chains
   const configuredChains = useMemo(() => {
     let chains =
@@ -263,6 +267,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const resetState = useCallback(() => {
     setTokenSearchInput('')
+    setInputElement(null)
     const chain = relayClient?.chains?.find(
       (chain) => chain.id === token?.chainId
     )
@@ -318,6 +323,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   }, [open])
 
+  useEffect(() => {
+    if (open && inputElement && isDesktop) {
+      inputElement.focus()
+    }
+  }, [open, inputElement])
+
   return (
     <>
       <div style={{ position: 'relative' }}>
@@ -371,6 +382,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   value={chainFilter}
                   onSelect={setChainFilter}
                   onAnalyticEvent={onAnalyticEvent}
+                  onInputRef={context === 'to' ? setInputElement : undefined}
                 />
               ) : null}
 
@@ -415,6 +427,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 >
                   <AccessibleListItem value="input" asChild>
                     <Input
+                      ref={context === 'from' ? setInputElement : undefined}
                       placeholder="Search for a token or paste address"
                       icon={
                         <Box css={{ color: 'gray9' }}>
@@ -485,29 +498,34 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       isLoadingBalances={isLoadingBalances}
                     />
                   ) : (
-                    <Flex
-                      direction="column"
-                      css={{
-                        gap: '3',
-                        '& > *:first-child': {
-                          order: context === 'to' ? 1 : 0
+                    <Flex direction="column" css={{ gap: '3' }}>
+                      {[
+                        {
+                          title: 'Popular Tokens',
+                          tokens: sortedCombinedTokens,
+                          isLoading: isLoadingTokenList,
+                          show: true
+                        },
+                        {
+                          title: 'Your Tokens',
+                          tokens: sortedUserTokens,
+                          isLoading: isLoadingUserTokens,
+                          show: sortedUserTokens.length > 0
                         }
-                      }}
-                    >
-                      {sortedUserTokens.length > 0 && (
-                        <TokenList
-                          title="Your Tokens"
-                          tokens={sortedUserTokens}
-                          isLoading={isLoadingUserTokens}
-                          isLoadingBalances={isLoadingBalances}
-                        />
-                      )}
-                      <TokenList
-                        title="Popular Tokens"
-                        tokens={sortedCombinedTokens}
-                        isLoading={isLoadingTokenList}
-                        isLoadingBalances={isLoadingBalances}
-                      />
+                      ]
+                        .sort((a, b) => (context === 'to' ? 0 : 1) - 0.5) // Reverse order depending on context
+                        .map(
+                          ({ title, tokens, isLoading, show }) =>
+                            show && (
+                              <TokenList
+                                key={title}
+                                title={title}
+                                tokens={tokens}
+                                isLoading={isLoading}
+                                isLoadingBalances={isLoadingBalances}
+                              />
+                            )
+                        )}
                     </Flex>
                   )}
 
@@ -516,8 +534,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   !isLoadingExternalList &&
                   tokenList?.length === 0 &&
                   externalTokenList?.length === 0 ? (
-                    <Text css={{ textAlign: 'center', py: '5' }}>
-                      No results found.
+                    <Text color="subtle" css={{ textAlign: 'center', py: '5' }}>
+                      No results.
                     </Text>
                   ) : null}
                 </Flex>
