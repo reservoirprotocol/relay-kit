@@ -149,9 +149,7 @@ export const WidgetErrorWell: FC<Props> = ({
             <FontAwesomeIcon icon={faExclamationCircle} width={16} />
           </Box>
           <Text style="subtitle3" css={{ color: 'red12' }}>
-            {isCapacityExceededError
-              ? `Amount is higher than the available liquidity.`
-              : fetchQuoteErrorMessage}
+            {fetchQuoteErrorMessage}
           </Text>
         </Flex>
       )
