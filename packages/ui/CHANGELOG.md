@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.15
+
+### Patch Changes
+
+- 05733be: Uniswap wallet compatability configurations
+- 93331ae: Fix max capacity error message not shown
+
 ## 2.7.14
 
 ### Patch Changes
