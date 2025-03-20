@@ -156,20 +156,22 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             })
             if (step === OnrampStep.Processing && !isPassthrough) {
               setProcessingStep(OnrampProcessingStep.Relaying)
-            } else if (isPassthrough) {
+            } else if (isPassthrough && step !== OnrampStep.Success) {
               setProcessingStep(undefined)
               onPassthroughSuccess()
             }
             return 0
           }
 
-          if (responseData?.id) {
-            if (step === OnrampStep.Moonpay && !isPassthrough) {
-              setStep(OnrampStep.Processing)
-              setProcessingStep(OnrampProcessingStep.Finalizing)
-              return 0
-            } else if (isPassthrough) {
-              setStep(OnrampStep.ProcessingPassthrough)
+          if (responseData?.id && responseData?.status === 'pending') {
+            if (step === OnrampStep.Moonpay) {
+              if (!isPassthrough) {
+                setStep(OnrampStep.Processing)
+                setProcessingStep(OnrampProcessingStep.Finalizing)
+                return 0
+              } else {
+                setStep(OnrampStep.ProcessingPassthrough)
+              }
             }
           }
         }
@@ -273,13 +275,14 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             })
             if (
               window &&
-              (window as any).relayOnrampStep === OnrampStep.Moonpay &&
-              !(window as any).relayIsPassthrough
+              (window as any).relayOnrampStep === OnrampStep.Moonpay
             ) {
-              setStep(OnrampStep.Processing)
-              setProcessingStep(OnrampProcessingStep.Finalizing)
-            } else if (window && (window as any).relayIsPassthrough) {
-              setStep(OnrampStep.ProcessingPassthrough)
+              if (!(window as any).relayIsPassthrough) {
+                setStep(OnrampStep.Processing)
+                setProcessingStep(OnrampProcessingStep.Finalizing)
+              } else {
+                setStep(OnrampStep.ProcessingPassthrough)
+              }
             }
           }}
           onTransactionCompleted={async (props) => {
@@ -293,7 +296,11 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
               !(window as any).relayIsPassthrough
             ) {
               setProcessingStep(OnrampProcessingStep.Relaying)
-            } else if (window && (window as any).relayIsPassthrough) {
+            } else if (
+              window &&
+              (window as any).relayIsPassthrough &&
+              (window as any).relayOnrampStep !== OnrampStep.Success
+            ) {
               setProcessingStep(undefined)
               onPassthroughSuccess()
             }

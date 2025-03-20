@@ -132,7 +132,9 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     } else {
       if (isPassthrough) {
         setStep(OnrampStep.Moonpay)
-        setPassthroughExternalId(`${recipient}-${Date.now()}}`)
+        setPassthroughExternalId(
+          `${recipient ? recipient.slice(recipient.length - 5) : ''}${Date.now()}`
+        )
       }
       onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN, {
         isPassthrough
@@ -306,7 +308,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         amount,
         totalAmount,
         ethTotalAmount,
-        moonPayRequestId
+        moonPayRequestId,
+        isPassthrough
       })
       onSuccess?.(quote as Execute, moonPayRequestId as string)
       setProcessingStep(undefined)
