@@ -16,6 +16,8 @@ export const generateQrWalletDeeplink = (
     }
   } else if (vm === 'bvm') {
     return `bitcoin:${toAddress}?amount=${tokenAddress ? 0 : amount}`
+  } else {
+    return toAddress
   }
   return undefined
 }
