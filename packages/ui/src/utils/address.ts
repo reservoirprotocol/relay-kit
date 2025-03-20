@@ -13,6 +13,7 @@ import {
 } from '../utils/solana.js'
 import type { LinkedWallet } from '../types/index.js'
 import type { RelayKitProviderProps } from '../providers/RelayKitProvider.js'
+import { isSuiAddress } from '../utils/sui.js'
 import { isTronAddress } from './tron.js'
 
 export const isValidAddress = (
@@ -51,6 +52,8 @@ export const isValidAddress = (
       return isSolanaAddress(address)
     } else if (vmType === 'bvm') {
       return isBitcoinAddress(address)
+    } else if (vmType === 'suivm') {
+      return isSuiAddress(address)
     } else if (vmType === 'tvm') {
       return isTronAddress(address)
     }

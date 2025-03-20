@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.10
+
+### Patch Changes
+
+- 769d648: Add Sui VM support
+
 ## 1.6.9
 
 ### Patch Changes
