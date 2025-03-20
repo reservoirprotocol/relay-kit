@@ -264,7 +264,7 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   if (notEnoughFiat) {
     ctaCopy = 'Enter an amount'
   } else if (!_recipient && toChainWalletVMSupported) {
-    ctaCopy = `Connect`
+    ctaCopy = `Connect Wallet`
   } else if (!_recipient) {
     ctaCopy = `Enter ${toChain?.displayName} address`
   }

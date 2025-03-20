@@ -30,9 +30,10 @@ import type { Token } from '../../../../types/index.js'
 import { eclipse, solana } from '../../../../utils/solana.js'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { convertApiCurrencyToToken } from '../../../../utils/tokens.js'
-import { tron } from '../../../../utils/tron.js'
 import ChainSuggestedTokens from '../../../../constants/ChainSuggestedTokens.js'
 import { zeroAddress } from 'viem'
+import { EventNames } from '../../../../constants/events.js'
+import { UnsupportedDepositAddressChainIds } from '../../../../constants/depositAddresses.js'
 
 type SetChainStepProps = {
   type?: 'token' | 'chain'
@@ -47,8 +48,10 @@ type SetChainStepProps = {
   chainSearchInput: string
   setChainSearchInput: React.Dispatch<React.SetStateAction<string>>
   selectToken: (currency: Currency, chainId?: number) => void
+  onAnalyticEvent?: (eventName: string, data?: any) => void
   selectedCurrencyList?: EnhancedCurrencyList
   chainIdsFilter?: number[]
+  depositAddressOnly?: boolean
 }
 
 const fuseSearchOptions = {
@@ -86,14 +89,24 @@ export const SetChainStep: FC<SetChainStepProps> = ({
   chainSearchInput,
   setChainSearchInput,
   selectToken,
+  onAnalyticEvent,
   chainIdsFilter,
-  selectedCurrencyList
+  selectedCurrencyList,
+  depositAddressOnly
 }) => {
   const client = useRelayClient()
   const isSmallDevice = useMediaQuery('(max-width: 660px)')
   const isDesktop = size === 'desktop' && !isSmallDevice
 
-  const supportedChains = selectedCurrencyList?.chains || []
+  const supportedChains = useMemo(() => {
+    let supportedChains = selectedCurrencyList?.chains || []
+    if (depositAddressOnly) {
+      supportedChains = supportedChains?.filter(
+        ({ chainId }) => !UnsupportedDepositAddressChainIds.includes(chainId!)
+      )
+    }
+    return supportedChains
+  }, [selectedCurrencyList, depositAddressOnly])
 
   const allChains =
     client?.chains?.filter(
@@ -121,9 +134,15 @@ export const SetChainStep: FC<SetChainStepProps> = ({
     })),
     ...(type === 'chain'
       ? allChains
-          .filter(
-            (chain) => !supportedChains.some((sc) => sc.chainId === chain.id)
-          )
+          .filter((chain) => {
+            const existsInSupportedChains = supportedChains.some(
+              (sc) => sc.chainId === chain.id
+            )
+            const isUnsupportedChain = depositAddressOnly
+              ? UnsupportedDepositAddressChainIds.includes(chain.id)
+              : false
+            return !existsInSupportedChains && !isUnsupportedChain
+          })
           .map((chain) => ({
             id: chain.id,
             displayName: chain.displayName,
@@ -176,6 +195,11 @@ export const SetChainStep: FC<SetChainStepProps> = ({
               (chain) => chain.id.toString() === value
             )
             if (chain) {
+              onAnalyticEvent?.(EventNames.SWAP_CHAIN_SELECT, {
+                searchTerm: chainSearchInput,
+                chainId: chain.id,
+                chainName: chain.displayName
+              })
               const suggestedTokens = ChainSuggestedTokens[chain.id]
               const erc20Currencies =
                 chain.relayChain.erc20Currencies?.filter(

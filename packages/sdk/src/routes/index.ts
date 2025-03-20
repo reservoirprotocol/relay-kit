@@ -29,6 +29,7 @@ export const routes = [
   "/conduit/install",
   "/prices/rates",
   "/currencies/v1",
+  "/currencies/v2",
   "/tokenlist",
   "/currencies/token/price",
   "/provision/chain"

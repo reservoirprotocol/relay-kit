@@ -1,5 +1,18 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.9
+
+### Patch Changes
+
+- bc77582: Add scripts for statically bundling versions
+- cdc8d92: Handle custom block explorer transaction page
+
+## 1.6.8
+
+### Patch Changes
+
+- 3993eb3: Update Tron dead address
+
 ## 1.6.7
 
 ### Patch Changes

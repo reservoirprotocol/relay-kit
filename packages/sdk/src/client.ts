@@ -13,6 +13,7 @@ import { LogLevel, log as logUtil } from './utils/logger.js'
 import * as actions from './actions/index.js'
 import * as utils from './utils/index.js'
 import { MAINNET_RELAY_API } from './constants/servers.js'
+import { SDK_VERSION } from './version.js'
 
 /**
  * RelayClient Configuration Options
@@ -28,6 +29,7 @@ export type RelayClientOptions = {
   maxPollingAttemptsBeforeTimeout?: number
   chains?: RelayChain[]
   useGasFeeEstimations?: boolean
+  uiVersion?: string
 }
 
 let _client: RelayClient
@@ -44,6 +46,8 @@ const _backupTestnetChains: RelayChain[] = [sepolia, baseGoerli].map((chain) =>
 )
 
 export class RelayClient {
+  version: string
+  uiVersion?: string
   baseApiUrl: string
   source?: string
   logLevel: LogLevel
@@ -62,6 +66,8 @@ export class RelayClient {
   readonly actions = actions
 
   constructor(options: RelayClientOptions) {
+    this.version = SDK_VERSION
+    this.uiVersion = options.uiVersion
     this.baseApiUrl = options.baseApiUrl ?? MAINNET_RELAY_API
     this.logLevel =
       options.logLevel !== undefined ? options.logLevel : LogLevel.None
@@ -153,7 +159,7 @@ export function getClient() {
  */
 export function createClient(options: RelayClientOptions) {
   if (!_client) {
-    _client = new RelayClient(options)
+    _client = new RelayClient({ ...options })
   } else {
     _client.configure(options)
   }
