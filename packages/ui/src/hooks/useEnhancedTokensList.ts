@@ -46,9 +46,7 @@ export const useEnhancedTokensList = (
   return useMemo(() => {
     if (!tokenLists) return []
 
-    // Flatten the nested array of currencies and normalize each token
     const enhancedTokens = tokenLists
-      // .flat()
       .map((currency) => {
         // Validate that all required fields exist
         if (

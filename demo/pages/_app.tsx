@@ -6,10 +6,9 @@ import type { AppProps } from 'next/app'
 import React, { ReactNode, FC, useState, useEffect, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createConfig, http, WagmiProvider } from 'wagmi'
-import { Chain, mainnet, optimism } from 'wagmi/chains'
+import { Chain, mainnet } from 'wagmi/chains'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import {
-  convertViemChainToRelayChain,
   LogLevel,
   MAINNET_RELAY_API,
   TESTNET_RELAY_API
@@ -117,10 +116,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           logLevel: LogLevel.Verbose,
           duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
           chains,
-          // chains: [
-          //   convertViemChainToRelayChain(mainnet),
-          //   convertViemChainToRelayChain(optimism)
-          // ],
           appName: 'Relay Demo',
           useGasFeeEstimations: true
           // appFees: [
