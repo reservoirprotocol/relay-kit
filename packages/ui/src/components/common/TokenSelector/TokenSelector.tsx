@@ -210,7 +210,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     userTokensQuery
       ? {
           tokens: userTokensQuery,
-          limit: 30,
+          limit: 100,
           depositAddressOnly
         }
       : undefined,
