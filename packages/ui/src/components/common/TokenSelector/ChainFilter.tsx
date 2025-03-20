@@ -33,8 +33,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
           css={{
             gap: '2',
             height: 40,
-            minW: 70,
-            maxWidth: 70,
+            width: '100%',
             px: '4 !important',
             cursor: 'pointer',
             display: 'flex',
@@ -44,18 +43,21 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
             borderRadius: 'dropdown-border-radius'
           }}
         >
-          {value.id ? (
-            <ChainIcon
-              chainId={value.id}
-              width={20}
-              height={20}
-              css={{ borderRadius: 4, overflow: 'hidden' }}
-            />
-          ) : (
-            <Text style="subtitle2" css={{}} ellipsify={true}>
-              All
+          <Flex align="center" css={{ gap: '2' }}>
+            {value.id ? (
+              <ChainIcon
+                chainId={value.id}
+                width={20}
+                height={20}
+                css={{ borderRadius: 4, overflow: 'hidden' }}
+              />
+            ) : (
+              <AllChainsLogo style={{ width: 20, height: 20 }} />
+            )}
+            <Text style="subtitle1">
+              {('displayName' in value && value.displayName) || value.name}
             </Text>
-          )}
+          </Flex>
           <Text
             style="body1"
             css={{
@@ -70,58 +72,59 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
         </Button>
       }
       contentProps={{
+        align: 'start',
         sideOffset: 12,
-        align: 'end',
-        css: { maxWidth: 248, p: 0 }
+        css: {
+          p: 0,
+          width: 'var(--radix-dropdown-menu-trigger-width)',
+          minWidth: 'var(--radix-dropdown-menu-trigger-width)',
+          mx: '0'
+        },
+        style: {
+          width: 'var(--radix-popper-anchor-width)',
+          minWidth: 'var(--radix-popper-anchor-width)'
+        }
       }}
     >
       <Flex
         direction="column"
         css={{ overflowY: 'scroll', borderRadius: 8, maxHeight: 200 }}
       >
-        {options
-          .filter((option) => option.name !== value.name)
-          .map((option, idx) => {
-            const tag = 'tags' in option ? option.tags?.[0] : undefined
-            return (
-              <DropdownMenuItem
-                aria-label={option.name}
-                key={idx}
-                onClick={() => {
-                  setOpen(false)
-                  onSelect(option)
-                }}
-                css={{
-                  gap: '2',
-                  cursor: 'pointer',
-                  p: '2',
-                  transition: 'backdrop-filter 250ms linear',
-                  _hover: {
-                    backdropFilter: 'brightness(95%)'
-                  },
-                  flexShrink: 0,
-                  alignContent: 'center',
-                  width: '100%'
-                }}
-              >
-                {option.id ? (
-                  <ChainIcon
-                    chainId={option.id}
-                    square
-                    width={24}
-                    height={24}
-                  />
-                ) : (
-                  <AllChainsLogo style={{ width: 24, height: 24 }} />
-                )}
-                <Text style="subtitle2">
-                  {('displayName' in option && option.displayName) ||
-                    option.name}
-                </Text>
-                {tag && <TagPill tag={tag} />}
-              </DropdownMenuItem>
-            )
-          })}
+        {options.map((option, idx) => {
+          const tag = 'tags' in option ? option.tags?.[0] : undefined
+          return (
+            <DropdownMenuItem
+              aria-label={option.name}
+              key={idx}
+              onClick={() => {
+                setOpen(false)
+                onSelect(option)
+              }}
+              css={{
+                gap: '2',
+                cursor: 'pointer',
+                p: '2',
+                transition: 'backdrop-filter 250ms linear',
+                _hover: {
+                  backdropFilter: 'brightness(95%)'
+                },
+                flexShrink: 0,
+                alignContent: 'center',
+                width: '100%'
+              }}
+            >
+              {option.id ? (
+                <ChainIcon chainId={option.id} square width={24} height={24} />
+              ) : (
+                <AllChainsLogo style={{ width: 24, height: 24 }} />
+              )}
+              <Text style="subtitle2">
+                {('displayName' in option && option.displayName) || option.name}
+              </Text>
+              {tag && <TagPill tag={tag} />}
+            </DropdownMenuItem>
+          )
+        })}
       </Flex>
     </Dropdown>
   )

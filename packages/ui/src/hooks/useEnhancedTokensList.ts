@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { BalanceMap } from './useDuneBalances'
-import { type Currency } from '@reservoir0x/relay-kit-hooks'
+import { type Currency, useRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { useRelayClient } from '../hooks/index.js'
 
 export type EnhancedToken = {
   chainId: number
@@ -17,6 +18,7 @@ export type EnhancedToken = {
     value_usd?: number
   }
   groupID?: string
+  isGasCurrency?: boolean
 }
 
 export const useEnhancedTokensList = (
@@ -26,6 +28,21 @@ export const useEnhancedTokensList = (
   multiWalletSupportEnabled: boolean,
   chainId?: number
 ): EnhancedToken[] => {
+  const relayClient = useRelayClient()
+  const { chains } = useRelayChains(relayClient?.baseApiUrl)
+
+  const chainCurrencyMap = useMemo(() => {
+    if (!chains) return new Map()
+    return new Map(
+      chains
+        .filter((chain) => chain?.currency?.address)
+        .map((chain) => [
+          `${chain.id}:${chain.currency?.address?.toLowerCase()}`,
+          true
+        ])
+    )
+  }, [chains])
+
   return useMemo(() => {
     if (!tokenLists) return []
 
@@ -55,7 +72,10 @@ export const useEnhancedTokensList = (
           verified: currency.metadata?.verified ?? false,
           vmType: currency.vmType,
           balance: balanceMap?.[`${currency.chainId}:${currency.address}`],
-          groupID: currency.groupID
+          groupID: currency.groupID,
+          isGasCurrency: chainCurrencyMap.has(
+            `${currency.chainId}:${currency.address.toLowerCase()}`
+          )
         }
 
         return enhancedToken
@@ -77,9 +97,7 @@ export const useEnhancedTokensList = (
       // Filter out non-EVM tokens when multiWallet support is disabled
       .filter((token) => {
         if (context === 'from' && !multiWalletSupportEnabled) {
-          if (token.vmType === 'svm' || token.vmType === 'bvm') {
-            return false
-          }
+          return token.vmType === 'evm'
         }
         return true
       })
@@ -106,5 +124,12 @@ export const useEnhancedTokensList = (
       })
 
     return enhancedTokens
-  }, [tokenLists, balanceMap, context, multiWalletSupportEnabled, chainId])
+  }, [
+    tokenLists,
+    balanceMap,
+    context,
+    multiWalletSupportEnabled,
+    chainId,
+    chainCurrencyMap
+  ])
 }

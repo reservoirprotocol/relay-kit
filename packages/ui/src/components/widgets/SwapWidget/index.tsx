@@ -535,6 +535,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 token={fromToken}
                                 locked={lockFromToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }
@@ -768,7 +769,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   multiWalletSupportEnabled &&
                                   !isRecipientLinked
                                     ? 'amber11'
-                                    : 'secondary-button-color'
+                                    : 'anchor-color'
                               }}
                             >
                               {!isValidToAddress
@@ -860,6 +861,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 token={toToken}
                                 locked={lockToToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }

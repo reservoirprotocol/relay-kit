@@ -55,10 +55,10 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
         my: '2'
       }}
     >
-      {suggestedTokens.map((token) => (
+      {suggestedTokens.map((token, idx) => (
         <AccessibleListItem
           asChild
-          key={`${token.chainId}:${token.address}`}
+          key={`${token.chainId}:${token.address}:${idx}`}
           value={`${token.chainId}:${token.address}`}
         >
           <Button

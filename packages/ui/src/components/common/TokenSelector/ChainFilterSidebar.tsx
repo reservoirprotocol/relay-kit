@@ -53,12 +53,17 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   const activeChainRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    if (activeChainRef.current) {
-      activeChainRef.current.scrollIntoView({
-        behavior: 'auto',
-        block: 'nearest'
-      })
-    }
+    // Add a small delay to ensure the element is rendered
+    const timeoutId = setTimeout(() => {
+      if (activeChainRef.current) {
+        activeChainRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest'
+        })
+      }
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
   }, [filteredChains, value])
 
   return (
@@ -144,7 +149,6 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
           const tag = 'tags' in chain ? chain.tags?.[0] : undefined
           return (
             <AccessibleListItem
-              ref={active ? activeChainRef : null}
               key={chain.id?.toString() ?? 'all-chains'}
               value={chain.id?.toString() ?? 'all-chains'}
               asChild

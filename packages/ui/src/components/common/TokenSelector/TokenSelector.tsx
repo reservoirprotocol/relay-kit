@@ -42,7 +42,10 @@ import {
   solDeadAddress,
   type ChainVM
 } from '@reservoir0x/relay-sdk'
-import { sortChains } from '../../../utils/tokenSelector.js'
+import {
+  getInitialChainFilter,
+  sortChains
+} from '../../../utils/tokenSelector.js'
 
 export type TokenSelectorProps = {
   token?: Token
@@ -87,7 +90,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
   const [chainFilter, setChainFilter] = useState<ChainFilterValue>({
     id: undefined,
-    name: 'All'
+    name: 'All Chains'
   })
 
   const {
@@ -157,10 +160,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               chain.id === bitcoin.id) &&
             configuredChainIds.includes(chain.id)
         )
-      : configuredChains
+      : configuredChains?.filter((chain) =>
+          configuredChainIds.includes(chain.id)
+        )
 
   const allChains = [
-    { id: undefined, name: 'All Chains' },
+    ...(depositAddressOnly ? [] : [{ id: undefined, name: 'All Chains' }]),
     ...chainFilterOptions
   ]
 
@@ -280,15 +285,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const resetState = useCallback(() => {
     setTokenSearchInput('')
     setInputElement(null)
-    const chain = relayClient?.chains?.find(
-      (chain) => chain.id === token?.chainId
-    )
-    setChainFilter(
-      chain ?? {
-        id: undefined,
-        name: 'All'
-      }
-    )
   }, [])
 
   const handleTokenSelection = useCallback(
@@ -313,7 +309,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       }
 
       setOpen(false)
-      resetState()
     },
     [setToken, setOpen, resetState]
   )
@@ -321,20 +316,20 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   useEffect(() => {
     if (!open) {
       resetState()
-    }
-    // @TODO: This is a hack to set the chain filter to the first chain if there is only one chain
-    // We should update the chain filter to the first chain when the modal opens
-    if (configuredChainIds.length === 1) {
-      const chain = relayClient?.chains.find(
-        (chain) => chain.id === configuredChainIds[0]
+    } else {
+      // Get initial chain filter
+      const chainFilter = getInitialChainFilter(
+        chainFilterOptions,
+        context,
+        depositAddressOnly,
+        token
       )
-      if (chain) {
-        setChainFilter(chain)
-        console.log('setting chain filter: ', chain)
-      }
+
+      setChainFilter(chainFilter)
     }
   }, [open])
 
+  // Focus input element when modal opens
   useEffect(() => {
     if (open && inputElement && isDesktop) {
       inputElement.focus()
@@ -420,13 +415,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   display: 'flex',
                   flexDirection: 'column',
                   width: '100%',
-                  gap: '1',
+                  gap: '2',
                   height: '100%',
                   overflowY: 'auto',
                   scrollPaddingTop: '40px'
                 }}
               >
                 <Flex
+                  direction="column"
                   align="start"
                   css={{
                     width: '100%',
@@ -454,7 +450,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                         width: '100%',
                         height: 40,
                         scrollSnapAlign: 'start',
-                        mb: '2'
+                        mb: isDesktop ? '1' : '0'
                       }}
                       css={{
                         width: '100%',
@@ -513,19 +509,19 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                     <Flex direction="column" css={{ gap: '3' }}>
                       {[
                         {
-                          title: 'Popular Tokens',
-                          tokens: sortedCombinedTokens,
-                          isLoading: isLoadingTokenList,
-                          show: true
-                        },
-                        {
                           title: 'Your Tokens',
                           tokens: sortedUserTokens,
                           isLoading: isLoadingUserTokens,
                           show: sortedUserTokens.length > 0
+                        },
+                        {
+                          title: 'Popular Tokens',
+                          tokens: sortedCombinedTokens,
+                          isLoading: isLoadingTokenList,
+                          show: true
                         }
                       ]
-                        .sort((a, b) => (context === 'to' ? 0 : 1) - 0.5) // Reverse order depending on context
+                        .sort((a, b) => (context === 'to' ? -1 : 1)) // Reverse order depending on context
                         .map(
                           ({ title, tokens, isLoading, show }) =>
                             show && (
@@ -564,7 +560,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           token={unverifiedToken}
           onAcceptToken={(token) => {
             if (token) {
-              setToken(token)
+              handleTokenSelection(token)
             }
             setUnverifiedTokenModalOpen(false)
           }}

@@ -539,7 +539,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                         color:
                           isValidRecipient && !isRecipientLinked
                             ? 'amber11'
-                            : 'secondary-button-color'
+                            : 'anchor-color'
                       }}
                     >
                       {!isValidRecipient ? `Enter Address` : toDisplayName}

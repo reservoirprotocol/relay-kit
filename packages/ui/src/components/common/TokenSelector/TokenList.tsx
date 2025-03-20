@@ -111,10 +111,32 @@ export const TokenList: FC<TokenListProps> = ({
                     style="h6"
                     ellipsify
                     css={{
-                      maxWidth: token.balance ? '112px' : '200px'
+                      maxWidth: token.balance ? '112px' : '200px',
+                      display: 'flex',
+                      gap: '1',
+                      alignItems: 'center'
                     }}
                   >
                     {token.symbol}
+                    {token.isGasCurrency && (
+                      <Text
+                        style="subtitle3"
+                        css={{
+                          px: '6px',
+                          py: '4px',
+                          borderRadius: '100px',
+                          backgroundColor: 'gray3',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: '12px',
+                          'button:hover &': {
+                            backgroundColor: 'gray5'
+                          }
+                        }}
+                      >
+                        Gas Token
+                      </Text>
+                    )}
                   </Text>
                   <Flex align="center" css={{ gap: '1' }}>
                     <Text

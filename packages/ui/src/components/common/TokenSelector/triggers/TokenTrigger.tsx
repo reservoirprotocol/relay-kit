@@ -15,12 +15,14 @@ type TokenTriggerProps = {
   token?: Token
   locked?: boolean
   isSingleChainLocked?: boolean
+  address?: string
 }
 
 export const TokenTrigger: FC<TokenTriggerProps> = ({
   token,
   locked,
-  isSingleChainLocked
+  isSingleChainLocked,
+  address
 }) => {
   const relayClient = useRelayClient()
   const chain = relayClient?.chains?.find(
@@ -81,7 +83,7 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
     </Button>
   ) : (
     <Button
-      color="primary"
+      color={address ? 'primary' : 'secondary'}
       corners="pill"
       css={{
         height: 44,

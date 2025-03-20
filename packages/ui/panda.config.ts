@@ -175,12 +175,12 @@ export default defineConfig({
 
         // Secondary Button
         'secondary-button-background': { value: { base: '{colors.primary3}' } },
-        'secondary-button-color': { value: { base: '{colors.primary11}' } },
+        'secondary-button-color': { value: { base: '{colors.gray12}' } },
         'secondary-button-hover-background': {
           value: { base: '{colors.primary4}' }
         },
         'secondary-button-hover-color': {
-          value: { base: '{colors.primary11}' }
+          value: { base: '{colors.gray12}' }
         },
 
         // Tertiary Button

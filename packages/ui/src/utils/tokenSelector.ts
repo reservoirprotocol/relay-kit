@@ -1,4 +1,5 @@
 import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { Token } from '../types/index.js'
 
 export const isChainLocked = (
   chainId: number | undefined,
@@ -43,4 +44,37 @@ export const sortChains = (chains: RelayChain[]) => {
     // Finally sort remaining chains alphabetically by displayName
     return a.displayName.localeCompare(b.displayName)
   })
+}
+
+export const getInitialChainFilter = (
+  chainFilterOptions: RelayChain[],
+  context: 'from' | 'to',
+  depositAddressOnly: boolean,
+  token?: Token
+) => {
+  const defaultFilter = { id: undefined, name: 'All Chains' }
+
+  // If there is only one chain, return it
+  if (chainFilterOptions.length === 1) {
+    return chainFilterOptions[0]
+  }
+
+  if (depositAddressOnly) {
+    if (token) {
+      return (
+        chainFilterOptions.find((chain) => chain.id === token.chainId) ||
+        defaultFilter
+      )
+    }
+    return chainFilterOptions[0]
+  }
+
+  if (token === undefined || context === 'from') {
+    return defaultFilter
+  }
+
+  return (
+    chainFilterOptions.find((chain) => chain.id === token.chainId) ||
+    defaultFilter
+  )
 }
