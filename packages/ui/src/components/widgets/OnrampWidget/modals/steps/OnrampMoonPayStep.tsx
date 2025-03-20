@@ -163,7 +163,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             return 0
           }
 
-          if (responseData?.id) {
+          if (responseData?.id && responseData?.status === 'pending') {
             if (step === OnrampStep.Moonpay) {
               if (!isPassthrough) {
                 setStep(OnrampStep.Processing)
