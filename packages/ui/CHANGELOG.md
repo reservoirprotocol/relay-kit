@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.16
+
+### Patch Changes
+
+- 769d648: Add Sui VM support
+- Updated dependencies [769d648]
+  - @reservoir0x/relay-sdk@1.6.10
+  - @reservoir0x/relay-kit-hooks@1.8.6
+
 ## 2.7.15
 
 ### Patch Changes
