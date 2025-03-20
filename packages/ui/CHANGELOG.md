@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.17
+
+### Patch Changes
+
+- dfbca22: Improve OnrampModal robustness
+- 16c07ed: Always return QR code for deposit address flow
+
 ## 2.7.16
 
 ### Patch Changes
