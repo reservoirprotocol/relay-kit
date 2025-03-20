@@ -640,6 +640,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               usdRate={usdRate}
               moonPayThemeId={moonPayThemeId}
               moonPayThemeMode={moonPayThemeMode}
+              moonPayApiKey={moonPayApiKey}
             />
           </div>
         )

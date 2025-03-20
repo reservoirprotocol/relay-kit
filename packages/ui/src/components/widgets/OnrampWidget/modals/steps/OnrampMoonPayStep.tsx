@@ -10,6 +10,11 @@ import { OnrampProcessingStep, OnrampStep } from '../OnrampModal.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { EventNames } from '../../../../../constants/events.js'
 import { arbitrum } from 'viem/chains'
+import { useMoonPayTransaction } from '../../../../../hooks/index.js'
+import type {
+  MoonPayBuyTransactionErrorResponse,
+  MoonPayBuyTransactionsResponse
+} from '../../../../../hooks/useMoonPayTransaction.js'
 
 type OnrampMoonPayStepProps = {
   step: OnrampStep
@@ -26,12 +31,16 @@ type OnrampMoonPayStepProps = {
   moonPayCurrencyCode?: string
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
+  moonPayApiKey?: string
+  quoteRequestId?: string | null
+  passthroughExternalId?: string
   onAnalyticEvent?: (eventName: string, data?: any) => void
   setStep: (step: OnrampStep) => void
   setProcessingStep: (processingStep?: OnrampProcessingStep) => void
   setMoonPayRequestId: (id: string) => void
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onPassthroughSuccess: () => void
+  onError: (error: Error) => void
 }
 
 const MoonPayBuyWidget = memo(
@@ -66,13 +75,20 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   moonPayCurrencyCode,
   moonPayThemeId,
   moonPayThemeMode,
+  quoteRequestId,
+  moonPayApiKey,
+  passthroughExternalId,
   onAnalyticEvent,
   setStep,
   setProcessingStep,
   setMoonPayRequestId,
   moonpayOnUrlSignatureRequested,
-  onPassthroughSuccess
+  onPassthroughSuccess,
+  onError
 }) => {
+  const moonPayExternalId = !isPassthrough
+    ? quoteRequestId ?? undefined
+    : passthroughExternalId
   useEffect(() => {
     if (window) {
       ;(window as any).relayOnrampStep = step
@@ -99,6 +115,69 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
       ;(window as any).relayIsPassthrough = undefined
     }
   }, [isPassthrough])
+
+  useMoonPayTransaction(
+    moonPayExternalId,
+    {
+      apiKey: moonPayApiKey
+    },
+    {
+      enabled:
+        step !== OnrampStep.Confirming &&
+        step !== OnrampStep.Error &&
+        step !== OnrampStep.Success,
+      refetchInterval: (query) => {
+        let data = query.state.data
+        if (data && 'moonPayErrorCode' in data) {
+          const errorData = data as MoonPayBuyTransactionErrorResponse
+          if (errorData.moonPayErrorCode != '1_SYS_UNKNOWN') {
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_API_ERROR, {
+              data,
+              isPassthrough
+            })
+          }
+        } else if (data && 'status' in data) {
+          const responseData = data as MoonPayBuyTransactionsResponse
+          if (responseData?.status === 'failed') {
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_FAILED, {
+              data,
+              isPassthrough
+            })
+            onError(
+              new Error(`MoonPayTxFailed: ${data.failureReason ?? 'unknown'}`)
+            )
+            return 0
+          }
+
+          if (responseData?.status === 'completed') {
+            onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
+              data,
+              isPassthrough
+            })
+            if (step === OnrampStep.Processing && !isPassthrough) {
+              setProcessingStep(OnrampProcessingStep.Relaying)
+            } else if (isPassthrough) {
+              setProcessingStep(undefined)
+              onPassthroughSuccess()
+            }
+            return 0
+          }
+
+          if (responseData?.id) {
+            if (step === OnrampStep.Moonpay && !isPassthrough) {
+              setStep(OnrampStep.Processing)
+              setProcessingStep(OnrampProcessingStep.Finalizing)
+              return 0
+            } else if (isPassthrough) {
+              setStep(OnrampStep.ProcessingPassthrough)
+            }
+          }
+        }
+
+        return 2000
+      }
+    }
+  )
 
   return (
     <Flex
@@ -175,6 +254,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           walletAddress={!isPassthrough ? depositAddress : recipient}
           themeId={moonPayThemeId}
           theme={moonPayThemeMode}
+          externalTransactionId={moonPayExternalId}
           showWalletAddressForm="false"
           visible
           style={{
@@ -188,7 +268,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           onTransactionCreated={async (props) => {
             setMoonPayRequestId(props.id)
             onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_START, {
-              ...props
+              ...props,
+              isPassthrough: (window as any).relayIsPassthrough
             })
             if (
               window &&
@@ -203,7 +284,8 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
           }}
           onTransactionCompleted={async (props) => {
             onAnalyticEvent?.(EventNames.ONRAMPING_MOONPAY_TX_COMPLETE, {
-              ...props
+              ...props,
+              isPassthrough: (window as any).relayIsPassthrough
             })
             if (
               window &&
