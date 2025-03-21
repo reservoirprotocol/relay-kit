@@ -32,5 +32,6 @@ export const routes = [
   "/currencies/v2",
   "/tokenlist",
   "/currencies/token/price",
+  "/currencies/trending",
   "/provision/chain"
 ];
