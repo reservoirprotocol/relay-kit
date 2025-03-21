@@ -86,8 +86,8 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
       color={address ? 'primary' : 'secondary'}
       corners="pill"
       css={{
-        height: 44,
-        minHeight: 44,
+        height: 50,
+        minHeight: 50,
         width: 'max-content',
         flexShrink: 0,
         overflow: 'hidden',

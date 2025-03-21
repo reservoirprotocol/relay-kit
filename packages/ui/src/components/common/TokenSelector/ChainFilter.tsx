@@ -73,7 +73,6 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
       }
       contentProps={{
         align: 'start',
-        sideOffset: 12,
         css: {
           p: 0,
           width: 'var(--radix-dropdown-menu-trigger-width)',

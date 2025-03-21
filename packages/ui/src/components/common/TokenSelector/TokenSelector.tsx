@@ -112,6 +112,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
+  const isReceivingDepositAddress = depositAddressOnly && context === 'to'
+
   // Configure chains
   const configuredChains = useMemo(() => {
     let chains =
@@ -122,7 +124,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     if (!multiWalletSupportEnabled && context === 'from') {
       chains = chains.filter((chain) => chain.vmType === 'evm')
     }
-    if (depositAddressOnly) {
+    if (isReceivingDepositAddress) {
       chains = chains.filter(
         ({ id }) => !UnsupportedDepositAddressChainIds.includes(id)
       )
@@ -166,7 +168,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         )
 
   const allChains = [
-    ...(depositAddressOnly ? [] : [{ id: undefined, name: 'All Chains' }]),
+    ...(isReceivingDepositAddress
+      ? []
+      : [{ id: undefined, name: 'All Chains' }]),
     ...chainFilterOptions
   ]
 
