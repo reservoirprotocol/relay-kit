@@ -151,7 +151,7 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
   children,
   options,
   theme
-}: RelayKitProviderProps) {
+}: RelayKitProviderProps): JSX.Element {
   const providerOptions = useMemo(
     () => ({
       appName: options.appName,

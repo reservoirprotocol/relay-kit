@@ -74,7 +74,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   onSetPrimaryWallet,
   onAnalyticEvent,
   onSuccess
-}) => {
+}): JSX.Element => {
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
