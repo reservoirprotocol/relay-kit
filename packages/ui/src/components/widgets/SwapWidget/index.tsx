@@ -109,7 +109,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onSwapSuccess,
   onSwapValidating,
   onSwapError
-}) => {
+}): JSX.Element => {
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
