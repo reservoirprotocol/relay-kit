@@ -8,12 +8,12 @@ import {
 } from '@tanstack/react-query'
 
 export type GetCurrenciesBody = NonNullable<
-  paths['/currencies/v1']['post']['requestBody']
+  paths['/currencies/v2']['post']['requestBody']
 >['content']['application/json']
 export type GetCurrenciesResponse =
-  paths['/currencies/v1']['post']['responses']['200']['content']['application/json']
-export type CurrencyList = GetCurrenciesResponse[0]
-export type Currency = GetCurrenciesResponse[0][0]
+  paths['/currencies/v2']['post']['responses']['200']['content']['application/json']
+export type CurrencyList = GetCurrenciesResponse
+export type Currency = GetCurrenciesResponse[0]
 type QueryType = typeof useQuery<
   GetCurrenciesResponse,
   DefaultError,
@@ -26,7 +26,7 @@ export const queryTokenList = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: GetCurrenciesBody
 ): Promise<GetCurrenciesResponse> {
-  const url = new URL(`${baseApiUrl}/currencies/v1`)
+  const url = new URL(`${baseApiUrl}/currencies/v2`)
   return axiosPostFetcher(url.href, options)
 }
 

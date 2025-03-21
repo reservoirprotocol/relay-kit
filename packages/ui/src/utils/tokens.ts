@@ -44,22 +44,21 @@ export const findBridgableToken = (chain?: RelayChain, token?: Token) => {
   return null
 }
 
-export const mergeTokenLists = (lists: (CurrencyList[] | undefined)[]) => {
-  const mergedList: CurrencyList[] = []
+export const mergeTokenLists = (lists: (CurrencyList | undefined)[]) => {
+  const mergedList: CurrencyList = []
   const seenTokens = new Set<string>()
 
   lists.forEach((list) => {
     if (!list) return
 
-    list.forEach((currencyList) => {
-      const currency = currencyList[0]
+    list.forEach((currency) => {
       if (!currency) return
 
       const tokenKey = `${currency.chainId}:${currency.address?.toLowerCase()}`
 
       if (!seenTokens.has(tokenKey)) {
         seenTokens.add(tokenKey)
-        mergedList.push(currencyList)
+        mergedList.push(currency)
       }
     })
   })

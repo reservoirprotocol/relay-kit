@@ -2,8 +2,7 @@ import { Flex, Button, Text, Box } from '../../primitives/index.js'
 import { useContext, useEffect, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, zeroAddress } from 'viem'
-import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
+import { formatUnits } from 'viem'
 import type { LinkedWallet, Token } from '../../../types/index.js'
 import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
@@ -19,26 +18,24 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { mainnet } from 'viem/chains'
 import {
   faClipboard,
   faExclamationCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
-import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/address.js'
 import {
   evmDeadAddress,
   solDeadAddress,
-  bitcoinDeadAddress,
-  ASSETS_RELAY_API
+  bitcoinDeadAddress
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
+import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 
@@ -53,7 +50,6 @@ type BaseSwapWidgetProps = {
   lockFromToken?: boolean
   lockChainId?: number
   singleChainMode?: boolean
-  tokens?: Token[]
   wallet?: AdaptedWallet
   supportedWalletVMs: ChainVM[]
   onFromTokenChange?: (token?: Token) => void
@@ -95,7 +91,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   lockFromToken = false,
   lockChainId,
   singleChainMode = false,
-  tokens,
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
@@ -120,15 +115,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
     useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<Token[]>([])
   const hasLockedToken = lockFromToken || lockToToken
-  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
-  const initialFromToken = defaultFromToken ?? {
-    chainId: defaultChainId,
-    address: zeroAddress,
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
-  }
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
   useEffect(() => {
@@ -166,7 +152,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={initialFromToken}
+      defaultFromToken={defaultFromToken}
       defaultToToken={defaultToToken}
       slippageTolerance={slippageTolerance}
       wallet={wallet}
@@ -287,17 +273,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           (chain) => chain.id === toToken?.chainId
         )
 
-        const fromTokenSelectorOpenState = useState(false)
-        const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
-          'token' | 'chain'
-        >('token')
-
-        const toTokenSelectorOpenState = useState(false)
-        const [toTokenSelectorType, setToTokenSelectorType] = useState<
-          'token' | 'chain'
-        >('token')
-
-        //Handle switching to a new vm and finding supported wallet addresses for recipient and connected wallet
         useEffect(() => {
           if (
             multiWalletSupportEnabled &&
@@ -436,9 +411,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         css={{ gap: '2', width: '100%' }}
                       >
                         <Text style="subtitle2" color="subtle">
-                          From
+                          Sell
                         </Text>
                         {multiWalletSupportEnabled === true &&
+                        address &&
                         fromChainWalletVMSupported ? (
                           <MultiWalletDropdown
                             context="origin"
@@ -465,31 +441,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           />
                         ) : null}
                       </Flex>
-                      {!isSingleChainLocked && (
-                        <ChainTrigger
-                          token={fromToken}
-                          chain={fromChain}
-                          locked={isChainLocked(
-                            fromToken?.chainId,
-                            lockChainId,
-                            toToken?.chainId,
-                            lockFromToken
-                          )}
-                          onClick={() => {
-                            setFromTokenSelectorType('chain')
-                            fromTokenSelectorOpenState[1](
-                              !fromTokenSelectorOpenState[0]
-                            )
-                            onAnalyticEvent?.(
-                              EventNames.SWAP_START_TOKEN_SELECT,
-                              {
-                                type: 'chain',
-                                direction: 'input'
-                              }
-                            )
-                          }}
-                        />
-                      )}
+
                       <Flex
                         align="center"
                         justify="between"
@@ -500,8 +452,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                                ? formatFixedLength(amountInputValue, 8)
-                                : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -516,7 +468,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             lineHeight: '36px',
                             py: 0,
                             color:
@@ -533,8 +485,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         />
                         <TokenSelector
-                          openState={fromTokenSelectorOpenState}
-                          type={fromTokenSelectorType}
                           address={address}
                           isValidAddress={isValidFromAddress}
                           token={fromToken}
@@ -567,43 +517,26 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    fromToken?.chainId,
-                                    lockChainId,
-                                    toToken?.chainId,
-                                    lockFromToken
-                                  ) && fromToken?.chainId
-                                ? [fromToken.chainId]
-                                : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
                               ? [toToken.chainId]
                               : undefined
                           }
-                          restrictedTokensList={tokens?.filter(
-                            (token) => token.chainId === fromToken?.chainId
-                          )}
-                          size={
-                            fromTokenSelectorType === 'chain'
-                              ? 'mobile'
-                              : 'desktop'
-                          }
                           trigger={
-                            <div
-                              style={{ width: 'max-content' }}
-                              onClick={() => setFromTokenSelectorType('token')}
-                            >
+                            <div style={{ width: 'max-content' }}>
                               <TokenTrigger
                                 token={fromToken}
-                                locked={
-                                  lockFromToken ||
-                                  (tokens &&
-                                    tokens.filter(
-                                      (token) =>
-                                        token.chainId === fromToken?.chainId
-                                    ).length === 1)
-                                }
+                                locked={lockFromToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }
@@ -695,10 +628,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Box
                       css={{
                         position: 'relative',
-                        my: -15,
+                        my: -13,
                         mx: 'auto',
-                        height: 36,
-                        width: 36
+                        height: 32,
+                        width: 32
                       }}
                     >
                       {hasLockedToken ||
@@ -763,7 +696,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                       >
                         <Text style="subtitle2" color="subtle">
-                          To
+                          Buy
                         </Text>
 
                         {multiWalletSupportEnabled &&
@@ -837,7 +770,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   multiWalletSupportEnabled &&
                                   !isRecipientLinked
                                     ? 'amber11'
-                                    : 'secondary-button-color'
+                                    : 'anchor-color'
                               }}
                             >
                               {!isValidToAddress
@@ -847,31 +780,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </Button>
                         ) : null}
                       </Flex>
-                      {!isSingleChainLocked && (
-                        <ChainTrigger
-                          token={toToken}
-                          chain={toChain}
-                          locked={isChainLocked(
-                            toToken?.chainId,
-                            lockChainId,
-                            fromToken?.chainId,
-                            lockToToken
-                          )}
-                          onClick={() => {
-                            setToTokenSelectorType('chain')
-                            toTokenSelectorOpenState[1](
-                              !toTokenSelectorOpenState[0]
-                            )
-                            onAnalyticEvent?.(
-                              EventNames.SWAP_START_TOKEN_SELECT,
-                              {
-                                type: 'chain',
-                                direction: 'output'
-                              }
-                            )
-                          }}
-                        />
-                      )}
+
                       <Flex
                         align="center"
                         justify="between"
@@ -882,8 +791,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                                ? formatFixedLength(amountOutputValue, 8)
-                                : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -899,7 +808,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             color:
                               isFetchingQuote && tradeType === 'EXACT_INPUT'
                                 ? 'text-subtle'
@@ -920,8 +829,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         />
                         <TokenSelector
-                          openState={toTokenSelectorOpenState}
-                          type={toTokenSelectorType}
                           address={recipient}
                           isValidAddress={isValidToAddress}
                           token={toToken}
@@ -949,27 +856,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           context="to"
                           multiWalletSupportEnabled={multiWalletSupportEnabled}
-                          size={
-                            toTokenSelectorType === 'chain'
-                              ? 'mobile'
-                              : 'desktop'
-                          }
                           trigger={
-                            <div
-                              style={{ width: 'max-content' }}
-                              onClick={() => setToTokenSelectorType('token')}
-                            >
+                            <div style={{ width: 'max-content' }}>
                               <TokenTrigger
                                 token={toToken}
-                                locked={
-                                  lockToToken ||
-                                  (tokens &&
-                                    tokens.filter(
-                                      (token) =>
-                                        token.chainId === toToken?.chainId
-                                    ).length === 1)
-                                }
+                                locked={lockToToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }
@@ -978,22 +871,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    toToken?.chainId,
-                                    lockChainId,
-                                    fromToken?.chainId,
-                                    lockToToken
-                                  ) && toToken?.chainId
-                                ? [toToken.chainId]
-                                : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
                               ? [fromToken.chainId]
                               : undefined
                           }
-                          restrictedTokensList={tokens?.filter(
-                            (token) => token.chainId === toToken?.chainId
-                          )}
                         />
                       </Flex>
                       <Flex
