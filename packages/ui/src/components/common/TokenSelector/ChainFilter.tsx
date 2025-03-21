@@ -88,7 +88,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
     >
       <Flex
         direction="column"
-        css={{ overflowY: 'scroll', borderRadius: 8, maxHeight: 200 }}
+        css={{ overflowY: 'scroll', borderRadius: 8, maxHeight: 290 }}
       >
         {options.map((option, idx) => {
           const tag = 'tags' in option ? option.tags?.[0] : undefined

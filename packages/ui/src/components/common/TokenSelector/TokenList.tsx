@@ -19,13 +19,15 @@ type TokenListProps = {
   tokens: EnhancedToken[]
   isLoading: boolean
   isLoadingBalances?: boolean
+  chainFilterId?: number
 }
 
 export const TokenList: FC<TokenListProps> = ({
   title,
   tokens,
   isLoading,
-  isLoadingBalances
+  isLoadingBalances,
+  chainFilterId
 }) => {
   if (isLoading) {
     return (
@@ -106,19 +108,22 @@ export const TokenList: FC<TokenListProps> = ({
                   tokenlogoURI={token.logoURI}
                   size="lg"
                 />
-                <Flex direction="column" align="start" css={{ gap: '2px' }}>
+                <Flex
+                  direction="column"
+                  align="start"
+                  css={{ gap: '2px', maxWidth: '100%', minWidth: 0 }}
+                >
                   <Text
                     style="h6"
                     ellipsify
                     css={{
-                      maxWidth: token.balance ? '112px' : '200px',
                       display: 'flex',
                       gap: '1',
                       alignItems: 'center'
                     }}
                   >
                     {token.symbol}
-                    {token.isGasCurrency && (
+                    {token.isGasCurrency && chainFilterId && (
                       <Text
                         style="subtitle3"
                         css={{
@@ -138,17 +143,17 @@ export const TokenList: FC<TokenListProps> = ({
                       </Text>
                     )}
                   </Text>
-                  <Flex align="center" css={{ gap: '1' }}>
+                  <Flex align="center" css={{ gap: '1', maxWidth: '100%' }}>
+                    <Text style="subtitle3" color="subtle" ellipsify>
+                      {token.name}
+                    </Text>
+
                     <Text
                       style="subtitle3"
                       color="subtle"
                       ellipsify
-                      css={{ maxWidth: 70 }}
+                      css={{ textWrap: 'nowrap' }}
                     >
-                      {token.name}
-                    </Text>
-
-                    <Text style="subtitle3" color="subtle">
                       {truncateAddress(token.address)}
                     </Text>
 
@@ -168,7 +173,7 @@ export const TokenList: FC<TokenListProps> = ({
                   <Flex
                     direction="column"
                     align="end"
-                    css={{ gap: '2px', ml: 'auto' }}
+                    css={{ gap: '2px', ml: 'auto', flexShrink: 0 }}
                   >
                     {isLoadingBalances ? (
                       <>

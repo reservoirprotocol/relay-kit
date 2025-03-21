@@ -30,9 +30,11 @@ const ChainIcon: FC<Props> = ({
       css={{
         display: 'flex',
         flexShrink: 0,
-        height: height,
-        width: width,
         ...css
+      }}
+      style={{
+        height: height,
+        width: width
       }}
     >
       {iconUrl ? (

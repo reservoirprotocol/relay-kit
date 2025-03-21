@@ -505,6 +505,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                         tokenSearchInput !== debouncedTokenSearchValue
                       }
                       isLoadingBalances={isLoadingBalances}
+                      chainFilterId={chainFilter.id}
                     />
                   ) : (
                     <Flex direction="column" css={{ gap: '3' }}>
@@ -532,6 +533,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                                 tokens={tokens}
                                 isLoading={isLoading}
                                 isLoadingBalances={isLoadingBalances}
+                                chainFilterId={chainFilter.id}
                               />
                             )
                         )}
