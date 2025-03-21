@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.11
+
+### Patch Changes
+
+- 0af5808: Update API SDK types, fix react 19 component type issues
+
 ## 1.6.10
 
 ### Patch Changes
