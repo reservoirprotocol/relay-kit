@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.7.18
+
+### Patch Changes
+
+- 0af5808: Update API SDK types, fix react 19 component type issues
+- Updated dependencies [0af5808]
+  - @reservoir0x/relay-sdk@1.6.11
+  - @reservoir0x/relay-kit-hooks@1.8.7
+
 ## 2.7.17
 
 ### Patch Changes
