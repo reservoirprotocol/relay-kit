@@ -103,7 +103,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
           gap: '1',
           height: '100%',
           overflowY: 'auto',
-          scrollPaddingTop: '40px'
+          scrollPaddingTop: '40px',
+          scrollbarColor: 'var(--relay-colors-gray5) transparent'
         }}
       >
         <AccessibleListItem value="input" asChild>

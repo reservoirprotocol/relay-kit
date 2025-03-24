@@ -151,6 +151,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     return _chainIds
   }, [configuredChains, lockedChainIds, chainIdsFilter, depositAddressOnly])
 
+  const hasMultipleConfiguredChainIds = configuredChainIds.length > 1
+
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
@@ -366,11 +368,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             height: 'min(85vh, 600px)',
             '@media(min-width: 660px)': {
               minWidth: isDesktop
-                ? configuredChainIds.length > 1
+                ? hasMultipleConfiguredChainIds
                   ? 660
-                  : 378
+                  : 408
                 : 400,
-              maxWidth: isDesktop && configuredChainIds.length > 1 ? 660 : 378
+              maxWidth: isDesktop && hasMultipleConfiguredChainIds ? 660 : 408
             }
           }}
         >
@@ -388,7 +390,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             <Flex css={{ flex: 1, gap: '3', overflow: 'hidden' }}>
               {/* Desktop Chain Filter Sidebar */}
               {isDesktop &&
-              (!configuredChainIds || configuredChainIds.length > 1) ? (
+              (!configuredChainIds || hasMultipleConfiguredChainIds) ? (
                 <ChainFilterSidebar
                   options={allChains}
                   value={chainFilter}
@@ -423,7 +425,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   gap: '2',
                   height: '100%',
                   overflowY: 'auto',
-                  scrollPaddingTop: '40px'
+                  scrollPaddingTop: '40px',
+                  scrollbarColor: 'var(--relay-colors-gray5) transparent'
                 }}
               >
                 <Flex
@@ -440,7 +443,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 >
                   <AccessibleListItem value="input" asChild>
                     <Input
-                      ref={context === 'from' ? setInputElement : undefined}
+                      ref={
+                        context === 'from' || !hasMultipleConfiguredChainIds
+                          ? setInputElement
+                          : undefined
+                      }
                       placeholder="Search for a token or paste address"
                       icon={
                         <Box css={{ color: 'gray9' }}>
@@ -472,7 +479,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                     />
                   </AccessibleListItem>
                   {!isDesktop &&
-                  (!configuredChainIds || configuredChainIds.length > 1) ? (
+                  (!configuredChainIds || hasMultipleConfiguredChainIds) ? (
                     <ChainFilter
                       options={allChains}
                       value={chainFilter}
