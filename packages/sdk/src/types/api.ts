@@ -353,7 +353,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -863,7 +863,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -2701,6 +2701,7 @@ export interface paths {
             "application/json": {
               message?: string;
               errorCode?: string;
+              errorData?: string;
             };
           };
         };
@@ -3103,6 +3104,7 @@ export interface paths {
             "application/json": {
               message?: string;
               errorCode?: string;
+              errorData?: string;
             };
           };
         };
@@ -4248,7 +4250,7 @@ export interface paths {
             term?: string;
             /** @description Address of the currency contract */
             address?: string;
-            /** @description ID to search for a currency group */
+            /** @description ID to search for a currency */
             currencyId?: string;
             /** @description List of token addresses, like: chainId:address */
             tokens?: string[];
@@ -4270,7 +4272,6 @@ export interface paths {
         200: {
           content: {
             "application/json": ({
-                groupID?: string;
                 chainId?: number;
                 address?: string;
                 symbol?: string;
@@ -4350,6 +4351,51 @@ export interface paths {
               /** @description Error message */
               error?: string;
             };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/trending": {
+    get: {
+      parameters: {
+        query?: {
+          chainId?: number;
+          sortBy?: "buyTxCount" | "buyUsdVolume";
+          limit?: number;
+        };
+      };
+      responses: {
+        /** @description List of currencies */
+        200: {
+          content: {
+            "application/json": ({
+                chainId?: number;
+                address?: string;
+                symbol?: string;
+                name?: string;
+                decimals?: number;
+                transactions?: {
+                  "24h"?: {
+                    buy?: number;
+                  };
+                };
+                volume?: {
+                  "24h"?: {
+                    buy?: {
+                      raw?: string;
+                      usd?: number;
+                    };
+                  };
+                };
+                /** @enum {string} */
+                vmType?: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
+                metadata?: {
+                  logoURI?: string;
+                  verified?: boolean;
+                  isNative?: boolean;
+                };
+              })[];
           };
         };
       };
