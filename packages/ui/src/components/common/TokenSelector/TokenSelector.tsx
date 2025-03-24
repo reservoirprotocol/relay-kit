@@ -422,22 +422,16 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   display: 'flex',
                   flexDirection: 'column',
                   width: '100%',
-                  gap: '2',
-                  height: '100%',
-                  overflowY: 'auto',
-                  scrollPaddingTop: '40px',
-                  scrollbarColor: 'var(--relay-colors-gray5) transparent'
+                  height: '100%'
                 }}
               >
+                {/* Search Input Section - Fixed */}
                 <Flex
                   direction="column"
                   align="start"
                   css={{
                     width: '100%',
                     gap: '2',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
                     background: 'modal-background'
                   }}
                 >
@@ -461,7 +455,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       containerCss={{
                         width: '100%',
                         height: 40,
-                        scrollSnapAlign: 'start',
                         mb: isDesktop ? '1' : '0'
                       }}
                       css={{
@@ -488,7 +481,17 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   ) : null}
                 </Flex>
 
-                <Flex direction="column" css={{ gap: '3' }}>
+                {/* Token Lists Section  */}
+                <Flex
+                  direction="column"
+                  css={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    gap: '3',
+                    pt: '2',
+                    scrollbarColor: 'var(--relay-colors-gray5) transparent'
+                  }}
+                >
                   {/* Suggested Tokens */}
                   {chainFilter.id &&
                   tokenSearchInput.length === 0 &&

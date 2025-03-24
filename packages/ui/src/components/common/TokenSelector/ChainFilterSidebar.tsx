@@ -80,6 +80,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
     >
       <AccessibleList
         onSelect={(selectedValue) => {
+          if (selectedValue === 'input') return
           if (selectedValue) {
             const chain =
               selectedValue === 'all-chains'
@@ -100,11 +101,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
-          gap: '1',
-          height: '100%',
-          overflowY: 'auto',
-          scrollPaddingTop: '40px',
-          scrollbarColor: 'var(--relay-colors-gray5) transparent'
+          height: '100%'
         }}
       >
         <AccessibleListItem value="input" asChild>
@@ -123,12 +120,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
             containerCss={{
               width: '100%',
               height: 40,
-              scrollSnapAlign: 'start'
-            }}
-            style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 2
+              mb: '2'
             }}
             css={{
               width: '100%',
@@ -145,73 +137,87 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
             }
           />
         </AccessibleListItem>
-        {filteredChains?.map((chain) => {
-          const active = value.id === chain.id
-          const tag = 'tags' in chain ? chain.tags?.[0] : undefined
-          return (
-            <AccessibleListItem
-              key={chain.id?.toString() ?? 'all-chains'}
-              value={chain.id?.toString() ?? 'all-chains'}
-              asChild
-            >
-              <Button
-                color="ghost"
-                size="none"
-                ref={active ? activeChainRef : null}
-                css={{
-                  scrollSnapAlign: 'start',
-                  p: '2',
-                  display: 'flex',
-                  zIndex: 1,
-                  alignItems: 'center',
-                  gap: '2',
-                  position: 'relative',
-                  ...(active && {
-                    _before: {
-                      content: '""',
-                      position: 'absolute',
-                      borderRadius: 8,
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      opacity: 0.15,
-                      backgroundColor: 'primary-color',
-                      zIndex: -1
-                    }
-                  }),
-                  transition: 'backdrop-filter 250ms linear',
-                  _hover: {
-                    backgroundColor: active ? '' : 'gray/10'
-                  },
-                  '--focusColor': 'colors.focus-color',
-                  _focusVisible: {
-                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                  },
-                  '&[data-state="on"]': {
-                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                  },
-                  _active: {
-                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                  },
-                  _focusWithin: {
-                    boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                  }
-                }}
+        <Flex
+          direction="column"
+          css={{
+            flex: 1,
+            overflowY: 'auto',
+            gap: '1',
+            scrollbarColor: 'var(--relay-colors-gray5) transparent'
+          }}
+        >
+          {filteredChains?.map((chain) => {
+            const active = value.id === chain.id
+            const tag = 'tags' in chain ? chain.tags?.[0] : undefined
+            return (
+              <AccessibleListItem
+                key={chain.id?.toString() ?? 'all-chains'}
+                value={chain.id?.toString() ?? 'all-chains'}
+                asChild
               >
-                {chain.id ? (
-                  <ChainIcon chainId={chain.id} square width={24} height={24} />
-                ) : (
-                  <AllChainsLogo style={{ width: 24, height: 24 }} />
-                )}
-                <Text style="subtitle1" ellipsify>
-                  {('displayName' in chain && chain.displayName) || chain.name}
-                </Text>
-                {tag && <TagPill tag={tag} />}
-              </Button>
-            </AccessibleListItem>
-          )
-        })}
+                <Button
+                  color="ghost"
+                  size="none"
+                  ref={active ? activeChainRef : null}
+                  css={{
+                    p: '2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '2',
+                    position: 'relative',
+                    ...(active && {
+                      _before: {
+                        content: '""',
+                        position: 'absolute',
+                        borderRadius: 8,
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0.15,
+                        backgroundColor: 'primary-color',
+                        zIndex: -1
+                      }
+                    }),
+                    transition: 'backdrop-filter 250ms linear',
+                    _hover: {
+                      backgroundColor: active ? '' : 'gray/10'
+                    },
+                    '--focusColor': 'colors.focus-color',
+                    _focusVisible: {
+                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                    },
+                    '&[data-state="on"]': {
+                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                    },
+                    _active: {
+                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                    },
+                    _focusWithin: {
+                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+                    }
+                  }}
+                >
+                  {chain.id ? (
+                    <ChainIcon
+                      chainId={chain.id}
+                      square
+                      width={24}
+                      height={24}
+                    />
+                  ) : (
+                    <AllChainsLogo style={{ width: 24, height: 24 }} />
+                  )}
+                  <Text style="subtitle1" ellipsify>
+                    {('displayName' in chain && chain.displayName) ||
+                      chain.name}
+                  </Text>
+                  {tag && <TagPill tag={tag} />}
+                </Button>
+              </AccessibleListItem>
+            )
+          })}
+        </Flex>
       </AccessibleList>
     </Flex>
   )
