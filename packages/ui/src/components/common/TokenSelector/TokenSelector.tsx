@@ -108,8 +108,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? chainFilter?.vmType
         ? !supportedWalletVMs?.includes(chainFilter.vmType)
         : !chainFilter.id
-        ? false
-        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+          ? false
+          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
   const isReceivingDepositAddress = depositAddressOnly && context === 'to'
@@ -574,7 +574,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         <UnverifiedTokenModal
           open={unverifiedTokenModalOpen}
           onOpenChange={setUnverifiedTokenModalOpen}
-          token={unverifiedToken}
+          data={unverifiedToken ? { token: unverifiedToken } : undefined}
           onAcceptToken={(token) => {
             if (token) {
               handleTokenSelection(token)

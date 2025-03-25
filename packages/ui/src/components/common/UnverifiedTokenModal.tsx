@@ -19,27 +19,38 @@ import { EventNames } from '../../constants/events.js'
 type UnverifiedTokenModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  token?: Token
-  onAcceptToken: (token?: Token) => void
+  data?: { token: Token; context?: string }
+  onAcceptToken: (token?: Token, context?: string) => void
+  onDecline?: (token?: Token, context?: string) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
 export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
   open,
   onOpenChange,
-  token,
+  data,
   onAcceptToken,
+  onDecline,
   onAnalyticEvent
 }) => {
   const client = useRelayClient()
-  const chain = client?.chains?.find((chain) => chain.id === token?.chainId)
-  const isValidTokenLogo = token?.logoURI && token?.logoURI !== 'missing.png'
+  const chain = client?.chains?.find(
+    (chain) => chain.id === data?.token?.chainId
+  )
+  const isValidTokenLogo =
+    data?.token?.logoURI && data?.token?.logoURI !== 'missing.png'
 
   return (
     <Modal
       trigger={null}
       open={open}
       onOpenChange={onOpenChange}
+      onPointerDownOutside={() => {
+        onDecline?.(data?.token, data?.context)
+      }}
+      onCloseButtonClicked={() => {
+        onDecline?.(data?.token, data?.context)
+      }}
       css={{
         overflow: 'hidden',
         zIndex: 1000
@@ -62,8 +73,8 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
           <Flex align="center" justify="center">
             {isValidTokenLogo ? (
               <img
-                src={token.logoURI}
-                alt={token?.name}
+                src={data?.token.logoURI}
+                alt={data?.token?.name}
                 style={{ width: '48px', height: '48px', borderRadius: 9999 }}
               />
             ) : null}
@@ -104,12 +115,12 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
             }}
           >
             <Text style="subtitle2" ellipsify>
-              {token?.address}
+              {data?.token?.address}
             </Text>
-            <CopyToClipBoard text={token?.address ?? ''} />
+            <CopyToClipBoard text={data?.token?.address ?? ''} />
 
             <Anchor
-              href={`${chain?.explorerUrl}/token/${token?.address}`}
+              href={`${chain?.explorerUrl}/token/${data?.token?.address}`}
               target="_blank"
               css={{ height: '14px' }}
             >
@@ -120,7 +131,10 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
           </Flex>
           <Flex css={{ gap: '3', width: '100%' }}>
             <Button
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onDecline?.(data?.token, data?.context)
+                onOpenChange(false)
+              }}
               color="ghost"
               css={{
                 flex: 1,
@@ -133,9 +147,9 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
             </Button>
             <Button
               onClick={() => {
-                if (token) {
-                  const tokenIdentifier = `${token.chainId}:${token.address}`
-                  const alreadyAccepted = alreadyAcceptedToken(token)
+                if (data?.token) {
+                  const tokenIdentifier = `${data?.token.chainId}:${data?.token.address}`
+                  const alreadyAccepted = alreadyAcceptedToken(data?.token)
                   const currentData = getRelayUiKitData()
                   if (!alreadyAccepted) {
                     setRelayUiKitData({
@@ -146,10 +160,11 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
                     })
                   }
                   onAnalyticEvent?.(EventNames.UNVERIFIED_TOKEN_ACCEPTED, {
-                    token
+                    token: data?.token,
+                    context: data?.context
                   })
                 }
-                onAcceptToken(token)
+                onAcceptToken(data?.token, data?.context)
               }}
               color="warning"
               css={{ flex: 1, justifyContent: 'center' }}

@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type FC } from 'react'
+import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -40,8 +40,10 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
-  defaultFromToken?: Token
-  defaultToToken?: Token
+  fromToken?: Token
+  setFromToken?: Dispatch<React.SetStateAction<Token | undefined>>
+  toToken?: Token
+  setToToken?: Dispatch<React.SetStateAction<Token | undefined>>
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
@@ -81,8 +83,10 @@ type MultiWalletEnabledProps = BaseSwapWidgetProps & {
 export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
 
 const SwapWidget: FC<SwapWidgetProps> = ({
-  defaultFromToken,
-  defaultToToken,
+  fromToken,
+  setFromToken,
+  toToken,
+  setToToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
@@ -111,37 +115,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const [unverifiedTokenModalOpen, setUnverifiedTokenModalOpen] =
-    useState(false)
-  const [unverifiedTokens, setUnverifiedTokens] = useState<Token[]>([])
+  const [unverifiedTokens, setUnverifiedTokens] = useState<
+    { token: Token; context: 'to' | 'from' }[]
+  >([])
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
+  //Handle external unverified tokens
   useEffect(() => {
-    if (
-      defaultFromToken &&
-      'verified' in defaultFromToken &&
-      !defaultFromToken.verified
-    ) {
-      const isAlreadyAccepted = alreadyAcceptedToken(defaultFromToken)
+    if (fromToken && 'verified' in fromToken && !fromToken.verified) {
+      const isAlreadyAccepted = alreadyAcceptedToken(fromToken)
       if (!isAlreadyAccepted) {
-        unverifiedTokens.push(defaultFromToken)
+        unverifiedTokens.push({ token: fromToken, context: 'from' })
+        setFromToken?.(undefined)
       }
     }
-    if (
-      defaultToToken &&
-      'verified' in defaultToToken &&
-      !defaultToToken.verified
-    ) {
-      const isAlreadyAccepted = alreadyAcceptedToken(defaultToToken)
+    if (toToken && 'verified' in toToken && !toToken.verified) {
+      const isAlreadyAccepted = alreadyAcceptedToken(toToken)
       if (!isAlreadyAccepted) {
-        unverifiedTokens.push(defaultToToken)
+        unverifiedTokens.push({ token: toToken, context: 'to' })
+        setToToken?.(undefined)
       }
     }
-    if (unverifiedTokens.length > 0) {
-      setUnverifiedTokenModalOpen(true)
-    }
-  }, [])
+  }, [fromToken, toToken])
 
   return (
     <SwapWidgetRenderer
@@ -152,8 +148,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={defaultFromToken}
-      defaultToToken={defaultToToken}
+      toToken={toToken}
+      setToToken={setToToken}
+      fromToken={fromToken}
+      setFromToken={setFromToken}
       slippageTolerance={slippageTolerance}
       wallet={wallet}
       linkedWallets={linkedWallets}
@@ -452,8 +450,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -517,13 +515,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -791,8 +789,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -871,13 +869,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
@@ -1097,20 +1095,27 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     )}
                   </Flex>
                   <UnverifiedTokenModal
-                    open={unverifiedTokenModalOpen}
-                    onOpenChange={setUnverifiedTokenModalOpen}
-                    token={
+                    open={unverifiedTokens.length > 0}
+                    onOpenChange={() => {}}
+                    data={
                       unverifiedTokens.length > 0
                         ? unverifiedTokens[0]
                         : undefined
                     }
-                    onAcceptToken={(token) => {
+                    onDecline={(token, context) => {
+                      const tokens = unverifiedTokens.filter(
+                        (unverifiedToken) =>
+                          !(
+                            unverifiedToken.context === context &&
+                            unverifiedToken.token.address === token?.address &&
+                            unverifiedToken.token.chainId === token?.chainId
+                          )
+                      )
+                      setUnverifiedTokens(tokens)
+                    }}
+                    onAcceptToken={(token, context) => {
                       if (token) {
-                        if (
-                          defaultToToken &&
-                          defaultToToken?.address === token.address &&
-                          defaultToToken.chainId === token.chainId
-                        ) {
+                        if (context === 'to') {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
                             token_symbol: token.symbol
@@ -1126,11 +1131,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           } else {
                             handleSetToToken(token)
                           }
-                        } else if (
-                          defaultFromToken &&
-                          defaultFromToken?.address === token.address &&
-                          defaultFromToken.chainId === token.chainId
-                        ) {
+                        } else if (context === 'from') {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
                             token_symbol: token.symbol
@@ -1151,16 +1152,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       const tokens = unverifiedTokens.filter(
                         (unverifiedToken) =>
                           !(
-                            unverifiedToken.address === token?.address &&
-                            unverifiedToken.chainId === token?.chainId
+                            unverifiedToken.token.address === token?.address &&
+                            unverifiedToken.token.chainId === token?.chainId
                           )
                       )
                       setUnverifiedTokens(tokens)
-                      if (tokens.length > 0) {
-                        setUnverifiedTokenModalOpen(true)
-                      } else {
-                        setUnverifiedTokenModalOpen(false)
-                      }
                     }}
                   />
                 </>

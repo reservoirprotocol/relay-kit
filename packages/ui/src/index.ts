@@ -18,4 +18,4 @@ export { SlippageToleranceConfig } from './components/common/SlippageToleranceCo
 export { DepositAddressModal } from './components/common/TransactionModal/DepositAddressModal.js'
 
 //types
-export type { LinkedWallet } from './types/index.js'
+export type { LinkedWallet, Token } from './types/index.js'

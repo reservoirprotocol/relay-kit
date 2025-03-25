@@ -26,6 +26,7 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
+import { type Token } from '@reservoir0x/relay-kit-ui'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm'] as const
 
@@ -36,6 +37,24 @@ const SwapWidgetPage: NextPage = () => {
       setLinkWalletPromise(undefined)
     }
   })
+  const [fromToken, setFromToken] = useState<Token | undefined>({
+    chainId: 8453,
+    address: '0x0000000000000000000000000000000000000000',
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+    logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
+    verified: false
+  })
+  // const [toToken, setToToken] = useState<Token | undefined>({
+  //   chainId: 10,
+  //   address: '0xbb586ed34974b15049a876fd5366a4c2d1203115',
+  //   decimals: 18,
+  //   name: 'ETH',
+  //   symbol: 'ETH',
+  //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
+  //   verified: false
+  // })
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
@@ -166,24 +185,12 @@ const SwapWidgetPage: NextPage = () => {
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
             supportedWalletVMs={supportedWalletVMs}
-            // defaultToToken={{
-            //   chainId: 10,
-            //   address: '0x0000000000000000000000000000000000000000',
-            //   decimals: 18,
-            //   name: 'ETH',
-            //   symbol: 'ETH',
-            //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            // }}
+            toToken={toToken}
+            setToToken={setToToken}
             // lockToToken={true}
             // lockFromToken={true}
-            defaultFromToken={{
-              chainId: 8453,
-              address: '0x0000000000000000000000000000000000000000',
-              decimals: 18,
-              name: 'ETH',
-              symbol: 'ETH',
-              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            }}
+            fromToken={fromToken}
+            setFromToken={setFromToken}
             // defaultAmount={'5'}
             wallet={wallet}
             multiWalletSupportEnabled={true}
