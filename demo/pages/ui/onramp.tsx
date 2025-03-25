@@ -2,7 +2,7 @@ import { NextPage } from 'next'
 import { Layout } from '../../components/Layout'
 import { useTheme } from 'next-themes'
 import { useMemo, useRef, useState } from 'react'
-import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
+import { LinkedWallet, Token } from '@reservoir0x/relay-kit-ui'
 import { OnrampWidget } from '@reservoir0x/relay-kit-ui/OnrampWidget'
 
 import {
@@ -15,6 +15,7 @@ import {
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { RelayChain } from '@reservoir0x/relay-sdk'
+import { zeroAddress } from 'viem'
 
 const OnrampPage: NextPage = () => {
   const { theme } = useTheme()
@@ -46,6 +47,15 @@ const OnrampPage: NextPage = () => {
     return _wallets
   }, [userWallets])
 
+  const [token, setToken] = useState<Token>({
+    address: zeroAddress,
+    chainId: 8453,
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+    logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+  })
+
   return (
     <Layout
       styles={{
@@ -68,6 +78,8 @@ const OnrampPage: NextPage = () => {
           linkedWallets={linkedWallets}
           moonPayThemeId={process.env.NEXT_PUBLIC_MOONPAY_THEME_ID as string}
           moonPayThemeMode={theme === 'light' ? 'light' : 'dark'}
+          token={token}
+          setToken={setToken}
           moonpayOnUrlSignatureRequested={async (
             url: string
           ): Promise<string> => {
