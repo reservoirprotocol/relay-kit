@@ -483,6 +483,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
 
                 {/* Token Lists Section  */}
                 <Flex
+                  key={chainFilter.id ?? 'all'}
                   direction="column"
                   css={{
                     flex: 1,
