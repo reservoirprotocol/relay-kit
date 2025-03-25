@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.12
+
+### Patch Changes
+
+- 66b8de8: Fix hyperevm chain configuration
+
 ## 1.6.11
 
 ### Patch Changes
