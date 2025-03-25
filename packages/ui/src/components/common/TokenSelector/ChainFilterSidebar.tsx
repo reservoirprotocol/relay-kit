@@ -166,21 +166,11 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                     gap: '2',
                     position: 'relative',
                     ...(active && {
-                      _before: {
-                        content: '""',
-                        position: 'absolute',
-                        borderRadius: 8,
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0.15,
-                        backgroundColor: 'primary-color'
-                      }
+                      backgroundColor: 'gray6'
                     }),
                     transition: 'backdrop-filter 250ms linear',
                     _hover: {
-                      backgroundColor: active ? '' : 'gray/10'
+                      backgroundColor: active ? 'gray6' : 'gray/10'
                     },
                     '--focusColor': 'colors.focus-color',
                     _focusVisible: {
