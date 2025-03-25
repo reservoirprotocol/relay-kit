@@ -23,12 +23,20 @@ import { useWalletFilter } from 'context/walletFilter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { convertToLinkedWallet } from 'utils/dynamic'
+import { Token } from '@reservoir0x/relay-kit-ui'
 
 const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const { theme } = useTheme()
-
+  const [toToken, setToToken] = useState<Token>({
+    chainId: 8453,
+    address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    decimals: 6,
+    name: 'USDC',
+    symbol: 'USDC',
+    logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
+  })
   useDynamicEvents('walletAdded', (newWallet) => {
     if (linkWalletPromise) {
       linkWalletPromise.resolve(convertToLinkedWallet(newWallet))
@@ -129,14 +137,8 @@ const ChainWidgetPage: NextPage = () => {
           lockChainId={8453}
           wallet={wallet}
           supportedWalletVMs={['bvm', 'evm', 'svm']}
-          defaultToToken={{
-            chainId: 8453,
-            address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
-            decimals: 6,
-            name: 'USDC',
-            symbol: 'USDC',
-            logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
-          }}
+          toToken={toToken}
+          setToToken={setToToken}
           multiWalletSupportEnabled={true}
           linkedWallets={linkedWallets}
           onLinkNewWallet={({ chain, direction }) => {
