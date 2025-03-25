@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { Dispatch, FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
 import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
@@ -27,7 +27,8 @@ type BaseOnrampWidgetProps = {
   moonPayApiKey: string
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
-  defaultToken?: Token
+  token?: Token
+  setToken?: Dispatch<React.SetStateAction<Token>>
   onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
@@ -66,7 +67,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   supportedWalletVMs,
   moonPayThemeId,
   moonPayThemeMode,
-  defaultToken,
+  token,
+  setToken,
   onTokenChange,
   onConnectWallet,
   onLinkNewWallet,
@@ -85,7 +87,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       moonPayApiKey={moonPayApiKey}
-      defaultToken={defaultToken}
+      token={token}
+      setToken={setToken}
     >
       {({
         displayCurrency,
@@ -118,26 +121,26 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
           amount === ''
             ? ''
             : amount.endsWith('.')
-            ? new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: 'USD',
-                currencyDisplay: 'narrowSymbol',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              }).format(+amount) + '.'
-            : new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: 'USD',
-                currencyDisplay: 'narrowSymbol',
-                minimumFractionDigits: amount.includes('.0')
-                  ? 1
-                  : amount.endsWith('0') && amount.includes('.')
-                  ? 2
-                  : 0,
-                maximumFractionDigits: amount.includes('.') ? 2 : 0,
-                minimumSignificantDigits: 1,
-                maximumSignificantDigits: amount.length
-              }).format(+amount)
+              ? new Intl.NumberFormat(undefined, {
+                  style: 'currency',
+                  currency: 'USD',
+                  currencyDisplay: 'narrowSymbol',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(+amount) + '.'
+              : new Intl.NumberFormat(undefined, {
+                  style: 'currency',
+                  currency: 'USD',
+                  currencyDisplay: 'narrowSymbol',
+                  minimumFractionDigits: amount.includes('.0')
+                    ? 1
+                    : amount.endsWith('0') && amount.includes('.')
+                      ? 2
+                      : 0,
+                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                  minimumSignificantDigits: 1,
+                  maximumSignificantDigits: amount.length
+                }).format(+amount)
 
         return (
           <div

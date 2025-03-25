@@ -166,17 +166,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   onAnalyticEvent,
   onSwapError
 }) => {
-  const fallbackFromToken = useState<Token | undefined>()
   const [fromToken, setFromToken] = useFallbackState(
-    _fromToken && _setFromToken ? fallbackFromToken[0] : undefined,
-    _fromToken && _setFromToken
-      ? [_fromToken, _setFromToken]
-      : fallbackFromToken
+    _fromToken && _setFromToken ? _fromToken : undefined,
+    _fromToken && _setFromToken ? [_fromToken, _setFromToken] : undefined
   )
-  const fallbackToToken = useState<Token | undefined>()
   const [toToken, setToToken] = useFallbackState(
-    _toToken && _setToToken ? fallbackToToken[0] : undefined,
-    _toToken && _setToToken ? [_toToken, _setToToken] : fallbackToToken
+    _toToken && _setToToken ? _toToken : undefined,
+    _toToken && _setToToken ? [_toToken, _setToToken] : undefined
   )
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides

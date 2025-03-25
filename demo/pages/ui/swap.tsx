@@ -185,8 +185,8 @@ const SwapWidgetPage: NextPage = () => {
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
             supportedWalletVMs={supportedWalletVMs}
-            toToken={toToken}
-            setToToken={setToToken}
+            // toToken={toToken}
+            // setToToken={setToToken}
             // lockToToken={true}
             // lockFromToken={true}
             fromToken={fromToken}
