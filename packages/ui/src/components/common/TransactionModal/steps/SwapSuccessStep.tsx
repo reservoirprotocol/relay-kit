@@ -317,7 +317,6 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               <ChainTokenIcon
                 chainId={_fromToken.chainId}
                 tokenlogoURI={fromTokenLogoUri}
-                css={{ height: 32, width: 32 }}
               />
               {isLoadingTransaction ? (
                 <Skeleton
@@ -343,7 +342,6 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               <ChainTokenIcon
                 chainId={_toToken.chainId}
                 tokenlogoURI={toTokenLogoUri}
-                css={{ height: 32, width: 32 }}
               />
               {isLoadingTransaction ? (
                 <Skeleton

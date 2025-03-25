@@ -19,7 +19,6 @@ import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
-import FiatCurrencyModal from './FiatCurrencyModal.js'
 import { formatBN } from '../../../../utils/numbers.js'
 
 type BaseOnrampWidgetProps = {
@@ -119,26 +118,26 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
           amount === ''
             ? ''
             : amount.endsWith('.')
-              ? new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(+amount) + '.'
-              : new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: amount.includes('.0')
-                    ? 1
-                    : amount.endsWith('0') && amount.includes('.')
-                      ? 2
-                      : 0,
-                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
-                  minimumSignificantDigits: 1,
-                  maximumSignificantDigits: amount.length
-                }).format(+amount)
+            ? new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(+amount) + '.'
+            : new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: amount.includes('.0')
+                  ? 1
+                  : amount.endsWith('0') && amount.includes('.')
+                  ? 2
+                  : 0,
+                maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                minimumSignificantDigits: 1,
+                maximumSignificantDigits: amount.length
+              }).format(+amount)
 
         return (
           <div
@@ -349,7 +348,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   </Flex>
                 </button>
                 <TokenSelector
-                  type={'token'}
                   address={recipient}
                   isValidAddress={isValidRecipient}
                   token={token}
@@ -366,7 +364,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     onTokenChange?.(token)
                   }}
                   context="to"
-                  size={'desktop'}
                   trigger={
                     <div
                       style={{
@@ -542,7 +539,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                         color:
                           isValidRecipient && !isRecipientLinked
                             ? 'amber11'
-                            : 'secondary-button-color'
+                            : 'anchor-color'
                       }}
                     >
                       {!isValidRecipient ? `Enter Address` : toDisplayName}

@@ -25,6 +25,11 @@ export type DuneBalanceResponse = {
   }>
 } | null
 
+export type BalanceMap = Record<
+  string,
+  NonNullable<DuneBalanceResponse>['balances'][0]
+>
+
 type QueryType = typeof useQuery<
   DuneBalanceResponse,
   DefaultError,
@@ -115,27 +120,24 @@ export default (
     }
   })
 
-  const balanceMap = response?.data?.balances?.reduce(
-    (balanceMap, balance) => {
-      if (balance.address === 'native') {
-        balance.address =
-          balance.chain === 'solana' || balance.chain === 'eclipse'
-            ? '11111111111111111111111111111111'
-            : zeroAddress
-      }
-      let chainId = balance.chain_id
-      if (!chainId && balance.chain === 'solana') {
-        chainId = solana.id
-      }
-      if (!chainId && balance.chain === 'eclipse') {
-        chainId = eclipse.id
-      }
+  const balanceMap = response?.data?.balances?.reduce((balanceMap, balance) => {
+    if (balance.address === 'native') {
+      balance.address =
+        balance.chain === 'solana' || balance.chain === 'eclipse'
+          ? '11111111111111111111111111111111'
+          : zeroAddress
+    }
+    let chainId = balance.chain_id
+    if (!chainId && balance.chain === 'solana') {
+      chainId = solana.id
+    }
+    if (!chainId && balance.chain === 'eclipse') {
+      chainId = eclipse.id
+    }
 
-      balanceMap[`${chainId}:${balance.address}`] = balance
-      return balanceMap
-    },
-    {} as Record<string, NonNullable<DuneBalanceResponse>['balances'][0]>
-  )
+    balanceMap[`${chainId}:${balance.address}`] = balance
+    return balanceMap
+  }, {} as BalanceMap)
 
   return { ...response, balanceMap, queryKey } as ReturnType<QueryType> & {
     balanceMap: typeof balanceMap

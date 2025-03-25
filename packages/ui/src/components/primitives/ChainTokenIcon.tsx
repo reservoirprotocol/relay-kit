@@ -6,18 +6,34 @@ import type { Styles } from '@reservoir0x/relay-design-system/css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoins } from '@fortawesome/free-solid-svg-icons'
 
+type Size = 'md' | 'lg'
+
 type ChainTokenProps = {
   chainId?: number
   tokenlogoURI?: string
   css?: Styles
+  size?: Size
 }
+
+const SIZES = {
+  md: {
+    token: 32,
+    chain: 16
+  },
+  lg: {
+    token: 40,
+    chain: 18
+  }
+} as const
 
 export const ChainTokenIcon: FC<ChainTokenProps> = ({
   chainId,
   tokenlogoURI,
-  css = {}
+  css = {},
+  size = 'md'
 }) => {
   const isValidTokenLogo = tokenlogoURI && tokenlogoURI !== 'missing.png'
+  const dimensions = SIZES[size]
 
   return chainId ? (
     <Flex css={{ position: 'relative', flexShrink: 0, ...css }}>
@@ -25,8 +41,8 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
         <img
           alt={'Token'}
           src={tokenlogoURI}
-          width={32}
-          height={32}
+          width={dimensions.token}
+          height={dimensions.token}
           style={{
             borderRadius: 9999,
             overflow: 'hidden'
@@ -35,8 +51,8 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
       ) : (
         <Box
           css={{
-            width: '100%',
-            height: '100%',
+            width: dimensions.token,
+            height: dimensions.token,
             borderRadius: '50%',
             backgroundColor: 'primary4',
             color: 'primary8',
@@ -45,13 +61,17 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
             justifyContent: 'center'
           }}
         >
-          <FontAwesomeIcon icon={faCoins} width={16} height={16} />
+          <FontAwesomeIcon
+            icon={faCoins}
+            width={dimensions.token / 2}
+            height={dimensions.token / 2}
+          />
         </Box>
       )}
       <ChainIcon
         chainId={chainId}
-        width={14}
-        height={14}
+        width={dimensions.chain}
+        height={dimensions.chain}
         css={{
           position: 'absolute',
           right: 0,

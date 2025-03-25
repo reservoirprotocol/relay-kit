@@ -110,9 +110,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
       trigger={
         <Button
           aria-label={`Multi wallet dropdown`}
-          color={
-            !selectedWallet && selectedWalletAddress ? 'warning' : 'secondary'
-          }
+          color={!selectedWallet && selectedWalletAddress ? 'warning' : 'ghost'}
           onClick={() => {
             if (!showDropdown) {
               onLinkNewWallet()
@@ -149,7 +147,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                 color:
                   !selectedWallet && selectedWalletAddress
                     ? 'amber11'
-                    : 'secondary-button-color'
+                    : 'anchor-color'
               }}
             >
               {isSupportedSelectedWallet
@@ -165,7 +163,7 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                 color:
                   !selectedWallet && selectedWalletAddress
                     ? 'amber11'
-                    : 'secondary-button-color'
+                    : 'anchor-color'
               }}
             >
               <FontAwesomeIcon icon={faChevronDown} width={14} height={14} />

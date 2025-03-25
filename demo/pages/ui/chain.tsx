@@ -129,24 +129,6 @@ const ChainWidgetPage: NextPage = () => {
           lockChainId={8453}
           wallet={wallet}
           supportedWalletVMs={['bvm', 'evm', 'svm']}
-          tokens={[
-            {
-              chainId: 8453,
-              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
-              decimals: 6,
-              name: 'USDC',
-              symbol: 'USDC',
-              logoURI: 'https://ethereum-optimism.github.io/data/USDC/logo.png'
-            },
-            {
-              chainId: 8453,
-              address: '0x0000000000000000000000000000000000000000',
-              decimals: 18,
-              name: 'ETH',
-              symbol: 'ETH',
-              logoURI: 'https://assets.relay.link/icons/1/light.png'
-            }
-          ]}
           defaultToToken={{
             chainId: 8453,
             address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
