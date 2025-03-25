@@ -70,7 +70,6 @@ export const useEnhancedTokensList = (
           verified: currency.metadata?.verified ?? false,
           vmType: currency.vmType,
           balance: balanceMap?.[`${currency.chainId}:${currency.address}`],
-          groupID: currency.groupID,
           isGasCurrency: chainCurrencyMap.has(
             `${currency.chainId}:${currency.address.toLowerCase()}`
           )
