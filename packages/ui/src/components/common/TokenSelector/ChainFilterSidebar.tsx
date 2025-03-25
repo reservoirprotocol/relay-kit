@@ -175,8 +175,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                         width: '100%',
                         height: '100%',
                         opacity: 0.15,
-                        backgroundColor: 'primary-color',
-                        zIndex: -1
+                        backgroundColor: 'primary-color'
                       }
                     }),
                     transition: 'backdrop-filter 250ms linear',
