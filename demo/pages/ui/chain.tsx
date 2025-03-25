@@ -29,7 +29,7 @@ const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { setShowLinkNewWalletModal } = useDynamicModals()
   const { theme } = useTheme()
-  const [toToken, setToToken] = useState<Token>({
+  const [toToken, setToToken] = useState<Token | undefined>({
     chainId: 8453,
     address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
     decimals: 6,
