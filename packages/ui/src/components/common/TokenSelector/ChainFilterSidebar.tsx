@@ -53,17 +53,12 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   const activeChainRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    // Add a small delay to ensure the element is rendered
-    const timeoutId = setTimeout(() => {
-      if (activeChainRef.current) {
-        activeChainRef.current.scrollIntoView({
-          behavior: 'auto',
-          block: 'nearest'
-        })
-      }
-    }, 100)
-
-    return () => clearTimeout(timeoutId)
+    if (activeChainRef.current) {
+      activeChainRef.current.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest'
+      })
+    }
   }, [filteredChains, value])
 
   return (
