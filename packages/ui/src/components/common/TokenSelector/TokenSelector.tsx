@@ -244,7 +244,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       isValidAddress
       ? address
       : undefined,
-    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet'
+    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet',
+    {
+      staleTime: 60000,
+      gcTime: 60000
+    }
   )
 
   const restrictedTokenAddresses = filteredRestrictedTokenList?.map((token) =>

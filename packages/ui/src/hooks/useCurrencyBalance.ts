@@ -97,14 +97,18 @@ const useCurrencyBalance = ({
     {
       enabled: Boolean(
         chain && chain.vmType === 'svm' && address && _isValidAddress && enabled
-      )
+      ),
+      staleTime: refreshInterval,
+      gcTime: refreshInterval
     }
   )
 
   const bitcoinBalances = useBitcoinBalance(address, {
     enabled: Boolean(
       chain && chain.vmType === 'bvm' && address && _isValidAddress && enabled
-    )
+    ),
+    gcTime: refreshInterval,
+    staleTime: refreshInterval
   })
 
   if (chain?.vmType === 'evm') {
