@@ -43,8 +43,7 @@ const SwapWidgetPage: NextPage = () => {
     decimals: 18,
     name: 'ETH',
     symbol: 'ETH',
-    logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
-    verified: false
+    logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
   })
   // const [toToken, setToToken] = useState<Token | undefined>({
   //   chainId: 10,
@@ -53,7 +52,6 @@ const SwapWidgetPage: NextPage = () => {
   //   name: 'ETH',
   //   symbol: 'ETH',
   //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
-  //   verified: false
   // })
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
