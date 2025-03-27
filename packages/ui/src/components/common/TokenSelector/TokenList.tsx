@@ -182,7 +182,14 @@ export const TokenList: FC<TokenListProps> = ({
                       </>
                     ) : (
                       <>
-                        <Text style="h6">
+                        {token.balance?.value_usd &&
+                          token.balance.value_usd > 0 && (
+                            <Text style="h6">
+                              {formatDollar(token.balance?.value_usd)}
+                            </Text>
+                          )}
+
+                        <Text style="subtitle3" color="subtle">
                           {formatBN(
                             token.balance!.amount,
                             4,
@@ -190,12 +197,6 @@ export const TokenList: FC<TokenListProps> = ({
                             compactBalance
                           )}
                         </Text>
-                        {token.balance?.value_usd &&
-                          token.balance.value_usd > 0 && (
-                            <Text style="subtitle3" color="subtle">
-                              {formatDollar(token.balance.value_usd)}
-                            </Text>
-                          )}
                       </>
                     )}
                   </Flex>

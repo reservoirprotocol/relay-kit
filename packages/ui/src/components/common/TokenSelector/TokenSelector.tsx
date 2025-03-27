@@ -108,8 +108,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? chainFilter?.vmType
         ? !supportedWalletVMs?.includes(chainFilter.vmType)
         : !chainFilter.id
-          ? false
-          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+        ? false
+        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
   const isReceivingDepositAddress = depositAddressOnly && context === 'to'
@@ -396,7 +396,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   value={chainFilter}
                   onSelect={setChainFilter}
                   onAnalyticEvent={onAnalyticEvent}
-                  onInputRef={context === 'to' ? setInputElement : undefined}
+                  onInputRef={setInputElement}
                 />
               ) : null}
 
@@ -438,7 +438,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   <AccessibleListItem value="input" asChild>
                     <Input
                       ref={
-                        context === 'from' || !hasMultipleConfiguredChainIds
+                        !hasMultipleConfiguredChainIds
                           ? setInputElement
                           : undefined
                       }
@@ -532,7 +532,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                           show: sortedUserTokens.length > 0
                         },
                         {
-                          title: 'Popular Tokens',
+                          title: 'Tokens by 24H volume',
                           tokens: sortedCombinedTokens,
                           isLoading: isLoadingTokenList,
                           show: true
