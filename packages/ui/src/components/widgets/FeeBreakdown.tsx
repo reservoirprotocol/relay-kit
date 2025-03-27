@@ -1,7 +1,7 @@
 import { useState, type FC } from 'react'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import { formatBN, formatNumber } from '../../utils/numbers.js'
+import { formatBN } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
@@ -16,7 +16,6 @@ import {
 import {
   faChevronRight,
   faClock,
-  faExclamationCircle,
   faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { PriceImpactTooltip } from './PriceImpactTooltip.js'
@@ -44,7 +43,7 @@ type Props = Pick<
 }
 
 const formatSwapRate = (rate: number) => {
-  return rate >= 1 ? formatNumber(rate, 2) : formatNumber(rate, 5)
+  return rate >= 1 ? formatBN(rate, 2, 18, false) : formatBN(rate, 4, 18, false)
 }
 
 const FeeBreakdown: FC<Props> = ({
