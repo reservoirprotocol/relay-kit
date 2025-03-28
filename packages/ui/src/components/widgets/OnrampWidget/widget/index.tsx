@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
 import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDownLong,
@@ -21,6 +21,8 @@ import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
 import FiatCurrencyModal from './FiatCurrencyModal.js'
 import { formatBN } from '../../../../utils/numbers.js'
+import { findSupportedWallet } from '../../../../utils/address.js'
+import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
@@ -78,6 +80,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
 
   return (
     <OnrampWidgetRenderer
@@ -115,6 +119,45 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         isPassthrough,
         usdRate
       }) => {
+        //Reset recipient if no longer valid
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            fromChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidRecipient
+          ) {
+            const supportedAddress = findSupportedWallet(
+              fromChain,
+              recipient,
+              linkedWallets,
+              connectorKeyOverrides
+            )
+            if (supportedAddress) {
+              onSetPrimaryWallet?.(supportedAddress)
+            }
+          }
+
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidRecipient
+          ) {
+            setRecipient(undefined)
+          }
+        }, [
+          multiWalletSupportEnabled,
+          fromChain?.id,
+          toChain?.id,
+          linkedWallets,
+          onSetPrimaryWallet,
+          isValidRecipient,
+          connectorKeyOverrides
+        ])
+
         const formattedAmount =
           amount === ''
             ? ''
