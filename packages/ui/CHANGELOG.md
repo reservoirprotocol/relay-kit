@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.8.0
+
+### Minor Changes
+
+- ccff74e: Refactor dune api config
+
+### Patch Changes
+
+- cff46c3: Fix conversion rate display bug
+- 5b70dc4: Add a short cache for balance queries to optimize dune usage
+
 ## 2.7.19
 
 ### Patch Changes
