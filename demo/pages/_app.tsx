@@ -114,7 +114,10 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           baseApiUrl: relayApi,
           source: 'relay-demo',
           logLevel: LogLevel.Verbose,
-          duneApiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
+          duneConfig: {
+            apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
+            apiBaseUrl: 'https://api.dune.com'
+          },
           chains,
           appName: 'Relay Demo',
           useGasFeeEstimations: true

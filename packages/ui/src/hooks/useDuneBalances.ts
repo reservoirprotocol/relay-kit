@@ -46,9 +46,9 @@ export default (
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `https://api.dune.com/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
+      let url = `${providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'}/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
       if (isSvmAddress) {
-        url = `https://api.dune.com/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+        url = `${providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'}/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (!isSvmAddress && !isEvmAddress) {
@@ -56,9 +56,11 @@ export default (
       }
 
       return fetch(url, {
-        headers: {
-          'X-DUNE-API-KEY': providerOptions.duneApiKey
-        } as HeadersInit
+        headers: providerOptions.duneConfig?.apiKey
+          ? {
+              'X-DUNE-API-KEY': providerOptions.duneConfig?.apiKey
+            }
+          : ({} as HeadersInit)
       })
         .then((response) => response.json())
         .then((response) => {
@@ -101,7 +103,8 @@ export default (
     ...queryOptions,
     enabled:
       address !== undefined &&
-      providerOptions.duneApiKey !== undefined &&
+      providerOptions.duneConfig?.apiKey !== undefined &&
+      providerOptions.duneConfig?.apiBaseUrl !== undefined &&
       queryOptions?.enabled &&
       (isSvmAddress || isEvmAddress)
   })

@@ -17,11 +17,17 @@ type RelayKitProviderOptions = {
    * An array of fee objects composing of a recipient address and the fee in BPS
    */
   appFees?: AppFees
-  /**
-   * This key is used to fetch token balances, to improve the general UX and suggest relevant tokens
-   * Can be omitted and the ui will continue to function. Refer to the dune docs on how to get an api key
-   */
-  duneApiKey?: string
+  duneConfig?: {
+    /**
+     * The base url for the dune api, if omitted the default will be used. Override this config to protect your api key via a proxy.
+     */
+    apiBaseUrl?: string
+    /**
+     * This key is used to fetch token balances, to improve the general UX and suggest relevant tokens
+     * Can be omitted and the ui will continue to function. Refer to the dune docs on how to get an api key
+     */
+    apiKey?: string
+  }
   /**
    * Disable the powered by reservoir footer
    */
@@ -156,7 +162,7 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
     () => ({
       appName: options.appName,
       appFees: options.appFees,
-      duneApiKey: options.duneApiKey,
+      duneConfig: options.duneConfig,
       disablePoweredByReservoir: options.disablePoweredByReservoir,
       vmConnectorKeyOverrides: options.vmConnectorKeyOverrides
     }),
