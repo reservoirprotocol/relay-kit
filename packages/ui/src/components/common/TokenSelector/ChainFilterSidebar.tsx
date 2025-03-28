@@ -24,6 +24,7 @@ type ChainFilterSidebarProps = {
   onSelect: (value: ChainFilterValue) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onInputRef?: (element: HTMLInputElement | null) => void
+  tokenSearchInputRef?: HTMLInputElement | null
 }
 
 const fuseSearchOptions = {
@@ -38,7 +39,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   value,
   onSelect,
   onAnalyticEvent,
-  onInputRef
+  onInputRef,
+  tokenSearchInputRef
 }) => {
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
@@ -154,6 +156,12 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                   color="ghost"
                   size="none"
                   ref={active ? activeChainRef : null}
+                  onClick={(e) => {
+                    if (e.detail > 0) {
+                      // Mouse clicks have a detail > 0, keyboard events have detail === 0
+                      tokenSearchInputRef?.focus()
+                    }
+                  }}
                   css={{
                     p: '2',
                     display: 'flex',

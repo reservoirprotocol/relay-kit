@@ -99,10 +99,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setValue: setTokenSearchInput
   } = useDebounceState<string>('', 500)
 
-  const [inputElement, setInputElement] = useState<HTMLInputElement | null>(
-    null
-  )
-
   const depositAddressOnly =
     context === 'from'
       ? chainFilter?.vmType
@@ -289,9 +285,19 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     chainFilter.id
   )
 
+  const [chainSearchInputElement, setChainSearchInputElement] =
+    useState<HTMLInputElement | null>(null)
+  const [tokenSearchInputElement, setTokenSearchInputElement] =
+    useState<HTMLInputElement | null>(null)
+
+  const inputElement = hasMultipleConfiguredChainIds
+    ? chainSearchInputElement
+    : tokenSearchInputElement
+
   const resetState = useCallback(() => {
     setTokenSearchInput('')
-    setInputElement(null)
+    setChainSearchInputElement(null)
+    setTokenSearchInputElement(null)
   }, [])
 
   const handleTokenSelection = useCallback(
@@ -396,7 +402,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   value={chainFilter}
                   onSelect={setChainFilter}
                   onAnalyticEvent={onAnalyticEvent}
-                  onInputRef={setInputElement}
+                  onInputRef={setChainSearchInputElement}
+                  tokenSearchInputRef={tokenSearchInputElement}
                 />
               ) : null}
 
@@ -437,11 +444,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 >
                   <AccessibleListItem value="input" asChild>
                     <Input
-                      ref={
-                        !hasMultipleConfiguredChainIds
-                          ? setInputElement
-                          : undefined
-                      }
+                      ref={setTokenSearchInputElement}
                       placeholder="Search for a token or paste address"
                       icon={
                         <Box css={{ color: 'gray9' }}>
