@@ -1,12 +1,16 @@
-import { type FC, useState } from 'react'
+import { type FC, useState, useMemo } from 'react'
 import { Dropdown, DropdownMenuItem } from '../../primitives/Dropdown.js'
-import { Button, Flex, Text } from '../../primitives/index.js'
+import { Button, Flex, Text, Input, Box } from '../../primitives/index.js'
 import ChainIcon from '../../primitives/ChainIcon.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+import {
+  faChevronDown,
+  faMagnifyingGlass
+} from '@fortawesome/free-solid-svg-icons'
 import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 import AllChainsLogo from '../../../img/AllChainsLogo.js'
 import { TagPill } from './TagPill.js'
+import Fuse from 'fuse.js'
 
 export type ChainFilterValue =
   | RelayChain
@@ -18,8 +22,24 @@ type Props = {
   onSelect: (value: ChainFilterValue) => void
 }
 
+const fuseSearchOptions = {
+  includeScore: true,
+  includeMatches: true,
+  threshold: 0.2,
+  keys: ['id', 'name', 'displayName']
+}
+
 const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
   const [open, setOpen] = useState(false)
+  const [chainSearchInput, setChainSearchInput] = useState('')
+  const chainFuse = new Fuse(options, fuseSearchOptions)
+
+  const filteredChains = useMemo(() => {
+    if (chainSearchInput.trim() !== '') {
+      return chainFuse.search(chainSearchInput).map((result) => result.item)
+    }
+    return options
+  }, [chainSearchInput, options, chainFuse])
 
   return (
     <Dropdown
@@ -85,45 +105,91 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
         }
       }}
     >
-      <Flex
-        direction="column"
-        css={{ overflowY: 'scroll', borderRadius: 8, maxHeight: 290 }}
-      >
-        {options.map((option, idx) => {
-          const tag = 'tags' in option ? option.tags?.[0] : undefined
-          return (
-            <DropdownMenuItem
-              aria-label={option.name}
-              key={idx}
-              onClick={() => {
-                setOpen(false)
-                onSelect(option)
-              }}
-              css={{
-                gap: '2',
-                cursor: 'pointer',
-                p: '2',
-                transition: 'backdrop-filter 250ms linear',
-                _hover: {
-                  backdropFilter: 'brightness(95%)'
-                },
-                flexShrink: 0,
-                alignContent: 'center',
-                width: '100%'
-              }}
-            >
-              {option.id ? (
-                <ChainIcon chainId={option.id} square width={24} height={24} />
-              ) : (
-                <AllChainsLogo style={{ width: 24, height: 24 }} />
+      <Flex direction="column" css={{ p: '2' }}>
+        <Input
+          placeholder="Search chains"
+          icon={
+            <Box css={{ color: 'gray9' }}>
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                width={16}
+                height={16}
+              />
+            </Box>
+          }
+          containerCss={{
+            width: '100%',
+            height: 40,
+            mb: '2'
+          }}
+          css={{
+            width: '100%',
+            _placeholder_parent: {
+              textOverflow: 'ellipsis'
+            },
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            backgroundColor: 'modal-background'
+          }}
+          value={chainSearchInput}
+          onChange={(e) =>
+            setChainSearchInput((e.target as HTMLInputElement).value)
+          }
+        />
+        <Flex
+          direction="column"
+          css={{ overflowY: 'scroll', borderRadius: 8, maxHeight: 290 }}
+        >
+          {filteredChains.length > 0
+            ? filteredChains.map((option, idx) => {
+                const tag = 'tags' in option ? option.tags?.[0] : undefined
+                return (
+                  <DropdownMenuItem
+                    aria-label={option.name}
+                    key={idx}
+                    onClick={() => {
+                      setOpen(false)
+                      onSelect(option)
+                    }}
+                    css={{
+                      gap: '2',
+                      cursor: 'pointer',
+                      p: '2',
+                      transition: 'backdrop-filter 250ms linear',
+                      _hover: {
+                        backdropFilter: 'brightness(95%)'
+                      },
+                      flexShrink: 0,
+                      alignContent: 'center',
+                      width: '100%'
+                    }}
+                  >
+                    {option.id ? (
+                      <ChainIcon
+                        chainId={option.id}
+                        square
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <AllChainsLogo style={{ width: 24, height: 24 }} />
+                    )}
+                    <Text style="subtitle2">
+                      {('displayName' in option && option.displayName) ||
+                        option.name}
+                    </Text>
+                    {tag && <TagPill tag={tag} />}
+                  </DropdownMenuItem>
+                )
+              })
+            : chainSearchInput !== '' && (
+                <Flex align="center" justify="center" css={{ py: '4' }}>
+                  <Text style="body1" css={{ color: 'gray9' }}>
+                    No results found
+                  </Text>
+                </Flex>
               )}
-              <Text style="subtitle2">
-                {('displayName' in option && option.displayName) || option.name}
-              </Text>
-              {tag && <TagPill tag={tag} />}
-            </DropdownMenuItem>
-          )
-        })}
+        </Flex>
       </Flex>
     </Dropdown>
   )

@@ -429,6 +429,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   display: 'flex',
                   flexDirection: 'column',
                   width: '100%',
+                  minWidth: 0,
                   height: '100%'
                 }}
               >

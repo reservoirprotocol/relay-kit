@@ -411,7 +411,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           Sell
                         </Text>
                         {multiWalletSupportEnabled === true &&
-                        address &&
                         fromChainWalletVMSupported ? (
                           <MultiWalletDropdown
                             context="origin"
