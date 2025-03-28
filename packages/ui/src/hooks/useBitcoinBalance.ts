@@ -69,7 +69,7 @@ export default (address?: string, queryOptions?: Partial<QueryOptions>) => {
           }
         })
     },
-    enabled: address !== undefined && providerOptions.duneApiKey !== undefined,
+    enabled: address !== undefined,
     ...queryOptions
   })
 
