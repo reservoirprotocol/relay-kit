@@ -2,6 +2,7 @@ import { type FC } from 'react'
 import { Flex } from './index.js'
 import useRelayClient from '../../hooks/useRelayClient.js'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
+import { isDarkMode } from '../../utils/theme.js'
 
 type Props = {
   chainId?: number
@@ -19,11 +20,18 @@ const ChainIcon: FC<Props> = ({
   square = true
 }) => {
   const client = useRelayClient()
-  const icon = chainId
-    ? client?.chains?.find((chain) => chain.id === chainId)?.icon?.light
+  const chain = chainId
+    ? client?.chains?.find((chain) => chain.id === chainId)
     : null
 
-  const iconUrl = square ? icon?.replace('/icons/', '/icons/square/') : icon
+  const icon = chain
+    ? isDarkMode()
+      ? chain.icon?.dark || chain.icon?.light
+      : chain.icon?.light
+    : null
+
+  const iconUrl =
+    square && icon ? icon.replace('/icons/', '/icons/square/') : icon
 
   return iconUrl ? (
     <Flex
