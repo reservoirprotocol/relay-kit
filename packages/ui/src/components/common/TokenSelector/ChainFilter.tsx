@@ -107,7 +107,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
     >
       <Flex direction="column" css={{ p: '2' }}>
         <Input
-          placeholder="Search chains"
+          placeholder="Search for a chain"
           icon={
             <Box css={{ color: 'gray9' }}>
               <FontAwesomeIcon
@@ -132,9 +132,20 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
             backgroundColor: 'modal-background'
           }}
           value={chainSearchInput}
-          onChange={(e) =>
+          onChange={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
             setChainSearchInput((e.target as HTMLInputElement).value)
-          }
+          }}
+          onKeyDown={(e) => {
+            e.stopPropagation()
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation()
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation()
+          }}
         />
         <Flex
           direction="column"
