@@ -29,6 +29,7 @@ type BaseOnrampWidgetProps = {
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
   defaultToken?: Token
+  disablePasteWalletAddressOption?: boolean
   onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
@@ -68,6 +69,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   moonPayThemeId,
   moonPayThemeMode,
   defaultToken,
+  disablePasteWalletAddressOption,
   onTokenChange,
   onConnectWallet,
   onLinkNewWallet,
@@ -505,6 +507,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     setAddressModalOpen={setAddressModalOpen}
                     wallets={linkedWallets!}
                     onAnalyticEvent={onAnalyticEvent}
+                    disablePasteWalletAddressOption={
+                      disablePasteWalletAddressOption
+                    }
                   />
                 ) : null}
                 {!multiWalletSupportEnabled || !toChainWalletVMSupported ? (
