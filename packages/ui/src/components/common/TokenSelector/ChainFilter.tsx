@@ -161,6 +161,7 @@ const ChainFilter: FC<Props> = ({ options, value, onSelect }) => {
                     onClick={() => {
                       setOpen(false)
                       onSelect(option)
+                      setChainSearchInput('')
                     }}
                     css={{
                       gap: '2',
