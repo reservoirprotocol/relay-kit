@@ -20,10 +20,7 @@ import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { mainnet } from 'viem/chains'
-import {
-  faClipboard,
-  faExclamationCircle
-} from '@fortawesome/free-solid-svg-icons'
+import { faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
@@ -56,6 +53,7 @@ type BaseSwapWidgetProps = {
   tokens?: Token[]
   wallet?: AdaptedWallet
   supportedWalletVMs: ChainVM[]
+  disablePasteWalletAddressOption?: boolean
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -100,6 +98,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   multiWalletSupportEnabled = false,
   linkedWallets,
   supportedWalletVMs,
+  disablePasteWalletAddressOption,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
@@ -348,6 +347,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           connectorKeyOverrides
         ])
 
+        //Handle if the paste wallet address option is disabled while there is a custom to address
+        useEffect(() => {
+          if (disablePasteWalletAddressOption && customToAddress) {
+            setCustomToAddress(undefined)
+          }
+        }, [disablePasteWalletAddressOption])
+
         const promptSwitchRoute =
           (isCapacityExceededError || isCouldNotExecuteError) &&
           supportsExternalLiquidity &&
@@ -443,6 +449,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           <MultiWalletDropdown
                             context="origin"
                             selectedWalletAddress={address}
+                            disablePasteWalletAddressOption={
+                              disablePasteWalletAddressOption
+                            }
                             onSelect={(wallet) =>
                               onSetPrimaryWallet?.(wallet.address)
                             }
@@ -770,6 +779,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         toChainWalletVMSupported ? (
                           <MultiWalletDropdown
                             context="destination"
+                            disablePasteWalletAddressOption={
+                              disablePasteWalletAddressOption
+                            }
                             selectedWalletAddress={recipient}
                             onSelect={(wallet) =>
                               setCustomToAddress(wallet.address)
