@@ -223,6 +223,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
+        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+          if (fromToken) {
+            setAmountInputValue(formatUnits(amount, fromToken?.decimals))
+            setTradeType('EXACT_INPUT')
+            debouncedAmountOutputControls.cancel()
+            debouncedAmountInputControls.flush()
+            onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
+              percent: percent
+            })
+          }
+        }
+
         const handleSetFromToken = (token?: Token) => {
           let _token = token
           const newFromChain = relayClient?.chains.find(
@@ -571,23 +583,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 onClick={() => {
                                   const percentageBuffer =
                                     (fromBalance * 20n) / 100n // 20% of the balance
-                                  if (fromToken) {
-                                    setAmountInputValue(
-                                      formatUnits(
-                                        fromBalance - percentageBuffer,
-                                        fromToken?.decimals
-                                      )
-                                    )
-                                    setTradeType('EXACT_INPUT')
-                                    debouncedAmountOutputControls.cancel()
-                                    debouncedAmountInputControls.flush()
-                                    onAnalyticEvent?.(
-                                      EventNames.MAX_AMOUNT_CLICKED,
-                                      {
-                                        percent: '25%'
-                                      }
-                                    )
-                                  }
+                                  handleMaxAmountClicked(
+                                    percentageBuffer,
+                                    '20%'
+                                  )
                                 }}
                               >
                                 20%
@@ -604,23 +603,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 onClick={() => {
                                   const percentageBuffer =
                                     (fromBalance * 50n) / 100n // 50% of the balance
-                                  if (fromToken) {
-                                    setAmountInputValue(
-                                      formatUnits(
-                                        fromBalance - percentageBuffer,
-                                        fromToken?.decimals
-                                      )
-                                    )
-                                    setTradeType('EXACT_INPUT')
-                                    debouncedAmountOutputControls.cancel()
-                                    debouncedAmountInputControls.flush()
-                                    onAnalyticEvent?.(
-                                      EventNames.MAX_AMOUNT_CLICKED,
-                                      {
-                                        percent: '50%'
-                                      }
-                                    )
-                                  }
+                                  handleMaxAmountClicked(
+                                    percentageBuffer,
+                                    '50%'
+                                  )
                                 }}
                               >
                                 50%
@@ -644,25 +630,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     percentageBuffer > fixedBuffer
                                       ? percentageBuffer
                                       : fixedBuffer
-
-                                  if (fromToken) {
-                                    setAmountInputValue(
-                                      formatUnits(
-                                        isFromNative
-                                          ? fromChain?.vmType === 'svm'
-                                            ? fromBalance - solanaBuffer
-                                            : fromBalance - percentageBuffer
-                                          : fromBalance,
-                                        fromToken?.decimals
-                                      )
-                                    )
-                                    setTradeType('EXACT_INPUT')
-                                    debouncedAmountOutputControls.cancel()
-                                    debouncedAmountInputControls.flush()
-                                    onAnalyticEvent?.(
-                                      EventNames.MAX_AMOUNT_CLICKED
-                                    )
-                                  }
+                                  handleMaxAmountClicked(
+                                    isFromNative
+                                      ? fromChain?.vmType === 'svm'
+                                        ? fromBalance - solanaBuffer
+                                        : fromBalance - percentageBuffer
+                                      : fromBalance,
+                                    'max'
+                                  )
                                 }}
                               >
                                 MAX
