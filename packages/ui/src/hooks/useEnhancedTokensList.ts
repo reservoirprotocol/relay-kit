@@ -26,7 +26,8 @@ export const useEnhancedTokensList = (
   balanceMap: BalanceMap | undefined,
   context: 'from' | 'to',
   multiWalletSupportEnabled: boolean,
-  chainId?: number
+  chainId?: number,
+  sortByBalance: boolean = true
 ): EnhancedToken[] => {
   const relayClient = useRelayClient()
   const { chains } = useRelayChains(relayClient?.baseApiUrl)
@@ -99,25 +100,17 @@ export const useEnhancedTokensList = (
         return true
       })
       .sort((a, b) => {
-        // Sort by USD value
-        const aValueUsd = a.balance?.value_usd ?? 0
-        const bValueUsd = b.balance?.value_usd ?? 0
-        if (aValueUsd !== bValueUsd) {
-          return bValueUsd - aValueUsd
+        // Only sort by USD value if sortByBalance is true
+        if (sortByBalance) {
+          const aValueUsd = a.balance?.value_usd ?? 0
+          const bValueUsd = b.balance?.value_usd ?? 0
+          if (aValueUsd !== bValueUsd) {
+            return bValueUsd - aValueUsd
+          }
         }
 
-        // Prioritize ETH tokens
-        if (a.groupID === 'ETH' && b.groupID !== 'ETH') return -1
-        if (b.groupID === 'ETH' && a.groupID !== 'ETH') return 1
-
-        // Then prioritize USDC tokens
-        if (a.groupID === 'USDC' && b.groupID !== 'USDC') return -1
-        if (b.groupID === 'USDC' && a.groupID !== 'USDC') return 1
-
-        // Finally sort by verified status
-        const aVerified = a.verified ?? false
-        const bVerified = b.verified ?? false
-        return bVerified === aVerified ? 0 : bVerified ? 1 : -1
+        // Maintain original order if not sorting by balance
+        return 0
       })
 
     return enhancedTokens
@@ -127,6 +120,7 @@ export const useEnhancedTokensList = (
     context,
     multiWalletSupportEnabled,
     chainId,
-    chainCurrencyMap
+    chainCurrencyMap,
+    sortByBalance
   ])
 }

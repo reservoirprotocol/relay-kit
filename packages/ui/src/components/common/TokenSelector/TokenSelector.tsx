@@ -280,7 +280,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     tokenBalances,
     context,
     multiWalletSupportEnabled,
-    chainFilter.id
+    chainFilter.id,
+    true
   )
 
   const sortedCombinedTokens = useEnhancedTokensList(
@@ -288,7 +289,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     tokenBalances,
     context,
     multiWalletSupportEnabled,
-    chainFilter.id
+    chainFilter.id,
+    false
   )
 
   const [chainSearchInputElement, setChainSearchInputElement] =
