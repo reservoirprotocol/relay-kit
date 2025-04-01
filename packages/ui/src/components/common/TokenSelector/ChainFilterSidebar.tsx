@@ -17,6 +17,7 @@ import { EventNames } from '../../../constants/events.js'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import AllChainsLogo from '../../../img/AllChainsLogo.js'
 import { TagPill } from './TagPill.js'
+import { groupChains } from '../../../utils/tokenSelector.js'
 
 type ChainFilterSidebarProps = {
   options: (RelayChain | { id: undefined; name: string })[]
@@ -25,6 +26,7 @@ type ChainFilterSidebarProps = {
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onInputRef?: (element: HTMLInputElement | null) => void
   tokenSearchInputRef?: HTMLInputElement | null
+  popularChainIds?: number[]
 }
 
 const fuseSearchOptions = {
@@ -40,19 +42,33 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   onSelect,
   onAnalyticEvent,
   onInputRef,
-  tokenSearchInputRef
+  tokenSearchInputRef,
+  popularChainIds
 }) => {
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
+  const activeChainRef = useRef<HTMLButtonElement | null>(null)
+
+  const { allChainsOption, popularChains, alphabeticalChains } = useMemo(
+    () => groupChains(options, popularChainIds),
+    [options, popularChainIds]
+  )
 
   const filteredChains = useMemo(() => {
-    if (chainSearchInput.trim() !== '') {
-      return chainFuse.search(chainSearchInput).map((result) => result.item)
+    if (chainSearchInput.trim() === '') {
+      return null // Return null to show organized sections
     }
-    return options
-  }, [chainSearchInput, options, chainFuse])
 
-  const activeChainRef = useRef<HTMLButtonElement | null>(null)
+    // Remove duplicates from search results
+    const results = chainFuse.search(chainSearchInput)
+    const uniqueChains = new Map()
+    results.forEach((result) => {
+      if (!uniqueChains.has(result.item.id)) {
+        uniqueChains.set(result.item.id, result.item)
+      }
+    })
+    return Array.from(uniqueChains.values())
+  }, [chainSearchInput, chainFuse])
 
   useEffect(() => {
     if (activeChainRef.current) {
@@ -82,7 +98,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
             const chain =
               selectedValue === 'all-chains'
                 ? { id: undefined, name: 'All Chains' }
-                : filteredChains.find(
+                : options.find(
                     (chain) => chain.id?.toString() === selectedValue
                   )
             if (chain) {
@@ -134,6 +150,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
             }
           />
         </AccessibleListItem>
+
         <Flex
           direction="column"
           css={{
@@ -143,74 +160,163 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
             scrollbarColor: 'var(--relay-colors-gray5) transparent'
           }}
         >
-          {filteredChains?.map((chain) => {
-            const active = value.id === chain.id
-            const tag = 'tags' in chain ? chain.tags?.[0] : undefined
-            return (
-              <AccessibleListItem
-                key={chain.id?.toString() ?? 'all-chains'}
-                value={chain.id?.toString() ?? 'all-chains'}
-                asChild
-              >
-                <Button
-                  color="ghost"
-                  size="none"
-                  ref={active ? activeChainRef : null}
+          {filteredChains ? (
+            // Show search results without sections
+            filteredChains.map((chain) => {
+              const tag = 'tags' in chain ? chain.tags?.[0] : undefined
+              const active = value.id === chain.id
+              return (
+                <ChainFilterRow
+                  chain={chain}
+                  isActive={active}
+                  tag={tag}
                   onClick={(e) => {
                     if (e.detail > 0) {
-                      // Mouse clicks have a detail > 0, keyboard events have detail === 0
                       tokenSearchInputRef?.focus()
                     }
                   }}
-                  css={{
-                    p: '2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '2',
-                    position: 'relative',
-                    ...(active && {
-                      backgroundColor: 'gray6'
-                    }),
-                    transition: 'backdrop-filter 250ms linear',
-                    _hover: {
-                      backgroundColor: active ? 'gray6' : 'gray/10'
-                    },
-                    '--focusColor': 'colors.focus-color',
-                    _focusVisible: {
-                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                    },
-                    '&[data-state="on"]': {
-                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                    },
-                    _active: {
-                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                    },
-                    _focusWithin: {
-                      boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-                    }
-                  }}
-                >
-                  {chain.id ? (
-                    <ChainIcon
-                      chainId={chain.id}
-                      square
-                      width={24}
-                      height={24}
-                    />
-                  ) : (
-                    <AllChainsLogo style={{ width: 24, height: 24 }} />
-                  )}
-                  <Text style="subtitle1" ellipsify>
-                    {('displayName' in chain && chain.displayName) ||
-                      chain.name}
+                  value={chain.id?.toString() ?? 'all-chains'}
+                  key={chain.id?.toString() ?? 'all-chains'}
+                />
+              )
+            })
+          ) : (
+            // Show organized sections
+            <>
+              {allChainsOption && (
+                <>
+                  <ChainFilterRow
+                    chain={allChainsOption}
+                    isActive={value.id === undefined}
+                    onClick={(e) => {
+                      if (e.detail > 0) {
+                        tokenSearchInputRef?.focus()
+                      }
+                    }}
+                    value="all-chains"
+                    key="all-chains"
+                  />
+                </>
+              )}
+
+              {popularChains.length > 0 && (
+                <>
+                  <Text
+                    style="subtitle2"
+                    color="subtle"
+                    css={{ px: '2', py: '1' }}
+                  >
+                    Popular Chains
                   </Text>
-                  {tag && <TagPill tag={tag} />}
-                </Button>
-              </AccessibleListItem>
-            )
-          })}
+                  {popularChains.map((chain) => {
+                    const tag = 'tags' in chain ? chain.tags?.[0] : undefined
+                    const active = value.id === chain.id
+                    return chain.id ? (
+                      <ChainFilterRow
+                        chain={chain}
+                        isActive={active}
+                        tag={tag}
+                        onClick={(e) => {
+                          if (e.detail > 0) {
+                            tokenSearchInputRef?.focus()
+                          }
+                        }}
+                        value={chain.id?.toString()}
+                        key={chain.id?.toString()}
+                      />
+                    ) : null
+                  })}
+                </>
+              )}
+
+              <Text style="subtitle2" color="subtle" css={{ px: '2', py: '1' }}>
+                Chains A-Z
+              </Text>
+              {alphabeticalChains.map((chain) => {
+                const tag = 'tags' in chain ? chain.tags?.[0] : undefined
+                const active = value.id === chain.id
+                return chain.id ? (
+                  <ChainFilterRow
+                    chain={chain}
+                    isActive={active}
+                    tag={tag}
+                    onClick={(e) => {
+                      if (e.detail > 0) {
+                        tokenSearchInputRef?.focus()
+                      }
+                    }}
+                    value={chain.id?.toString()}
+                    key={chain.id?.toString()}
+                  />
+                ) : null
+              })}
+            </>
+          )}
         </Flex>
       </AccessibleList>
     </Flex>
+  )
+}
+
+type ChainFilterRowProps = {
+  chain: ChainFilterValue
+  isActive?: boolean
+  onClick?: (e: React.MouseEvent) => void
+  tag?: string
+  value: string
+}
+
+const ChainFilterRow: FC<ChainFilterRowProps> = ({
+  chain,
+  isActive,
+  onClick,
+  tag,
+  value
+}) => {
+  return (
+    <AccessibleListItem value={value} asChild>
+      <Button
+        color="ghost"
+        size="none"
+        onClick={onClick}
+        css={{
+          p: '2',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '2',
+          position: 'relative',
+          ...(isActive && {
+            backgroundColor: 'gray6'
+          }),
+          transition: 'backdrop-filter 250ms linear',
+          _hover: {
+            backgroundColor: isActive ? 'gray6' : 'gray/10'
+          },
+          '--focusColor': 'colors.focus-color',
+          _focusVisible: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          '&[data-state="on"]': {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _active: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          },
+          _focusWithin: {
+            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
+          }
+        }}
+      >
+        {chain.id ? (
+          <ChainIcon chainId={chain.id} square width={24} height={24} />
+        ) : (
+          <AllChainsLogo style={{ width: 24, height: 24 }} />
+        )}
+        <Text style="subtitle1" ellipsify>
+          {('displayName' in chain && chain.displayName) || chain.name}
+        </Text>
+        {tag && <TagPill tag={tag} />}
+      </Button>
+    </AccessibleListItem>
   )
 }

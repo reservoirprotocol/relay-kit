@@ -59,7 +59,7 @@ export const TokenList: FC<TokenListProps> = ({
   if (tokens.length > 0)
     return (
       <Flex direction="column" css={{ gap: '1', width: '100%' }}>
-        <Text style="subtitle3" color="subtle">
+        <Text style="subtitle2" color="subtle">
           {title}
         </Text>
         {tokens.map((token) => {

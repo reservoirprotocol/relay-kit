@@ -20,7 +20,51 @@ export const isChainLocked = (
   return false
 }
 
-const PRIORITY_CHAIN_IDS = new Set([1, 42161, 8453, 792703809]) // Ethereum, Arbitrum, Base, Solana
+const POPULAR_CHAIN_IDS = new Set([1, 42161, 8453, 792703809]) // Ethereum, Arbitrum, Base, Solana
+
+type ChainOption = RelayChain | { id: undefined; name: string }
+
+type GroupedChains = {
+  allChainsOption?: { id: undefined; name: string }
+  popularChains: RelayChain[]
+  alphabeticalChains: RelayChain[]
+}
+
+export const groupChains = (
+  chains: ChainOption[],
+  popularChainIds?: number[]
+): GroupedChains => {
+  const priorityIds = new Set(popularChainIds || Array.from(POPULAR_CHAIN_IDS))
+  const allChainsOption = chains.find((chain) => chain.id === undefined) as
+    | { id: undefined; name: string }
+    | undefined
+  const otherChains = chains.filter(
+    (chain) => chain.id !== undefined
+  ) as RelayChain[]
+
+  const popularChains = otherChains
+    .filter(
+      (chain) =>
+        (chain.id && priorityIds.has(chain.id)) ||
+        ('tags' in chain && chain.tags && chain.tags.length > 0)
+    )
+    .sort((a, b) => {
+      const aHasTags = 'tags' in a && a.tags && a.tags.length > 0
+      const bHasTags = 'tags' in b && b.tags && b.tags.length > 0
+      if (aHasTags && !bHasTags) return -1
+      if (!aHasTags && bHasTags) return 1
+
+      return a.displayName.localeCompare(b.displayName)
+    })
+
+  return {
+    allChainsOption,
+    popularChains,
+    alphabeticalChains: otherChains.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName)
+    )
+  }
+}
 
 export const sortChains = (chains: RelayChain[]) => {
   return chains.sort((a, b) => {
@@ -30,14 +74,14 @@ export const sortChains = (chains: RelayChain[]) => {
     if ((a.tags?.length || 0) > 0 && (b.tags?.length || 0) > 0) return 0
 
     // Then sort by priority chains
-    const aIsPriority = PRIORITY_CHAIN_IDS.has(a.id)
-    const bIsPriority = PRIORITY_CHAIN_IDS.has(b.id)
+    const aIsPriority = POPULAR_CHAIN_IDS.has(a.id)
+    const bIsPriority = POPULAR_CHAIN_IDS.has(b.id)
     if (aIsPriority && !bIsPriority) return -1
     if (!aIsPriority && bIsPriority) return 1
     if (aIsPriority && bIsPriority) {
       return (
-        Array.from(PRIORITY_CHAIN_IDS).indexOf(a.id) -
-        Array.from(PRIORITY_CHAIN_IDS).indexOf(b.id)
+        Array.from(POPULAR_CHAIN_IDS).indexOf(a.id) -
+        Array.from(POPULAR_CHAIN_IDS).indexOf(b.id)
       )
     }
 

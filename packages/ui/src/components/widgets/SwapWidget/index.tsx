@@ -52,6 +52,7 @@ type BaseSwapWidgetProps = {
   wallet?: AdaptedWallet
   supportedWalletVMs: ChainVM[]
   disableInputAutoFocus?: boolean
+  popularChainIds?: number[]
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -98,6 +99,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   linkedWallets,
   supportedWalletVMs,
   disableInputAutoFocus = false,
+  popularChainIds,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
@@ -527,6 +529,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               ? [toToken.chainId]
                               : undefined
                           }
+                          popularChainIds={popularChainIds}
                           trigger={
                             <div style={{ width: 'max-content' }}>
                               <TokenTrigger
@@ -881,6 +884,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               ? [fromToken.chainId]
                               : undefined
                           }
+                          popularChainIds={popularChainIds}
                         />
                       </Flex>
                       <Flex

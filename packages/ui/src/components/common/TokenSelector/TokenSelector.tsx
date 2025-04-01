@@ -59,6 +59,7 @@ export type TokenSelectorProps = {
   multiWalletSupportEnabled?: boolean
   fromChainWalletVMSupported?: boolean
   supportedWalletVMs?: ChainVM[]
+  popularChainIds?: number[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
@@ -75,6 +76,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   multiWalletSupportEnabled = false,
   fromChainWalletVMSupported,
   supportedWalletVMs,
+  popularChainIds,
   setToken,
   onAnalyticEvent
 }) => {
@@ -404,6 +406,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   onAnalyticEvent={onAnalyticEvent}
                   onInputRef={setChainSearchInputElement}
                   tokenSearchInputRef={tokenSearchInputElement}
+                  popularChainIds={popularChainIds}
                 />
               ) : null}
 
@@ -481,6 +484,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       options={allChains}
                       value={chainFilter}
                       onSelect={setChainFilter}
+                      popularChainIds={popularChainIds}
                     />
                   ) : null}
                 </Flex>
