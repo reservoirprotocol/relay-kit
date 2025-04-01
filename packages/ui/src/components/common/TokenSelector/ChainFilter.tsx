@@ -112,6 +112,7 @@ const ChainFilter: FC<Props> = ({
       }
       contentProps={{
         align: 'start',
+        avoidCollisions: false,
         css: {
           p: 0,
           width: 'var(--radix-dropdown-menu-trigger-width)',
