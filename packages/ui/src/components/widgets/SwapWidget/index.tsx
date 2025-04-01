@@ -38,6 +38,7 @@ import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import GasTopUpSection from './GasTopUpSection.js'
 
 type BaseSwapWidgetProps = {
   defaultFromToken?: Token
@@ -295,6 +296,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const [toTokenSelectorType, setToTokenSelectorType] = useState<
           'token' | 'chain'
         >('token')
+        const [gasTopUpEnabled, setGasTopUpEnabled] = useState(false)
 
         //Handle switching to a new vm and finding supported wallet addresses for recipient and connected wallet
         useEffect(() => {
@@ -1081,6 +1083,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       </Box>
                     ) : null}
+                    <GasTopUpSection
+                      toChain={toChain}
+                      gasTopUpEnabled={gasTopUpEnabled}
+                      onGasTopUpEnabled={setGasTopUpEnabled}
+                    />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
                       isFetchingQuote={isFetchingQuote}
