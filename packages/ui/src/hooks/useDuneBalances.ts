@@ -104,7 +104,6 @@ export default (
     enabled:
       address !== undefined &&
       providerOptions.duneConfig?.apiKey !== undefined &&
-      providerOptions.duneConfig?.apiBaseUrl !== undefined &&
       queryOptions?.enabled &&
       (isSvmAddress || isEvmAddress)
   })
