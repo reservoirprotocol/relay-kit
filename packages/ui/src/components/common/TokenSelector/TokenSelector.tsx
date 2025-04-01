@@ -189,7 +189,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       isValidAddress
       ? address
       : undefined,
-    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet'
+    relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet',
+    {
+      staleTime: 60000,
+      gcTime: 60000
+    }
   )
 
   // Filter dune token balances based on configured chains

@@ -2,7 +2,7 @@ import type { Dispatch, FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
 import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDownLong,
@@ -20,6 +20,8 @@ import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
 import { formatBN } from '../../../../utils/numbers.js'
+import { findSupportedWallet } from '../../../../utils/address.js'
+import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
@@ -29,6 +31,7 @@ type BaseOnrampWidgetProps = {
   moonPayThemeMode?: 'dark' | 'light'
   token?: Token
   setToken?: Dispatch<React.SetStateAction<Token>>
+  disablePasteWalletAddressOption?: boolean
   onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
   onError?: (error: string, data?: Execute, moonpayRequestId?: string) => void
@@ -69,16 +72,19 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   moonPayThemeMode,
   token,
   setToken,
+  disablePasteWalletAddressOption,
   onTokenChange,
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
   onAnalyticEvent,
   onSuccess
-}) => {
+}): JSX.Element => {
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
+  const providerOptionsContext = useContext(ProviderOptionsContext)
+  const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
 
   return (
     <OnrampWidgetRenderer
@@ -117,30 +123,69 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
         isPassthrough,
         usdRate
       }) => {
+        //Reset recipient if no longer valid
+        useEffect(() => {
+          if (
+            multiWalletSupportEnabled &&
+            fromChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidRecipient
+          ) {
+            const supportedAddress = findSupportedWallet(
+              fromChain,
+              recipient,
+              linkedWallets,
+              connectorKeyOverrides
+            )
+            if (supportedAddress) {
+              onSetPrimaryWallet?.(supportedAddress)
+            }
+          }
+
+          if (
+            multiWalletSupportEnabled &&
+            toChain &&
+            recipient &&
+            linkedWallets &&
+            !isValidRecipient
+          ) {
+            setRecipient(undefined)
+          }
+        }, [
+          multiWalletSupportEnabled,
+          fromChain?.id,
+          toChain?.id,
+          linkedWallets,
+          onSetPrimaryWallet,
+          isValidRecipient,
+          connectorKeyOverrides
+        ])
+
         const formattedAmount =
           amount === ''
             ? ''
             : amount.endsWith('.')
-              ? new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(+amount) + '.'
-              : new Intl.NumberFormat(undefined, {
-                  style: 'currency',
-                  currency: 'USD',
-                  currencyDisplay: 'narrowSymbol',
-                  minimumFractionDigits: amount.includes('.0')
-                    ? 1
-                    : amount.endsWith('0') && amount.includes('.')
-                      ? 2
-                      : 0,
-                  maximumFractionDigits: amount.includes('.') ? 2 : 0,
-                  minimumSignificantDigits: 1,
-                  maximumSignificantDigits: amount.length
-                }).format(+amount)
+            ? new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(+amount) + '.'
+            : new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                currencyDisplay: 'narrowSymbol',
+                minimumFractionDigits: amount.includes('.0')
+                  ? 1
+                  : amount.endsWith('0') && amount.includes('.')
+                  ? 2
+                  : 0,
+                maximumFractionDigits: amount.includes('.') ? 2 : 0,
+                minimumSignificantDigits: 1,
+                maximumSignificantDigits: amount.length
+              }).format(+amount)
 
         return (
           <div
@@ -505,6 +550,9 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                     setAddressModalOpen={setAddressModalOpen}
                     wallets={linkedWallets!}
                     onAnalyticEvent={onAnalyticEvent}
+                    disablePasteWalletAddressOption={
+                      disablePasteWalletAddressOption
+                    }
                   />
                 ) : null}
                 {!multiWalletSupportEnabled || !toChainWalletVMSupported ? (
@@ -640,6 +688,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               usdRate={usdRate}
               moonPayThemeId={moonPayThemeId}
               moonPayThemeMode={moonPayThemeMode}
+              moonPayApiKey={moonPayApiKey}
             />
           </div>
         )

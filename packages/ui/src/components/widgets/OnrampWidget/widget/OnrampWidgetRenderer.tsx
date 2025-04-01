@@ -188,7 +188,11 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
 
   const defaultRecipient = useMemo(() => {
     const _linkedWallet = linkedWallets?.find(
-      (linkedWallet) => recipient === linkedWallet.address
+      (linkedWallet) =>
+        address ===
+        (linkedWallet.vmType === 'evm'
+          ? linkedWallet.address.toLowerCase()
+          : linkedWallet.address)
     )
     const _isValidRecipient = isValidAddress(
       toChain?.vmType,

@@ -17,6 +17,7 @@ import useSupportedMoonPayCurrencyCode from './useSupportedMoonPayCurrencyCode.j
 import useIsWalletCompatible from './useIsWalletCompatible.js'
 import useIsAGW from './useIsAGW.js'
 import useFallbackState from './useFallbackState.js'
+import useMoonPayTransaction from './useMoonPayTransaction.js'
 
 export {
   useMounted,
@@ -37,5 +38,6 @@ export {
   useSupportedMoonPayCurrencyCode,
   useIsWalletCompatible,
   useIsAGW,
-  useFallbackState
+  useFallbackState,
+  useMoonPayTransaction
 }

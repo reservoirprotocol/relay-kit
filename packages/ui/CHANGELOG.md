@@ -1,5 +1,42 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.8.0
+
+### Minor Changes
+
+- ccff74e: Refactor dune api config
+
+### Patch Changes
+
+- 7e7df25: OnrampModal: reset recipient if vm changes and recipient is now invalid
+- 36bad1d: Add a prop to disable paste address wallet option
+- cff46c3: Fix conversion rate display bug
+- 5b70dc4: Add a short cache for balance queries to optimize dune usage
+
+## 2.7.19
+
+### Patch Changes
+
+- Updated dependencies [66b8de8]
+  - @reservoir0x/relay-sdk@1.6.12
+  - @reservoir0x/relay-kit-hooks@1.8.8
+
+## 2.7.18
+
+### Patch Changes
+
+- 0af5808: Update API SDK types, fix react 19 component type issues
+- Updated dependencies [0af5808]
+  - @reservoir0x/relay-sdk@1.6.11
+  - @reservoir0x/relay-kit-hooks@1.8.7
+
+## 2.7.17
+
+### Patch Changes
+
+- dfbca22: Improve OnrampModal robustness
+- 16c07ed: Always return QR code for deposit address flow
+
 ## 2.7.16
 
 ### Patch Changes

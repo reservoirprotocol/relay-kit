@@ -5,7 +5,7 @@ import {
   type paths,
   type RelayChain
 } from '@reservoir0x/relay-sdk'
-import { type FC, useEffect, useMemo, useState } from 'react'
+import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Modal } from '../../../common/Modal.js'
 import type { FiatCurrency, Token } from '../../../../types/index.js'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
@@ -64,6 +64,7 @@ type OnrampModalProps = {
   usdRate?: number
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
+  moonPayApiKey?: string
   moonpayOnUrlSignatureRequested: (url: string) => Promise<string> | void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onOpenChange: (open: boolean) => void
@@ -89,6 +90,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   usdRate,
   moonPayThemeId,
   moonPayThemeMode,
+  moonPayApiKey,
   moonpayOnUrlSignatureRequested,
   onAnalyticEvent,
   onSuccess,
@@ -115,6 +117,9 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       refetchOnWindowFocus: false
     }
   )
+  const [passthroughExternalId, setPassthroughExternalId] = useState<
+    string | undefined
+  >()
 
   useEffect(() => {
     if (!open) {
@@ -123,11 +128,17 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       setMoonPayRequestId(undefined)
       setMoonPayIdAppended(false)
       setSwapError(null)
+      setPassthroughExternalId(undefined)
     } else {
       if (isPassthrough) {
         setStep(OnrampStep.Moonpay)
+        setPassthroughExternalId(
+          `${recipient ? recipient.slice(recipient.length - 5) : ''}${Date.now()}`
+        )
       }
-      onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN)
+      onAnalyticEvent?.(EventNames.ONRAMP_MODAL_OPEN, {
+        isPassthrough
+      })
     }
   }, [open])
 
@@ -297,7 +308,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         amount,
         totalAmount,
         ethTotalAmount,
-        moonPayRequestId
+        moonPayRequestId,
+        isPassthrough
       })
       onSuccess?.(quote as Execute, moonPayRequestId as string)
       setProcessingStep(undefined)
@@ -311,23 +323,10 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         executionStatus?.details ??
           'Oops! Something went wrong while processing your transaction.'
       )
-      if (step !== OnrampStep.Error) {
-        onError?.(swapError.message, quote as Execute, moonPayRequestId)
-      }
-      setStep(OnrampStep.Error)
-      onAnalyticEvent?.(EventNames.ONRAMP_ERROR, {
-        error_message: errorToJSON(executionStatus?.details ?? quoteError),
-        wallet_connector: connector?.name,
-        quote_id: requestId,
-        amount_in: amount,
-        currency_in: fromToken?.symbol,
-        chain_id_in: fromToken?.chainId,
-        amount_out: quote?.details?.currencyOut?.amountFormatted,
-        currency_out: toToken?.symbol,
-        chain_id_out: toToken?.chainId,
-        txHashes: executionStatus?.txHashes ?? []
-      })
-      setSwapError(swapError)
+      onOnrampError(
+        errorToJSON(executionStatus?.details ?? quoteError),
+        swapError
+      )
     }
   }, [executionStatus, quoteError])
 
@@ -377,6 +376,40 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     return _allTxHashes
   }, [executionStatus?.txHashes, executionStatus?.inTxHashes])
 
+  const onOnrampError = useCallback(
+    (errorMsg: any, error: Error) => {
+      if (step !== OnrampStep.Error) {
+        onError?.(error.message, quote as Execute, moonPayRequestId)
+      }
+      setStep(OnrampStep.Error)
+      onAnalyticEvent?.(EventNames.ONRAMP_ERROR, {
+        error_message: errorMsg,
+        wallet_connector: connector?.name,
+        quote_id: requestId,
+        amount_in: amount,
+        currency_in: fromToken?.symbol,
+        chain_id_in: fromToken?.chainId,
+        amount_out: quote?.details?.currencyOut?.amountFormatted,
+        currency_out: toToken?.symbol,
+        chain_id_out: toToken?.chainId,
+        txHashes: executionStatus?.txHashes ?? []
+      })
+      setSwapError(error)
+    },
+    [
+      executionStatus,
+      connector,
+      requestId,
+      quote,
+      toToken,
+      fromToken,
+      amount,
+      swapError,
+      moonPayRequestId,
+      step
+    ]
+  )
+
   return (
     <Modal
       trigger={null}
@@ -423,8 +456,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           isPassthrough
             ? toTokenTotalAmount
             : fromToken.symbol === 'ETH'
-            ? ethTotalAmount
-            : totalAmount ?? undefined
+              ? ethTotalAmount
+              : totalAmount ?? undefined
         }
         fiatCurrency={fiatCurrency}
         isPassthrough={isPassthrough}
@@ -445,6 +478,12 @@ export const OnrampModal: FC<OnrampModalProps> = ({
         }}
         moonPayThemeId={moonPayThemeId}
         moonPayThemeMode={moonPayThemeMode}
+        moonPayApiKey={moonPayApiKey}
+        quoteRequestId={requestId}
+        passthroughExternalId={passthroughExternalId}
+        onError={(error) => {
+          onOnrampError(error.message, error)
+        }}
       />
       {step === OnrampStep.ProcessingPassthrough ? (
         <OnrampProcessingPassthroughStep

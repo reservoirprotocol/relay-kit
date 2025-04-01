@@ -18,7 +18,10 @@ export const configureViemChain = (
   chain: RelayAPIChain
 ): RelayChain & Required<Pick<RelayChain, 'viemChain'>> => {
   let viemChain: Chain
-  const staticChain = viemChainMap[chain.id]
+  const overriddenChains = [999]
+  const staticChain = overriddenChains.includes(chain.id)
+    ? undefined
+    : viemChainMap[chain.id]
   if (staticChain) {
     viemChain = staticChain
   } else {

@@ -256,9 +256,9 @@ const SwapWidgetPage: NextPage = () => {
             onAnalyticEvent={(eventName, data) => {
               console.log('Analytic Event', eventName, data)
             }}
-            onFromTokenChange={(token) =>
+            onFromTokenChange={(token) => {
               console.log('From token changed to: ', token)
-            }
+            }}
             onToTokenChange={(token) =>
               console.log('To token changed to: ', token)
             }
