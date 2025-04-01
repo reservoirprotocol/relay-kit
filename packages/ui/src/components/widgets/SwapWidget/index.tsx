@@ -613,11 +613,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 aria-label="20%"
                                 css={{
                                   fontSize: 12,
+                                  fontWeight: '500',
                                   px: '1',
                                   py: '1',
-                                  minHeight: 'auto'
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
                                 }}
-                                color="secondary"
+                                color="white"
                                 onClick={() => {
                                   const percentageBuffer =
                                     (fromBalance * 20n) / 100n // 20% of the balance
@@ -633,11 +641,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 aria-label="50%"
                                 css={{
                                   fontSize: 12,
+                                  fontWeight: '500',
                                   px: '1',
                                   py: '1',
-                                  minHeight: 'auto'
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
                                 }}
-                                color="secondary"
+                                color="white"
                                 onClick={() => {
                                   const percentageBuffer =
                                     (fromBalance * 50n) / 100n // 50% of the balance
@@ -653,11 +669,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 aria-label="MAX"
                                 css={{
                                   fontSize: 12,
+                                  fontWeight: '500',
                                   px: '1',
                                   py: '1',
-                                  minHeight: 'auto'
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
                                 }}
-                                color="secondary"
+                                color="white"
                                 onClick={() => {
                                   const percentageBuffer =
                                     (fromBalance * 1n) / 100n // 1% of the balance

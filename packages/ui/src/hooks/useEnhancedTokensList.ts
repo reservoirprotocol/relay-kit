@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { BalanceMap } from './useDuneBalances'
-import { type Currency, useRelayChains } from '@reservoir0x/relay-kit-hooks'
-import { useRelayClient } from '../hooks/index.js'
+import { type Currency } from '@reservoir0x/relay-kit-hooks'
+import { useInternalRelayChains } from '../hooks/index.js'
 
 export type EnhancedToken = {
   chainId: number
@@ -29,8 +29,7 @@ export const useEnhancedTokensList = (
   chainId?: number,
   sortByBalance: boolean = true
 ): EnhancedToken[] => {
-  const relayClient = useRelayClient()
-  const { chains } = useRelayChains(relayClient?.baseApiUrl)
+  const { chains } = useInternalRelayChains()
 
   const chainCurrencyMap = useMemo(() => {
     if (!chains) return new Map()

@@ -18,6 +18,7 @@ import useIsWalletCompatible from './useIsWalletCompatible.js'
 import useIsAGW from './useIsAGW.js'
 import useFallbackState from './useFallbackState.js'
 import useMoonPayTransaction from './useMoonPayTransaction.js'
+import { useInternalRelayChains } from './useInternalRelayChains.js'
 
 export {
   useMounted,
@@ -39,5 +40,6 @@ export {
   useIsWalletCompatible,
   useIsAGW,
   useFallbackState,
-  useMoonPayTransaction
+  useMoonPayTransaction,
+  useInternalRelayChains
 }

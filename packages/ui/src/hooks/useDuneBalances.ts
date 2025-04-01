@@ -51,9 +51,13 @@ export default (
   const response = (useQuery as QueryType)({
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
-      let url = `${providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'}/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
+      let url = `${
+        providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
+      }/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
       if (isSvmAddress) {
-        url = `${providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'}/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+        url = `${
+          providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
+        }/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (!isSvmAddress && !isEvmAddress) {

@@ -6,11 +6,10 @@ import {
   Flex,
   Text
 } from '../../primitives/index.js'
-import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import { convertApiCurrencyToToken } from '../../../utils/tokens.js'
 import { useMemo } from 'react'
 import { type Currency } from '@reservoir0x/relay-kit-hooks'
-import useRelayClient from '../../../hooks/useRelayClient.js'
+import { useInternalRelayChains } from '../../../hooks/index.js'
 
 type SuggestedTokensProps = {
   chainId: number
@@ -23,13 +22,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
   depositAddressOnly,
   onSelect
 }) => {
-  const relayClient = useRelayClient()
-  const { chains } = useRelayChains(relayClient?.baseApiUrl, undefined, {
-    staleTime: 1000 * 60 * 30, // 30 minutes
-    gcTime: 1000 * 60 * 30,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false
-  })
+  const { chains } = useInternalRelayChains()
 
   const chain = chains?.find((c) => c.id === chainId)
 

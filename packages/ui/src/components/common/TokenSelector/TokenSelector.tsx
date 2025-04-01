@@ -16,7 +16,7 @@ import useRelayClient from '../../../hooks/useRelayClient.js'
 import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { useRelayChains, useTokenList } from '@reservoir0x/relay-kit-hooks'
+import { useTokenList } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../../constants/events.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import { useEnhancedTokensList } from '../../../hooks/useEnhancedTokensList.js'
@@ -46,6 +46,7 @@ import {
   getInitialChainFilter,
   sortChains
 } from '../../../utils/tokenSelector.js'
+import { useInternalRelayChains } from '../../../hooks/index.js'
 
 export type TokenSelectorProps = {
   token?: Token
@@ -81,7 +82,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   onAnalyticEvent
 }) => {
   const relayClient = useRelayClient()
-  const { chains: allRelayChains } = useRelayChains(relayClient?.baseApiUrl)
+  const { chains: allRelayChains } = useInternalRelayChains()
+
   const isDesktop = useMediaQuery('(min-width: 660px)')
 
   const [open, setOpen] = useState(false)
