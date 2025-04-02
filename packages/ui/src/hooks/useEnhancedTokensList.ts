@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { BalanceMap } from './useDuneBalances'
 import { type Currency } from '@reservoir0x/relay-kit-hooks'
 import { useInternalRelayChains } from '../hooks/index.js'
+import type { RelayChain } from '@reservoir0x/relay-sdk'
 
 export type EnhancedToken = {
   chainId: number
@@ -19,6 +20,7 @@ export type EnhancedToken = {
   }
   groupID?: string
   isGasCurrency?: boolean
+  chain?: RelayChain
 }
 
 export const useEnhancedTokensList = (
@@ -60,6 +62,8 @@ export const useEnhancedTokensList = (
         }
 
         // Construct the enhanced token with all required fields
+        const chain = chains?.find((c) => c.id === currency.chainId)
+
         const enhancedToken: EnhancedToken = {
           chainId: currency.chainId,
           address: currency.address,
@@ -72,7 +76,8 @@ export const useEnhancedTokensList = (
           balance: balanceMap?.[`${currency.chainId}:${currency.address}`],
           isGasCurrency: chainCurrencyMap.has(
             `${currency.chainId}:${currency.address.toLowerCase()}`
-          )
+          ),
+          chain
         }
 
         return enhancedToken

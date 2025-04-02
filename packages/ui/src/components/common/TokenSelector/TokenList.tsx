@@ -144,8 +144,14 @@ export const TokenList: FC<TokenListProps> = ({
                     )}
                   </Text>
                   <Flex align="center" css={{ gap: '1', maxWidth: '100%' }}>
-                    <Text style="subtitle3" color="subtle" ellipsify>
-                      {token.name}
+                    <Text
+                      style="subtitle3"
+                      color={chainFilterId ? 'subtle' : undefined}
+                      ellipsify
+                    >
+                      {chainFilterId
+                        ? token.name
+                        : token.chain?.displayName || token.name}
                     </Text>
 
                     <Text
