@@ -1,4 +1,10 @@
-import type { ComponentPropsWithoutRef, Dispatch, FC, ReactNode } from 'react'
+import type {
+  ComponentPropsWithoutRef,
+  Dispatch,
+  FC,
+  ReactNode,
+  SetStateAction
+} from 'react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   useCurrencyBalance,
@@ -50,9 +56,9 @@ type SwapWidgetRendererProps = {
   depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
   fromToken?: Token
-  setFromToken?: React.Dispatch<React.SetStateAction<Token | undefined>>
+  setFromToken?: (token?: Token) => void
   toToken?: Token
-  setToToken?: React.Dispatch<React.SetStateAction<Token | undefined>>
+  setToToken?: (token?: Token) => void
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: TradeType
@@ -168,11 +174,18 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 }) => {
   const [fromToken, setFromToken] = useFallbackState(
     _fromToken && _setFromToken ? _fromToken : undefined,
-    _fromToken && _setFromToken ? [_fromToken, _setFromToken] : undefined
+    _fromToken && _setFromToken
+      ? [
+          _fromToken,
+          _setFromToken as Dispatch<SetStateAction<Token | undefined>>
+        ]
+      : undefined
   )
   const [toToken, setToToken] = useFallbackState(
     _toToken && _setToToken ? _toToken : undefined,
-    _toToken && _setToToken ? [_toToken, _setToToken] : undefined
+    _toToken && _setToToken
+      ? [_toToken, _setToToken as Dispatch<SetStateAction<Token | undefined>>]
+      : undefined
   )
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
