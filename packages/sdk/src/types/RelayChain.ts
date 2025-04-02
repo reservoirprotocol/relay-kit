@@ -1,9 +1,9 @@
 import type { Chain } from 'viem'
 import type { paths } from '../types/index.js'
 
-type Erc20Currencies = NonNullable<
+type RelayAPIChain = NonNullable<
   paths['/chains']['get']['responses']['200']['content']['application/json']['chains']
->['0']['erc20Currencies']
+>['0']
 
 export type ChainVM = 'evm' | 'svm' | 'bvm' | 'tvm' | 'suivm'
 
@@ -36,7 +36,9 @@ export type RelayChain = {
   }
   depositEnabled?: boolean
   blockProductionLagging?: boolean
-  erc20Currencies?: Erc20Currencies
+  erc20Currencies?: RelayAPIChain['erc20Currencies']
+  featuredTokens?: RelayAPIChain['featuredTokens']
+  tags?: RelayAPIChain['tags']
   iconUrl?: string | null
   logoUrl?: string | null
   brandColor?: string | null

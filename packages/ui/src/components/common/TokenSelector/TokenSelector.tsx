@@ -6,139 +6,142 @@ import {
   useMemo,
   useState
 } from 'react'
-import { Flex } from '../../primitives/index.js'
+import { Flex, Text, Input, Box } from '../../primitives/index.js'
 import { Modal } from '../Modal.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faMagnifyingGlass,
+  faFolderOpen
+} from '@fortawesome/free-solid-svg-icons'
 import type { Token } from '../../../types/index.js'
-import { type ChainFilterValue } from '../ChainFilter.js'
+import { type ChainFilterValue } from './ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
 import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { type DuneBalanceResponse } from '../../../hooks/useDuneBalances.js'
-import {
-  type CurrencyList,
-  type Currency,
-  useTokenList
-} from '@reservoir0x/relay-kit-hooks'
+import { useTokenList } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../../constants/events.js'
-import { SetChainStep } from './steps/SetChainStep.js'
-import { SetCurrencyStep } from './steps/SetCurrencyStep.js'
-import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
-import { eclipse, solana } from '../../../utils/solana.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
-import { bitcoin } from '../../../utils/bitcoin.js'
-import { evmDeadAddress } from '@reservoir0x/relay-sdk'
-import { solDeadAddress } from '@reservoir0x/relay-sdk'
-import { bitcoinDeadAddress } from '@reservoir0x/relay-sdk'
-import { mergeTokenLists } from '../../../utils/tokens.js'
+import { useEnhancedTokensList } from '../../../hooks/useEnhancedTokensList.js'
+import ChainFilter from './ChainFilter.js'
+import { TokenList } from './TokenList.js'
 import { UnsupportedDepositAddressChainIds } from '../../../constants/depositAddresses.js'
+import { getRelayUiKitData } from '../../../utils/localStorage.js'
+import { isValidAddress as isValidAddressUtil } from '../../../utils/address.js'
+import {
+  AccessibleList,
+  AccessibleListItem
+} from '../../primitives/AccessibleList.js'
+import { eclipse, solana } from '../../../utils/solana.js'
+import { bitcoin } from '../../../utils/bitcoin.js'
+import { ChainFilterSidebar } from './ChainFilterSidebar.js'
+import { SuggestedTokens } from './SuggestedTokens.js'
+import {
+  convertApiCurrencyToToken,
+  mergeTokenLists
+} from '../../../utils/tokens.js'
+import {
+  bitcoinDeadAddress,
+  evmDeadAddress,
+  solDeadAddress,
+  type ChainVM
+} from '@reservoir0x/relay-sdk'
+import {
+  getInitialChainFilter,
+  sortChains
+} from '../../../utils/tokenSelector.js'
+import { useInternalRelayChains } from '../../../hooks/index.js'
 
 export type TokenSelectorProps = {
-  openState?: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
   token?: Token
   restrictedToken?: Token
   trigger: ReactNode
-  restrictedTokensList?: Token[]
   chainIdsFilter?: number[]
   lockedChainIds?: number[]
   context: 'from' | 'to'
-  type?: 'token' | 'chain'
-  size?: 'mobile' | 'desktop'
   address?: Address | string
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
   fromChainWalletVMSupported?: boolean
   supportedWalletVMs?: ChainVM[]
+  popularChainIds?: number[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
 }
 
-export type EnhancedCurrencyList = {
-  chains: (CurrencyList[number] & {
-    relayChain: RelayChain
-    balance?: NonNullable<DuneBalanceResponse>['balances'][0]
-  })[]
-  totalValueUsd?: number
-  totalBalance?: bigint
-}
-
-export enum TokenSelectorStep {
-  SetCurrency,
-  SetChain
-}
-
 const TokenSelector: FC<TokenSelectorProps> = ({
-  openState,
   token,
   restrictedToken,
   trigger,
-  restrictedTokensList,
   chainIdsFilter,
   lockedChainIds,
   context,
-  type = 'token',
-  size = 'mobile',
   address,
   isValidAddress,
   multiWalletSupportEnabled = false,
   fromChainWalletVMSupported,
   supportedWalletVMs,
+  popularChainIds,
   setToken,
   onAnalyticEvent
 }) => {
+  const relayClient = useRelayClient()
+  const { chains: allRelayChains } = useInternalRelayChains()
+
+  const isDesktop = useMediaQuery('(min-width: 660px)')
+
+  const [open, setOpen] = useState(false)
+
   const [unverifiedTokenModalOpen, setUnverifiedTokenModalOpen] =
     useState(false)
   const [unverifiedToken, setUnverifiedToken] = useState<Token | undefined>()
 
-  const [internalOpen, setInternalOpen] = useState(false)
-  const [open, setOpen] = openState || [internalOpen, setInternalOpen]
-  const isSmallDevice = useMediaQuery('(max-width: 600px)')
-  const [tokenSelectorStep, setTokenSelectorStep] = useState<TokenSelectorStep>(
-    TokenSelectorStep.SetCurrency
-  )
   const [chainFilter, setChainFilter] = useState<ChainFilterValue>({
     id: undefined,
-    name: 'All'
+    name: 'All Chains'
   })
-  const [selectedCurrencyList, setSelectedCurrencyList] =
-    useState<EnhancedCurrencyList>()
 
   const {
     value: tokenSearchInput,
     debouncedValue: debouncedTokenSearchValue,
     setValue: setTokenSearchInput
   } = useDebounceState<string>('', 500)
-  const [chainSearchInput, setChainSearchInput] = useState('')
-  const [inputElement, setInputElement] = useState<HTMLInputElement | null>(
-    null
-  )
 
   const depositAddressOnly =
     context === 'from'
-      ? chainFilter?.vmType && type !== 'chain'
+      ? chainFilter?.vmType
         ? !supportedWalletVMs?.includes(chainFilter.vmType)
-        : !chainFilter.id || type === 'chain'
-          ? false
-          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+        : !chainFilter.id
+        ? false
+        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
-  const relayClient = useRelayClient()
+  const isReceivingDepositAddress = depositAddressOnly && context === 'to'
+
+  // Configure chains
   const configuredChains = useMemo(() => {
     let chains =
-      relayClient?.chains.sort((a, b) =>
-        a.displayName.localeCompare(b.displayName)
+      allRelayChains?.filter((chain) =>
+        relayClient?.chains?.find((relayChain) => relayChain.id === chain.id)
       ) ?? []
 
     if (!multiWalletSupportEnabled && context === 'from') {
       chains = chains.filter((chain) => chain.vmType === 'evm')
     }
-    if (depositAddressOnly) {
+    if (isReceivingDepositAddress) {
       chains = chains.filter(
         ({ id }) => !UnsupportedDepositAddressChainIds.includes(id)
       )
     }
-    return chains
-  }, [relayClient?.chains, multiWalletSupportEnabled])
+
+    return sortChains(chains)
+  }, [
+    allRelayChains,
+    relayClient?.chains,
+    multiWalletSupportEnabled,
+    context,
+    depositAddressOnly
+  ])
 
   const configuredChainIds = useMemo(() => {
     if (lockedChainIds) {
@@ -152,6 +155,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     return _chainIds
   }, [configuredChains, lockedChainIds, chainIdsFilter, depositAddressOnly])
 
+  const hasMultipleConfiguredChainIds = configuredChainIds.length > 1
+
   const chainFilterOptions =
     context === 'from'
       ? configuredChains?.filter(
@@ -164,78 +169,24 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               chain.id === bitcoin.id) &&
             configuredChainIds.includes(chain.id)
         )
-      : configuredChains
+      : configuredChains?.filter((chain) =>
+          configuredChainIds.includes(chain.id)
+        )
 
-  const filteredRestrictedTokenList = useMemo(() => {
-    if (!restrictedTokensList) return undefined
+  const allChains = [
+    ...(isReceivingDepositAddress
+      ? []
+      : [{ id: undefined, name: 'All Chains' }]),
+    ...chainFilterOptions
+  ]
 
-    // Only filter tokens if we're viewing a specific chain
-    if (chainFilter.id === undefined) {
-      return restrictedTokensList
-    }
+  const useDefaultTokenList = debouncedTokenSearchValue === ''
 
-    return restrictedTokensList.filter(
-      (token) => token.chainId === chainFilter.id
-    )
-  }, [restrictedTokensList, chainFilter.id])
-
-  const useDefaultTokenList =
-    debouncedTokenSearchValue === '' &&
-    (!filteredRestrictedTokenList || !filteredRestrictedTokenList.length)
-
-  let tokenListQuery: string[] | undefined
-
-  if (filteredRestrictedTokenList && filteredRestrictedTokenList.length > 0) {
-    tokenListQuery = filteredRestrictedTokenList.map(
-      (token) => `${token.chainId}:${token.address}`
-    )
-  }
-
-  const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
-    relayClient?.baseApiUrl,
-    {
-      chainIds:
-        type === 'token' && chainFilter.id
-          ? [chainFilter.id]
-          : configuredChainIds,
-      address: isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
-      term: !isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
-      defaultList: useDefaultTokenList && !depositAddressOnly,
-      limit: 20,
-      depositAddressOnly,
-      ...(tokenListQuery ? { tokens: tokenListQuery } : {})
-    }
-  )
-
-  const { data: externalTokenList, isLoading: isLoadingExternalTokenList } =
-    useTokenList(
-      relayClient?.baseApiUrl,
-      {
-        chainIds: chainFilter.id ? [chainFilter.id] : configuredChainIds,
-        address: isAddress(debouncedTokenSearchValue)
-          ? debouncedTokenSearchValue
-          : undefined,
-        term: !isAddress(debouncedTokenSearchValue)
-          ? debouncedTokenSearchValue
-          : undefined,
-        defaultList: false,
-        limit: 20,
-        ...(tokenListQuery ? { tokens: tokenListQuery } : {}),
-        useExternalSearch: true
-      },
-      {
-        enabled: !!debouncedTokenSearchValue && !depositAddressOnly
-      }
-    )
-
+  // Get user's token balances
   const {
     data: duneTokens,
     balanceMap: tokenBalances,
-    isLoading: isLoadingDuneBalances
+    isLoading: isLoadingBalances
   } = useDuneBalances(
     address &&
       address !== evmDeadAddress &&
@@ -251,325 +202,188 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   )
 
-  const restrictedTokenAddresses = filteredRestrictedTokenList?.map((token) =>
-    token.address.toLowerCase()
+  // Filter dune token balances based on configured chains
+  const filteredDuneTokenBalances = useMemo(() => {
+    return duneTokens?.balances?.filter((balance) =>
+      configuredChainIds.includes(balance.chain_id)
+    )
+  }, [duneTokens?.balances, configuredChainIds])
+
+  const userTokensQuery = useMemo(() => {
+    if (filteredDuneTokenBalances && filteredDuneTokenBalances.length > 0) {
+      return filteredDuneTokenBalances.map(
+        (balance) => `${balance.chain_id}:${balance.address}`
+      )
+    }
+    return undefined
+  }, [filteredDuneTokenBalances])
+
+  // Get user's tokens from currencies api
+  const { data: userTokens, isLoading: isLoadingUserTokens } = useTokenList(
+    relayClient?.baseApiUrl,
+    userTokensQuery
+      ? {
+          tokens: userTokensQuery,
+          limit: 100,
+          depositAddressOnly
+        }
+      : undefined,
+    {
+      enabled: !!filteredDuneTokenBalances
+    }
   )
 
-  const duneTokenBalances = duneTokens?.balances?.filter((balance) => {
-    if (restrictedTokenAddresses) {
-      return (
-        restrictedTokenAddresses.includes(balance.address.toLowerCase()) &&
-        configuredChainIds.includes(balance.chain_id)
-      )
-    } else {
-      return configuredChainIds.includes(balance.chain_id)
-    }
-  })
+  const isSearchTermValidAddress = isValidAddressUtil(
+    chainFilter.vmType,
+    debouncedTokenSearchValue,
+    chainFilter.id
+  )
 
-  let suggestedTokenQuery: string[] | undefined
-
-  if (filteredRestrictedTokenList && filteredRestrictedTokenList.length > 0) {
-    suggestedTokenQuery = filteredRestrictedTokenList.map(
-      (token) => `${token.chainId}:${token.address}`
-    )
-  } else if (duneTokenBalances) {
-    suggestedTokenQuery = duneTokenBalances.map(
-      (balance) => `${balance.chain_id}:${balance.address}`
-    )
-  }
-
-  const { data: suggestedTokens, isLoading: isLoadingSuggestedTokens } =
-    useTokenList(
-      relayClient?.baseApiUrl,
-      suggestedTokenQuery
-        ? {
-            tokens: suggestedTokenQuery,
-            limit: 30,
-            depositAddressOnly
-          }
-        : undefined,
-      {
-        enabled: duneTokenBalances ? true : false
-      }
-    )
-
-  const combinedTokenList = useMemo(() => {
-    if (!tokenList) return externalTokenList
-    if (!externalTokenList) return tokenList
-
-    const mergedList = [...tokenList]
-
-    externalTokenList.forEach((currencyList) => {
-      const externalCurrency = currencyList[0]
-
-      if (externalCurrency) {
-        const alreadyExists = mergedList.some((list) =>
-          list.some(
-            (existingCurrency) =>
-              existingCurrency.chainId === externalCurrency.chainId &&
-              existingCurrency?.address?.toLowerCase() ===
-                externalCurrency?.address?.toLowerCase()
-          )
-        )
-        if (!alreadyExists) {
-          mergedList.push(currencyList)
-        }
-      }
-    })
-
-    return mergedList
-  }, [tokenList, externalTokenList])
-
-  // Enhance token list with Relay chain data, balances and sort by usd value/balances
-  const enhancedCurrencyList = useMemo(() => {
-    // Filter suggested tokens by chain if needed
-    const filteredSuggestedTokens = chainFilter.id
-      ? suggestedTokens?.map((tokenList) =>
-          tokenList.filter((token) => token.chainId === chainFilter.id)
-        )
-      : suggestedTokens
-
-    // Only merge suggested tokens when using default list
-    const list = useDefaultTokenList
-      ? mergeTokenLists([filteredSuggestedTokens, combinedTokenList])
-      : combinedTokenList || []
-
-    // Prioritize ETH and USDC tokens
-    const ethTokens = list.find(
-      (tokenList) => tokenList[0] && tokenList[0].groupID === 'ETH'
-    )
-    const usdcTokens = list.find(
-      (tokenList) => tokenList[0] && tokenList[0].groupID === 'USDC'
-    )
-
-    // Remove ETH/USDC from main list and add them to the front
-    const filteredList = list.filter(
-      (tokenList) =>
-        tokenList[0] &&
-        tokenList[0].groupID !== 'ETH' &&
-        tokenList[0].groupID !== 'USDC'
-    )
-
-    const sortedList = [
-      ...(ethTokens ? [ethTokens] : []),
-      ...(usdcTokens ? [usdcTokens] : []),
-      ...filteredList
-    ]
-
-    // Map and enhance the currency list
-    const mappedList = sortedList?.map((currencyList) => {
-      const filteredList = currencyList
-        .map((currency) => {
-          const relayChain = configuredChains.find(
-            (chain) => chain.id === currency.chainId
-          )
-
-          if (relayChain) {
-            return {
-              ...currency,
-              relayChain,
-              balance: tokenBalances
-                ? tokenBalances[`${relayChain.id}:${currency.address}`]
-                : undefined
-            }
-          }
-          return undefined
-        })
-        .filter(
-          (currency) =>
-            currency !== undefined &&
-            (context !== 'from' ||
-              currency.vmType !== 'svm' ||
-              //@ts-ignore: todo remove once we have api support
-              currency.vmType !== 'bvm' ||
-              currency.chainId === solana.id ||
-              currency.chainId === eclipse.id ||
-              currency.chainId === bitcoin.id) &&
-            (context !== 'from' ||
-              multiWalletSupportEnabled ||
-              currency.vmType !== 'svm' ||
-              //@ts-ignore: todo remove once we have api support
-              currency.vmType !== 'bvm')
-        )
-      return filteredList.length > 0 ? filteredList : undefined
-    })
-
-    return mappedList
-      ?.map((list) => {
-        if (!list) return undefined
-
-        const { totalBalance, totalValueUsd } = list.reduce(
-          (totals, currency) => {
-            totals.totalBalance += BigInt(currency?.balance?.amount ?? 0)
-            totals.totalValueUsd += currency?.balance?.value_usd ?? 0
-            return totals
-          },
-          { totalBalance: 0n, totalValueUsd: 0 }
-        )
-        return {
-          chains: list,
-          totalBalance,
-          totalValueUsd
-        }
-      })
-      .filter((list): list is NonNullable<typeof list> => list !== undefined)
-      .sort((a, b) => {
-        // First sort by USD value if available
-        if (a.totalValueUsd !== b.totalValueUsd) {
-          return b.totalValueUsd - a.totalValueUsd
-        }
-        // Then sort by balance if USD value is equal or undefined
-        if (a.totalBalance !== b.totalBalance) {
-          return Number(b.totalBalance - a.totalBalance)
-        }
-        // Finally prioritize verified tokens
-        const aVerified = a.chains[0]?.metadata?.verified ?? false
-        const bVerified = b.chains[0]?.metadata?.verified ?? false
-        return bVerified === aVerified ? 0 : bVerified ? 1 : -1
-      })
-  }, [
-    context,
-    combinedTokenList,
-    suggestedTokens,
-    useDefaultTokenList,
-    configuredChains,
-    tokenBalances,
-    multiWalletSupportEnabled,
-    chainFilter
-  ])
-
-  const isLoading = isLoadingSuggestedTokens || isLoadingTokenList
-
-  const selectedTokenCurrencyList = useMemo(() => {
-    const fromEnhancedList = enhancedCurrencyList?.find((currencyList) =>
-      currencyList?.chains?.some((chain) =>
-        chain?.chainId === token?.chainId && chain?.vmType === 'evm'
-          ? chain?.address?.toLowerCase() === token?.address?.toLowerCase()
-          : chain?.address === token?.address
-      )
-    )
-
-    const fromSelectedList =
-      selectedCurrencyList?.chains?.[0]?.chainId === token?.chainId &&
-      selectedCurrencyList?.chains?.[0].name?.toLowerCase() ===
-        token?.name?.toLowerCase()
-        ? selectedCurrencyList
-        : undefined
-
-    return fromEnhancedList || fromSelectedList
-  }, [enhancedCurrencyList, selectedCurrencyList, token])
-
-  // Fetch currency list if there is no selectedTokenCurrencyList
-  const { data: fetchedCurrencyList } = useTokenList(
+  // Get main token list
+  const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
     {
-      chainIds: token?.chainId ? [token.chainId] : [],
-      address: token?.address,
-      limit: 1,
+      chainIds: chainFilter.id
+        ? [chainFilter.id]
+        : configuredChains.map((c) => c.id),
+      address: isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
+      term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
+      defaultList: useDefaultTokenList && !depositAddressOnly,
+      limit: 12,
       depositAddressOnly
-    },
-    {
-      enabled:
-        !selectedTokenCurrencyList && !!token?.chainId && !!token?.address
     }
   )
 
-  // Update selectedTokenCurrencyList when fetchedCurrencyList is returned
-  useEffect(() => {
-    if (
-      selectedCurrencyList === undefined &&
-      fetchedCurrencyList &&
-      fetchedCurrencyList.length > 0
-    ) {
-      const currencyList = fetchedCurrencyList[0]
-      const enhancedList: EnhancedCurrencyList = {
-        chains: currencyList.map((currency) => ({
-          ...currency,
-          relayChain: configuredChains.find(
-            (chain) => chain.id === currency.chainId
-          ) as RelayChain,
-          balance: tokenBalances
-            ? tokenBalances[`${currency.chainId}:${currency.address}`]
-            : undefined
-        }))
+  // Get external token list for search
+  const { data: externalTokenList, isLoading: isLoadingExternalList } =
+    useTokenList(
+      relayClient?.baseApiUrl,
+      {
+        chainIds: chainFilter.id
+          ? [chainFilter.id]
+          : configuredChains.map((c) => c.id),
+        address: isSearchTermValidAddress
+          ? debouncedTokenSearchValue
+          : undefined,
+        term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
+        defaultList: false,
+        limit: 12,
+        useExternalSearch: true
+      },
+      {
+        enabled: !!debouncedTokenSearchValue && !depositAddressOnly
       }
+    )
 
-      setSelectedCurrencyList(enhancedList)
-    }
-  }, [
-    selectedTokenCurrencyList,
-    fetchedCurrencyList,
-    configuredChains,
-    tokenBalances
-  ])
+  // Merge token lists when searching
+  const combinedTokenList = useMemo(() => {
+    if (!debouncedTokenSearchValue) return tokenList
+    return mergeTokenLists([tokenList, externalTokenList])
+  }, [tokenList, externalTokenList, debouncedTokenSearchValue])
 
-  const setCurrencyList = useCallback((currencyList: EnhancedCurrencyList) => {
-    setSelectedCurrencyList(currencyList)
-    setTokenSelectorStep(TokenSelectorStep.SetChain)
-  }, [])
+  const sortedUserTokens = useEnhancedTokensList(
+    userTokens,
+    tokenBalances,
+    context,
+    multiWalletSupportEnabled,
+    chainFilter.id,
+    true
+  )
+
+  const sortedCombinedTokens = useEnhancedTokensList(
+    combinedTokenList,
+    tokenBalances,
+    context,
+    multiWalletSupportEnabled,
+    chainFilter.id,
+    false
+  )
+
+  const [chainSearchInputElement, setChainSearchInputElement] =
+    useState<HTMLInputElement | null>(null)
+  const [tokenSearchInputElement, setTokenSearchInputElement] =
+    useState<HTMLInputElement | null>(null)
+
+  const inputElement = hasMultipleConfiguredChainIds
+    ? chainSearchInputElement
+    : tokenSearchInputElement
 
   const resetState = useCallback(() => {
-    setTokenSelectorStep(TokenSelectorStep.SetCurrency)
     setTokenSearchInput('')
-    setChainSearchInput('')
-    setChainFilter({
-      id: undefined,
-      name: 'All'
-    })
+    setChainSearchInputElement(null)
+    setTokenSearchInputElement(null)
   }, [])
 
-  const selectToken = useCallback(
-    (currency: Currency, chainId?: number) => {
-      if (
-        chainId &&
-        currency.address &&
-        currency.symbol &&
-        currency.name &&
-        currency.decimals
-      ) {
-        setToken({
-          chainId: chainId,
-          address: currency.address,
-          symbol: currency.symbol,
-          name: currency.name,
-          decimals: currency.decimals,
-          logoURI: currency.metadata?.logoURI ?? '',
-          verified: currency.metadata?.verified
+  const handleTokenSelection = useCallback(
+    (selectedToken: Token) => {
+      const isVerified = selectedToken.verified
+      const direction = context === 'from' ? 'input' : 'output'
+
+      if (!isVerified) {
+        const relayUiKitData = getRelayUiKitData()
+        const tokenKey = `${selectedToken.chainId}:${selectedToken.address}`
+        const isAlreadyAccepted =
+          relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
+
+        if (isAlreadyAccepted) {
+          onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+            direction,
+            token_symbol: selectedToken.symbol,
+            chain_id: selectedToken.chainId,
+            token_address: selectedToken.address,
+            search_term: debouncedTokenSearchValue
+          })
+          setToken(selectedToken)
+        } else {
+          setUnverifiedToken(selectedToken)
+          setUnverifiedTokenModalOpen(true)
+          return
+        }
+      } else {
+        onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+          direction,
+          token_symbol: selectedToken.symbol,
+          chain_id: selectedToken.chainId,
+          token_address: selectedToken.address,
+          search_term: debouncedTokenSearchValue
         })
-        setOpen(false)
-
-        // reset state
-        resetState()
+        setToken(selectedToken)
       }
-    },
-    [setToken, resetState]
-  )
 
-  useEffect(() => {
-    if (open && inputElement && !isSmallDevice) {
-      inputElement.focus()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, inputElement])
+      setOpen(false)
+    },
+    [
+      setToken,
+      setOpen,
+      resetState,
+      context,
+      onAnalyticEvent,
+      debouncedTokenSearchValue
+    ]
+  )
 
   useEffect(() => {
     if (!open) {
       resetState()
     } else {
-      const chain = relayClient?.chains?.find(
-        (chain) => chain.id === token?.chainId
+      // Get initial chain filter
+      const chainFilter = getInitialChainFilter(
+        chainFilterOptions,
+        context,
+        depositAddressOnly,
+        token
       )
-      setChainFilter(
-        chain ?? {
-          id: undefined,
-          name: 'All'
-        }
-      )
-      if (type === 'chain') {
-        setCurrencyList(selectedTokenCurrencyList as EnhancedCurrencyList)
-      }
+
+      setChainFilter(chainFilter)
     }
   }, [open])
+
+  // Focus input element when modal opens
+  useEffect(() => {
+    if (open && inputElement && isDesktop) {
+      inputElement.focus()
+    }
+  }, [open, inputElement])
 
   return (
     <>
@@ -582,7 +396,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 ? EventNames.SWAP_START_TOKEN_SELECT
                 : EventNames.SWAP_EXIT_TOKEN_SELECT,
               {
-                type,
                 direction: context === 'from' ? 'input' : 'output'
               }
             )
@@ -596,74 +409,228 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             flexDirection: 'column',
             height: 'min(85vh, 600px)',
             '@media(min-width: 660px)': {
-              minWidth:
-                size === 'desktop'
-                  ? configuredChainIds.length > 1
-                    ? 660
-                    : 378
-                  : 400,
-              maxWidth:
-                size === 'desktop' && configuredChainIds.length > 1 ? 660 : 378
+              minWidth: isDesktop
+                ? hasMultipleConfiguredChainIds
+                  ? 660
+                  : 408
+                : 400,
+              maxWidth: isDesktop && hasMultipleConfiguredChainIds ? 660 : 408
             }
           }}
         >
           <Flex
             direction="column"
-            align="center"
             css={{
               width: '100%',
               height: '100%',
               gap: '3',
-              position: 'relative',
               overflowY: 'hidden'
             }}
           >
-            {tokenSelectorStep === TokenSelectorStep.SetCurrency ? (
-              <SetCurrencyStep
-                size={size}
-                inputElement={inputElement}
-                setInputElement={setInputElement}
-                tokenSearchInput={tokenSearchInput}
-                setTokenSearchInput={setTokenSearchInput}
-                configuredChainIds={configuredChainIds}
-                chainFilterOptions={chainFilterOptions}
-                chainFilter={chainFilter}
-                setChainFilter={setChainFilter}
-                isLoading={isLoading}
-                isLoadingExternalTokenList={isLoadingExternalTokenList}
-                isLoadingDuneBalances={isLoadingDuneBalances}
-                enhancedCurrencyList={
-                  enhancedCurrencyList as EnhancedCurrencyList[]
-                }
-                token={token}
-                selectToken={selectToken}
-                setCurrencyList={setCurrencyList}
-                onAnalyticEvent={onAnalyticEvent}
-                setUnverifiedToken={setUnverifiedToken}
-                setUnverifiedTokenModalOpen={setUnverifiedTokenModalOpen}
-                depositAddressOnly={depositAddressOnly}
-              />
-            ) : null}
-            {tokenSelectorStep === TokenSelectorStep.SetChain ? (
-              <SetChainStep
-                token={token}
-                restrictedToken={restrictedToken}
-                tokenList={tokenList}
-                context={context}
-                setTokenSelectorStep={setTokenSelectorStep}
-                setInputElement={setInputElement}
-                chainSearchInput={chainSearchInput}
-                setChainSearchInput={setChainSearchInput}
-                selectToken={selectToken}
-                onAnalyticEvent={onAnalyticEvent}
-                selectedCurrencyList={selectedCurrencyList}
-                type={type}
-                size={size}
-                multiWalletSupportEnabled={multiWalletSupportEnabled}
-                chainIdsFilter={chainIdsFilter}
-                depositAddressOnly={depositAddressOnly}
-              />
-            ) : null}
+            <Text style="h6">Select Token</Text>
+
+            <Flex css={{ flex: 1, gap: '3', overflow: 'hidden' }}>
+              {/* Desktop Chain Filter Sidebar */}
+              {isDesktop &&
+              (!configuredChainIds || hasMultipleConfiguredChainIds) ? (
+                <ChainFilterSidebar
+                  options={allChains}
+                  value={chainFilter}
+                  onSelect={setChainFilter}
+                  onAnalyticEvent={onAnalyticEvent}
+                  onInputRef={setChainSearchInputElement}
+                  tokenSearchInputRef={tokenSearchInputElement}
+                  popularChainIds={popularChainIds}
+                />
+              ) : null}
+
+              {/* Main Token Content */}
+              <AccessibleList
+                onSelect={(value) => {
+                  if (value === 'input') return
+                  const [chainId, address] = value.split(':')
+                  const allTokens = [
+                    ...sortedUserTokens,
+                    ...sortedCombinedTokens
+                  ]
+                  const selectedToken = allTokens.find(
+                    (token) =>
+                      token.chainId === Number(chainId) &&
+                      token.address?.toLowerCase() === address?.toLowerCase()
+                  )
+                  if (selectedToken) {
+                    handleTokenSelection(selectedToken)
+                  }
+                }}
+                css={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  minWidth: 0,
+                  height: '100%'
+                }}
+              >
+                {/* Search Input Section - Fixed */}
+                <Flex
+                  direction="column"
+                  align="start"
+                  css={{
+                    width: '100%',
+                    gap: '2',
+                    background: 'modal-background'
+                  }}
+                >
+                  <AccessibleListItem value="input" asChild>
+                    <Input
+                      ref={setTokenSearchInputElement}
+                      placeholder="Search for a token or paste address"
+                      icon={
+                        <Box css={{ color: 'gray9' }}>
+                          <FontAwesomeIcon
+                            icon={faMagnifyingGlass}
+                            width={16}
+                            height={16}
+                          />
+                        </Box>
+                      }
+                      containerCss={{
+                        width: '100%',
+                        height: 40,
+                        mb: isDesktop ? '1' : '0'
+                      }}
+                      css={{
+                        width: '100%',
+                        _placeholder_parent: {
+                          textOverflow: 'ellipsis'
+                        }
+                      }}
+                      value={tokenSearchInput}
+                      onChange={(e) =>
+                        setTokenSearchInput(
+                          (e.target as HTMLInputElement).value
+                        )
+                      }
+                    />
+                  </AccessibleListItem>
+                  {!isDesktop &&
+                  (!configuredChainIds || hasMultipleConfiguredChainIds) ? (
+                    <ChainFilter
+                      options={allChains}
+                      value={chainFilter}
+                      onSelect={setChainFilter}
+                      popularChainIds={popularChainIds}
+                    />
+                  ) : null}
+                </Flex>
+
+                {/* Token Lists Section  */}
+                <Flex
+                  key={chainFilter.id ?? 'all'}
+                  direction="column"
+                  css={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    gap: '3',
+                    pt: '2',
+                    scrollbarColor: 'var(--relay-colors-gray5) transparent'
+                  }}
+                >
+                  {/* Suggested Tokens */}
+                  {chainFilter.id &&
+                  tokenSearchInput.length === 0 &&
+                  !depositAddressOnly ? (
+                    <SuggestedTokens
+                      chainId={chainFilter.id}
+                      depositAddressOnly={depositAddressOnly}
+                      onSelect={(token) => {
+                        const newToken = convertApiCurrencyToToken(
+                          token,
+                          token.chainId!
+                        )
+                        handleTokenSelection(newToken)
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Token Lists */}
+                  {tokenSearchInput.length > 0 ? (
+                    <TokenList
+                      title="Results"
+                      tokens={sortedCombinedTokens}
+                      isLoading={
+                        isLoadingTokenList ||
+                        tokenSearchInput !== debouncedTokenSearchValue
+                      }
+                      isLoadingBalances={isLoadingBalances}
+                      chainFilterId={chainFilter.id}
+                    />
+                  ) : (
+                    <Flex direction="column" css={{ gap: '3' }}>
+                      {[
+                        {
+                          title: 'Your Tokens',
+                          tokens: sortedUserTokens,
+                          isLoading: isLoadingUserTokens,
+                          show: sortedUserTokens.length > 0
+                        },
+                        {
+                          title: 'Tokens by 24H volume',
+                          tokens: sortedCombinedTokens,
+                          isLoading: isLoadingTokenList,
+                          show: true
+                        }
+                      ]
+                        .sort((a, b) => (context === 'to' ? -1 : 1)) // Reverse order depending on context
+                        .map(
+                          ({ title, tokens, isLoading, show }) =>
+                            show && (
+                              <TokenList
+                                key={title}
+                                title={title}
+                                tokens={tokens}
+                                isLoading={isLoading}
+                                isLoadingBalances={isLoadingBalances}
+                                chainFilterId={chainFilter.id}
+                              />
+                            )
+                        )}
+                    </Flex>
+                  )}
+
+                  {/* Empty State */}
+                  {!isLoadingTokenList &&
+                  !isLoadingExternalList &&
+                  tokenList?.length === 0 &&
+                  externalTokenList?.length === 0 ? (
+                    <Flex
+                      direction="column"
+                      align="center"
+                      css={{ py: '5', maxWidth: 312, alignSelf: 'center' }}
+                    >
+                      {!chainFilter?.id && isSearchTermValidAddress && (
+                        <Box css={{ color: 'gray8', mb: '2' }}>
+                          <FontAwesomeIcon
+                            icon={faFolderOpen}
+                            size="xl"
+                            width={27}
+                            height={24}
+                          />
+                        </Box>
+                      )}
+                      <Text
+                        color="subtle"
+                        style="body2"
+                        css={{ textAlign: 'center' }}
+                      >
+                        {!chainFilter?.id && isSearchTermValidAddress
+                          ? 'No results. Switch to the desired chain to search by contract.'
+                          : 'No results.'}
+                      </Text>
+                    </Flex>
+                  ) : null}
+                </Flex>
+              </AccessibleList>
+            </Flex>
           </Flex>
         </Modal>
       </div>
@@ -672,13 +639,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         <UnverifiedTokenModal
           open={unverifiedTokenModalOpen}
           onOpenChange={setUnverifiedTokenModalOpen}
-          token={unverifiedToken}
+          data={unverifiedToken ? { token: unverifiedToken } : undefined}
           onAcceptToken={(token) => {
             if (token) {
-              selectToken(token, token.chainId)
+              handleTokenSelection(token)
             }
-            resetState()
-            setOpen(false)
             setUnverifiedTokenModalOpen(false)
           }}
         />

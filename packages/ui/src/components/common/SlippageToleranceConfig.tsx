@@ -147,7 +147,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
               color: slippageRatingColor ?? 'gray9',
               p: '2',
               borderRadius: 12,
-              border: 'none',
+              border: 'widget-card-border',
               height: '36px',
               px: '10px'
             }}

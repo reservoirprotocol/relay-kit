@@ -219,9 +219,9 @@ export const StepRow: FC<StepRowProps> = ({
             <ChainIcon
               chainId={chainId}
               square={false}
+              width={24}
+              height={24}
               css={{
-                height: 24,
-                width: 24,
                 borderRadius: 9999999,
                 overflow: 'hidden',
                 filter: isActive ? 'none' : 'grayscale(100%)',
