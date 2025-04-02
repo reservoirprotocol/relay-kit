@@ -4,6 +4,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  type Dispatch,
   type FC,
   type ReactNode
 } from 'react'
@@ -11,7 +12,8 @@ import {
   useRelayClient,
   useENSResolver,
   useIsPassthrough,
-  useSupportedMoonPayCurrencyCode
+  useSupportedMoonPayCurrencyCode,
+  useFallbackState
 } from '../../../../hooks/index.js'
 import { zeroAddress } from 'viem'
 import { type ChainVM, type RelayChain } from '@reservoir0x/relay-sdk'
@@ -66,7 +68,8 @@ type OnrampWidgetRendererProps = {
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   moonPayApiKey: string
-  defaultToken?: Token
+  token?: Token
+  setToken?: Dispatch<React.SetStateAction<Token>>
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -76,16 +79,16 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
   supportedWalletVMs,
   multiWalletSupportEnabled,
   moonPayApiKey,
-  defaultToken,
+  token: _token,
+  setToken: _setToken,
   children
 }) => {
   const client = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
-  const [token, setToken] = useState<Token>(
-    defaultToken &&
-      !UnsupportedDepositAddressChainIds.includes(defaultToken.chainId)
-      ? defaultToken
+  const [token, setToken] = useFallbackState(
+    _token && _setToken
+      ? _token
       : {
           address: zeroAddress,
           chainId: 8453,
@@ -93,8 +96,26 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
           symbol: 'ETH',
           decimals: 18,
           logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-        }
+        },
+    _token && _setToken ? [_token, _setToken] : undefined
   )
+  useEffect(() => {
+    if (
+      _token &&
+      _setToken &&
+      UnsupportedDepositAddressChainIds.includes(token.chainId)
+    ) {
+      setToken({
+        address: zeroAddress,
+        chainId: 8453,
+        name: 'ETH',
+        symbol: 'ETH',
+        decimals: 18,
+        logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+      })
+    }
+  }, [_token])
+
   const [displayCurrency, setDisplayCurrency] = useState(false)
   const { data: usdTokenPriceResponse } = useTokenPrice(
     client?.baseApiUrl,

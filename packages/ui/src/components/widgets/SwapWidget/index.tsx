@@ -1,11 +1,9 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type FC } from 'react'
+import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
-import { formatUnits, zeroAddress } from 'viem'
-import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
+import { formatUnits } from 'viem'
 import type { LinkedWallet, Token } from '../../../types/index.js'
-import { AnchorButton } from '../../primitives/Anchor.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -19,29 +17,29 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { mainnet } from 'viem/chains'
 import { faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
-import { ChainTrigger } from '../../common/TokenSelector/triggers/ChainTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/address.js'
 import {
   evmDeadAddress,
   solDeadAddress,
-  bitcoinDeadAddress,
-  ASSETS_RELAY_API
+  bitcoinDeadAddress
 } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
+import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
-  defaultFromToken?: Token
-  defaultToToken?: Token
+  fromToken?: Token
+  setFromToken?: Dispatch<React.SetStateAction<Token | undefined>>
+  toToken?: Token
+  setToToken?: Dispatch<React.SetStateAction<Token | undefined>>
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
@@ -50,9 +48,10 @@ type BaseSwapWidgetProps = {
   lockFromToken?: boolean
   lockChainId?: number
   singleChainMode?: boolean
-  tokens?: Token[]
   wallet?: AdaptedWallet
   supportedWalletVMs: ChainVM[]
+  disableInputAutoFocus?: boolean
+  popularChainIds?: number[]
   disablePasteWalletAddressOption?: boolean
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
@@ -83,8 +82,10 @@ type MultiWalletEnabledProps = BaseSwapWidgetProps & {
 export type SwapWidgetProps = MultiWalletDisabledProps | MultiWalletEnabledProps
 
 const SwapWidget: FC<SwapWidgetProps> = ({
-  defaultFromToken,
-  defaultToToken,
+  fromToken,
+  setFromToken,
+  toToken,
+  setToToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
@@ -93,11 +94,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   lockFromToken = false,
   lockChainId,
   singleChainMode = false,
-  tokens,
   wallet,
   multiWalletSupportEnabled = false,
   linkedWallets,
   supportedWalletVMs,
+  disableInputAutoFocus = false,
+  popularChainIds,
   disablePasteWalletAddressOption,
   onSetPrimaryWallet,
   onLinkNewWallet,
@@ -115,46 +117,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const [unverifiedTokenModalOpen, setUnverifiedTokenModalOpen] =
-    useState(false)
-  const [unverifiedTokens, setUnverifiedTokens] = useState<Token[]>([])
+  const [unverifiedTokens, setUnverifiedTokens] = useState<
+    { token: Token; context: 'to' | 'from' }[]
+  >([])
   const hasLockedToken = lockFromToken || lockToToken
-  const defaultChainId = relayClient?.chains[0].id ?? mainnet.id
-  const initialFromToken = defaultFromToken ?? {
-    chainId: defaultChainId,
-    address: zeroAddress,
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    logoURI: `${ASSETS_RELAY_API}/icons/1/light.png`
-  }
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
+  //Handle external unverified tokens
   useEffect(() => {
-    if (
-      defaultFromToken &&
-      'verified' in defaultFromToken &&
-      !defaultFromToken.verified
-    ) {
-      const isAlreadyAccepted = alreadyAcceptedToken(defaultFromToken)
+    if (fromToken && 'verified' in fromToken && !fromToken.verified) {
+      const isAlreadyAccepted = alreadyAcceptedToken(fromToken)
       if (!isAlreadyAccepted) {
-        unverifiedTokens.push(defaultFromToken)
+        unverifiedTokens.push({ token: fromToken, context: 'from' })
+        setFromToken?.(undefined)
       }
     }
-    if (
-      defaultToToken &&
-      'verified' in defaultToToken &&
-      !defaultToToken.verified
-    ) {
-      const isAlreadyAccepted = alreadyAcceptedToken(defaultToToken)
+    if (toToken && 'verified' in toToken && !toToken.verified) {
+      const isAlreadyAccepted = alreadyAcceptedToken(toToken)
       if (!isAlreadyAccepted) {
-        unverifiedTokens.push(defaultToToken)
+        unverifiedTokens.push({ token: toToken, context: 'to' })
+        setToToken?.(undefined)
       }
     }
-    if (unverifiedTokens.length > 0) {
-      setUnverifiedTokenModalOpen(true)
-    }
-  }, [])
+  }, [fromToken, toToken])
 
   return (
     <SwapWidgetRenderer
@@ -165,8 +150,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       defaultAmount={defaultAmount}
       defaultToAddress={defaultToAddress}
       defaultTradeType={defaultTradeType}
-      defaultFromToken={initialFromToken}
-      defaultToToken={defaultToToken}
+      toToken={toToken}
+      setToToken={setToToken}
+      fromToken={fromToken}
+      setFromToken={setFromToken}
       slippageTolerance={slippageTolerance}
       wallet={wallet}
       linkedWallets={linkedWallets}
@@ -236,6 +223,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
+        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+          if (fromToken) {
+            setAmountInputValue(formatUnits(amount, fromToken?.decimals))
+            setTradeType('EXACT_INPUT')
+            debouncedAmountOutputControls.cancel()
+            debouncedAmountInputControls.flush()
+            onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
+              percent: percent
+            })
+          }
+        }
+
         const handleSetFromToken = (token?: Token) => {
           let _token = token
           const newFromChain = relayClient?.chains.find(
@@ -286,17 +285,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           (chain) => chain.id === toToken?.chainId
         )
 
-        const fromTokenSelectorOpenState = useState(false)
-        const [fromTokenSelectorType, setFromTokenSelectorType] = useState<
-          'token' | 'chain'
-        >('token')
-
-        const toTokenSelectorOpenState = useState(false)
-        const [toTokenSelectorType, setToTokenSelectorType] = useState<
-          'token' | 'chain'
-        >('token')
-
-        //Handle switching to a new vm and finding supported wallet addresses for recipient and connected wallet
         useEffect(() => {
           if (
             multiWalletSupportEnabled &&
@@ -442,7 +430,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         css={{ gap: '2', width: '100%' }}
                       >
                         <Text style="subtitle2" color="subtle">
-                          From
+                          Sell
                         </Text>
                         {multiWalletSupportEnabled === true &&
                         fromChainWalletVMSupported ? (
@@ -474,43 +462,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           />
                         ) : null}
                       </Flex>
-                      {!isSingleChainLocked && (
-                        <ChainTrigger
-                          token={fromToken}
-                          chain={fromChain}
-                          locked={isChainLocked(
-                            fromToken?.chainId,
-                            lockChainId,
-                            toToken?.chainId,
-                            lockFromToken
-                          )}
-                          onClick={() => {
-                            setFromTokenSelectorType('chain')
-                            fromTokenSelectorOpenState[1](
-                              !fromTokenSelectorOpenState[0]
-                            )
-                            onAnalyticEvent?.(
-                              EventNames.SWAP_START_TOKEN_SELECT,
-                              {
-                                type: 'chain',
-                                direction: 'input'
-                              }
-                            )
-                          }}
-                        />
-                      )}
+
                       <Flex
                         align="center"
                         justify="between"
                         css={{ gap: '4', width: '100%' }}
                       >
                         <AmountInput
+                          autoFocus={!disableInputAutoFocus}
                           value={
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                                ? formatFixedLength(amountInputValue, 8)
-                                : amountInputValue
+                              ? formatFixedLength(amountInputValue, 8)
+                              : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -525,7 +490,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             lineHeight: '36px',
                             py: 0,
                             color:
@@ -542,8 +507,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         />
                         <TokenSelector
-                          openState={fromTokenSelectorOpenState}
-                          type={fromTokenSelectorType}
                           address={address}
                           isValidAddress={isValidFromAddress}
                           token={fromToken}
@@ -554,10 +517,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={toToken}
                           setToken={(token) => {
-                            onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                              direction: 'input',
-                              token_symbol: token.symbol
-                            })
                             if (
                               token.address === toToken?.address &&
                               token.chainId === toToken?.chainId &&
@@ -576,43 +535,27 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    fromToken?.chainId,
-                                    lockChainId,
-                                    toToken?.chainId,
-                                    lockFromToken
-                                  ) && fromToken?.chainId
-                                ? [fromToken.chainId]
-                                : undefined
+                                  fromToken?.chainId,
+                                  lockChainId,
+                                  toToken?.chainId,
+                                  lockFromToken
+                                ) && fromToken?.chainId
+                              ? [fromToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
                               ? [toToken.chainId]
                               : undefined
                           }
-                          restrictedTokensList={tokens?.filter(
-                            (token) => token.chainId === fromToken?.chainId
-                          )}
-                          size={
-                            fromTokenSelectorType === 'chain'
-                              ? 'mobile'
-                              : 'desktop'
-                          }
+                          popularChainIds={popularChainIds}
                           trigger={
-                            <div
-                              style={{ width: 'max-content' }}
-                              onClick={() => setFromTokenSelectorType('token')}
-                            >
+                            <div style={{ width: 'max-content' }}>
                               <TokenTrigger
                                 token={fromToken}
-                                locked={
-                                  lockFromToken ||
-                                  (tokens &&
-                                    tokens.filter(
-                                      (token) =>
-                                        token.chainId === fromToken?.chainId
-                                    ).length === 1)
-                                }
+                                locked={lockFromToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }
@@ -661,42 +604,103 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 BigInt(
                                   0.02 * 10 ** (fromToken?.decimals ?? 18)
                                 ))) ? (
-                            <AnchorButton
-                              aria-label="MAX"
-                              css={{ fontSize: 12 }}
-                              onClick={() => {
-                                const percentageBuffer =
-                                  (fromBalance * 1n) / 100n // 1% of the balance
-                                const fixedBuffer = BigInt(
-                                  0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                ) // Fixed buffer of 0.02 tokens
-                                const solanaBuffer =
-                                  percentageBuffer > fixedBuffer
-                                    ? percentageBuffer
-                                    : fixedBuffer
-
-                                if (fromToken) {
-                                  setAmountInputValue(
-                                    formatUnits(
-                                      isFromNative
-                                        ? fromChain?.vmType === 'svm'
-                                          ? fromBalance - solanaBuffer
-                                          : fromBalance - percentageBuffer
-                                        : fromBalance,
-                                      fromToken?.decimals
-                                    )
+                            <Flex css={{ gap: '1' }}>
+                              <Button
+                                aria-label="20%"
+                                css={{
+                                  fontSize: 12,
+                                  fontWeight: '500',
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
+                                }}
+                                color="white"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 20n) / 100n // 20% of the balance
+                                  handleMaxAmountClicked(
+                                    percentageBuffer,
+                                    '20%'
                                   )
-                                  setTradeType('EXACT_INPUT')
-                                  debouncedAmountOutputControls.cancel()
-                                  debouncedAmountInputControls.flush()
-                                  onAnalyticEvent?.(
-                                    EventNames.MAX_AMOUNT_CLICKED
+                                }}
+                              >
+                                20%
+                              </Button>
+                              <Button
+                                aria-label="50%"
+                                css={{
+                                  fontSize: 12,
+                                  fontWeight: '500',
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
+                                }}
+                                color="white"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 50n) / 100n // 50% of the balance
+                                  handleMaxAmountClicked(
+                                    percentageBuffer,
+                                    '50%'
                                   )
-                                }
-                              }}
-                            >
-                              MAX
-                            </AnchorButton>
+                                }}
+                              >
+                                50%
+                              </Button>
+                              <Button
+                                aria-label="MAX"
+                                css={{
+                                  fontSize: 12,
+                                  fontWeight: '500',
+                                  px: '1',
+                                  py: '1',
+                                  minHeight: '23px',
+                                  lineHeight: '100%',
+                                  backgroundColor: 'widget-selector-background',
+                                  border: 'none',
+                                  _hover: {
+                                    backgroundColor:
+                                      'widget-selector-hover-background'
+                                  }
+                                }}
+                                color="white"
+                                onClick={() => {
+                                  const percentageBuffer =
+                                    (fromBalance * 1n) / 100n // 1% of the balance
+                                  const fixedBuffer = BigInt(
+                                    0.02 * 10 ** (fromToken?.decimals ?? 18)
+                                  ) // Fixed buffer of 0.02 tokens
+                                  const solanaBuffer =
+                                    percentageBuffer > fixedBuffer
+                                      ? percentageBuffer
+                                      : fixedBuffer
+                                  handleMaxAmountClicked(
+                                    isFromNative
+                                      ? fromChain?.vmType === 'svm'
+                                        ? fromBalance - solanaBuffer
+                                        : fromBalance - percentageBuffer
+                                      : fromBalance,
+                                    'max'
+                                  )
+                                }}
+                              >
+                                MAX
+                              </Button>
+                            </Flex>
                           ) : null}
                         </Flex>
                       </Flex>
@@ -704,10 +708,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <Box
                       css={{
                         position: 'relative',
-                        my: -15,
+                        my: -13,
                         mx: 'auto',
-                        height: 36,
-                        width: 36
+                        height: 32,
+                        width: 32
                       }}
                     >
                       {hasLockedToken ||
@@ -772,7 +776,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                       >
                         <Text style="subtitle2" color="subtle">
-                          To
+                          Buy
                         </Text>
 
                         {multiWalletSupportEnabled &&
@@ -849,7 +853,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   multiWalletSupportEnabled &&
                                   !isRecipientLinked
                                     ? 'amber11'
-                                    : 'secondary-button-color'
+                                    : 'anchor-color'
                               }}
                             >
                               {!isValidToAddress
@@ -859,31 +863,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           </Button>
                         ) : null}
                       </Flex>
-                      {!isSingleChainLocked && (
-                        <ChainTrigger
-                          token={toToken}
-                          chain={toChain}
-                          locked={isChainLocked(
-                            toToken?.chainId,
-                            lockChainId,
-                            fromToken?.chainId,
-                            lockToToken
-                          )}
-                          onClick={() => {
-                            setToTokenSelectorType('chain')
-                            toTokenSelectorOpenState[1](
-                              !toTokenSelectorOpenState[0]
-                            )
-                            onAnalyticEvent?.(
-                              EventNames.SWAP_START_TOKEN_SELECT,
-                              {
-                                type: 'chain',
-                                direction: 'output'
-                              }
-                            )
-                          }}
-                        />
-                      )}
+
                       <Flex
                         align="center"
                         justify="between"
@@ -894,8 +874,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                                ? formatFixedLength(amountOutputValue, 8)
-                                : amountOutputValue
+                              ? formatFixedLength(amountOutputValue, 8)
+                              : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -911,7 +891,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           css={{
                             fontWeight: '700',
-                            fontSize: 28,
+                            fontSize: 32,
                             color:
                               isFetchingQuote && tradeType === 'EXACT_INPUT'
                                 ? 'text-subtle'
@@ -932,8 +912,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                         />
                         <TokenSelector
-                          openState={toTokenSelectorOpenState}
-                          type={toTokenSelectorType}
                           address={recipient}
                           isValidAddress={isValidToAddress}
                           token={toToken}
@@ -943,10 +921,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={fromToken}
                           setToken={(token) => {
-                            onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                              direction: 'output',
-                              token_symbol: token.symbol
-                            })
                             if (
                               token.address === fromToken?.address &&
                               token.chainId === fromToken?.chainId &&
@@ -961,27 +935,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           context="to"
                           multiWalletSupportEnabled={multiWalletSupportEnabled}
-                          size={
-                            toTokenSelectorType === 'chain'
-                              ? 'mobile'
-                              : 'desktop'
-                          }
                           trigger={
-                            <div
-                              style={{ width: 'max-content' }}
-                              onClick={() => setToTokenSelectorType('token')}
-                            >
+                            <div style={{ width: 'max-content' }}>
                               <TokenTrigger
                                 token={toToken}
-                                locked={
-                                  lockToToken ||
-                                  (tokens &&
-                                    tokens.filter(
-                                      (token) =>
-                                        token.chainId === toToken?.chainId
-                                    ).length === 1)
-                                }
+                                locked={lockToToken}
                                 isSingleChainLocked={isSingleChainLocked}
+                                address={address}
                               />
                             </div>
                           }
@@ -990,22 +950,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                    toToken?.chainId,
-                                    lockChainId,
-                                    fromToken?.chainId,
-                                    lockToToken
-                                  ) && toToken?.chainId
-                                ? [toToken.chainId]
-                                : undefined
+                                  toToken?.chainId,
+                                  lockChainId,
+                                  fromToken?.chainId,
+                                  lockToToken
+                                ) && toToken?.chainId
+                              ? [toToken.chainId]
+                              : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
                               ? [fromToken.chainId]
                               : undefined
                           }
-                          restrictedTokensList={tokens?.filter(
-                            (token) => token.chainId === toToken?.chainId
-                          )}
+                          popularChainIds={popularChainIds}
                         />
                       </Flex>
                       <Flex
@@ -1219,20 +1177,27 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     )}
                   </Flex>
                   <UnverifiedTokenModal
-                    open={unverifiedTokenModalOpen}
-                    onOpenChange={setUnverifiedTokenModalOpen}
-                    token={
+                    open={unverifiedTokens.length > 0}
+                    onOpenChange={() => {}}
+                    data={
                       unverifiedTokens.length > 0
                         ? unverifiedTokens[0]
                         : undefined
                     }
-                    onAcceptToken={(token) => {
+                    onDecline={(token, context) => {
+                      const tokens = unverifiedTokens.filter(
+                        (unverifiedToken) =>
+                          !(
+                            unverifiedToken.context === context &&
+                            unverifiedToken.token.address === token?.address &&
+                            unverifiedToken.token.chainId === token?.chainId
+                          )
+                      )
+                      setUnverifiedTokens(tokens)
+                    }}
+                    onAcceptToken={(token, context) => {
                       if (token) {
-                        if (
-                          defaultToToken &&
-                          defaultToToken?.address === token.address &&
-                          defaultToToken.chainId === token.chainId
-                        ) {
+                        if (context === 'to') {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'output',
                             token_symbol: token.symbol
@@ -1248,11 +1213,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           } else {
                             handleSetToToken(token)
                           }
-                        } else if (
-                          defaultFromToken &&
-                          defaultFromToken?.address === token.address &&
-                          defaultFromToken.chainId === token.chainId
-                        ) {
+                        } else if (context === 'from') {
                           onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
                             direction: 'input',
                             token_symbol: token.symbol
@@ -1273,16 +1234,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       const tokens = unverifiedTokens.filter(
                         (unverifiedToken) =>
                           !(
-                            unverifiedToken.address === token?.address &&
-                            unverifiedToken.chainId === token?.chainId
+                            unverifiedToken.token.address === token?.address &&
+                            unverifiedToken.token.chainId === token?.chainId
                           )
                       )
                       setUnverifiedTokens(tokens)
-                      if (tokens.length > 0) {
-                        setUnverifiedTokenModalOpen(true)
-                      } else {
-                        setUnverifiedTokenModalOpen(false)
-                      }
                     }}
                   />
                 </>

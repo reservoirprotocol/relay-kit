@@ -17,6 +17,9 @@ type ModalProps = {
   css?: SystemStyleObject
   overlayZIndex?: number
   showCloseButton?: boolean
+  onCloseButtonClicked?: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void
   children: ReactNode
 }
 
@@ -77,6 +80,9 @@ export const Modal: FC<
                       color="ghost"
                       size="none"
                       css={{ color: 'gray9', p: '2' }}
+                      onClick={(e) => {
+                        props.onCloseButtonClicked?.(e)
+                      }}
                     >
                       <FontAwesomeIcon icon={faXmark} width={16} height={16} />
                     </Button>

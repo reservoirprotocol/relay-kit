@@ -71,7 +71,6 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
           <ChainTokenIcon
             chainId={fromToken?.chainId}
             tokenlogoURI={fromToken?.logoURI}
-            css={{ width: 32, height: 32 }}
           />
           <Text style="subtitle1">
             You’ll purchase {fromToken?.symbol} ({fromChain?.displayName}) via
@@ -91,7 +90,6 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
           <ChainTokenIcon
             chainId={toToken?.chainId}
             tokenlogoURI={toToken?.logoURI}
-            css={{ width: 32, height: 32 }}
           />
           <Text style="subtitle1">
             Relay converts to {toToken?.symbol} ({toChain?.displayName})

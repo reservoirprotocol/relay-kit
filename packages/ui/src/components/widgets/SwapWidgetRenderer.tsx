@@ -8,7 +8,8 @@ import {
   useWalletAddress,
   useDisconnected,
   usePreviousValueChange,
-  useIsWalletCompatible
+  useIsWalletCompatible,
+  useFallbackState
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -48,8 +49,10 @@ type SwapWidgetRendererProps = {
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   depositAddressModalOpen: boolean
   children: (props: ChildrenProps) => ReactNode
-  defaultFromToken?: Token
-  defaultToToken?: Token
+  fromToken?: Token
+  setFromToken?: React.Dispatch<React.SetStateAction<Token | undefined>>
+  toToken?: Token
+  setToToken?: React.Dispatch<React.SetStateAction<Token | undefined>>
   defaultToAddress?: Address
   defaultAmount?: string
   defaultTradeType?: TradeType
@@ -146,8 +149,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   transactionModalOpen,
   setTransactionModalOpen,
   depositAddressModalOpen,
-  defaultFromToken,
-  defaultToToken,
+  fromToken: _fromToken,
+  setFromToken: _setFromToken,
+  toToken: _toToken,
+  setToToken: _setToToken,
   defaultToAddress,
   defaultAmount,
   defaultTradeType,
@@ -161,6 +166,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   onAnalyticEvent,
   onSwapError
 }) => {
+  const [fromToken, setFromToken] = useFallbackState(
+    _fromToken && _setFromToken ? _fromToken : undefined,
+    _fromToken && _setFromToken ? [_fromToken, _setFromToken] : undefined
+  )
+  const [toToken, setToToken] = useFallbackState(
+    _toToken && _setToToken ? _toToken : undefined,
+    _toToken && _setToToken ? [_toToken, _setToToken] : undefined
+  )
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
   const relayClient = useRelayClient()
@@ -203,22 +216,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const [swapError, setSwapError] = useState<Error | null>(null)
-  const [fromToken, setFromToken] = useState<Token | undefined>(
-    defaultFromToken &&
-      'verified' in defaultFromToken &&
-      !defaultFromToken.verified &&
-      !alreadyAcceptedToken(defaultFromToken)
-      ? undefined
-      : defaultFromToken
-  )
-  const [toToken, setToToken] = useState<Token | undefined>(
-    defaultToToken &&
-      'verified' in defaultToToken &&
-      !defaultToToken.verified &&
-      !alreadyAcceptedToken(defaultToToken)
-      ? undefined
-      : defaultToToken
-  )
   const tokenPairIsCanonical =
     fromToken?.chainId !== undefined &&
     toToken?.chainId !== undefined &&

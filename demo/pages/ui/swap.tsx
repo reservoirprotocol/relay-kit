@@ -26,6 +26,7 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
+import { type Token } from '@reservoir0x/relay-kit-ui'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm'] as const
 
@@ -36,6 +37,22 @@ const SwapWidgetPage: NextPage = () => {
       setLinkWalletPromise(undefined)
     }
   })
+  const [fromToken, setFromToken] = useState<Token | undefined>({
+    chainId: 8453,
+    address: '0x0000000000000000000000000000000000000000',
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+    logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+  })
+  // const [toToken, setToToken] = useState<Token | undefined>({
+  //   chainId: 10,
+  //   address: '0xbb586ed34974b15049a876fd5366a4c2d1203115',
+  //   decimals: 18,
+  //   name: 'ETH',
+  //   symbol: 'ETH',
+  //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
+  // })
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
@@ -166,54 +183,14 @@ const SwapWidgetPage: NextPage = () => {
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
             supportedWalletVMs={supportedWalletVMs}
-            defaultToToken={
-              singleChainMode
-                ? {
-                    chainId: 8453,
-                    address: '0x4200000000000000000000000000000000000006',
-                    decimals: 18,
-                    name: 'WETH',
-                    symbol: 'WETH',
-                    logoURI:
-                      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
-                  }
-                : {
-                    chainId: 10,
-                    address: '0x0000000000000000000000000000000000000000',
-                    decimals: 18,
-                    name: 'ETH',
-                    symbol: 'ETH',
-                    logoURI:
-                      'https://assets.relay.link/icons/currencies/eth.png'
-                  }
-            }
-            // defaultToToken={{
-            //   chainId: 10,
-            //   address: '0x0000000000000000000000000000000000000000',
-            //   decimals: 18,
-            //   name: 'ETH',
-            //   symbol: 'ETH',
-            //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            // }}
+            // popularChainIds={[]}
+            // disableInputAutoFocus={true}
+            // toToken={toToken}
+            // setToToken={setToToken}
             // lockToToken={true}
             // lockFromToken={true}
-            defaultFromToken={{
-              chainId: 8453,
-              address: '0x0000000000000000000000000000000000000000',
-              decimals: 18,
-              name: 'ETH',
-              symbol: 'ETH',
-              logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
-            }}
-            // defaultFromToken={{
-            //   chainId: 1,
-            //   address: '0x446c9033e7516d820cc9a2ce2d0b7328b579406f',
-            //   decimals: 8,
-            //   name: 'SOLVE',
-            //   symbol: 'SOLVE',
-            //   logoURI:
-            //     'https://assets.coingecko.com/coins/images/1768/large/Solve.Token_logo_200_200_wiyhout_BG.png?1575869846'
-            // }}
+            fromToken={fromToken}
+            setFromToken={setFromToken}
             // defaultAmount={'5'}
             wallet={wallet}
             multiWalletSupportEnabled={true}

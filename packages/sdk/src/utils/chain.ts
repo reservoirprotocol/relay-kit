@@ -9,13 +9,10 @@ type RelayAPIChain = Required<
   >['0']
 >
 
-const viemChainMap = Object.values(viemChains).reduce(
-  (chains, chain) => {
-    chains[chain.id] = chain
-    return chains
-  },
-  {} as Record<number, Chain>
-)
+const viemChainMap = Object.values(viemChains).reduce((chains, chain) => {
+  chains[chain.id] = chain
+  return chains
+}, {} as Record<number, Chain>)
 
 export const configureViemChain = (
   chain: RelayAPIChain
@@ -63,14 +60,10 @@ export const configureViemChain = (
     ...chain,
     viemChain,
     icon: {
-      dark: chain.iconUrl ?? `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
+      dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,
       light: chain.iconUrl ?? `${ASSETS_RELAY_API}/icons/${chain.id}/light.png`,
-      squaredDark:
-        chain.iconUrl ??
-        `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
-      squaredLight:
-        chain.iconUrl ??
-        `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
+      squaredDark: `${ASSETS_RELAY_API}/icons/square/${chain.id}/dark.png`,
+      squaredLight: `${ASSETS_RELAY_API}/icons/square/${chain.id}/light.png`
     }
   }
 }
