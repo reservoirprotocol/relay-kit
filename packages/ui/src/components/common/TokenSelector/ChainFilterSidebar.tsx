@@ -105,7 +105,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
               onSelect(chain)
               onAnalyticEvent?.(EventNames.CURRENCY_STEP_CHAIN_FILTER, {
                 chain: chain.name,
-                chain_id: chain.id
+                chain_id: chain.id,
+                search_term: chainSearchInput
               })
             }
           }
@@ -293,16 +294,7 @@ const ChainFilterRow: FC<ChainFilterRowProps> = ({
             backgroundColor: isActive ? 'gray6' : 'gray/10'
           },
           '--focusColor': 'colors.focus-color',
-          _focusVisible: {
-            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-          },
-          '&[data-state="on"]': {
-            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-          },
-          _active: {
-            boxShadow: 'inset 0 0 0 2px var(--focusColor)'
-          },
-          _focusWithin: {
+          _focus: {
             boxShadow: 'inset 0 0 0 2px var(--focusColor)'
           }
         }}

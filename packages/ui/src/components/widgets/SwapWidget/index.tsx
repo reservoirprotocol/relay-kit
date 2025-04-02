@@ -517,10 +517,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={toToken}
                           setToken={(token) => {
-                            onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                              direction: 'input',
-                              token_symbol: token.symbol
-                            })
                             if (
                               token.address === toToken?.address &&
                               token.chainId === toToken?.chainId &&
@@ -925,10 +921,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           supportedWalletVMs={supportedWalletVMs}
                           restrictedToken={fromToken}
                           setToken={(token) => {
-                            onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                              direction: 'output',
-                              token_symbol: token.symbol
-                            })
                             if (
                               token.address === fromToken?.address &&
                               token.chainId === fromToken?.chainId &&

@@ -9,7 +9,10 @@ import {
 import { Flex, Text, Input, Box } from '../../primitives/index.js'
 import { Modal } from '../Modal.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import {
+  faMagnifyingGlass,
+  faFolderOpen
+} from '@fortawesome/free-solid-svg-icons'
 import type { Token } from '../../../types/index.js'
 import { type ChainFilterValue } from './ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
@@ -24,6 +27,7 @@ import ChainFilter from './ChainFilter.js'
 import { TokenList } from './TokenList.js'
 import { UnsupportedDepositAddressChainIds } from '../../../constants/depositAddresses.js'
 import { getRelayUiKitData } from '../../../utils/localStorage.js'
+import { isValidAddress as isValidAddressUtil } from '../../../utils/address.js'
 import {
   AccessibleList,
   AccessibleListItem
@@ -229,6 +233,12 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     }
   )
 
+  const isSearchTermValidAddress = isValidAddressUtil(
+    chainFilter.vmType,
+    debouncedTokenSearchValue,
+    chainFilter.id
+  )
+
   // Get main token list
   const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
@@ -236,12 +246,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       chainIds: chainFilter.id
         ? [chainFilter.id]
         : configuredChains.map((c) => c.id),
-      address: isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
-      term: !isAddress(debouncedTokenSearchValue)
-        ? debouncedTokenSearchValue
-        : undefined,
+      address: isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
+      term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
       defaultList: useDefaultTokenList && !depositAddressOnly,
       limit: 12,
       depositAddressOnly
@@ -256,12 +262,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         chainIds: chainFilter.id
           ? [chainFilter.id]
           : configuredChains.map((c) => c.id),
-        address: isAddress(debouncedTokenSearchValue)
+        address: isSearchTermValidAddress
           ? debouncedTokenSearchValue
           : undefined,
-        term: !isAddress(debouncedTokenSearchValue)
-          ? debouncedTokenSearchValue
-          : undefined,
+        term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
         defaultList: false,
         limit: 12,
         useExternalSearch: true
@@ -313,6 +317,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   const handleTokenSelection = useCallback(
     (selectedToken: Token) => {
       const isVerified = selectedToken.verified
+      const direction = context === 'from' ? 'input' : 'output'
 
       if (!isVerified) {
         const relayUiKitData = getRelayUiKitData()
@@ -321,6 +326,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           relayUiKitData.acceptedUnverifiedTokens.includes(tokenKey)
 
         if (isAlreadyAccepted) {
+          onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+            direction,
+            token_symbol: selectedToken.symbol,
+            chain_id: selectedToken.chainId,
+            token_address: selectedToken.address,
+            search_term: debouncedTokenSearchValue
+          })
           setToken(selectedToken)
         } else {
           setUnverifiedToken(selectedToken)
@@ -328,12 +340,26 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           return
         }
       } else {
+        onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+          direction,
+          token_symbol: selectedToken.symbol,
+          chain_id: selectedToken.chainId,
+          token_address: selectedToken.address,
+          search_term: debouncedTokenSearchValue
+        })
         setToken(selectedToken)
       }
 
       setOpen(false)
     },
-    [setToken, setOpen, resetState]
+    [
+      setToken,
+      setOpen,
+      resetState,
+      context,
+      onAnalyticEvent,
+      debouncedTokenSearchValue
+    ]
   )
 
   useEffect(() => {
@@ -576,9 +602,31 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   !isLoadingExternalList &&
                   tokenList?.length === 0 &&
                   externalTokenList?.length === 0 ? (
-                    <Text color="subtle" css={{ textAlign: 'center', py: '5' }}>
-                      No results.
-                    </Text>
+                    <Flex
+                      direction="column"
+                      align="center"
+                      css={{ py: '5', maxWidth: 312, alignSelf: 'center' }}
+                    >
+                      {!chainFilter?.id && isSearchTermValidAddress && (
+                        <Box css={{ color: 'gray8', mb: '2' }}>
+                          <FontAwesomeIcon
+                            icon={faFolderOpen}
+                            size="xl"
+                            width={27}
+                            height={24}
+                          />
+                        </Box>
+                      )}
+                      <Text
+                        color="subtle"
+                        style="body2"
+                        css={{ textAlign: 'center' }}
+                      >
+                        {!chainFilter?.id && isSearchTermValidAddress
+                          ? 'No results. Switch to the desired chain to search by contract.'
+                          : 'No results.'}
+                      </Text>
+                    </Flex>
                   ) : null}
                 </Flex>
               </AccessibleList>
