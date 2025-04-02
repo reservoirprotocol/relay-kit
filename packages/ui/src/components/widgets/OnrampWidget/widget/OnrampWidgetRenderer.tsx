@@ -6,7 +6,8 @@ import {
   useState,
   type Dispatch,
   type FC,
-  type ReactNode
+  type ReactNode,
+  type SetStateAction
 } from 'react'
 import {
   useRelayClient,
@@ -69,7 +70,7 @@ type OnrampWidgetRendererProps = {
   multiWalletSupportEnabled?: boolean
   moonPayApiKey: string
   token?: Token
-  setToken?: Dispatch<React.SetStateAction<Token>>
+  setToken?: (token: Token) => void
   children: (props: ChildrenProps) => ReactNode
 }
 
@@ -97,7 +98,9 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
           decimals: 18,
           logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
         },
-    _token && _setToken ? [_token, _setToken] : undefined
+    _token && _setToken
+      ? [_token, _setToken as Dispatch<SetStateAction<Token>>]
+      : undefined
   )
   useEffect(() => {
     if (
