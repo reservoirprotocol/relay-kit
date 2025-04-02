@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.1
+
+### Patch Changes
+
+- 40c1910: Fix token setters
+
 ## 2.9.0
 
 ### Minor Changes
