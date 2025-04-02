@@ -1,5 +1,27 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.0
+
+### Minor Changes
+
+- bf8dbdb: Breaking Changes:
+
+  - `relay-kit-hooks`: Updated `useTokenLists` hook to use `/currencies/v2` API with new response structure
+  - `relay-kit-ui`: Redesigned token selector component with improved architecture
+    - Removed chain selector in favor of unified token selector component
+    - Removed `defaultToToken` and `defaultFromToken` props
+    - Added `toToken`, `setToToken`, `fromToken`, `setFromToken` props
+    - Added `disableInputAutoFocus` and `popularChainIds` configuration options
+
+  These changes improve token selection UX, provide better state management, and enable more flexible chain configuration.
+
+### Patch Changes
+
+- 12c8e59: Allow dune base api to fallback to default
+- Updated dependencies [bf8dbdb]
+  - @reservoir0x/relay-kit-hooks@1.9.0
+  - @reservoir0x/relay-sdk@1.6.13
+
 ## 2.8.0
 
 ### Minor Changes
