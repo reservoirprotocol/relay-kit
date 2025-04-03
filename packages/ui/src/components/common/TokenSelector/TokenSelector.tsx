@@ -320,6 +320,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       const direction = context === 'from' ? 'input' : 'output'
       let position = undefined
 
+      // Track position for search results
       if (debouncedTokenSearchValue.length > 0) {
         position = sortedCombinedTokens.findIndex(
           (token) =>
@@ -370,7 +371,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       resetState,
       context,
       onAnalyticEvent,
-      debouncedTokenSearchValue
+      debouncedTokenSearchValue,
+      sortedCombinedTokens
     ]
   )
 
