@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.2
+
+### Patch Changes
+
+- e0f74be: Update analytic events for token selector
+- ca56384: Fix undefined token setting in swap widget
+
 ## 2.9.1
 
 ### Patch Changes
