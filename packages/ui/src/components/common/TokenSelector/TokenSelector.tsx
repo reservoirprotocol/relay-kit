@@ -318,6 +318,17 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     (selectedToken: Token) => {
       const isVerified = selectedToken.verified
       const direction = context === 'from' ? 'input' : 'output'
+      let position = undefined
+
+      // Track position for search results
+      if (debouncedTokenSearchValue.length > 0) {
+        position = sortedCombinedTokens.findIndex(
+          (token) =>
+            token.chainId === selectedToken.chainId &&
+            token.address?.toLowerCase() ===
+              selectedToken.address?.toLowerCase()
+        )
+      }
 
       if (!isVerified) {
         const relayUiKitData = getRelayUiKitData()
@@ -331,7 +342,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             token_symbol: selectedToken.symbol,
             chain_id: selectedToken.chainId,
             token_address: selectedToken.address,
-            search_term: debouncedTokenSearchValue
+            search_term: debouncedTokenSearchValue,
+            position
           })
           setToken(selectedToken)
         } else {
@@ -345,7 +357,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
           token_symbol: selectedToken.symbol,
           chain_id: selectedToken.chainId,
           token_address: selectedToken.address,
-          search_term: debouncedTokenSearchValue
+          search_term: debouncedTokenSearchValue,
+          position
         })
         setToken(selectedToken)
       }
@@ -358,7 +371,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       resetState,
       context,
       onAnalyticEvent,
-      debouncedTokenSearchValue
+      debouncedTokenSearchValue,
+      sortedCombinedTokens
     ]
   )
 
@@ -505,11 +519,21 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                         }
                       }}
                       value={tokenSearchInput}
-                      onChange={(e) =>
-                        setTokenSearchInput(
-                          (e.target as HTMLInputElement).value
-                        )
-                      }
+                      onChange={(e) => {
+                        const value = (e.target as HTMLInputElement).value
+
+                        setTokenSearchInput(value)
+
+                        if (isValidAddressUtil(chainFilter.vmType, value)) {
+                          onAnalyticEvent?.(
+                            EventNames.TOKEN_SELECTOR_CONTRACT_SEARCH,
+                            {
+                              search_term: value,
+                              chain_filter: chainFilter.id
+                            }
+                          )
+                        }
+                      }}
                     />
                   </AccessibleListItem>
                   {!isDesktop &&
