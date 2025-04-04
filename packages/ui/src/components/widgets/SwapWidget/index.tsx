@@ -715,15 +715,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       maxAmount > 0n &&
                                       fromToken
                                     ) {
-                                      console.log(
-                                        'Calculating EVM native max amount...'
-                                      )
-                                      // Await the calculation
                                       maxAmount =
                                         await calculateEvmNativeMaxAmount(
                                           publicClient,
-                                          maxAmount,
-                                          fromToken.decimals
+                                          maxAmount
                                         )
                                     } else if (
                                       isFromNative &&
@@ -731,9 +726,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       maxAmount > 0n &&
                                       fromToken
                                     ) {
-                                      console.log(
-                                        'Calculating SVM native max amount...'
-                                      )
                                       const percentageBuffer =
                                         (maxAmount * 1n) / 100n
                                       const fixedBuffer = BigInt(
