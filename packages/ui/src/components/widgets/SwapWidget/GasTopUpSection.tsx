@@ -11,29 +11,30 @@ import {
   CollapsibleContent,
   CollapsibleRoot
 } from '../../primitives/Collapsible.js'
+import { formatDollar, formatBN } from '../../../utils/numbers.js'
 
 type Props = {
   toChain?: RelayChain
   gasTopUpEnabled: boolean
   onGasTopUpEnabled: (enabled: boolean) => void
+  gasTopUpRequired: boolean
+  gasTopUpAmount?: bigint
+  gasTopUpAmountUsd?: string
 }
 
 const GasTopUpSection: FC<Props> = ({
   toChain,
   gasTopUpEnabled,
-  onGasTopUpEnabled
+  onGasTopUpEnabled,
+  gasTopUpRequired,
+  gasTopUpAmount,
+  gasTopUpAmountUsd
 }) => {
-  const currency =
-    //@ts-ignore: replace when we update types
-    toChain?.tokenSupport === 'All' || toChain.currency?.supportsBridging
-      ? toChain?.currency
-      : toChain?.erc20Currencies?.find((currency) => currency.supportsBridging)
+  const currency = toChain?.currency
 
-  if (!currency) {
+  if (!currency || !gasTopUpRequired) {
     return null
   }
-
-  //logic to check if a gas top up is necessary
 
   return (
     <Flex
@@ -60,9 +61,15 @@ const GasTopUpSection: FC<Props> = ({
         <Flex align="center" css={{ gap: '1' }}>
           {gasTopUpEnabled ? (
             <>
-              <Text style="subtitle2">$1</Text>
+              <Text style="subtitle2">
+                {gasTopUpAmountUsd ? formatDollar(+gasTopUpAmountUsd) : '-'}
+              </Text>
               <Text style="subtitle2" color="subtle">
-                (0.001 ETH)
+                (
+                {gasTopUpAmount
+                  ? formatBN(gasTopUpAmount, 5, currency.decimals ?? 18)
+                  : '-'}{' '}
+                {currency.symbol})
               </Text>
             </>
           ) : null}

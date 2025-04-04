@@ -15,7 +15,8 @@ import {
   useDisconnected,
   usePreviousValueChange,
   useIsWalletCompatible,
-  useFallbackState
+  useFallbackState,
+  useGasTopUpRequired
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -46,7 +47,6 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
-import { alreadyAcceptedToken } from '../../utils/localStorage.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -144,6 +144,9 @@ export type ChildrenProps = {
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
+  gasTopUpRequired: boolean
+  gasTopUpAmount?: bigint
+  gasTopUpAmountUsd?: string
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -214,7 +217,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedControls: debouncedAmountInputControls
   } = useDebounceState<string>(
     !defaultTradeType || defaultTradeType === 'EXACT_INPUT'
-      ? defaultAmount ?? ''
+      ? (defaultAmount ?? '')
       : '',
     500
   )
@@ -224,7 +227,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? (defaultAmount ?? '') : '',
     500
   )
 
@@ -662,6 +665,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
 
+  const {
+    required: gasTopUpRequired,
+    amount: gasTopUpAmount,
+    amountUsd: gasTopUpAmountUsd
+  } = useGasTopUpRequired(toChain, toToken, address)
+
   const ctaCopy = useSwapButtonCta({
     fromToken,
     toToken,
@@ -876,6 +885,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toChainWalletVMSupported,
         isRecipientLinked,
         recipientWalletSupportsChain,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         invalidateBalanceQueries,
         invalidateQuoteQuery,
         setUseExternalLiquidity,

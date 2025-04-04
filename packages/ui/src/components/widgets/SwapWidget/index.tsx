@@ -219,6 +219,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -298,7 +301,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           (chain) => chain.id === toToken?.chainId
         )
 
-        const [gasTopUpEnabled, setGasTopUpEnabled] = useState(false)
+        const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
 
         useEffect(() => {
           if (
@@ -410,6 +413,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
+              setGasTopUpEnabled(true)
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
@@ -1058,6 +1062,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       toChain={toChain}
                       gasTopUpEnabled={gasTopUpEnabled}
                       onGasTopUpEnabled={setGasTopUpEnabled}
+                      gasTopUpRequired={gasTopUpRequired}
+                      gasTopUpAmount={gasTopUpAmount}
+                      gasTopUpAmountUsd={gasTopUpAmountUsd}
                     />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
