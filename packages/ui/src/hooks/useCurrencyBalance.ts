@@ -126,6 +126,7 @@ const useCurrencyBalance = ({
         value:
           currency &&
           duneBalances.balanceMap &&
+          duneBalances.balanceMap[`${chain.id}:${currency}`] &&
           duneBalances.balanceMap[`${chain.id}:${currency}`].amount
             ? BigInt(
                 duneBalances.balanceMap[`${chain.id}:${currency}`].amount ?? 0
