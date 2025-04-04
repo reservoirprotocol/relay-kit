@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.3
+
+### Patch Changes
+
+- f7a90ba: Fix useCurrencyBalnce hook bug
+
 ## 2.9.2
 
 ### Patch Changes
