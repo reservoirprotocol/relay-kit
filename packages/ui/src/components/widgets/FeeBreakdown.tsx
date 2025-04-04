@@ -271,13 +271,16 @@ const FeeBreakdown: FC<Props> = ({
           borderBottomRadius: isOpen ? '0' : 'widget-card-border-radius',
           backgroundColor: 'widget-background',
           border: 'widget-card-border',
+          borderBottom: isOpen ? 'none' : 'widget-card-border',
           overflow: 'hidden',
-          transition: 'border-radius 300ms'
+          transition: 'border-radius 300ms, border-bottom 0s',
+          transitionDelay: isOpen ? '0s, 0s' : '0s, 300ms'
         }}
         id={'fee-breakdown-section'}
       >
         <Flex
           justify="between"
+          align="center"
           css={{
             flexDirection: 'row',
             gap: '2',
@@ -319,7 +322,13 @@ const FeeBreakdown: FC<Props> = ({
               <>
                 <FontAwesomeIcon icon={faClock} width={16} />
                 <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
-                <Box css={{ color: 'gray6' }}>&#8226;</Box>
+                <Flex
+                  justify="center"
+                  align="center"
+                  css={{ color: 'gray6', height: 4 }}
+                >
+                  &#8226;
+                </Flex>
               </>
             ) : null}
             {!isOpen && (
@@ -345,7 +354,13 @@ const FeeBreakdown: FC<Props> = ({
           </Flex>
         </Flex>
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent
+        css={{
+          borderRadius: '0 0 12px 12px',
+          border: 'widget-card-border',
+          borderTop: 'none'
+        }}
+      >
         <Flex
           direction="column"
           css={{
@@ -353,8 +368,7 @@ const FeeBreakdown: FC<Props> = ({
             pb: '3',
             pt: '0',
             gap: '2',
-            backgroundColor: 'widget-background',
-            borderRadius: '0 0 12px 12px'
+            backgroundColor: 'widget-background'
           }}
         >
           {breakdown.map((item) => {

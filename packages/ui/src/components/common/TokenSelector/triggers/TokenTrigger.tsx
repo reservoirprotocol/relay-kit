@@ -8,29 +8,34 @@ import {
   ChainTokenIcon
 } from '../../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faCoins } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import useRelayClient from '../../../../hooks/useRelayClient.js'
 
 type TokenTriggerProps = {
   token?: Token
   locked?: boolean
   isSingleChainLocked?: boolean
+  address?: string
 }
 
 export const TokenTrigger: FC<TokenTriggerProps> = ({
   token,
   locked,
-  isSingleChainLocked
+  isSingleChainLocked,
+  address
 }) => {
-  const isValidTokenLogo = token?.logoURI && token.logoURI !== 'missing.png'
-
+  const relayClient = useRelayClient()
+  const chain = relayClient?.chains?.find(
+    (chain) => chain.id === token?.chainId
+  )
   return token ? (
     <Button
       color="white"
       corners="pill"
       disabled={locked}
       css={{
-        height: 36,
-        minHeight: 36,
+        height: 50,
+        minHeight: 50,
         width: 'max-content',
         flexShrink: 0,
         overflow: 'hidden',
@@ -47,70 +52,54 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
       }}
     >
       <Flex align="center" css={{ gap: '2' }}>
-        {isSingleChainLocked ? (
-          <ChainTokenIcon
-            chainId={token.chainId}
-            tokenlogoURI={token.logoURI}
-            css={{ width: 24, height: 24 }}
-          />
-        ) : isValidTokenLogo ? (
-          <img
-            alt={token.name}
-            src={token.logoURI}
-            width={20}
-            height={20}
-            style={{
-              borderRadius: 9999
-            }}
-          />
-        ) : (
-          <Box
-            css={{
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              backgroundColor: 'primary4',
-              color: 'primary8',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
+        <ChainTokenIcon
+          chainId={token.chainId}
+          tokenlogoURI={token.logoURI}
+          css={{ width: 32, height: 32 }}
+        />
+        <Flex
+          direction="column"
+          align="start"
+          css={{ gap: '2px', maxWidth: 100, minWidth: 60 }}
+        >
+          <Text style="h6" ellipsify css={{ maxWidth: '100%' }}>
+            {token.symbol}
+          </Text>
+          <Text
+            style="subtitle3"
+            ellipsify
+            color="subtle"
+            css={{ lineHeight: '100%', maxWidth: '100%' }}
           >
-            <FontAwesomeIcon icon={faCoins} width={12} height={12} />
-          </Box>
-        )}
-        <Text style="subtitle1" ellipsify css={{ maxWidth: 100 }}>
-          {token.symbol}
-        </Text>
+            {chain?.displayName}
+          </Text>
+        </Flex>
       </Flex>
       {locked ? null : (
         <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-          <FontAwesomeIcon icon={faChevronDown} width={14} />
+          <FontAwesomeIcon icon={faChevronRight} width={14} />
         </Box>
       )}
     </Button>
   ) : (
     <Button
-      color="white"
+      color={address ? 'primary' : 'secondary'}
       corners="pill"
       css={{
-        height: 36,
-        minHeight: 36,
+        height: 50,
+        minHeight: 50,
         width: 'max-content',
         flexShrink: 0,
         overflow: 'hidden',
         px: '3',
         py: '2',
-        backgroundColor: 'gray2',
-        border: 'none',
-        _hover: {
-          backgroundColor: 'gray3'
-        }
+        fontWeight: 700,
+        fontSize: '16px'
       }}
     >
       Select Token
-      <Box css={{ color: 'gray9', width: 14 }}>
-        <FontAwesomeIcon icon={faChevronDown} width={14} />
+      <Box css={{ width: 14 }}>
+        <FontAwesomeIcon icon={faChevronRight} width={14} />
       </Box>
     </Button>
   )

@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { Dispatch, FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
 import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
@@ -19,7 +19,6 @@ import { MultiWalletDropdown } from '../../../common/MultiWalletDropdown.js'
 import { CustomAddressModal } from '../../../common/CustomAddressModal.js'
 import { useAccount } from 'wagmi'
 import { OnrampModal } from '../modals/OnrampModal.js'
-import FiatCurrencyModal from './FiatCurrencyModal.js'
 import { formatBN } from '../../../../utils/numbers.js'
 import { findSupportedWallet } from '../../../../utils/address.js'
 import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
@@ -30,7 +29,8 @@ type BaseOnrampWidgetProps = {
   moonPayApiKey: string
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'
-  defaultToken?: Token
+  token?: Token
+  setToken?: (token: Token) => void
   disablePasteWalletAddressOption?: boolean
   onTokenChange?: (token?: Token) => void
   onSuccess?: (data: Execute, moonpayRequestId: string) => void
@@ -70,7 +70,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   supportedWalletVMs,
   moonPayThemeId,
   moonPayThemeMode,
-  defaultToken,
+  token,
+  setToken,
   disablePasteWalletAddressOption,
   onTokenChange,
   onConnectWallet,
@@ -92,7 +93,8 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
       moonPayApiKey={moonPayApiKey}
-      defaultToken={defaultToken}
+      token={token}
+      setToken={setToken}
     >
       {({
         displayCurrency,
@@ -394,7 +396,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   </Flex>
                 </button>
                 <TokenSelector
-                  type={'token'}
                   address={recipient}
                   isValidAddress={isValidRecipient}
                   token={token}
@@ -403,15 +404,10 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   supportedWalletVMs={[]}
                   // restrictedToken={toToken}
                   setToken={(token) => {
-                    onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                      direction: 'input',
-                      token_symbol: token.symbol
-                    })
                     setToken(token)
                     onTokenChange?.(token)
                   }}
                   context="to"
-                  size={'desktop'}
                   trigger={
                     <div
                       style={{
@@ -590,7 +586,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                         color:
                           isValidRecipient && !isRecipientLinked
                             ? 'amber11'
-                            : 'secondary-button-color'
+                            : 'anchor-color'
                       }}
                     >
                       {!isValidRecipient ? `Enter Address` : toDisplayName}
