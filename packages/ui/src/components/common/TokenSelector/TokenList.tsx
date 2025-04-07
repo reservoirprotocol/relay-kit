@@ -113,16 +113,17 @@ export const TokenList: FC<TokenListProps> = ({
                   align="start"
                   css={{ gap: '2px', maxWidth: '100%', minWidth: 0 }}
                 >
-                  <Text
-                    style="h6"
-                    ellipsify
-                    css={{
-                      display: 'flex',
-                      gap: '1',
-                      alignItems: 'center'
-                    }}
-                  >
-                    {token.symbol}
+                  <Flex align="center" css={{ gap: '1', maxWidth: '100%' }}>
+                    <Text
+                      style="h6"
+                      ellipsify
+                      css={{
+                        gap: '1',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {token.symbol}
+                    </Text>
                     {token.isGasCurrency && chainFilterId && (
                       <Text
                         style="subtitle3"
@@ -142,7 +143,7 @@ export const TokenList: FC<TokenListProps> = ({
                         Gas Token
                       </Text>
                     )}
-                  </Text>
+                  </Flex>
                   <Flex align="center" css={{ gap: '1', maxWidth: '100%' }}>
                     <Text
                       style="subtitle3"
