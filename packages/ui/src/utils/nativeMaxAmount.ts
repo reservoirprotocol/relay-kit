@@ -47,7 +47,7 @@ export const calculateEvmNativeMaxAmount = async (
       return 0n
     } else {
       const estimatedGasCost = gasPriceToUse * gasLimit
-      const buffer = estimatedGasCost * 2n // 100% buffer
+      const buffer = estimatedGasCost * 2n // 200% buffer
 
       if (balance > buffer) {
         maxAmount = balance - buffer
