@@ -120,7 +120,8 @@ export const themeOverrides: ThemeOverridesMap = {
   },
   dropdown: {
     background: '--relay-colors-dropdown-background',
-    borderRadius: '--relay-radii-dropdown-border-radius'
+    borderRadius: '--relay-radii-dropdown-border-radius',
+    border: '--relay-borders-dropdown-border'
   },
   widget: {
     background: '--relay-colors-widget-background',
