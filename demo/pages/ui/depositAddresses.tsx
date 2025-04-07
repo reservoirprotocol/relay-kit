@@ -31,8 +31,8 @@ const DepositAddressesPage: NextPage = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '100%',
           paddingTop: 50,
+          paddingInline: '10px',
           flexDirection: 'column',
           gap: 20
         }}
