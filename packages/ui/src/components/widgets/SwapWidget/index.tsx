@@ -1,14 +1,16 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
+import { useContext, useEffect, useState, useRef, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
+import { usePublicClient } from 'wagmi'
 import type { LinkedWallet, Token } from '../../../types/index.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import { calculateEvmNativeMaxAmount } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -33,7 +35,11 @@ import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
-import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import {
+  alreadyAcceptedToken,
+  getCachedEvmGasBuffer,
+  setCachedEvmGasBuffer
+} from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -117,6 +123,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [isMaxAmountLoading, setIsMaxAmountLoading] = useState(false)
+  const hoverFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -296,6 +304,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const toChain = relayClient?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
+
+        // Get public client for the fromChain to estimate gas
+        const publicClient = usePublicClient({ chainId: fromChain?.id })
 
         useEffect(() => {
           if (
@@ -690,27 +701,85 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                 }}
                                 color="white"
-                                onClick={() => {
-                                  const percentageBuffer =
-                                    (fromBalance * 1n) / 100n // 1% of the balance
-                                  const fixedBuffer = BigInt(
-                                    0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                  ) // Fixed buffer of 0.02 tokens
-                                  const solanaBuffer =
-                                    percentageBuffer > fixedBuffer
-                                      ? percentageBuffer
-                                      : fixedBuffer
-                                  handleMaxAmountClicked(
-                                    isFromNative
-                                      ? fromChain?.vmType === 'svm'
-                                        ? fromBalance - solanaBuffer
-                                        : fromBalance - percentageBuffer
-                                      : fromBalance,
-                                    'max'
+                                onMouseEnter={async () => {
+                                  if (
+                                    !fromBalance ||
+                                    !fromToken ||
+                                    !publicClient ||
+                                    !fromChain ||
+                                    !isFromNative
                                   )
+                                    return
+                                  // If there's a cached buffer, do nothing
+                                  if (getCachedEvmGasBuffer(fromChain.id))
+                                    return
+                                  // If a hover fetch is already in-flight, do nothing
+                                  if (hoverFetchPromiseRef.current) return
+                                  hoverFetchPromiseRef.current = (async () => {
+                                    try {
+                                      const buffer =
+                                        await calculateEvmNativeMaxAmount(
+                                          publicClient,
+                                          fromBalance
+                                        )
+                                      setCachedEvmGasBuffer(
+                                        fromChain.id,
+                                        buffer,
+                                        5
+                                      )
+                                      return buffer
+                                    } catch (error) {
+                                      return 0n
+                                    } finally {
+                                      hoverFetchPromiseRef.current = null
+                                    }
+                                  })()
+                                }}
+                                onClick={async () => {
+                                  if (
+                                    !fromBalance ||
+                                    !fromToken ||
+                                    !fromChain ||
+                                    !publicClient
+                                  )
+                                    return
+                                  let finalMaxAmount: bigint
+                                  const cachedBufferStr = getCachedEvmGasBuffer(
+                                    fromChain.id
+                                  )
+                                  if (cachedBufferStr) {
+                                    finalMaxAmount = BigInt(cachedBufferStr)
+                                  } else if (hoverFetchPromiseRef.current) {
+                                    setIsMaxAmountLoading(true)
+                                    try {
+                                      finalMaxAmount =
+                                        await hoverFetchPromiseRef.current
+                                    } catch (error) {
+                                      finalMaxAmount = 0n
+                                    }
+                                    setIsMaxAmountLoading(false)
+                                  } else {
+                                    setIsMaxAmountLoading(true)
+                                    try {
+                                      finalMaxAmount =
+                                        await calculateEvmNativeMaxAmount(
+                                          publicClient,
+                                          fromBalance
+                                        )
+                                      setCachedEvmGasBuffer(
+                                        fromChain.id,
+                                        finalMaxAmount,
+                                        5
+                                      )
+                                    } catch (error) {
+                                      finalMaxAmount = 0n
+                                    }
+                                    setIsMaxAmountLoading(false)
+                                  }
+                                  handleMaxAmountClicked(finalMaxAmount, 'max')
                                 }}
                               >
-                                MAX
+                                {isMaxAmountLoading ? 'Loading...' : 'MAX'}
                               </Button>
                             </Flex>
                           ) : null}
@@ -1127,7 +1196,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         onClick={() => {
                           if (fromChainWalletVMSupported) {
-                            // If either address is not valid, open the link wallet modal
                             if (!isValidToAddress || !isValidFromAddress) {
                               if (
                                 multiWalletSupportEnabled &&
