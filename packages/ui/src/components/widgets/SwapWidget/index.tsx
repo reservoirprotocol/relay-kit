@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type FC } from 'react'
+import { useContext, useEffect, useState, useRef, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -35,7 +35,11 @@ import { findBridgableToken } from '../../../utils/tokens.js'
 import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
-import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import {
+  alreadyAcceptedToken,
+  getCachedEvmGasBuffer,
+  setCachedEvmGasBuffer
+} from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -119,6 +123,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [isMaxAmountLoading, setIsMaxAmountLoading] = useState(false)
+  const hoverFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -479,8 +485,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -540,13 +546,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -683,83 +689,85 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                 }}
                                 color="white"
-                                onClick={async () => {
-                                  if (!fromBalance || !fromToken) return // Ensure balance and token exist
-
-                                  // 1. Immediately update input with full balance for visual feedback
-                                  const fullAmountFormatted = formatUnits(
-                                    fromBalance,
-                                    fromToken.decimals
+                                onMouseEnter={async () => {
+                                  if (
+                                    !fromBalance ||
+                                    !fromToken ||
+                                    !publicClient ||
+                                    !fromChain ||
+                                    !isFromNative
                                   )
-                                  setAmountInputValue(fullAmountFormatted)
-                                  setTradeType('EXACT_INPUT') // Ensure correct trade type
-                                  debouncedAmountOutputControls.cancel() // Cancel any pending output updates
-                                  debouncedAmountInputControls.cancel() // Cancel pending input quote fetch
-                                  // DO NOT flush input controls here - prevents initial quote fetch
-
-                                  onAnalyticEvent?.(
-                                    EventNames.MAX_AMOUNT_CLICKED,
-                                    {
-                                      percent: 'max (initial)'
-                                    }
-                                  )
-
-                                  // 2. Start background calculation
-                                  let maxAmount = fromBalance
-
-                                  try {
-                                    if (
-                                      isFromNative &&
-                                      fromChain?.vmType === 'evm' &&
-                                      publicClient &&
-                                      maxAmount > 0n &&
-                                      fromToken
-                                    ) {
-                                      maxAmount =
+                                    return
+                                  // If there's a cached buffer, do nothing
+                                  if (getCachedEvmGasBuffer(fromChain.id))
+                                    return
+                                  // If a hover fetch is already in-flight, do nothing
+                                  if (hoverFetchPromiseRef.current) return
+                                  hoverFetchPromiseRef.current = (async () => {
+                                    try {
+                                      const buffer =
                                         await calculateEvmNativeMaxAmount(
                                           publicClient,
-                                          maxAmount
+                                          fromBalance
                                         )
-                                    } else if (
-                                      isFromNative &&
-                                      fromChain?.vmType === 'svm' &&
-                                      maxAmount > 0n &&
-                                      fromToken
-                                    ) {
-                                      const percentageBuffer =
-                                        (maxAmount * 1n) / 100n
-                                      const fixedBuffer = BigInt(
-                                        0.02 * 10 ** (fromToken?.decimals ?? 18)
+                                      setCachedEvmGasBuffer(
+                                        fromChain.id,
+                                        buffer,
+                                        5
                                       )
-                                      const solanaBuffer =
-                                        percentageBuffer > fixedBuffer
-                                          ? percentageBuffer
-                                          : fixedBuffer
-                                      if (maxAmount > solanaBuffer) {
-                                        maxAmount = maxAmount - solanaBuffer
-                                      } else {
-                                        maxAmount = 0n
-                                      }
-                                    } else if (maxAmount <= 0n) {
-                                      // Ensure maxAmount is 0 if balance was 0 or negative
-                                      maxAmount = 0n
+                                      return buffer
+                                    } catch (error) {
+                                      return 0n
+                                    } finally {
+                                      hoverFetchPromiseRef.current = null
                                     }
-                                    // For non-native or non-SVM/EVM native, maxAmount remains fromBalance
-
-                                    // 3. Calculation complete, NOW call handler to update state & trigger quote fetch
-                                    handleMaxAmountClicked(maxAmount, 'max')
-                                  } catch (error) {
-                                    console.error(
-                                      'Error calculating max amount:',
-                                      error
-                                    )
-
-                                    // Call handler with 0n to indicate failure and clear input
-                                    handleMaxAmountClicked(0n, 'max (error)')
+                                  })()
+                                }}
+                                onClick={async () => {
+                                  if (
+                                    !fromBalance ||
+                                    !fromToken ||
+                                    !fromChain ||
+                                    !publicClient
+                                  )
+                                    return
+                                  let finalMaxAmount: bigint
+                                  const cachedBufferStr = getCachedEvmGasBuffer(
+                                    fromChain.id
+                                  )
+                                  if (cachedBufferStr) {
+                                    finalMaxAmount = BigInt(cachedBufferStr)
+                                  } else if (hoverFetchPromiseRef.current) {
+                                    setIsMaxAmountLoading(true)
+                                    try {
+                                      finalMaxAmount =
+                                        await hoverFetchPromiseRef.current
+                                    } catch (error) {
+                                      finalMaxAmount = 0n
+                                    }
+                                    setIsMaxAmountLoading(false)
+                                  } else {
+                                    setIsMaxAmountLoading(true)
+                                    try {
+                                      finalMaxAmount =
+                                        await calculateEvmNativeMaxAmount(
+                                          publicClient,
+                                          fromBalance
+                                        )
+                                      setCachedEvmGasBuffer(
+                                        fromChain.id,
+                                        finalMaxAmount,
+                                        5
+                                      )
+                                    } catch (error) {
+                                      finalMaxAmount = 0n
+                                    }
+                                    setIsMaxAmountLoading(false)
                                   }
+                                  handleMaxAmountClicked(finalMaxAmount, 'max')
                                 }}
                               >
-                                MAX
+                                {isMaxAmountLoading ? 'Loading...' : 'MAX'}
                               </Button>
                             </Flex>
                           ) : null}
@@ -935,8 +943,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -1011,13 +1019,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
