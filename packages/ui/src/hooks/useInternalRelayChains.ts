@@ -1,5 +1,7 @@
+import { useContext } from 'react'
 import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from './index.js'
+import { ProviderOptionsContext } from '../providers/RelayKitProvider.js'
 
 const DEFAULT_CACHE_OPTIONS = {
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -10,10 +12,13 @@ const DEFAULT_CACHE_OPTIONS = {
 
 export const useInternalRelayChains = () => {
   const relayClient = useRelayClient()
+  const providerOptions = useContext(ProviderOptionsContext)
 
   return useRelayChains(
     relayClient?.baseApiUrl,
-    undefined,
+    {
+      includeChains: providerOptions.privateChainIds?.join(',')
+    },
     DEFAULT_CACHE_OPTIONS
   )
 }
