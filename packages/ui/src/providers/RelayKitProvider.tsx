@@ -40,6 +40,10 @@ type RelayKitProviderOptions = {
   vmConnectorKeyOverrides?: {
     [key in number | 'evm' | 'svm' | 'bvm']?: string[]
   }
+  /**
+   * An array of private chain ids to be used when quering the chains api within the relay kit.
+   */
+  privateChainIds?: string[]
 }
 
 export interface RelayKitProviderProps {
@@ -165,7 +169,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       appFees: options.appFees,
       duneConfig: options.duneConfig,
       disablePoweredByReservoir: options.disablePoweredByReservoir,
-      vmConnectorKeyOverrides: options.vmConnectorKeyOverrides
+      vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
+      privateChainIds: options.privateChainIds
     }),
     [options]
   )

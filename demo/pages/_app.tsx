@@ -120,6 +120,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             apiBaseUrl: 'https://api.dune.com'
           },
           chains,
+          privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
           appName: 'Relay Demo',
           useGasFeeEstimations: true
           // appFees: [
