@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.4
+
+### Patch Changes
+
+- 9eef113: Fix token symbol overflow within token selector
+- e5d2bb9: Add privateChainIds to RelayKitProvider options
+- be993e3: Add dropdown-border theme element
+
 ## 2.9.3
 
 ### Patch Changes
