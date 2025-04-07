@@ -45,6 +45,7 @@ export interface RelayKitTheme {
   dropdown?: {
     background?: string
     borderRadius?: string
+    border?: string
   }
   widget?: {
     background?: string
