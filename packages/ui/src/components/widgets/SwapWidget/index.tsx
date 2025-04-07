@@ -10,7 +10,7 @@ import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
-import { calculateEvmNativeMaxAmount } from '../../../utils/nativeMaxAmount.js'
+import { calculateEvmNativeGasBuffer } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -37,8 +37,8 @@ import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import {
   alreadyAcceptedToken,
-  getCachedEvmGasBuffer,
-  setCachedEvmGasBuffer
+  getCachedEvmGasBufferAmount,
+  setCachedEvmGasBufferAmount
 } from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
@@ -710,26 +710,31 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     !isFromNative
                                   )
                                     return
-                                  // If there's a cached buffer, do nothing
-                                  if (getCachedEvmGasBuffer(fromChain.id))
+                                  // If there's a cached buffer, do nothing on hover
+                                  if (getCachedEvmGasBufferAmount(fromChain.id))
                                     return
                                   // If a hover fetch is already in-flight, do nothing
                                   if (hoverFetchPromiseRef.current) return
+                                  // Start calculating the buffer in the background
                                   hoverFetchPromiseRef.current = (async () => {
                                     try {
-                                      const buffer =
-                                        await calculateEvmNativeMaxAmount(
+                                      const bufferAmount =
+                                        await calculateEvmNativeGasBuffer(
                                           publicClient,
                                           fromBalance
                                         )
-                                      setCachedEvmGasBuffer(
+                                      setCachedEvmGasBufferAmount(
                                         fromChain.id,
-                                        buffer,
+                                        bufferAmount,
                                         5
                                       )
-                                      return buffer
+                                      return bufferAmount
                                     } catch (error) {
-                                      return 0n
+                                      console.error(
+                                        'Failed to pre-fetch EVM gas buffer:',
+                                        error
+                                      )
+                                      return 0n // Return 0 buffer on error
                                     } finally {
                                       hoverFetchPromiseRef.current = null
                                     }
@@ -737,45 +742,64 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 }}
                                 onClick={async () => {
                                   if (
-                                    !fromBalance ||
+                                    !fromBalance || // Need current balance
                                     !fromToken ||
                                     !fromChain ||
                                     !publicClient
                                   )
                                     return
-                                  let finalMaxAmount: bigint
-                                  const cachedBufferStr = getCachedEvmGasBuffer(
-                                    fromChain.id
-                                  )
+
+                                  let gasBufferAmount: bigint
+                                  const cachedBufferStr =
+                                    getCachedEvmGasBufferAmount(fromChain.id)
+
                                   if (cachedBufferStr) {
-                                    finalMaxAmount = BigInt(cachedBufferStr)
+                                    gasBufferAmount = BigInt(cachedBufferStr)
                                   } else if (hoverFetchPromiseRef.current) {
+                                    // If hover calculation is in progress, wait for it
                                     setIsMaxAmountLoading(true)
                                     try {
-                                      finalMaxAmount =
+                                      gasBufferAmount =
                                         await hoverFetchPromiseRef.current
                                     } catch (error) {
-                                      finalMaxAmount = 0n
+                                      console.error(
+                                        'Failed to await pre-fetched EVM gas buffer:',
+                                        error
+                                      )
+                                      gasBufferAmount = 0n // Assume 0 buffer on error
                                     }
                                     setIsMaxAmountLoading(false)
                                   } else {
+                                    // If not cached and not pre-fetching, calculate now
                                     setIsMaxAmountLoading(true)
                                     try {
-                                      finalMaxAmount =
-                                        await calculateEvmNativeMaxAmount(
+                                      gasBufferAmount =
+                                        await calculateEvmNativeGasBuffer(
                                           publicClient,
-                                          fromBalance
+                                          fromBalance // Use current balance for calculation
                                         )
-                                      setCachedEvmGasBuffer(
+                                      // Cache the newly calculated buffer
+                                      setCachedEvmGasBufferAmount(
                                         fromChain.id,
-                                        finalMaxAmount,
+                                        gasBufferAmount,
                                         5
                                       )
                                     } catch (error) {
-                                      finalMaxAmount = 0n
+                                      console.error(
+                                        'Failed to calculate EVM gas buffer on click:',
+                                        error
+                                      )
+                                      gasBufferAmount = 0n // Assume 0 buffer on error
                                     }
                                     setIsMaxAmountLoading(false)
                                   }
+
+                                  // Calculate the final max amount using the current balance and the determined buffer
+                                  const finalMaxAmount =
+                                    fromBalance > gasBufferAmount
+                                      ? fromBalance - gasBufferAmount
+                                      : 0n
+
                                   handleMaxAmountClicked(finalMaxAmount, 'max')
                                 }}
                               >

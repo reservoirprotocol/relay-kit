@@ -1,34 +1,30 @@
 import type { PublicClient } from 'viem'
 
 /**
- * Calculates the maximum spendable amount for a native EVM token
- * by subtracting a buffer based on estimated gas costs.
+ * Calculates the gas buffer needed for a native EVM token transfer.
+ * This buffer is estimated based on gas price and a standard limit,
+ * then multiplied by a safety factor.
  *
  * @param publicClient - A VIEM PublicClient connected to the EVM chain.
- * @param balance - The total native balance of the user.
+ * @param balance - The total native balance of the user (used for early exit).
  * @param gasLimit - Optional: The gas limit to use for estimation (defaults to 210000n).
- * @returns The calculated maximum spendable amount as a bigint.
+ * @returns The calculated gas buffer amount as a bigint, or 0n if estimation fails or balance is zero.
  */
-export const calculateEvmNativeMaxAmount = async (
+export const calculateEvmNativeGasBuffer = async (
   publicClient: PublicClient,
   balance: bigint,
   gasLimit: bigint = 210000n // Default gas limit
 ): Promise<bigint> => {
-  let maxAmount = 0n
-
   if (!balance || balance <= 0n) {
     return 0n // Return 0 if balance is zero or negative
   }
 
-  /**
-   * Estimate the gas price using EIP-1559 if available,
-   * otherwise use the legacy gas price.
-   */
   try {
     let feeData
     try {
       feeData = await publicClient.estimateFeesPerGas()
     } catch (eip1559Error) {
+      // Fallback to legacy gas price estimation
       try {
         const gasPrice = await publicClient.getGasPrice()
         feeData = {
@@ -36,6 +32,8 @@ export const calculateEvmNativeMaxAmount = async (
           gasPrice: gasPrice
         }
       } catch (legacyError) {
+        // If both estimations fail, return 0 buffer
+        console.error('Failed to estimate gas price:', legacyError)
         return 0n
       }
     }
@@ -43,20 +41,18 @@ export const calculateEvmNativeMaxAmount = async (
     // Prefer EIP-1559 maxFeePerGas if available, otherwise use gasPrice
     const gasPriceToUse = feeData.maxFeePerGas ?? feeData.gasPrice
 
-    if (!gasPriceToUse) {
-      return 0n
-    } else {
-      const estimatedGasCost = gasPriceToUse * gasLimit
-      const buffer = estimatedGasCost * 2n // 200% buffer
-
-      if (balance > buffer) {
-        maxAmount = balance - buffer
-      } else {
-        maxAmount = 0n // Cannot cover buffer, already sets maxAmount to 0n
-      }
+    if (!gasPriceToUse || gasPriceToUse <= 0n) {
+      console.error('Invalid gas price data received:', feeData)
+      return 0n // Return 0 if gas price is invalid
     }
-    return maxAmount
+
+    const estimatedGasCost = gasPriceToUse * gasLimit
+    const buffer = estimatedGasCost * 2n // 200% buffer, representing the amount to reserve
+
+    // return the calculated buffer
+    return buffer
   } catch (error) {
-    return 0n
+    console.error('Error calculating EVM native gas buffer:', error)
+    return 0n // Return 0 buffer on any unexpected error
   }
 }
