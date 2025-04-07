@@ -41,7 +41,7 @@ type RelayKitProviderOptions = {
     [key in number | 'evm' | 'svm' | 'bvm']?: string[]
   }
   /**
-   * An array of private chain ids to be used when quering the chains api within relay kit.
+   * An array of private chain ids to be used when querying the chains api within relay kit.
    */
   privateChainIds?: string[]
 }
