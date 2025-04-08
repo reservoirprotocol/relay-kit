@@ -1,4 +1,4 @@
-import { type FC } from 'react'
+import { useMemo, type FC } from 'react'
 import {
   Anchor,
   Box,
@@ -24,6 +24,10 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
+import {
+  faArrowRight,
+  faArrowUpRightFromSquare
+} from '@fortawesome/free-solid-svg-icons'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -106,6 +110,32 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     timeEstimateMs >
       (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
         (relayClient?.pollingInterval ?? 5000)
+
+  const txHashesByChain = useMemo(() => {
+    const txsChainName =
+      relayClient?.chains?.reduce(
+        (names, chain) => {
+          names[chain.id] = chain.displayName
+          return names
+        },
+        {} as Record<number, string>
+      ) ?? {}
+    return Object.values(
+      allTxHashes.reduce(
+        (byChains, txHash) => {
+          if (!byChains[txHash.chainId]) {
+            byChains[txHash.chainId] = []
+          }
+          byChains[txHash.chainId].push({
+            ...txHash,
+            name: txsChainName[txHash.chainId]
+          })
+          return byChains
+        },
+        {} as Record<number, Array<NonNullable<TxHashes[0]> & { name: string }>>
+      )
+    )
+  }, [allTxHashes, relayClient?.chains])
 
   return isDelayedTx ? (
     <>
@@ -198,20 +228,60 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       </Flex>
 
       {!delayedTxUrl ? (
-        <Flex justify="center">
-          {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
-            const txUrl = getTxBlockExplorerUrl(
-              chainId,
-              relayClient?.chains,
-              txHash
+        <Flex
+          direction="column"
+          css={{
+            p: '3',
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            gap: '3',
+            width: '100%',
+            borderRadius: 12
+          }}
+        >
+          <Flex justify="between">
+            <Text style="subtitle2" color="subtle">
+              Additional Gas
+            </Text>
+            <Text style="subtitle2">0.001 ETH</Text>
+          </Flex>
+          {txHashesByChain.map((txHashes) => {
+            const chainName = txHashes[0].name
+            return (
+              <Flex justify="between">
+                <Text style="subtitle2" color="subtle">
+                  View {chainName} Tx
+                </Text>
+                <Flex direction="column">
+                  {txHashes.map(({ txHash, chainId, isBatchTx }) => {
+                    const txUrl = getTxBlockExplorerUrl(
+                      chainId,
+                      relayClient?.chains,
+                      txHash
+                    )
+
+                    return txUrl && !isBatchTx ? (
+                      <Anchor
+                        key={txHash}
+                        href={txUrl}
+                        target="_blank"
+                        css={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2'
+                        }}
+                      >
+                        {truncateAddress(txHash)}
+                        <FontAwesomeIcon
+                          icon={faArrowUpRightFromSquare}
+                          width={16}
+                        />
+                      </Anchor>
+                    ) : null
+                  })}
+                </Flex>
+              </Flex>
             )
-            if (txUrl && !isBatchTx) {
-              return (
-                <Anchor key={txHash} href={txUrl} target="_blank">
-                  View Tx: {truncateAddress(txHash)}
-                </Anchor>
-              )
-            }
           })}
         </Flex>
       ) : null}
@@ -357,21 +427,62 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             <Text style="subtitle1">?</Text>
           )}
         </Flex>
-        {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
-          const txUrl = getTxBlockExplorerUrl(
-            chainId,
-            relayClient?.chains,
-            txHash
-          )
-
-          if (txUrl && !isBatchTx) {
+        <Flex
+          direction="column"
+          css={{
+            p: '3',
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            gap: '3',
+            width: '100%',
+            borderRadius: 12
+          }}
+        >
+          <Flex justify="between">
+            <Text style="subtitle2" color="subtle">
+              Additional Gas
+            </Text>
+            <Text style="subtitle2">0.001 ETH</Text>
+          </Flex>
+          {txHashesByChain.map((txHashes) => {
+            const chainName = txHashes[0].name
             return (
-              <Anchor key={txHash} href={txUrl} target="_blank">
-                View Tx: {truncateAddress(txHash)}
-              </Anchor>
+              <Flex justify="between">
+                <Text style="subtitle2" color="subtle">
+                  View {chainName} Tx
+                </Text>
+                <Flex direction="column">
+                  {txHashes.map(({ txHash, chainId, isBatchTx }) => {
+                    const txUrl = getTxBlockExplorerUrl(
+                      chainId,
+                      relayClient?.chains,
+                      txHash
+                    )
+
+                    return txUrl && !isBatchTx ? (
+                      <Anchor
+                        key={txHash}
+                        href={txUrl}
+                        target="_blank"
+                        css={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2'
+                        }}
+                      >
+                        {truncateAddress(txHash)}
+                        <FontAwesomeIcon
+                          icon={faArrowUpRightFromSquare}
+                          width={16}
+                        />
+                      </Anchor>
+                    ) : null
+                  })}
+                </Flex>
+              </Flex>
             )
-          }
-        })}
+          })}
+        </Flex>
       </Flex>
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>

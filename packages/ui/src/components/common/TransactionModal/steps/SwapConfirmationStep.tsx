@@ -125,6 +125,23 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
         </Flex>
       </Flex>
       <Flex
+        direction="row"
+        justify="between"
+        css={{
+          backgroundColor: 'subtle-background-color',
+          p: '12px 16px',
+          borderRadius: 12,
+          gap: 2,
+          width: '100%',
+          alignItems: 'center'
+        }}
+      >
+        <Text style="subtitle2" color="subtle">
+          Additional Gas
+        </Text>
+        <Text style="subtitle2">0.001 ETH</Text>
+      </Flex>
+      <Flex
         direction="column"
         css={{
           '--borderColor': 'colors.gray3',
@@ -205,8 +222,8 @@ export const StepRow: FC<StepRowProps> = ({
             backgroundColor: isCompleted
               ? 'green3'
               : isActive
-              ? 'primary6'
-              : 'gray5',
+                ? 'primary6'
+                : 'gray5',
             color: isCompleted ? 'green11' : isActive ? 'primary6' : 'gray9',
             animation:
               isActive && !isCompleted ? 'pulse-shadow 1s infinite' : 'none',

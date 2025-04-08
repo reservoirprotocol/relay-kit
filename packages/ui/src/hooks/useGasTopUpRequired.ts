@@ -18,6 +18,7 @@ export default (
     address !== undefined &&
     chain !== undefined &&
     chain?.currency?.address !== undefined &&
+    chain?.currency?.supportsBridging &&
     isErc20Currency
 
   const { value: gasBalance } = useCurrencyBalance({

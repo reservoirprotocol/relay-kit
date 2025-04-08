@@ -31,8 +31,9 @@ const GasTopUpSection: FC<Props> = ({
   gasTopUpAmountUsd
 }) => {
   const currency = toChain?.currency
+  const gasTokenIsSupported = toChain?.currency?.supportsBridging
 
-  if (!currency || !gasTopUpRequired) {
+  if (!currency || !gasTopUpRequired || !gasTokenIsSupported) {
     return null
   }
 
@@ -44,7 +45,7 @@ const GasTopUpSection: FC<Props> = ({
         gap: '2',
         backgroundColor: 'widget-background',
         borderRadius: '12px',
-        mb: '1'
+        mb: '6px'
       }}
     >
       <Flex justify="between" align="center">
