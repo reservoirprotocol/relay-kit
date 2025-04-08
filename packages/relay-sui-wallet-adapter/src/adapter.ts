@@ -4,7 +4,7 @@ import {
   // getClient,
   // type TransactionStepItem
 } from '@reservoir0x/relay-sdk'
-// import { SuiClient } from '@mysten/sui/client'
+import { SuiClient } from '@mysten/sui/client'
 // import { type Transaction } from '@mysten/sui/transactions'
 
 export const adaptSuiWallet = (

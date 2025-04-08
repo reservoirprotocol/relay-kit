@@ -10,7 +10,9 @@ import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
+import { isSuiWallet } from '@dynamic-labs/sui'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -230,6 +232,13 @@ const SwapActionPage: NextPage = () => {
                   throw e
                 }
               }
+            )
+          }
+          // @TODO: temporary fix for sui until we have a isSuiWallet util
+          else if (fromChainId === 103665049) {
+            executionWallet = adaptSuiWallet(
+              primaryWallet?.address,
+              fromChainId
             )
           } else {
             throw 'Unable to configure wallet'
