@@ -112,8 +112,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? chainFilter?.vmType
         ? !supportedWalletVMs?.includes(chainFilter.vmType)
         : !chainFilter.id
-        ? false
-        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+          ? false
+          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
   const isReceivingDepositAddress = depositAddressOnly && context === 'to'
@@ -320,6 +320,9 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       const direction = context === 'from' ? 'input' : 'output'
       let position = undefined
 
+      console.log('selectedToken', selectedToken)
+      console.log('isVerified: ', isVerified)
+
       // Track position for search results
       if (debouncedTokenSearchValue.length > 0) {
         position = sortedCombinedTokens.findIndex(
@@ -331,6 +334,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       }
 
       if (!isVerified) {
+        console.log('inside if: ', isVerified)
         const relayUiKitData = getRelayUiKitData()
         const tokenKey = `${selectedToken.chainId}:${selectedToken.address}`
         const isAlreadyAccepted =
@@ -362,6 +366,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         })
         setToken(selectedToken)
       }
+
+      console.log('here')
 
       setOpen(false)
     },
@@ -462,11 +468,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               <AccessibleList
                 onSelect={(value) => {
                   if (value === 'input') return
-                  const [chainId, address] = value.split(':')
+                  const [chainId, ...addressParts] = value.split(':')
+                  const address = addressParts.join(':')
                   const allTokens = [
                     ...sortedUserTokens,
                     ...sortedCombinedTokens
                   ]
+
                   const selectedToken = allTokens.find(
                     (token) =>
                       token.chainId === Number(chainId) &&
