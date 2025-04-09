@@ -32,26 +32,13 @@ export const adaptSuiWallet = (
     handleSendTransactionStep: async (_chainId, stepItem) => {
       const txData = stepItem.data.data
 
-      // @TODO: confirm txData is a valid transaction
-
       const tx = Transaction.from(txData)
 
       const result = await signAndExecuteTransactionBlock(tx)
+
       console.log('result: ', result)
 
       return result.digest
-
-      // Execute the transaction
-      // const result = await client.signAndExecuteTransaction({
-      //   signer: client.,
-      //   transaction: tx,
-      //   options: {
-      //     showEffects: true,
-      //     showEvents: true
-      //   }
-      // })
-
-      return
     },
     handleConfirmTransactionStep: async (txHash) => {
       // @TODO: maybe use getTransactionBlock instead
