@@ -5,6 +5,109 @@
 
 
 export interface paths {
+  "/app-fees/{wallet}/balances": {
+    get: {
+      parameters: {
+        path: {
+          /** @description Wallet to get the app fees for */
+          wallet: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /** @description An array of app fee balances across multiple currencies */
+              balances?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                  minimumAmount?: string;
+                }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              /** @description Descriptive error message */
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/app-fees/{wallet}/claim": {
+    post: {
+      parameters: {
+        path: {
+          wallet: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @description Chain id of the currency to claim */
+            chainId: number;
+            /** @description Currency to claim */
+            currency: string;
+            /** @description The recipient of the claimed funds */
+            recipient: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /** @description An array of steps detailing what needs to be done to claim */
+              steps?: {
+                  /** @description Unique identifier tied to the step */
+                  id?: string;
+                  /** @description A call to action for the step */
+                  action?: string;
+                  /** @description A short description of the step and what it entails */
+                  description?: string;
+                  /** @description The kind of step, for claims this will be `signature` */
+                  kind?: string;
+                  /** @description For claims, we'll always have a single `signature` step */
+                  items?: {
+                      /** @description Can either be complete or incomplete */
+                      status?: string;
+                      data?: unknown;
+                    }[];
+                }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              /** @description Descriptive error message */
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/chains": {
     get: {
       parameters: {
@@ -118,6 +221,178 @@ export interface paths {
                   statusMessage?: string | null;
                   tags?: string[];
                 })[];
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/add": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            httpRpcUrl: string;
+            wsRpcUrl: string;
+            targetBalance: string;
+            capacityPerRequest: string;
+            partialCapacityPerRequestAmount: string;
+            feeBpsPrice?: string;
+            stack?: string;
+            httpRpcUrlPublic: string;
+            wsRpcUrlPublic: string;
+            explorerUrl: string;
+            explorerName: string;
+            displayName: string;
+            depositAddress?: string;
+            baseChainId: number;
+            rebalancePercentage?: string;
+            bufferPercentage?: string;
+            private?: boolean;
+            active?: boolean;
+            metadata?: Record<string, never>;
+            /** @enum {string} */
+            nativeCurrency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+            /** @enum {string} */
+            vmType: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/update": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            id: number;
+            name?: string;
+            httpRpcUrl?: string;
+            wsRpcUrl?: string;
+            targetBalance?: string;
+            capacityPerRequest?: string;
+            partialCapacityPerRequestAmount?: string;
+            feeBpsPrice?: string;
+            stack?: string;
+            httpRpcUrlPublic?: string;
+            wsRpcUrlPublic?: string;
+            explorerUrl?: string;
+            explorerName?: string;
+            displayName?: string;
+            depositAddress?: string;
+            baseChainId?: number;
+            rebalancePercentage?: string;
+            bufferPercentage?: string;
+            private?: boolean;
+            active?: boolean;
+            metadata?: Record<string, never>;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+              code?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/status": {
+    post: {
+      requestBody?: {
+        content: {
+          "application/json": {
+            chainId?: number;
+            enabled?: boolean;
+            partialDisable?: boolean;
+            all?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
             };
           };
         };
@@ -2286,10 +2561,13 @@ export interface paths {
                 data?: string;
               }[];
             referrer?: string;
+            referrerAddress?: string;
             /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
             refundTo?: string;
             /** @description Always refund on the origin chain in case of any issues */
             refundOnOrigin?: boolean;
+            /** @description If set, the destination fill will include a gas topup to the recipient (only supported for EVM chains if the requested currency is not the gas currency on the destination chain) */
+            topupGas?: boolean;
             /**
              * @description Enable this to route payments via a receiver contract. This contract will emit an event when receiving payments before forwarding to the solver. This is needed when depositing from a smart contract as the payment will be an internal transaction and detecting such a transaction requires obtaining the transaction traces.
              * @default true
@@ -2353,21 +2631,24 @@ export interface paths {
                *   }
                * ]
                */
-              steps?: {
-                  /** @description Unique identifier tied to the step */
-                  id?: string;
+              steps?: ({
+                  /**
+                   * @description Unique identifier tied to the step
+                   * @enum {string}
+                   */
+                  id: "deposit" | "approve" | "authorize" | "authorize1" | "authorize2" | "swap" | "send";
                   /** @description A call to action for the step */
-                  action?: string;
+                  action: string;
                   /** @description A short description of the step and what it entails */
-                  description?: string;
+                  description: string;
                   /** @description The kind of step, can either be a transaction or a signature. Transaction steps require submitting a transaction while signature steps require submitting a signature */
-                  kind?: string;
+                  kind: string;
                   /** @description A unique identifier for this step, tying all related transactions together */
                   requestId?: string;
                   /** @description The deposit address for the bridge request */
                   depositAddress?: string;
                   /** @description While uncommon it is possible for steps to contain multiple items of the same kind (transaction/signature) grouped together that can be executed simultaneously. */
-                  items?: {
+                  items: {
                       /** @description Can either be complete or incomplete, this can be locally controlled once the step item is completed (depending on the kind) and the check object (if returned) has been verified. Once all step items are complete, the bridge is complete */
                       status?: string;
                       data?: unknown;
@@ -2379,7 +2660,7 @@ export interface paths {
                         method?: string;
                       };
                     }[];
-                }[];
+                })[];
               fees?: {
                 /**
                  * @description Origin chain gas fee
@@ -2644,6 +2925,44 @@ export interface paths {
                  * }
                  */
                 currencyOut?: {
+                  currency?: {
+                    chainId?: number;
+                    address?: string;
+                    symbol?: string;
+                    name?: string;
+                    decimals?: number;
+                    metadata?: {
+                      logoURI?: string;
+                      verified?: boolean;
+                      isNative?: boolean;
+                    };
+                  };
+                  amount?: string;
+                  amountFormatted?: string;
+                  amountUsd?: string;
+                  minimumAmount?: string;
+                };
+                /**
+                 * @example {
+                 *   "currency": {
+                 *     "chainId": 8453,
+                 *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                 *     "symbol": "USDC",
+                 *     "name": "USD Coin",
+                 *     "decimals": 6,
+                 *     "metadata": {
+                 *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                 *       "verified": false,
+                 *       "isNative": false
+                 *     }
+                 *   },
+                 *   "amount": "30754920",
+                 *   "amountFormatted": "30.75492",
+                 *   "amountUsd": "30.901612",
+                 *   "minimumAmount": "30454920"
+                 * }
+                 */
+                currencyGasTopup?: {
                   currency?: {
                     chainId?: number;
                     address?: string;
@@ -3679,6 +3998,7 @@ export interface paths {
           endBlock?: number;
           /** @description Get all requests for a single chain in either direction. Setting originChainId and/or destinationChainId will override this parameter. */
           chainId?: string;
+          referrer?: string;
           sortBy?: "createdAt" | "updatedAt";
         };
       };
@@ -3929,6 +4249,44 @@ export interface paths {
                         amountUsd?: string;
                         minimumAmount?: string;
                       };
+                      /**
+                       * @example {
+                       *   "currency": {
+                       *     "chainId": 8453,
+                       *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                       *     "symbol": "USDC",
+                       *     "name": "USD Coin",
+                       *     "decimals": 6,
+                       *     "metadata": {
+                       *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
+                       *       "verified": false,
+                       *       "isNative": false
+                       *     }
+                       *   },
+                       *   "amount": "30754920",
+                       *   "amountFormatted": "30.75492",
+                       *   "amountUsd": "30.901612",
+                       *   "minimumAmount": "30454920"
+                       * }
+                       */
+                      currencyGasTopup?: {
+                        currency?: {
+                          chainId?: number;
+                          address?: string;
+                          symbol?: string;
+                          name?: string;
+                          decimals?: number;
+                          metadata?: {
+                            logoURI?: string;
+                            verified?: boolean;
+                            isNative?: boolean;
+                          };
+                        };
+                        amount?: string;
+                        amountFormatted?: string;
+                        amountUsd?: string;
+                        minimumAmount?: string;
+                      };
                       rate?: string;
                     };
                     price?: string;
@@ -3947,6 +4305,7 @@ export interface paths {
                         timestamp?: number;
                       }[];
                   };
+                  referrer?: string;
                   moonpayId?: string;
                   createdAt?: string;
                   updatedAt?: string;
@@ -4012,6 +4371,29 @@ export interface paths {
             requestId: string;
             chainId: string;
             tx: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/block/index": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: string;
+            startBlock: string;
+            endBlock: string;
           };
         };
       };
@@ -4256,7 +4638,10 @@ export interface paths {
             tokens?: string[];
             /** @description Filter verified currencies */
             verified?: boolean;
-            /** @description Limit the number of results */
+            /**
+             * @description Limit the number of results
+             * @default 20
+             */
             limit?: number;
             /** @description Include all chains for a currency when filtering by chainId and address */
             includeAllChains?: boolean;
@@ -4350,6 +4735,121 @@ export interface paths {
             "application/json": {
               /** @description Error message */
               error?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/add": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: number;
+            address: string;
+            symbol: string;
+            name: string;
+            decimals: number;
+            logoURI: string;
+            verified: boolean;
+            isNative: boolean;
+            groupID: string;
+            swappable?: boolean;
+            bridgeable?: boolean;
+            canonical?: boolean;
+            depositable?: boolean;
+            metadata?: Record<string, never>;
+            id?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/currencies/update": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            chainId: number;
+            address: string;
+            symbol?: string;
+            name?: string;
+            decimals?: number;
+            logoURI?: string;
+            verified?: boolean;
+            isNative?: boolean;
+            groupID?: string;
+            metadata?: Record<string, never>;
+            id?: string;
+            bridgeable?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          content: {
+            "application/json": {
+              message?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        500: {
+          content: {
+            "application/json": {
+              message?: string;
             };
           };
         };
