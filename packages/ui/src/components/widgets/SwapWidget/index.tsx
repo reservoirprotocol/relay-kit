@@ -219,6 +219,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
         gasTopUpRequired,
         gasTopUpAmount,
         gasTopUpAmountUsd,
@@ -300,8 +302,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const toChain = relayClient?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
-
-        const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
 
         useEffect(() => {
           if (

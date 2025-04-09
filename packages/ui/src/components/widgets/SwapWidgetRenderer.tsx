@@ -144,6 +144,8 @@ export type ChildrenProps = {
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
+  gasTopUpEnabled: boolean
+  setGasTopUpEnabled: Dispatch<React.SetStateAction<boolean>>
   gasTopUpRequired: boolean
   gasTopUpAmount?: bigint
   gasTopUpAmountUsd?: string
@@ -209,6 +211,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
+  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
 
   const {
     value: amountInputValue,
@@ -458,6 +461,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCurrentSlippageTolerance(slippageTolerance)
   }, [slippageTolerance])
 
+  const {
+    required: gasTopUpRequired,
+    amount: _gasTopUpAmount,
+    amountUsd: _gasTopUpAmountUsd
+  } = useGasTopUpRequired(toChain, toToken, address)
+
   const quoteParameters =
     fromToken && toToken
       ? {
@@ -482,7 +491,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
-          slippageTolerance: slippageTolerance
+          slippageTolerance: slippageTolerance,
+          topupGas: gasTopUpEnabled && gasTopUpRequired
         }
       : undefined
 
@@ -561,6 +571,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
+
+  // const gasTopUpAmount = quote?.details?.currencyGasTopUp?.amount ?? _gasTopUpAmount
+  // const gasTopUpAmountUsd = quote?.details?.currencyGasTopUp?.amountUsd ?? _gas
+
+  const gasTopUpAmount = _gasTopUpAmount
+  const gasTopUpAmountUsd = _gasTopUpAmountUsd
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -664,12 +680,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromToken?.address === toToken?.address &&
     fromToken?.chainId === toToken?.chainId &&
     address === recipient
-
-  const {
-    required: gasTopUpRequired,
-    amount: gasTopUpAmount,
-    amountUsd: gasTopUpAmountUsd
-  } = useGasTopUpRequired(toChain, toToken, address)
 
   const ctaCopy = useSwapButtonCta({
     fromToken,
@@ -885,6 +895,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toChainWalletVMSupported,
         isRecipientLinked,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
         gasTopUpRequired,
         gasTopUpAmount,
         gasTopUpAmountUsd,
