@@ -4,7 +4,8 @@ export const WalletChainRestricted: Record<string, number[]> = {
   magiceden: [1, 137, 8453, 33139, 8253038, 792703809],
   uniswap: [
     1, 130, 42161, 43114, 8453, 81457, 56, 42220, 10, 137, 480, 324, 7777777
-  ]
+  ],
+  abstract: [2741]
 }
 
 export const WalletChainIncompatible: Record<string, number[]> = {
