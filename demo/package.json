@@ -22,6 +22,8 @@
     "@dynamic-labs/solana": "4.9.4",
     "@dynamic-labs/utils": "4.9.4",
     "@dynamic-labs/wagmi-connector": "4.9.4",
+    "@dynamic-labs-connectors/abstract-global-wallet-evm": "4.1.2",
+    "@privy-io/cross-app-connect": "0.2.0",
     "@radix-ui/colors": "^0.1.8",
     "@reservoir0x/relay-bitcoin-wallet-adapter": "workspace:*",
     "@reservoir0x/relay-kit-hooks": "workspace:*",
