@@ -24,10 +24,7 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
-import {
-  faArrowRight,
-  faArrowUpRightFromSquare
-} from '@fortawesome/free-solid-svg-icons'
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -137,6 +134,15 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     )
   }, [allTxHashes, relayClient?.chains])
 
+  const gasTopUpAmountCurrency = details?.currencyGasTopup?.currency
+  const formattedGasTopUpAmount = details?.currencyGasTopup?.amount
+    ? formatBN(
+        BigInt(details?.currencyGasTopup?.amount),
+        5,
+        gasTopUpAmountCurrency?.decimals ?? 18
+      )
+    : undefined
+
   return isDelayedTx ? (
     <>
       <Flex direction="column" align="center" justify="between">
@@ -239,12 +245,16 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             borderRadius: 12
           }}
         >
-          <Flex justify="between">
-            <Text style="subtitle2" color="subtle">
-              Additional Gas
-            </Text>
-            <Text style="subtitle2">0.001 ETH</Text>
-          </Flex>
+          {formattedGasTopUpAmount ? (
+            <Flex justify="between">
+              <Text style="subtitle2" color="subtle">
+                Additional Gas
+              </Text>
+              <Text style="subtitle2">
+                {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+              </Text>
+            </Flex>
+          ) : null}
           {txHashesByChain.map((txHashes) => {
             const chainName = txHashes[0].name
             return (
@@ -438,12 +448,16 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             borderRadius: 12
           }}
         >
-          <Flex justify="between">
-            <Text style="subtitle2" color="subtle">
-              Additional Gas
-            </Text>
-            <Text style="subtitle2">0.001 ETH</Text>
-          </Flex>
+          {formattedGasTopUpAmount ? (
+            <Flex justify="between">
+              <Text style="subtitle2" color="subtle">
+                Additional Gas
+              </Text>
+              <Text style="subtitle2">
+                {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+              </Text>
+            </Flex>
+          ) : null}
           {txHashesByChain.map((txHashes) => {
             const chainName = txHashes[0].name
             return (

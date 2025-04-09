@@ -572,11 +572,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   let error = _quoteData || isFetchingQuote ? null : quoteError
   let quote = error ? undefined : _quoteData
 
-  // const gasTopUpAmount = quote?.details?.currencyGasTopUp?.amount ?? _gasTopUpAmount
-  // const gasTopUpAmountUsd = quote?.details?.currencyGasTopUp?.amountUsd ?? _gas
-
-  const gasTopUpAmount = _gasTopUpAmount
-  const gasTopUpAmountUsd = _gasTopUpAmountUsd
+  const gasTopUpAmount = quote?.details?.currencyGasTopup?.amount
+    ? BigInt(quote?.details?.currencyGasTopup?.amount)
+    : _gasTopUpAmount
+  const gasTopUpAmountUsd =
+    quote?.details?.currencyGasTopup?.amountUsd ?? _gasTopUpAmountUsd
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
