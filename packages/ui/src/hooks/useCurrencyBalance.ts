@@ -91,11 +91,6 @@ const useCurrencyBalance = ({
 
   const _isValidAddress = isValidAddress(chain?.vmType, address, chain?.id)
 
-  console.log('isErc20Currency: ', isErc20Currency)
-  console.log('isValidEvmAddress: ', isValidEvmAddress)
-  console.log('chain: ', chain)
-  console.log('_isValidAddress: ', _isValidAddress)
-
   const duneBalances = useDuneBalances(
     address,
     relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet',

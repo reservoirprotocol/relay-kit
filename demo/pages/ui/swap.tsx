@@ -149,14 +149,13 @@ const SwapWidgetPage: NextPage = () => {
               103665049, // @TODO: handle sui testnet
               walletClient as any,
               async (tx) => {
+                console.log('tx: ', tx)
+
                 const signedTransaction = await suiWallet.signTransaction(tx)
 
                 const executionResult =
                   await walletClient.executeTransactionBlock({
-                    options: {
-                      showEffects: true,
-                      showEvents: true
-                    },
+                    options: {},
                     signature: signedTransaction.signature,
                     transactionBlock: signedTransaction.bytes
                   })

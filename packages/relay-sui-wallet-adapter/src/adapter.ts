@@ -30,24 +30,13 @@ export const adaptSuiWallet = (
       throw new Error('Message signing not implemented for Sui')
     },
     handleSendTransactionStep: async (_chainId, stepItem) => {
-      let txData
-      try {
-        txData = JSON.parse(stepItem.data.data)
-      } catch (error) {
-        throw new Error(`Failed to parse transaction data`)
-      }
+      const txData = stepItem.data.data
 
-      console.log('txData: ', txData)
+      // @TODO: confirm txData is a valid transaction
 
-      const test = Transaction.from(stepItem.data.data)
-      console.log('test: ', test)
+      const tx = Transaction.from(txData)
 
-      // Create a new transaction from the serialized data
-      // const tx = Transaction.from(txData)
-
-      // console.log('tx: ', tx)
-
-      const result = await signAndExecuteTransactionBlock(test)
+      const result = await signAndExecuteTransactionBlock(tx)
       console.log('result: ', result)
 
       return result.digest
