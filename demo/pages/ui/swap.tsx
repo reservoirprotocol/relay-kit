@@ -27,8 +27,10 @@ import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
 import { type Token } from '@reservoir0x/relay-kit-ui'
+import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
+import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 
-const WALLET_VM_TYPES = ['evm', 'bvm', 'svm'] as const
+const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -87,6 +89,8 @@ const SwapWidgetPage: NextPage = () => {
     return _wallets
   }, [userWallets])
 
+  console.log('linkedWallets', linkedWallets)
+
   useEffect(() => {
     switchWallet.current = _switchWallet
   }, [_switchWallet])
@@ -131,6 +135,34 @@ const SwapWidgetPage: NextPage = () => {
               _chainId,
               connection,
               signer.signAndSendTransaction
+            )
+          } else if (isSuiWallet(primaryWallet)) {
+            const suiWallet = primaryWallet as SuiWallet
+            const walletClient = await suiWallet.getWalletClient()
+
+            if (!walletClient) {
+              throw 'Unable to setup Sui wallet'
+            }
+
+            adaptedWallet = adaptSuiWallet(
+              suiWallet.address,
+              103665049, // @TODO: handle sui testnet
+              walletClient as any,
+              async (tx) => {
+                const signedTransaction = await suiWallet.signTransaction(tx)
+
+                const executionResult =
+                  await walletClient.executeTransactionBlock({
+                    options: {
+                      showEffects: true,
+                      showEvents: true
+                    },
+                    signature: signedTransaction.signature,
+                    transactionBlock: signedTransaction.bytes
+                  })
+
+                return executionResult
+              }
             )
           }
           setWallet(adaptedWallet)
@@ -196,6 +228,7 @@ const SwapWidgetPage: NextPage = () => {
             multiWalletSupportEnabled={true}
             linkedWallets={linkedWallets}
             onLinkNewWallet={({ chain, direction }) => {
+              console.log('onLinkNewWallet Triggered', chain, direction)
               if (linkWalletPromise) {
                 linkWalletPromise.reject()
                 setLinkWalletPromise(undefined)

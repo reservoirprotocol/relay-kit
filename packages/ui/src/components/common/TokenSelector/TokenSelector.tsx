@@ -320,9 +320,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       const direction = context === 'from' ? 'input' : 'output'
       let position = undefined
 
-      console.log('selectedToken', selectedToken)
-      console.log('isVerified: ', isVerified)
-
       // Track position for search results
       if (debouncedTokenSearchValue.length > 0) {
         position = sortedCombinedTokens.findIndex(
@@ -334,7 +331,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       }
 
       if (!isVerified) {
-        console.log('inside if: ', isVerified)
         const relayUiKitData = getRelayUiKitData()
         const tokenKey = `${selectedToken.chainId}:${selectedToken.address}`
         const isAlreadyAccepted =
@@ -366,8 +362,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         })
         setToken(selectedToken)
       }
-
-      console.log('here')
 
       setOpen(false)
     },

@@ -58,7 +58,7 @@
     },
     "peerDependencies": {
         "@reservoir0x/relay-sdk": "workspace:*",
-        "@mysten/sui": "^1.26.1",
+        "@mysten/sui": "1.24.0",
         "viem": "^2.21.55"
     }
 }

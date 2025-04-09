@@ -240,8 +240,8 @@ importers:
   packages/relay-sui-wallet-adapter:
     dependencies:
       '@mysten/sui':
-        specifier: ^1.26.1
-        version: 1.26.1(typescript@5.4.5)
+        specifier: 1.24.0
+        version: 1.24.0(typescript@5.4.5)
       '@reservoir0x/relay-sdk':
         specifier: workspace:*
         version: link:../sdk
@@ -2113,15 +2113,8 @@ packages:
   '@mysten/bcs@1.5.0':
     resolution: {integrity: sha512-v39dm5oNfKYMAf2CVI+L0OaJiG9RVXsjqPM4BwTKcHNCZOvr35IIewGtXtWXsI67SQU2TRq8lhQzeibdiC/CNg==}
 
-  '@mysten/bcs@1.6.0':
-    resolution: {integrity: sha512-ydDRYdIkIFCpHCcPvAkMC91fVwumjzbTgjqds0KsphDQI3jUlH3jFG5lfYNTmV6V3pkhOiRk1fupLBcsQsiszg==}
-
   '@mysten/sui@1.24.0':
     resolution: {integrity: sha512-lmJJLM7eMrxM6Qpr6cdLr07UBXlxCM7SJjfcDO7NGrqZTx7/3TD2QhhRpDx0fS2tODxrNwQxCoHPApLVPjokIA==}
-    engines: {node: '>=18'}
-
-  '@mysten/sui@1.26.1':
-    resolution: {integrity: sha512-bBVvn2wZKipAvuUkKzHwGhs1JiIM33+b97d0uIWg3T6dJH/n1nfnGrzkBQsMGpoBAFOIUnKQAZmDwT4qvJbKkg==}
     engines: {node: '>=18'}
 
   '@mysten/wallet-standard@0.13.29':
@@ -10131,32 +10124,10 @@ snapshots:
     dependencies:
       '@scure/base': 1.2.4
 
-  '@mysten/bcs@1.6.0':
-    dependencies:
-      '@scure/base': 1.2.4
-
   '@mysten/sui@1.24.0(typescript@5.4.5)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
       '@mysten/bcs': 1.5.0
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/base': 1.2.4
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      gql.tada: 1.8.10(graphql@16.10.0)(typescript@5.4.5)
-      graphql: 16.10.0
-      poseidon-lite: 0.2.1
-      valibot: 0.36.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
-  '@mysten/sui@1.26.1(typescript@5.4.5)':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
-      '@mysten/bcs': 1.6.0
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@scure/base': 1.2.4

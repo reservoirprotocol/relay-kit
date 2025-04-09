@@ -12,6 +12,7 @@ import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { adaptViemWallet } from '@reservoir0x/relay-sdk'
 import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
+import { SuiWallet } from '@dynamic-labs/sui'
 import { isSuiWallet } from '@dynamic-labs/sui'
 
 const SwapActionPage: NextPage = () => {
@@ -233,12 +234,30 @@ const SwapActionPage: NextPage = () => {
                 }
               }
             )
-          }
-          // @TODO: temporary fix for sui until we have a isSuiWallet util
-          else if (fromChainId === 103665049) {
+          } else if (isSuiWallet(primaryWallet)) {
+            const walletClient = await primaryWallet.getWalletClient()
+
+            if (!walletClient) {
+              throw 'Unable to setup Sui wallet'
+            }
+
             executionWallet = adaptSuiWallet(
               primaryWallet?.address,
-              fromChainId
+              fromChainId,
+              walletClient,
+              async (tx) => {
+                const signedTransaction =
+                  await primaryWallet.signTransaction(tx)
+
+                const executionResult =
+                  await walletClient?.executeTransactionBlock({
+                    options: {},
+                    signature: signedTransaction.signature,
+                    transactionBlock: signedTransaction.bytes
+                  })
+
+                return executionResult
+              }
             )
           } else {
             throw 'Unable to configure wallet'
