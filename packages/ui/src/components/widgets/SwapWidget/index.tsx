@@ -40,6 +40,7 @@ import {
   getCachedEvmGasBuffer,
   setCachedEvmGasBuffer
 } from '../../../utils/localStorage.js'
+import GasTopUpSection from './GasTopUpSection.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -226,6 +227,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -418,6 +424,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
+              setGasTopUpEnabled(true)
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
@@ -497,8 +504,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -558,13 +565,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -955,8 +962,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -1031,13 +1038,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
@@ -1120,6 +1127,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       </Box>
                     ) : null}
+                    <GasTopUpSection
+                      toChain={toChain}
+                      gasTopUpEnabled={gasTopUpEnabled}
+                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      gasTopUpRequired={gasTopUpRequired}
+                      gasTopUpAmount={gasTopUpAmount}
+                      gasTopUpAmountUsd={gasTopUpAmountUsd}
+                    />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
                       isFetchingQuote={isFetchingQuote}
