@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.5
+
+### Patch Changes
+
+- f0ed8bc: Prevent AGW from receiving incompatible funds
+
 ## 2.9.4
 
 ### Patch Changes
