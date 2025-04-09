@@ -123,7 +123,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const [isMaxAmountLoading, setIsMaxAmountLoading] = useState(false)
   const hoverFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
@@ -745,7 +744,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     gasBufferAmount = BigInt(cachedBufferStr)
                                   } else if (hoverFetchPromiseRef.current) {
                                     // If hover calculation is in progress, wait for it
-                                    setIsMaxAmountLoading(true)
                                     try {
                                       gasBufferAmount =
                                         await hoverFetchPromiseRef.current
@@ -756,10 +754,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       )
                                       gasBufferAmount = 0n // Assume 0 buffer on error
                                     }
-                                    setIsMaxAmountLoading(false)
                                   } else {
                                     // If not cached and not pre-fetching, calculate now
-                                    setIsMaxAmountLoading(true)
                                     try {
                                       gasBufferAmount =
                                         await calculateEvmNativeGasBuffer(
@@ -779,7 +775,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                       )
                                       gasBufferAmount = 0n // Assume 0 buffer on error
                                     }
-                                    setIsMaxAmountLoading(false)
                                   }
 
                                   // Calculate the final max amount using the current balance and the determined buffer
@@ -791,7 +786,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   handleMaxAmountClicked(finalMaxAmount, 'max')
                                 }}
                               >
-                                {isMaxAmountLoading ? 'Loading...' : 'MAX'}
+                                MAX
                               </Button>
                             </Flex>
                           ) : null}
