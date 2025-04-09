@@ -24,6 +24,7 @@ export default (
   const isRecipientAGW = useIsAGW(address, !linkedWallet)
 
   return useMemo(() => {
+    debugger
     if (!chainId || !address) {
       return true
     }
