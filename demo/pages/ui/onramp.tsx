@@ -67,8 +67,8 @@ const OnrampPage: NextPage = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '100%',
-          paddingTop: 50
+          paddingTop: 50,
+          paddingInline: '10px'
         }}
       >
         <OnrampWidget
