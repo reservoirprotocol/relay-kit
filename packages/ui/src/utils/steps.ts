@@ -88,7 +88,8 @@ export const formatTransactionSteps = ({
         ...(item.internalTxHashes || [])
       ]) || []
 
-    const isApproveStep = step.id === 'approve' || step.id === 'approval'
+    const isApproveStep =
+      step.id === 'approve' || (step.id as any) === 'approval'
 
     result.push({
       id: step.id,

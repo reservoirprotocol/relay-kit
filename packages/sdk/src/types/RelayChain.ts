@@ -45,4 +45,5 @@ export type RelayChain = {
   vmType?: ChainVM
   viemChain?: Chain
   baseChainId?: number | null
+  tokenSupport?: 'All' | 'Limited'
 }

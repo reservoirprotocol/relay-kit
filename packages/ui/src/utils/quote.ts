@@ -195,7 +195,9 @@ export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
   )
 }
 
-export const extractQuoteId = (steps?: Execute['steps']) => {
+export const extractQuoteId = (
+  steps?: Execute['steps'] | QuoteResponse['steps']
+) => {
   return steps && steps[0] ? steps[0].requestId : undefined
 }
 
@@ -212,7 +214,7 @@ export const calculatePriceTimeEstimate = (
     details?.currencyOut?.currency?.chainId === bitcoin.id
 
   //If the relay is interacting with bitcoin we hardcode the time estime to 10m
-  const time = isBitcoin ? 1200 : details?.timeEstimate ?? 0
+  const time = isBitcoin ? 1200 : (details?.timeEstimate ?? 0)
   const formattedTime = formatSeconds(time)
 
   return {

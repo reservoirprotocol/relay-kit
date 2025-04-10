@@ -13,6 +13,9 @@ export type CheckApi = NonNullable<
 export type QuoteDetails = NonNullable<
   paths['/quote']['post']['responses']['200']['content']['application/json']['details']
 >
+export type QuoteStepId = NonNullable<
+  paths['/quote']['post']['responses']['200']['content']['application/json']['steps']
+>['0']['id']
 
 export type TransactionStepState =
   | 'confirming'
@@ -40,10 +43,10 @@ export type Execute = {
     action: string
     description: string
     kind: 'transaction' | 'signature'
-    id: string
+    id: QuoteStepId
     requestId?: string
     depositAddress?: string
-    items?: {
+    items: {
       status: 'complete' | 'incomplete'
       progressState?: TransactionStepState | SignatureStepState
       data?: any
