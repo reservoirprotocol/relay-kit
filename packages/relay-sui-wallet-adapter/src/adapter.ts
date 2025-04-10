@@ -50,11 +50,13 @@ export const adaptSuiWallet = (
         }
       })
 
-      // @TODO: add logs
-
       console.log('result', result)
 
-      throw new Error('Transaction confirmation not implemented for Sui')
+      return { digest: result.digest }
+
+      // @TODO: add logs
+
+      // throw new Error('Transaction confirmation not implemented for Sui')
     },
     switchChain: (chainId: number) => {
       _chainId = chainId
