@@ -19,7 +19,10 @@ axios.interceptors.response.use(
       new APIError(
         error.response?.data?.message,
         error.response?.data?.statusCode || 500,
-        error.response?.data
+        {
+          ...error.response?.data,
+          endpoint: error.config?.url
+        }
       )
     )
   }
