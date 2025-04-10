@@ -1313,7 +1313,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         onClick={() => {
                           if (fromChainWalletVMSupported) {
-                            // If either address is not valid, open the link wallet modal
                             if (!isValidToAddress || !isValidFromAddress) {
                               if (
                                 multiWalletSupportEnabled &&
