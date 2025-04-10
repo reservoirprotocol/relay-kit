@@ -9,15 +9,26 @@ interface EvmGasBufferCache {
   }
 }
 
+// Add Bitcoin Fee Buffer Cache interface
+interface BitcoinFeeBufferCacheValue {
+  bufferAmount: string // stored as string for bigint (satoshis)
+  expiresAt: number // timestamp in milliseconds
+}
+
 interface RelayUiKitData {
   acceptedUnverifiedTokens: string[]
   evmGasBufferCache?: EvmGasBufferCache
+  bitcoinFeeBufferCache?: BitcoinFeeBufferCacheValue // Updated type
 }
 
 export function getRelayUiKitData(): RelayUiKitData {
-  if (typeof window === 'undefined') return { acceptedUnverifiedTokens: [] }
+  if (typeof window === 'undefined')
+    return { acceptedUnverifiedTokens: [], bitcoinFeeBufferCache: undefined } // Updated initial value
 
-  let data = { acceptedUnverifiedTokens: [] }
+  let data: RelayUiKitData = {
+    acceptedUnverifiedTokens: [],
+    bitcoinFeeBufferCache: undefined
+  } // Updated initial value
   try {
     const localStorageData = localStorage.getItem(RELAY_UI_KIT_KEY)
     data = localStorageData ? JSON.parse(localStorageData) : data
@@ -79,4 +90,39 @@ export function setCachedEvmGasBufferAmount(
     expiresAt: Date.now() + ttlMinutes * 60 * 1000
   }
   setRelayUiKitData({ evmGasBufferCache: newCache })
+}
+
+/**
+ * Get the cached bitcoin fee buffer amount.
+ * @returns The cached bitcoin fee buffer amount, or null if it doesn't exist or is expired
+ */
+export function getCachedBitcoinFeeBufferAmount(): string | null {
+  const data = getRelayUiKitData()
+  if (data.bitcoinFeeBufferCache) {
+    const cache = data.bitcoinFeeBufferCache
+    if (cache.expiresAt > Date.now()) {
+      return cache.bufferAmount
+    } else {
+      // Clear expired cache entry
+      setRelayUiKitData({ bitcoinFeeBufferCache: undefined })
+    }
+  }
+  return null
+}
+
+/**
+ * Set the cached bitcoin fee buffer amount.
+ * @param bufferAmount - The buffer amount to set (as a bigint, in satoshis)
+ * @param ttlMinutes - The time to live for the cached bitcoin fee buffer amount in minutes
+ */
+export function setCachedBitcoinFeeBufferAmount(
+  bufferAmount: bigint,
+  ttlMinutes: number = 5
+): void {
+  const data = getRelayUiKitData()
+  const newCache: BitcoinFeeBufferCacheValue = {
+    bufferAmount: bufferAmount.toString(),
+    expiresAt: Date.now() + ttlMinutes * 60 * 1000
+  }
+  setRelayUiKitData({ bitcoinFeeBufferCache: newCache })
 }
