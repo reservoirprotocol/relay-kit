@@ -48,7 +48,6 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
   const activeChainRef = useRef<HTMLButtonElement | null>(null)
-  const [hasScrolledOnMount, setHasScrolledOnMount] = useState(false)
 
   const { allChainsOption, popularChains, alphabeticalChains } = useMemo(
     () => groupChains(options, popularChainIds),
@@ -72,14 +71,13 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   }, [chainSearchInput, chainFuse])
 
   useEffect(() => {
-    if (activeChainRef.current && !hasScrolledOnMount) {
+    if (activeChainRef.current) {
       activeChainRef.current.scrollIntoView({
         behavior: 'auto',
         block: 'nearest'
       })
-      setHasScrolledOnMount(true)
     }
-  }, [hasScrolledOnMount, filteredChains])
+  }, [filteredChains])
 
   return (
     <Flex
