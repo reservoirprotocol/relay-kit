@@ -214,7 +214,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedControls: debouncedAmountInputControls
   } = useDebounceState<string>(
     !defaultTradeType || defaultTradeType === 'EXACT_INPUT'
-      ? defaultAmount ?? ''
+      ? (defaultAmount ?? '')
       : '',
     500
   )
@@ -224,7 +224,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? (defaultAmount ?? '') : '',
     500
   )
 
