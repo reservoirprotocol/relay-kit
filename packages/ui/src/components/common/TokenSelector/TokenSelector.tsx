@@ -112,8 +112,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? chainFilter?.vmType
         ? !supportedWalletVMs?.includes(chainFilter.vmType)
         : !chainFilter.id
-        ? false
-        : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
+          ? false
+          : !fromChainWalletVMSupported && chainFilter.id === token?.chainId
       : !fromChainWalletVMSupported
 
   const isReceivingDepositAddress = depositAddressOnly && context === 'to'
@@ -314,6 +314,61 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     setTokenSearchInputElement(null)
   }, [])
 
+  const onOpenChange = useCallback(
+    (openChange: boolean) => {
+      let tokenCount = undefined
+      let usdcCount = 0
+      let usdtCount = 0
+      let ethCount = 0
+
+      try {
+        if (!isLoadingBalances && tokenBalances) {
+          tokenCount = Object.keys(tokenBalances).length
+          Object.values(tokenBalances).forEach((token) => {
+            const tokenSymbol = token.symbol
+              ? token.symbol.toLowerCase()
+              : token.symbol
+            if (tokenSymbol === 'usdc') {
+              usdcCount += 1
+            } else if (tokenSymbol === 'usdt') {
+              usdtCount += 1
+            } else if (tokenSymbol === 'eth') {
+              ethCount += 1
+            }
+          })
+        }
+        onAnalyticEvent?.(
+          openChange
+            ? EventNames.SWAP_START_TOKEN_SELECT
+            : EventNames.SWAP_EXIT_TOKEN_SELECT,
+          {
+            direction: context === 'from' ? 'input' : 'output',
+            ...(!openChange && {
+              balanceData: {
+                tokenCount,
+                usdcCount,
+                usdtCount,
+                ethCount,
+                balanceAddress: address
+              }
+            })
+          }
+        )
+      } catch (error) {
+        console.error(error)
+      }
+      setOpen(openChange)
+    },
+    [
+      tokenBalances,
+      isLoadingBalances,
+      context,
+      address,
+      onAnalyticEvent,
+      setOpen
+    ]
+  )
+
   const handleTokenSelection = useCallback(
     (selectedToken: Token) => {
       const isVerified = selectedToken.verified
@@ -363,11 +418,11 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         setToken(selectedToken)
       }
 
-      setOpen(false)
+      onOpenChange(false)
     },
     [
       setToken,
-      setOpen,
+      onOpenChange,
       resetState,
       context,
       onAnalyticEvent,
@@ -404,17 +459,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       <div style={{ position: 'relative' }}>
         <Modal
           open={open}
-          onOpenChange={(openChange) => {
-            onAnalyticEvent?.(
-              openChange
-                ? EventNames.SWAP_START_TOKEN_SELECT
-                : EventNames.SWAP_EXIT_TOKEN_SELECT,
-              {
-                direction: context === 'from' ? 'input' : 'output'
-              }
-            )
-            setOpen(openChange)
-          }}
+          onOpenChange={onOpenChange}
           showCloseButton={true}
           trigger={trigger}
           css={{
