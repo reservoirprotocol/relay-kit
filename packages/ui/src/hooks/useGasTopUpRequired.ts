@@ -21,7 +21,6 @@ export default (
     chain?.currency?.supportsBridging &&
     chain?.vmType === 'evm' &&
     isErc20Currency
-
   const { value: gasBalance } = useCurrencyBalance({
     chain,
     address,
@@ -44,7 +43,7 @@ export default (
     }
   )
 
-  if (enabled && gasBalance && usdTokenPriceResponse?.price) {
+  if (enabled && gasBalance !== undefined && usdTokenPriceResponse?.price) {
     const tokenDecimals = chain?.currency?.decimals ?? 18
     const balanceThreshold =
       (BigInt(+balanceThresholdUsd * 10 ** 6) * BigInt(10 ** tokenDecimals)) /
