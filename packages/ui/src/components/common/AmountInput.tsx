@@ -4,9 +4,15 @@ import { Input } from '../primitives/index.js'
 type Props = {
   value: string
   setValue: (value: string) => void
+  prefixSymbol?: string
 } & ComponentPropsWithoutRef<typeof Input>
 
-const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
+const AmountInput: FC<Props> = ({
+  value,
+  setValue,
+  prefixSymbol,
+  ...inputProps
+}) => {
   return (
     <Input
       {...inputProps}
@@ -36,12 +42,19 @@ const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
         ...inputProps.css
       }}
       placeholder={inputProps.placeholder ?? '0'}
-      value={value}
+      value={prefixSymbol && value ? `${prefixSymbol}${value}` : value}
       onChange={
         inputProps.onChange
           ? inputProps.onChange
           : (e) => {
-              const inputValue = (e.target as HTMLInputElement).value
+              let inputValue = (e.target as HTMLInputElement).value
+
+              if (prefixSymbol && inputValue.startsWith(prefixSymbol)) {
+                inputValue = inputValue.substring(prefixSymbol.length)
+              } else if (prefixSymbol && inputValue === prefixSymbol) {
+                inputValue = ''
+              }
+
               const regex = /^[0-9]+(\.[0-9]*)?$/
               if (inputValue === '.' || inputValue.includes(',')) {
                 setValue('0.')
