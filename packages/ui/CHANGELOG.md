@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.7
+
+### Patch Changes
+
+- ed9cddb: Fix chain scroll bug
+
 ## 2.9.6
 
 ### Patch Changes
