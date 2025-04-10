@@ -22,6 +22,7 @@ import { groupChains } from '../../../utils/tokenSelector.js'
 type ChainFilterSidebarProps = {
   options: (RelayChain | { id: undefined; name: string })[]
   value: ChainFilterValue
+  isOpen: boolean
   onSelect: (value: ChainFilterValue) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onInputRef?: (element: HTMLInputElement | null) => void
@@ -39,6 +40,7 @@ const fuseSearchOptions = {
 export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   options,
   value,
+  isOpen,
   onSelect,
   onAnalyticEvent,
   onInputRef,
@@ -48,6 +50,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
   const activeChainRef = useRef<HTMLButtonElement | null>(null)
+  const [hasScrolledOnOpen, setHasScrolledOnOpen] = useState(false)
 
   const { allChainsOption, popularChains, alphabeticalChains } = useMemo(
     () => groupChains(options, popularChainIds),
@@ -71,13 +74,21 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   }, [chainSearchInput, chainFuse])
 
   useEffect(() => {
-    if (activeChainRef.current) {
-      activeChainRef.current.scrollIntoView({
-        behavior: 'auto',
-        block: 'nearest'
-      })
+    if (activeChainRef.current && isOpen && !hasScrolledOnOpen) {
+      const timer = setTimeout(() => {
+        activeChainRef.current?.scrollIntoView({
+          behavior: 'instant',
+          block: 'nearest'
+        })
+        setHasScrolledOnOpen(true)
+      }, 100)
+
+      return () => clearTimeout(timer)
+    } else if (!isOpen) {
+      setHasScrolledOnOpen(false)
+      activeChainRef.current = null
     }
-  }, [filteredChains])
+  }, [activeChainRef.current, isOpen, hasScrolledOnOpen])
 
   return (
     <Flex
