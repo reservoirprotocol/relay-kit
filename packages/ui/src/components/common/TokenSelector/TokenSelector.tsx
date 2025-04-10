@@ -495,6 +495,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 <ChainFilterSidebar
                   options={allChains}
                   value={chainFilter}
+                  isOpen={open}
                   onSelect={setChainFilter}
                   onAnalyticEvent={onAnalyticEvent}
                   onInputRef={setChainSearchInputElement}
