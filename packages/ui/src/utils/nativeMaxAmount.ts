@@ -97,7 +97,7 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
 
     // feeRateToUse is in sat/vB
     const estimatedFeeSatsFloat = averageTxVBytes * feeRateToUse
-    const bufferFactor = 2.0 // 100% buffer (double the estimated fee)
+    const bufferFactor = 1.75 // 75% buffer (1.75x the estimated fee)
 
     // Calculate buffer in satoshis, rounding up, then convert to BigInt
     const bufferAmount = BigInt(Math.ceil(estimatedFeeSatsFloat * bufferFactor))
