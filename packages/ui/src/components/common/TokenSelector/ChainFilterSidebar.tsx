@@ -222,6 +222,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                             tokenSearchInputRef?.focus()
                           }
                         }}
+                        activeChainRef={activeChainRef}
                         value={chain.id?.toString()}
                         key={chain.id?.toString()}
                       />
@@ -246,6 +247,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                         tokenSearchInputRef?.focus()
                       }
                     }}
+                    activeChainRef={activeChainRef}
                     value={chain.id?.toString()}
                     key={chain.id?.toString()}
                   />
@@ -265,6 +267,7 @@ type ChainFilterRowProps = {
   onClick?: (e: React.MouseEvent) => void
   tag?: string
   value: string
+  activeChainRef?: React.RefObject<HTMLButtonElement>
 }
 
 const ChainFilterRow: FC<ChainFilterRowProps> = ({
@@ -272,7 +275,8 @@ const ChainFilterRow: FC<ChainFilterRowProps> = ({
   isActive,
   onClick,
   tag,
-  value
+  value,
+  activeChainRef
 }) => {
   return (
     <AccessibleListItem value={value} asChild>
@@ -280,6 +284,7 @@ const ChainFilterRow: FC<ChainFilterRowProps> = ({
         color="ghost"
         size="none"
         onClick={onClick}
+        ref={isActive ? activeChainRef : null}
         css={{
           p: '2',
           display: 'flex',

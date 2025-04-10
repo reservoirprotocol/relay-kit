@@ -1,4 +1,5 @@
 import type { PublicClient } from 'viem'
+import fetcher from './fetcher.js'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -54,5 +55,56 @@ export const calculateEvmNativeGasBuffer = async (
   } catch (error) {
     console.error('Error calculating EVM native gas buffer:', error)
     return 0n // Return 0 buffer on any unexpected error
+  }
+}
+
+/**
+ * Fetches Bitcoin mempool fee data and calculates a fee buffer.
+ * This buffer is estimated based on average transaction size and median fee,
+ * then multiplied by a safety factor.
+ *
+ * @returns The calculated fee buffer amount in satoshis as a bigint, or 0n if estimation fails.
+ */
+export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
+  const mempoolApiUrl = 'https://mempool.space/api/v1/fees/mempool-blocks'
+
+  try {
+    const data = await fetcher(mempoolApiUrl)
+
+    // Basic validation of the response structure
+    if (
+      !data ||
+      !Array.isArray(data) ||
+      data.length === 0 ||
+      !data[0] ||
+      typeof data[0].blockVSize !== 'number' ||
+      typeof data[0].nTx !== 'number' ||
+      typeof data[0].medianFee !== 'number' ||
+      !Array.isArray(data[0].feeRange) ||
+      data[0].feeRange.length === 0 ||
+      data[0].nTx === 0
+    ) {
+      console.warn('Invalid or incomplete data from Mempool API:', data)
+      return 0n
+    }
+
+    const { blockVSize, nTx, medianFee, feeRange } = data[0]
+
+    // Use vBytes for calculation as fees are typically sat/vB
+    const averageTxVBytes = blockVSize / nTx
+    // Use medianFee if > 0, otherwise fallback to the lowest fee in feeRange
+    const feeRateToUse = medianFee > 0 ? medianFee : feeRange[0]
+
+    // feeRateToUse is in sat/vB
+    const estimatedFeeSatsFloat = averageTxVBytes * feeRateToUse
+    const bufferFactor = 1.75 // 75% buffer (1.75x the estimated fee)
+
+    // Calculate buffer in satoshis, rounding up, then convert to BigInt
+    const bufferAmount = BigInt(Math.ceil(estimatedFeeSatsFloat * bufferFactor))
+
+    return bufferAmount
+  } catch (error) {
+    console.error('Error calculating Bitcoin native fee buffer:', error)
+    return 0n
   }
 }
