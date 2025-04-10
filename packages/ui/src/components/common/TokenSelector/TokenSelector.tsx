@@ -433,11 +433,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                 {
                   direction: context === 'from' ? 'input' : 'output',
                   ...(!openChange && {
-                    tokenCount,
-                    usdcCount,
-                    usdtCount,
-                    ethCount,
-                    balanceAddress: address
+                    balanceData: {
+                      tokenCount,
+                      usdcCount,
+                      usdtCount,
+                      ethCount,
+                      balanceAddress: address
+                    }
                   })
                 }
               )
