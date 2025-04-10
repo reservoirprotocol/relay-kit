@@ -102,7 +102,6 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
     // Calculate buffer in satoshis, rounding up, then convert to BigInt
     const bufferAmount = BigInt(Math.ceil(estimatedFeeSatsFloat * bufferFactor))
 
-    console.debug(`Calculated Bitcoin Fee Buffer: ${bufferAmount} sats`)
     return bufferAmount
   } catch (error) {
     console.error('Error calculating Bitcoin native fee buffer:', error)
