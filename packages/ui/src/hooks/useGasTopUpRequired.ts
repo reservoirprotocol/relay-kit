@@ -19,6 +19,7 @@ export default (
     chain !== undefined &&
     chain?.currency?.address !== undefined &&
     chain?.currency?.supportsBridging &&
+    chain?.vmType === 'evm' &&
     isErc20Currency
 
   const { value: gasBalance } = useCurrencyBalance({
