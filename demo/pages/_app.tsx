@@ -29,6 +29,7 @@ import { HttpTransport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
+import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 
 const MoonPayProvider = lazy(() =>
@@ -120,6 +121,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             apiBaseUrl: 'https://api.dune.com'
           },
           chains,
+          privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
           appName: 'Relay Demo',
           useGasFeeEstimations: true
           // appFees: [
@@ -192,7 +194,8 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
               EthereumWalletConnectors,
               SolanaWalletConnectors,
               BitcoinWalletConnectors,
-              EclipseWalletConnectors
+              EclipseWalletConnectors,
+              AbstractEvmWalletConnectors
             ],
             cssOverrides: `
               [data-testid="send-balance-button"] {

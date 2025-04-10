@@ -40,6 +40,10 @@ type RelayKitProviderOptions = {
   vmConnectorKeyOverrides?: {
     [key in number | 'evm' | 'svm' | 'bvm']?: string[]
   }
+  /**
+   * An array of private chain ids to be used when querying the chains api within relay kit.
+   */
+  privateChainIds?: string[]
 }
 
 export interface RelayKitProviderProps {
@@ -120,7 +124,8 @@ export const themeOverrides: ThemeOverridesMap = {
   },
   dropdown: {
     background: '--relay-colors-dropdown-background',
-    borderRadius: '--relay-radii-dropdown-border-radius'
+    borderRadius: '--relay-radii-dropdown-border-radius',
+    border: '--relay-borders-dropdown-border'
   },
   widget: {
     background: '--relay-colors-widget-background',
@@ -164,7 +169,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       appFees: options.appFees,
       duneConfig: options.duneConfig,
       disablePoweredByReservoir: options.disablePoweredByReservoir,
-      vmConnectorKeyOverrides: options.vmConnectorKeyOverrides
+      vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
+      privateChainIds: options.privateChainIds
     }),
     [options]
   )

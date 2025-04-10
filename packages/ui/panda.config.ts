@@ -244,8 +244,9 @@ export default defineConfig({
         'widget-swap-currency-button-border-radius': { value: { base: '8px' } }
       },
       borders: {
-        'widget-border': { value: { base: '0x solid white' } },
-        'modal-border': { value: { base: '0x solid white' } },
+        'widget-border': { value: { base: '0px solid white' } },
+        'modal-border': { value: { base: '0px solid white' } },
+        'dropdown-border': { value: { base: '1px solid {colors.gray5}' } },
         'widget-swap-currency-button-border-width': {
           value: { base: '2px' }
         },

@@ -173,8 +173,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   onSwapError
 }) => {
   const [fromToken, setFromToken] = useFallbackState(
-    _fromToken && _setFromToken ? _fromToken : undefined,
-    _fromToken && _setFromToken
+    _setFromToken ? _fromToken : undefined,
+    _setFromToken
       ? [
           _fromToken,
           _setFromToken as Dispatch<SetStateAction<Token | undefined>>
@@ -182,8 +182,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       : undefined
   )
   const [toToken, setToToken] = useFallbackState(
-    _toToken && _setToToken ? _toToken : undefined,
-    _toToken && _setToToken
+    _setToToken ? _toToken : undefined,
+    _setToToken
       ? [_toToken, _setToToken as Dispatch<SetStateAction<Token | undefined>>]
       : undefined
   )

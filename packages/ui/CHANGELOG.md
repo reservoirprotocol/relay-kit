@@ -1,5 +1,32 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.5
+
+### Patch Changes
+
+- f0ed8bc: Prevent AGW from receiving incompatible funds
+
+## 2.9.4
+
+### Patch Changes
+
+- 9eef113: Fix token symbol overflow within token selector
+- e5d2bb9: Add privateChainIds to RelayKitProvider options
+- be993e3: Add dropdown-border theme element
+
+## 2.9.3
+
+### Patch Changes
+
+- f7a90ba: Fix useCurrencyBalnce hook bug
+
+## 2.9.2
+
+### Patch Changes
+
+- e0f74be: Update analytic events for token selector
+- ca56384: Fix undefined token setting in swap widget
+
 ## 2.9.1
 
 ### Patch Changes
