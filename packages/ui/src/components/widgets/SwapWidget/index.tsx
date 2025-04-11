@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
+import { useContext, useEffect, useState, type FC, useMemo } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -34,6 +34,7 @@ import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -223,6 +224,44 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
+        //  Retrieve the price of the token
+        const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
+          useTokenPrice(
+            relayClient?.baseApiUrl,
+            {
+              address: fromToken!.address,
+              chainId: fromToken!.chainId
+            },
+            {
+              enabled: !!(
+                fromToken?.address &&
+                fromToken.chainId &&
+                amountInputValue &&
+                Number(amountInputValue) > 0
+              ),
+              staleTime: 5 * 60 * 1000,
+              refetchInterval: 5 * 60 * 1000,
+              refetchOnWindowFocus: false
+            }
+          )
+
+        // Calculate the USD value of the input amount
+        const inputAmountUsd = useMemo(() => {
+          const priceUsd = fromTokenPriceData?.price
+          if (priceUsd && amountInputValue && Number(amountInputValue) > 0) {
+            try {
+              return parseFloat(amountInputValue) * priceUsd
+            } catch (e) {
+              console.error(
+                'Failed to parse amount input value for USD calculation',
+                e
+              )
+              return undefined
+            }
+          }
+          return undefined
+        }, [fromTokenPriceData, amountInputValue])
+
         const handleMaxAmountClicked = (amount: bigint, percent: string) => {
           if (fromToken) {
             setAmountInputValue(formatUnits(amount, fromToken?.decimals))
@@ -486,8 +525,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXACT_INPUT'
                               ? amountInputValue
                               : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
+                                : amountInputValue
                           }
                           setValue={(e) => {
                             setAmountInputValue(e)
@@ -547,13 +586,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -578,14 +617,37 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        {quote?.details?.currencyIn?.amountUsd &&
-                        Number(quote.details.currencyIn.amountUsd) > 0 ? (
-                          <Text style="subtitle3" color="subtleSecondary">
-                            {formatDollar(
+                        <Text
+                          style="subtitle3"
+                          color="subtleSecondary"
+                          css={{
+                            minHeight: 18,
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                        >
+                          {quote?.details?.currencyIn?.amountUsd &&
+                          !isFetchingQuote ? (
+                            formatDollar(
                               Number(quote.details.currencyIn.amountUsd)
-                            )}
-                          </Text>
-                        ) : null}
+                            )
+                          ) : isLoadingFromTokenPrice &&
+                            amountInputValue &&
+                            Number(amountInputValue) > 0 ? (
+                            <Box
+                              css={{
+                                width: 60,
+                                height: 12,
+                                backgroundColor: 'gray7',
+                                borderRadius: 'widget-border-radius'
+                              }}
+                            />
+                          ) : inputAmountUsd && inputAmountUsd > 0 ? (
+                            formatDollar(inputAmountUsd)
+                          ) : (
+                            formatDollar(0)
+                          )}
+                        </Text>
                         <Flex
                           align="center"
                           css={{ gap: '3', marginLeft: 'auto', height: 23 }}
@@ -886,8 +948,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -962,13 +1024,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
@@ -1127,7 +1189,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         onClick={() => {
                           if (fromChainWalletVMSupported) {
-                            // If either address is not valid, open the link wallet modal
                             if (!isValidToAddress || !isValidFromAddress) {
                               if (
                                 multiWalletSupportEnabled &&
