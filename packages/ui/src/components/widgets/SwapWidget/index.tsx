@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
+import { useContext, useEffect, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -17,7 +17,7 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { faClipboard } from '@fortawesome/free-solid-svg-icons'
+import { faClipboard, faRotate } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
@@ -120,6 +120,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
+  const [isUsdInputMode, setIsUsdInputMode] = useState(false)
+  const [usdInputValue, setUsdInputValue] = useState('')
+  const [tokenInputCache, setTokenInputCache] = useState('')
+  const [conversionRate, setConversionRate] = useState<number | null>(null)
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
@@ -225,13 +229,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       }) => {
         const handleMaxAmountClicked = (amount: bigint, percent: string) => {
           if (fromToken) {
-            setAmountInputValue(formatUnits(amount, fromToken?.decimals))
+            const formattedAmount = formatUnits(amount, fromToken?.decimals)
+            setAmountInputValue(formattedAmount)
             setTradeType('EXACT_INPUT')
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
               percent: percent
             })
+
+            if (isUsdInputMode && conversionRate) {
+              const numericTokenAmount = Number(formattedAmount)
+              if (!isNaN(numericTokenAmount)) {
+                const usdEquivalent = numericTokenAmount * conversionRate
+                setUsdInputValue(usdEquivalent.toFixed(2))
+              }
+            }
           }
         }
 
@@ -368,6 +381,71 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
         )
 
+        // toggle between token and usd input mode
+        const toggleInputMode = () => {
+          if (!isUsdInputMode) {
+            setTokenInputCache(amountInputValue)
+            if (quote?.details?.currencyIn?.amountUsd) {
+              setUsdInputValue(
+                String(Number(quote.details.currencyIn.amountUsd))
+              )
+            } else {
+              setUsdInputValue(amountInputValue)
+            }
+            setIsUsdInputMode(true)
+          } else {
+            if (conversionRate && Number(usdInputValue) > 0) {
+              const tokenEquivalent = (
+                Number(usdInputValue) / conversionRate
+              ).toFixed(8)
+              setAmountInputValue(tokenEquivalent)
+            } else if (tokenInputCache) {
+              setAmountInputValue(tokenInputCache)
+            }
+            setIsUsdInputMode(false)
+          }
+        }
+
+        // update conversion rate when in token mode
+        useEffect(() => {
+          if (
+            !isUsdInputMode &&
+            amountInputValue &&
+            quote?.details?.currencyIn?.amountUsd
+          ) {
+            const tokenVal = Number(amountInputValue)
+            if (tokenVal > 0) {
+              const rate = Number(quote.details.currencyIn.amountUsd) / tokenVal
+              setConversionRate(rate)
+            }
+          }
+        }, [quote, amountInputValue, isUsdInputMode])
+
+        // NEW: Update token input value when USD input changes in USD mode
+        useEffect(() => {
+          if (isUsdInputMode && conversionRate && conversionRate > 0) {
+            const usdValue = Number(usdInputValue)
+            if (!isNaN(usdValue)) {
+              // Calculate token equivalent and update amountInputValue
+              // This will trigger the quote refresh via its dependency on amountInputValue
+              const tokenEquivalent = (usdValue / conversionRate).toFixed(
+                fromToken?.decimals ?? 8 // Use token decimals or default precision
+              )
+              if (amountInputValue !== tokenEquivalent) {
+                setAmountInputValue(tokenEquivalent)
+              }
+            }
+          }
+          // Add necessary dependencies
+        }, [
+          isUsdInputMode,
+          usdInputValue,
+          conversionRate,
+          setAmountInputValue,
+          fromToken?.decimals,
+          amountInputValue
+        ])
+
         return (
           <WidgetContainer
             steps={steps}
@@ -482,19 +560,26 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       >
                         <AmountInput
                           autoFocus={!disableInputAutoFocus}
+                          prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
-                            tradeType === 'EXACT_INPUT'
-                              ? amountInputValue
-                              : amountInputValue
-                              ? formatFixedLength(amountInputValue, 8)
-                              : amountInputValue
+                            isUsdInputMode
+                              ? usdInputValue
+                              : tradeType === 'EXACT_INPUT'
+                                ? amountInputValue
+                                : amountInputValue
+                                  ? formatFixedLength(amountInputValue, 8)
+                                  : amountInputValue
                           }
                           setValue={(e) => {
-                            setAmountInputValue(e)
-                            setTradeType('EXACT_INPUT')
-                            if (Number(e) === 0) {
-                              setAmountOutputValue('')
-                              debouncedAmountInputControls.flush()
+                            if (isUsdInputMode) {
+                              setUsdInputValue(e)
+                            } else {
+                              setAmountInputValue(e)
+                              setTradeType('EXACT_INPUT')
+                              if (Number(e) === 0) {
+                                setAmountOutputValue('')
+                                debouncedAmountInputControls.flush()
+                              }
                             }
                           }}
                           onFocus={() => {
@@ -547,13 +632,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  fromToken?.chainId,
-                                  lockChainId,
-                                  toToken?.chainId,
-                                  lockFromToken
-                                ) && fromToken?.chainId
-                              ? [fromToken.chainId]
-                              : undefined
+                                    fromToken?.chainId,
+                                    lockChainId,
+                                    toToken?.chainId,
+                                    lockFromToken
+                                  ) && fromToken?.chainId
+                                ? [fromToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && toToken
@@ -580,12 +665,50 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       >
                         {quote?.details?.currencyIn?.amountUsd &&
                         Number(quote.details.currencyIn.amountUsd) > 0 ? (
-                          <Text style="subtitle3" color="subtleSecondary">
-                            {formatDollar(
-                              Number(quote.details.currencyIn.amountUsd)
+                          <>
+                            {isUsdInputMode ? (
+                              <Text style="subtitle3" color="subtleSecondary">
+                                {conversionRate && Number(usdInputValue) > 0
+                                  ? `${formatFixedLength((Number(usdInputValue) / conversionRate).toString(), 8)} ${fromToken?.symbol || ''}`
+                                  : '0'}
+                              </Text>
+                            ) : (
+                              <Text style="subtitle3" color="subtleSecondary">
+                                {formatDollar(
+                                  Number(quote.details.currencyIn.amountUsd)
+                                )}
+                              </Text>
                             )}
-                          </Text>
+
+                            {/* Switch input modes */}
+                            <Button
+                              aria-label="swap input"
+                              size="none"
+                              css={{
+                                color: 'gray9',
+                                px: '1',
+                                py: '1',
+                                minHeight: '23px',
+                                lineHeight: '100%',
+                                backgroundColor: 'widget-selector-background',
+                                border: 'none',
+                                _hover: {
+                                  backgroundColor:
+                                    'widget-selector-hover-background'
+                                }
+                              }}
+                              color="white"
+                              onClick={toggleInputMode}
+                            >
+                              <FontAwesomeIcon
+                                icon={faRotate}
+                                width={10}
+                                height={10}
+                              />
+                            </Button>
+                          </>
                         ) : null}
+
                         <Flex
                           align="center"
                           css={{ gap: '3', marginLeft: 'auto', height: 23 }}
@@ -886,8 +1009,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             tradeType === 'EXPECTED_OUTPUT'
                               ? amountOutputValue
                               : amountOutputValue
-                              ? formatFixedLength(amountOutputValue, 8)
-                              : amountOutputValue
+                                ? formatFixedLength(amountOutputValue, 8)
+                                : amountOutputValue
                           }
                           setValue={(e) => {
                             setAmountOutputValue(e)
@@ -962,13 +1085,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             isSingleChainLocked
                               ? [lockChainId]
                               : isChainLocked(
-                                  toToken?.chainId,
-                                  lockChainId,
-                                  fromToken?.chainId,
-                                  lockToToken
-                                ) && toToken?.chainId
-                              ? [toToken.chainId]
-                              : undefined
+                                    toToken?.chainId,
+                                    lockChainId,
+                                    fromToken?.chainId,
+                                    lockToToken
+                                  ) && toToken?.chainId
+                                ? [toToken.chainId]
+                                : undefined
                           }
                           chainIdsFilter={
                             !fromChainWalletVMSupported && fromToken
