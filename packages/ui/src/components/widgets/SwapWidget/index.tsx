@@ -36,6 +36,13 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 
+// shared query options for useTokenPrice
+const tokenPriceQueryOptions = {
+  staleTime: 60 * 1000, // 1 minute
+  refetchInterval: 30 * 1000, // 30 seconds
+  refetchOnWindowFocus: false
+}
+
 type BaseSwapWidgetProps = {
   fromToken?: Token
   setFromToken?: (token?: Token) => void
@@ -224,13 +231,32 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
-        //  Retrieve the price of the token
+        // helper to calculate the USD value of a token
+        const calculateUsdValue = (
+          price?: number,
+          amountString?: string
+        ): number | undefined => {
+          if (price && price > 0 && amountString && Number(amountString) > 0) {
+            try {
+              return parseFloat(amountString) * price
+            } catch (e) {
+              console.error(
+                'Failed to parse amount string for USD calculation',
+                amountString,
+                e
+              )
+            }
+          }
+          return undefined
+        }
+
+        //  Retrieve the price of the `from` token
         const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
           useTokenPrice(
             relayClient?.baseApiUrl,
             {
-              address: fromToken!.address,
-              chainId: fromToken!.chainId
+              address: fromToken?.address ?? '',
+              chainId: fromToken?.chainId ?? 0
             },
             {
               enabled: !!(
@@ -239,28 +265,38 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 amountInputValue &&
                 Number(amountInputValue) > 0
               ),
-              staleTime: 5 * 60 * 1000,
-              refetchInterval: 5 * 60 * 1000,
-              refetchOnWindowFocus: false
+              ...tokenPriceQueryOptions
+            }
+          )
+
+        // Retrieve the price of the `to` token
+        const { data: toTokenPriceData, isLoading: isLoadingToTokenPrice } =
+          useTokenPrice(
+            relayClient?.baseApiUrl,
+            {
+              address: toToken?.address ?? '',
+              chainId: toToken?.chainId ?? 0
+            },
+            {
+              enabled: !!(
+                toToken?.address &&
+                toToken.chainId &&
+                amountOutputValue &&
+                Number(amountOutputValue) > 0
+              ),
+              ...tokenPriceQueryOptions
             }
           )
 
         // Calculate the USD value of the input amount
         const inputAmountUsd = useMemo(() => {
-          const priceUsd = fromTokenPriceData?.price
-          if (priceUsd && amountInputValue && Number(amountInputValue) > 0) {
-            try {
-              return parseFloat(amountInputValue) * priceUsd
-            } catch (e) {
-              console.error(
-                'Failed to parse amount input value for USD calculation',
-                e
-              )
-              return undefined
-            }
-          }
-          return undefined
+          return calculateUsdValue(fromTokenPriceData?.price, amountInputValue)
         }, [fromTokenPriceData, amountInputValue])
+
+        // Calculate the USD value of the output amount
+        const outputAmountUsd = useMemo(() => {
+          return calculateUsdValue(toTokenPriceData?.price, amountOutputValue)
+        }, [toTokenPriceData, amountOutputValue])
 
         const handleMaxAmountClicked = (amount: bigint, percent: string) => {
           if (fromToken) {
@@ -1045,26 +1081,52 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        {quote?.details?.currencyOut?.amountUsd &&
-                        Number(quote.details.currencyOut.amountUsd) > 0 ? (
-                          <Flex align="center" css={{ gap: '1' }}>
+                        {toToken ? (
+                          <Flex
+                            align="center"
+                            css={{
+                              gap: '1',
+                              minHeight: 18
+                            }}
+                          >
                             <Text style="subtitle3" color="subtleSecondary">
-                              {formatDollar(
-                                Number(quote.details.currencyOut.amountUsd)
+                              {quote?.details?.currencyOut?.amountUsd &&
+                              !isFetchingQuote ? (
+                                formatDollar(
+                                  Number(quote.details.currencyOut.amountUsd)
+                                )
+                              ) : isLoadingToTokenPrice &&
+                                amountOutputValue &&
+                                Number(amountOutputValue) > 0 ? (
+                                <Box
+                                  css={{
+                                    width: 45,
+                                    height: 12,
+                                    backgroundColor: 'gray7',
+                                    borderRadius: 'widget-border-radius'
+                                  }}
+                                />
+                              ) : outputAmountUsd && outputAmountUsd > 0 ? (
+                                formatDollar(outputAmountUsd)
+                              ) : (
+                                formatDollar(0)
                               )}
                             </Text>
-                            <Text
-                              style="subtitle3"
-                              color={feeBreakdown?.totalFees.priceImpactColor}
-                              css={{
-                                display: 'flex',
-                                alignItems: 'center'
-                              }}
-                            >
-                              ({feeBreakdown?.totalFees.priceImpactPercentage})
-                            </Text>
+                            {quote?.details?.currencyOut?.amountUsd &&
+                            !isFetchingQuote &&
+                            quote.details.totalImpact?.percent ? (
+                              <Text
+                                style="subtitle3"
+                                color={feeBreakdown?.totalFees.priceImpactColor}
+                              >
+                                ({feeBreakdown?.totalFees.priceImpactPercentage}
+                                )
+                              </Text>
+                            ) : null}
                           </Flex>
-                        ) : null}
+                        ) : (
+                          <Flex css={{ height: 18 }} />
+                        )}
                         <Flex css={{ marginLeft: 'auto' }}>
                           {toToken ? (
                             <BalanceDisplay
