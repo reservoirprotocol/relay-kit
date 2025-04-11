@@ -627,11 +627,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           )}
                           {fromBalance &&
                           (fromChain?.vmType === 'evm' ||
-                            (isFromNative &&
-                              fromBalance >
-                                BigInt(
-                                  0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                ))) ? (
+                            (fromChain?.vmType === 'bvm' && isFromNative)) ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
                                 aria-label="20%"
