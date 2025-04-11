@@ -636,7 +636,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             Number(amountInputValue) > 0 ? (
                             <Box
                               css={{
-                                width: 60,
+                                width: 45,
                                 height: 12,
                                 backgroundColor: 'gray7',
                                 borderRadius: 'widget-border-radius'
