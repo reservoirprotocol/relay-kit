@@ -1,6 +1,5 @@
-import { useMemo, type FC } from 'react'
+import { type FC } from 'react'
 import {
-  Anchor,
   Box,
   Button,
   Flex,
@@ -14,7 +13,6 @@ import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
-import { truncateAddress } from '../../../../utils/truncate.js'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { type Token } from '../../../../types/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
@@ -23,8 +21,7 @@ import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
-import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
+import { TransactionsByChain } from './TransactionsByChain.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -107,32 +104,6 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     timeEstimateMs >
       (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
         (relayClient?.pollingInterval ?? 5000)
-
-  const txHashesByChain = useMemo(() => {
-    const txsChainName =
-      relayClient?.chains?.reduce(
-        (names, chain) => {
-          names[chain.id] = chain.displayName
-          return names
-        },
-        {} as Record<number, string>
-      ) ?? {}
-    return Object.values(
-      allTxHashes.reduce(
-        (byChains, txHash) => {
-          if (!byChains[txHash.chainId]) {
-            byChains[txHash.chainId] = []
-          }
-          byChains[txHash.chainId].push({
-            ...txHash,
-            name: txsChainName[txHash.chainId]
-          })
-          return byChains
-        },
-        {} as Record<number, Array<NonNullable<TxHashes[0]> & { name: string }>>
-      )
-    )
-  }, [allTxHashes, relayClient?.chains])
 
   const gasTopUpAmountCurrency = details?.currencyGasTopup?.currency
   const formattedGasTopUpAmount = details?.currencyGasTopup?.amount
@@ -255,44 +226,11 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               </Text>
             </Flex>
           ) : null}
-          {txHashesByChain.map((txHashes) => {
-            const chainName = txHashes[0].name
-            return (
-              <Flex justify="between">
-                <Text style="subtitle2" color="subtle">
-                  View {chainName} Tx
-                </Text>
-                <Flex direction="column">
-                  {txHashes.map(({ txHash, chainId, isBatchTx }) => {
-                    const txUrl = getTxBlockExplorerUrl(
-                      chainId,
-                      relayClient?.chains,
-                      txHash
-                    )
-
-                    return txUrl && !isBatchTx ? (
-                      <Anchor
-                        key={txHash}
-                        href={txUrl}
-                        target="_blank"
-                        css={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '2'
-                        }}
-                      >
-                        {truncateAddress(txHash)}
-                        <FontAwesomeIcon
-                          icon={faArrowUpRightFromSquare}
-                          width={16}
-                        />
-                      </Anchor>
-                    ) : null
-                  })}
-                </Flex>
-              </Flex>
-            )
-          })}
+          <TransactionsByChain
+            allTxHashes={allTxHashes}
+            fromChain={fromChain}
+            toChain={toChain}
+          />
         </Flex>
       ) : null}
 
@@ -458,44 +396,11 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               </Text>
             </Flex>
           ) : null}
-          {txHashesByChain.map((txHashes) => {
-            const chainName = txHashes[0].name
-            return (
-              <Flex justify="between">
-                <Text style="subtitle2" color="subtle">
-                  View {chainName} Tx
-                </Text>
-                <Flex direction="column">
-                  {txHashes.map(({ txHash, chainId, isBatchTx }) => {
-                    const txUrl = getTxBlockExplorerUrl(
-                      chainId,
-                      relayClient?.chains,
-                      txHash
-                    )
-
-                    return txUrl && !isBatchTx ? (
-                      <Anchor
-                        key={txHash}
-                        href={txUrl}
-                        target="_blank"
-                        css={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '2'
-                        }}
-                      >
-                        {truncateAddress(txHash)}
-                        <FontAwesomeIcon
-                          icon={faArrowUpRightFromSquare}
-                          width={16}
-                        />
-                      </Anchor>
-                    ) : null
-                  })}
-                </Flex>
-              </Flex>
-            )
-          })}
+          <TransactionsByChain
+            allTxHashes={allTxHashes}
+            fromChain={fromChain}
+            toChain={toChain}
+          />
         </Flex>
       </Flex>
 

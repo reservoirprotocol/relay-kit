@@ -290,6 +290,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
             onOpenChange={onOpenChange}
             transaction={transaction}
             fromChain={fromChain}
+            toChain={toChain}
           />
         ) : null}
       </Flex>
