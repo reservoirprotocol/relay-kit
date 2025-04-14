@@ -1,5 +1,22 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.7
+
+### Patch Changes
+
+- ed9cddb: Fix chain scroll bug
+
+## 2.9.6
+
+### Patch Changes
+
+- 74929ec: Fix chain filter scroll into view
+- 975b6d1: Add additional data to token select exit event
+- b2782e9: Add endpoint to APIError for debugging
+- Updated dependencies [b2782e9]
+  - @reservoir0x/relay-sdk@1.6.14
+  - @reservoir0x/relay-kit-hooks@1.9.1
+
 ## 2.9.5
 
 ### Patch Changes
