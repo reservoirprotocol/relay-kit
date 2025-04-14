@@ -407,7 +407,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
-              invalidateBalanceQueries()
               invalidateQuoteQuery()
               setAmountInputValue('')
               setAmountOutputValue('')
