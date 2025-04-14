@@ -40,10 +40,8 @@ import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import {
   alreadyAcceptedToken,
-  getCachedEvmGasBufferAmount,
-  setCachedEvmGasBufferAmount,
-  getCachedBitcoinFeeBufferAmount,
-  setCachedBitcoinFeeBufferAmount
+  getCacheEntry,
+  setCacheEntry
 } from '../../../utils/localStorage.js'
 
 type BaseSwapWidgetProps = {
@@ -236,6 +234,77 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
+        // Helper function to get the buffer amount, handling cache, hover promises, and calculation
+        const getFeeBufferAmount = async (
+          vmType: 'evm' | 'bvm' | string | undefined,
+          chainId: number | undefined,
+          currentBalance: bigint
+        ): Promise<bigint> => {
+          if (vmType === 'evm' && publicClient && chainId !== undefined) {
+            const cacheKey = `evmGasBuffer:${chainId}`
+            const cachedBufferStr = getCacheEntry(cacheKey)
+
+            if (cachedBufferStr) {
+              return BigInt(cachedBufferStr)
+            } else if (hoverFetchPromiseRef.current) {
+              try {
+                return await hoverFetchPromiseRef.current
+              } catch (error) {
+                console.error(
+                  'Failed to await pre-fetched EVM gas buffer:',
+                  error
+                )
+                return 0n
+              }
+            } else {
+              try {
+                const buffer = await calculateEvmNativeGasBuffer(
+                  publicClient,
+                  currentBalance
+                )
+                setCacheEntry(cacheKey, buffer, 5)
+                return buffer
+              } catch (error) {
+                console.error(
+                  'Failed to calculate EVM gas buffer on click:',
+                  error
+                )
+                return 0n
+              }
+            }
+          } else if (vmType === 'bvm') {
+            const cacheKey = 'bitcoinFeeBuffer'
+            const cachedBufferStr = getCacheEntry(cacheKey)
+
+            if (cachedBufferStr) {
+              return BigInt(cachedBufferStr)
+            } else if (hoverBitcoinFetchPromiseRef.current) {
+              try {
+                return await hoverBitcoinFetchPromiseRef.current
+              } catch (error) {
+                console.error(
+                  'Failed to await pre-fetched Bitcoin fee buffer:',
+                  error
+                )
+                return 0n
+              }
+            } else {
+              try {
+                const buffer = await calculateBitcoinNativeFeeBuffer()
+                setCacheEntry(cacheKey, buffer, 5)
+                return buffer
+              } catch (error) {
+                console.error(
+                  'Failed to calculate Bitcoin fee buffer on click:',
+                  error
+                )
+                return 0n
+              }
+            }
+          }
+          return 0n // Return 0 if not native EVM/BVM or missing data
+        }
+
         const handleMaxAmountClicked = (amount: bigint, percent: string) => {
           if (fromToken) {
             setAmountInputValue(formatUnits(amount, fromToken?.decimals))
@@ -716,69 +785,23 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     fromChain.vmType === 'evm' &&
                                     publicClient
                                   ) {
-                                    // If there's a cached buffer, do nothing on hover
-                                    if (
-                                      getCachedEvmGasBufferAmount(fromChain.id)
-                                    )
-                                      return
-                                    // If a hover fetch is already in-flight, do nothing
-                                    if (hoverFetchPromiseRef.current) return
-                                    // Start calculating the buffer in the background
-                                    hoverFetchPromiseRef.current =
-                                      (async () => {
-                                        try {
-                                          const bufferAmount =
-                                            await calculateEvmNativeGasBuffer(
-                                              publicClient,
-                                              fromBalance
-                                            )
-                                          setCachedEvmGasBufferAmount(
-                                            fromChain.id,
-                                            bufferAmount,
-                                            5 // EVM TTL
-                                          )
-                                          return bufferAmount
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to pre-fetch EVM gas buffer:',
-                                            error
-                                          )
-                                          return 0n
-                                        } finally {
-                                          hoverFetchPromiseRef.current = null
-                                        }
-                                      })()
+                                    const bufferAmount =
+                                      await getFeeBufferAmount(
+                                        fromChain.vmType,
+                                        fromChain.id,
+                                        fromBalance
+                                      )
+                                    handleMaxAmountClicked(bufferAmount, 'max')
                                   }
                                   // BVM Pre-fetch
                                   else if (fromChain.vmType === 'bvm') {
-                                    // If there's a cached buffer, do nothing on hover
-                                    if (getCachedBitcoinFeeBufferAmount())
-                                      return
-                                    // If a hover fetch is already in-flight, do nothing
-                                    if (hoverBitcoinFetchPromiseRef.current)
-                                      return
-                                    // Start calculating the buffer in the background
-                                    hoverBitcoinFetchPromiseRef.current =
-                                      (async () => {
-                                        try {
-                                          const bufferAmount =
-                                            await calculateBitcoinNativeFeeBuffer()
-                                          setCachedBitcoinFeeBufferAmount(
-                                            bufferAmount,
-                                            5
-                                          )
-                                          return bufferAmount
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to pre-fetch Bitcoin fee buffer:',
-                                            error
-                                          )
-                                          return 0n
-                                        } finally {
-                                          hoverBitcoinFetchPromiseRef.current =
-                                            null
-                                        }
-                                      })()
+                                    const bufferAmount =
+                                      await getFeeBufferAmount(
+                                        fromChain.vmType,
+                                        fromChain.id,
+                                        fromBalance
+                                      )
+                                    handleMaxAmountClicked(bufferAmount, 'max')
                                   }
                                 }}
                                 onClick={async () => {
@@ -789,95 +812,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
                                   // Calculate/fetch buffer ONLY if it's the native token
                                   if (isFromNative) {
-                                    // EVM Buffer Logic
-                                    if (
-                                      fromChain.vmType === 'evm' &&
-                                      publicClient
-                                    ) {
-                                      const cachedBufferStr =
-                                        getCachedEvmGasBufferAmount(
-                                          fromChain.id
-                                        )
-
-                                      if (cachedBufferStr) {
-                                        feeBufferAmount =
-                                          BigInt(cachedBufferStr)
-                                      } else if (hoverFetchPromiseRef.current) {
-                                        // If hover calculation is in progress, wait for it
-                                        try {
-                                          feeBufferAmount =
-                                            await hoverFetchPromiseRef.current
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to await pre-fetched EVM gas buffer:',
-                                            error
-                                          )
-                                          feeBufferAmount = 0n
-                                        }
-                                      } else {
-                                        // If not cached and not pre-fetching, calculate now
-                                        try {
-                                          feeBufferAmount =
-                                            await calculateEvmNativeGasBuffer(
-                                              publicClient,
-                                              fromBalance
-                                            )
-                                          // Cache the newly calculated buffer
-                                          setCachedEvmGasBufferAmount(
-                                            fromChain.id,
-                                            feeBufferAmount,
-                                            5 // EVM TTL
-                                          )
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to calculate EVM gas buffer on click:',
-                                            error
-                                          )
-                                          feeBufferAmount = 0n // Assume 0 buffer on error
-                                        }
-                                      }
-                                    }
-                                    // BVM Buffer Logic
-                                    else if (fromChain.vmType === 'bvm') {
-                                      const cachedBufferStr =
-                                        getCachedBitcoinFeeBufferAmount()
-
-                                      if (cachedBufferStr) {
-                                        feeBufferAmount =
-                                          BigInt(cachedBufferStr)
-                                      } else if (
-                                        hoverBitcoinFetchPromiseRef.current
-                                      ) {
-                                        // If hover calculation is in progress, wait for it
-                                        try {
-                                          feeBufferAmount =
-                                            await hoverBitcoinFetchPromiseRef.current
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to await pre-fetched Bitcoin fee buffer:',
-                                            error
-                                          )
-                                          feeBufferAmount = 0n
-                                        }
-                                      } else {
-                                        // If not cached and not pre-fetching, calculate now
-                                        try {
-                                          feeBufferAmount =
-                                            await calculateBitcoinNativeFeeBuffer()
-                                          // Cache the newly calculated buffer
-                                          setCachedBitcoinFeeBufferAmount(
-                                            feeBufferAmount,
-                                            5
-                                          )
-                                        } catch (error) {
-                                          console.error(
-                                            'Failed to calculate Bitcoin fee buffer on click:',
-                                            error
-                                          )
-                                          feeBufferAmount = 0n // Assume 0 buffer on error
-                                        }
-                                      }
-                                    }
+                                    feeBufferAmount = await getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance
+                                    )
                                   }
 
                                   // Calculate the final max amount

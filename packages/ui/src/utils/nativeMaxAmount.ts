@@ -1,5 +1,10 @@
 import type { PublicClient } from 'viem'
 import fetcher from './fetcher.js'
+import {
+  EVM_GAS_BUFFER_MULTIPLIER,
+  BTC_FEE_BUFFER_FACTOR,
+  MEMPOOL_API_URL
+} from '../constants/nativeCalculation.js'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -48,7 +53,7 @@ export const calculateEvmNativeGasBuffer = async (
     }
 
     const estimatedGasCost = gasPriceToUse * gasLimit
-    const buffer = estimatedGasCost * 2n // 200% buffer, representing the amount to reserve
+    const buffer = estimatedGasCost * EVM_GAS_BUFFER_MULTIPLIER // Use constant
 
     // return the calculated buffer
     return buffer
@@ -66,10 +71,8 @@ export const calculateEvmNativeGasBuffer = async (
  * @returns The calculated fee buffer amount in satoshis as a bigint, or 0n if estimation fails.
  */
 export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
-  const mempoolApiUrl = 'https://mempool.space/api/v1/fees/mempool-blocks'
-
   try {
-    const data = await fetcher(mempoolApiUrl)
+    const data = await fetcher(MEMPOOL_API_URL) // Use constant
 
     // Basic validation of the response structure
     if (
@@ -97,10 +100,11 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
 
     // feeRateToUse is in sat/vB
     const estimatedFeeSatsFloat = averageTxVBytes * feeRateToUse
-    const bufferFactor = 1.75 // 75% buffer (1.75x the estimated fee)
 
     // Calculate buffer in satoshis, rounding up, then convert to BigInt
-    const bufferAmount = BigInt(Math.ceil(estimatedFeeSatsFloat * bufferFactor))
+    const bufferAmount = BigInt(
+      Math.ceil(estimatedFeeSatsFloat * BTC_FEE_BUFFER_FACTOR)
+    ) // Use constant
 
     return bufferAmount
   } catch (error) {
