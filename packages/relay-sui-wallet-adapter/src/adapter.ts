@@ -1,9 +1,4 @@
-import {
-  type AdaptedWallet
-  // LogLevel,
-  // getClient,
-  // type TransactionStepItem
-} from '@reservoir0x/relay-sdk'
+import { type AdaptedWallet, LogLevel, getClient } from '@reservoir0x/relay-sdk'
 import { SuiClient } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions'
 
@@ -30,33 +25,37 @@ export const adaptSuiWallet = (
       throw new Error('Message signing not implemented for Sui')
     },
     handleSendTransactionStep: async (_chainId, stepItem) => {
+      const client = getClient()
+
       const txData = stepItem.data.data
 
-      const tx = Transaction.from(txData)
+      if (!txData) {
+        throw new Error('Transaction data not found')
+      }
 
+      const tx = Transaction.from(txData)
       const result = await signAndExecuteTransactionBlock(tx)
 
-      console.log('result: ', result)
+      client.log(
+        ['Transaction digest obtained', result.digest],
+        LogLevel.Verbose
+      )
 
       return result.digest
     },
     handleConfirmTransactionStep: async (txHash) => {
-      // @TODO: maybe use getTransactionBlock instead
       const result = await client.waitForTransaction({
         digest: txHash,
         options: {
-          showBalanceChanges: true,
           showEffects: true
         }
       })
 
-      console.log('result', result)
+      if (result.errors && result.errors.length > 0) {
+        throw new Error(`Transaction failed: ${result.errors.join(', ')}`)
+      }
 
       return { digest: result.digest }
-
-      // @TODO: add logs
-
-      // throw new Error('Transaction confirmation not implemented for Sui')
     },
     switchChain: (chainId: number) => {
       _chainId = chainId

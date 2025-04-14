@@ -89,8 +89,6 @@ const SwapWidgetPage: NextPage = () => {
     return _wallets
   }, [userWallets])
 
-  console.log('linkedWallets', linkedWallets)
-
   useEffect(() => {
     switchWallet.current = _switchWallet
   }, [_switchWallet])
