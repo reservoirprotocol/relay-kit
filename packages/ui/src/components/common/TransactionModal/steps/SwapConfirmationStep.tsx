@@ -205,8 +205,8 @@ export const StepRow: FC<StepRowProps> = ({
             backgroundColor: isCompleted
               ? 'green3'
               : isActive
-              ? 'primary6'
-              : 'gray5',
+                ? 'primary6'
+                : 'gray5',
             color: isCompleted ? 'green11' : isActive ? 'primary6' : 'gray9',
             animation:
               isActive && !isCompleted ? 'pulse-shadow 1s infinite' : 'none',
@@ -276,23 +276,25 @@ export const StepRow: FC<StepRowProps> = ({
                 relayClient?.chains,
                 txHash
               )
-              return (
-                <Anchor
-                  key={txHash}
-                  href={txUrl}
-                  target="_blank"
-                  css={{
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1'
-                  }}
-                >
-                  {!isApproveStep ? 'Deposit: ' : ''}
-                  {truncateAddress(txHash, '...', 6, 4)}{' '}
-                  <FontAwesomeIcon icon={faExternalLink} width={14} />
-                </Anchor>
-              )
+              if (txHash && txUrl) {
+                return (
+                  <Anchor
+                    key={txHash}
+                    href={txUrl}
+                    target="_blank"
+                    css={{
+                      fontSize: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1'
+                    }}
+                  >
+                    {!isApproveStep ? 'Deposit: ' : ''}
+                    {truncateAddress(txHash, '...', 6, 4)}{' '}
+                    <FontAwesomeIcon icon={faExternalLink} width={14} />
+                  </Anchor>
+                )
+              }
             })}
         </Flex>
       </Flex>
