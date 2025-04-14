@@ -140,6 +140,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   fillTime,
   seconds,
   fromChain,
+  toChain,
   recipient,
   depositAddress,
   executionStatus,
@@ -234,6 +235,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
             onOpenChange={onOpenChange}
             transaction={transaction}
             fromChain={fromChain}
+            toChain={toChain}
           />
         ) : null}
       </Flex>

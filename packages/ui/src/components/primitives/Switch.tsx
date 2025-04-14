@@ -52,7 +52,7 @@ const StyledThumbCss = cva({
     backgroundColor: 'gray1',
     borderRadius: '9999px',
     zIndex: 1,
-    '--borderColor': 'colors.primary7',
+    '--borderColor': 'colors.gray.8',
     border: '1px solid var(--borderColor)',
     transition: 'transform 100ms',
     transform: 'translateX(0px)',

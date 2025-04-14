@@ -42,7 +42,6 @@ const GasTopUpSection: FC<Props> = ({
       direction="column"
       css={{
         p: '3',
-        gap: '2',
         backgroundColor: 'widget-background',
         borderRadius: '12px',
         mb: '6px'
@@ -56,6 +55,7 @@ const GasTopUpSection: FC<Props> = ({
             tokenlogoURI={`${ASSETS_RELAY_API}/icons/currencies/${
               currency?.id ?? currency?.symbol?.toLowerCase()
             }.png`}
+            size="sm"
           />
           <Text style="subtitle2">{toChain?.displayName} gas top up</Text>
         </Flex>
@@ -84,7 +84,7 @@ const GasTopUpSection: FC<Props> = ({
       </Flex>
       <CollapsibleRoot open={gasTopUpEnabled}>
         <CollapsibleContent>
-          <Text style="subtitle2" color="subtle">
+          <Text style="subtitle2" color="subtle" css={{ pt: '2' }}>
             You’re low on {toChain?.displayName} gas ({toChain?.displayName}{' '}
             {currency.symbol}). Top up to cover future transactions on{' '}
             {toChain?.displayName}.
