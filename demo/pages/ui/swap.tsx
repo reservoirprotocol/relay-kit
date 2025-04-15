@@ -147,8 +147,6 @@ const SwapWidgetPage: NextPage = () => {
               103665049, // @TODO: handle sui testnet
               walletClient as any,
               async (tx) => {
-                console.log('tx: ', tx)
-
                 const signedTransaction = await suiWallet.signTransaction(tx)
 
                 const executionResult =
@@ -225,7 +223,6 @@ const SwapWidgetPage: NextPage = () => {
             multiWalletSupportEnabled={true}
             linkedWallets={linkedWallets}
             onLinkNewWallet={({ chain, direction }) => {
-              console.log('onLinkNewWallet Triggered', chain, direction)
               if (linkWalletPromise) {
                 linkWalletPromise.reject()
                 setLinkWalletPromise(undefined)

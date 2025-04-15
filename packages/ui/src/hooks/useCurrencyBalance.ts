@@ -11,6 +11,7 @@ import type { QueryKey } from '@tanstack/react-query'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
+import useSuiBalance from './useSuiBalance.js'
 import { isValidAddress } from '../utils/address.js'
 import useRelayClient from './useRelayClient.js'
 
@@ -111,6 +112,14 @@ const useCurrencyBalance = ({
     staleTime: refreshInterval
   })
 
+  const suiBalances = useSuiBalance(address, currency, {
+    enabled: Boolean(
+      chain && chain.vmType === 'suivm' && address && _isValidAddress && enabled
+    ),
+    gcTime: refreshInterval,
+    staleTime: refreshInterval
+  })
+
   if (chain?.vmType === 'evm') {
     const value = isErc20Currency ? erc20Balance : ethBalance?.value
     const error = isErc20Currency ? erc20Error : ethError
@@ -179,11 +188,11 @@ const useCurrencyBalance = ({
     }
   } else if (chain?.vmType === 'suivm') {
     return {
-      value: undefined,
-      queryKey: duneBalances.queryKey,
-      isLoading: duneBalances.isLoading,
-      isError: true, // @TODO: handle sui balance
-      error: duneBalances.error,
+      value: suiBalances.balance,
+      queryKey: suiBalances.queryKey,
+      isLoading: suiBalances.isLoading,
+      isError: suiBalances.isError,
+      error: suiBalances.error,
       isDuneBalance: false
     }
   } else {
