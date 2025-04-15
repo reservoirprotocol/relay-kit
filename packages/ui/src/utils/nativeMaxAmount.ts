@@ -1,5 +1,11 @@
 import type { PublicClient } from 'viem'
 import fetcher from './fetcher.js'
+import {
+  EVM_GAS_BUFFER_MULTIPLIER,
+  BTC_FEE_BUFFER_FACTOR,
+  MEMPOOL_API_URL,
+  MINIMUM_GAS_PRICE_WEI
+} from '../constants/nativeCalculation.js'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -8,13 +14,13 @@ import fetcher from './fetcher.js'
  *
  * @param publicClient - A VIEM PublicClient connected to the EVM chain.
  * @param balance - The total native balance of the user (used for early exit).
- * @param gasLimit - Optional: The gas limit to use for estimation (defaults to 210000n).
+ * @param gasLimit - Optional: The gas limit to use for estimation (defaults to 400000n).
  * @returns The calculated gas buffer amount as a bigint, or 0n if estimation fails or balance is zero.
  */
 export const calculateEvmNativeGasBuffer = async (
   publicClient: PublicClient,
   balance: bigint,
-  gasLimit: bigint = 210000n // Default gas limit
+  gasLimit: bigint = 400000n // Default gas limit
 ): Promise<bigint> => {
   if (!balance || balance <= 0n) {
     return 0n // Return 0 if balance is zero or negative
@@ -40,15 +46,19 @@ export const calculateEvmNativeGasBuffer = async (
     }
 
     // Prefer EIP-1559 maxFeePerGas if available, otherwise use gasPrice
-    const gasPriceToUse = feeData.maxFeePerGas ?? feeData.gasPrice
+    let gasPriceToUse = feeData.maxFeePerGas ?? feeData.gasPrice
 
     if (!gasPriceToUse || gasPriceToUse <= 0n) {
       console.error('Invalid gas price data received:', feeData)
       return 0n // Return 0 if gas price is invalid
     }
 
+    if (gasPriceToUse < MINIMUM_GAS_PRICE_WEI) {
+      gasPriceToUse = MINIMUM_GAS_PRICE_WEI
+    }
+
     const estimatedGasCost = gasPriceToUse * gasLimit
-    const buffer = estimatedGasCost * 2n // 200% buffer, representing the amount to reserve
+    const buffer = estimatedGasCost * EVM_GAS_BUFFER_MULTIPLIER // Use constant
 
     // return the calculated buffer
     return buffer
@@ -66,10 +76,8 @@ export const calculateEvmNativeGasBuffer = async (
  * @returns The calculated fee buffer amount in satoshis as a bigint, or 0n if estimation fails.
  */
 export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
-  const mempoolApiUrl = 'https://mempool.space/api/v1/fees/mempool-blocks'
-
   try {
-    const data = await fetcher(mempoolApiUrl)
+    const data = await fetcher(MEMPOOL_API_URL) // Use constant
 
     // Basic validation of the response structure
     if (
@@ -97,10 +105,11 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
 
     // feeRateToUse is in sat/vB
     const estimatedFeeSatsFloat = averageTxVBytes * feeRateToUse
-    const bufferFactor = 1.75 // 75% buffer (1.75x the estimated fee)
 
     // Calculate buffer in satoshis, rounding up, then convert to BigInt
-    const bufferAmount = BigInt(Math.ceil(estimatedFeeSatsFloat * bufferFactor))
+    const bufferAmount = BigInt(
+      Math.ceil(estimatedFeeSatsFloat * BTC_FEE_BUFFER_FACTOR)
+    ) // Use constant
 
     return bufferAmount
   } catch (error) {
