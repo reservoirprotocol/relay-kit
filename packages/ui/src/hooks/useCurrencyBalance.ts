@@ -8,10 +8,11 @@ import {
 import { useBalance, useReadContract } from 'wagmi'
 import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import useSuiBalance from './useSuiBalance.js'
+import useAdaptedWalletBalance from './useAdaptedWalletBalance.js'
 import { isValidAddress } from '../utils/address.js'
 import useRelayClient from './useRelayClient.js'
 
@@ -21,6 +22,7 @@ type UseBalanceProps = {
   currency?: Address | string
   enabled?: boolean
   refreshInterval?: number
+  wallet?: AdaptedWallet
 }
 
 type UseCurrencyBalanceData = {
@@ -39,11 +41,23 @@ const useCurrencyBalance = ({
   address,
   currency,
   enabled = true,
-  refreshInterval = 60000
+  refreshInterval = 60000,
+  wallet
 }: UseBalanceProps): UseCurrencyBalanceData => {
   const isErc20Currency = currency && currency !== zeroAddress
   const isValidEvmAddress = address && isAddress(address)
   const relayClient = useRelayClient()
+  const adaptedWalletBalanceIsEnabled =
+    wallet?.getBalance !== undefined && wallet.vmType === chain?.vmType
+
+  const adaptedWalletBalance = useAdaptedWalletBalance({
+    wallet,
+    chain,
+    address,
+    currency,
+    enabled: enabled && adaptedWalletBalanceIsEnabled,
+    refreshInterval
+  })
 
   const {
     data: ethBalance,
@@ -56,7 +70,8 @@ const useCurrencyBalance = ({
     address: address as Address,
     query: {
       enabled: Boolean(
-        !isErc20Currency &&
+        !adaptedWalletBalanceIsEnabled &&
+          !isErc20Currency &&
           chain &&
           chain.vmType === 'evm' &&
           isValidEvmAddress &&
@@ -80,7 +95,8 @@ const useCurrencyBalance = ({
     args: address ? [address as Address] : undefined,
     query: {
       enabled: Boolean(
-        isErc20Currency &&
+        !adaptedWalletBalanceIsEnabled &&
+          isErc20Currency &&
           chain &&
           chain.vmType === 'evm' &&
           isValidEvmAddress &&
@@ -97,7 +113,12 @@ const useCurrencyBalance = ({
     relayClient?.baseApiUrl?.includes('testnet') ? 'testnet' : 'mainnet',
     {
       enabled: Boolean(
-        chain && chain.vmType === 'svm' && address && _isValidAddress && enabled
+        !adaptedWalletBalanceIsEnabled &&
+          chain &&
+          chain.vmType === 'svm' &&
+          address &&
+          _isValidAddress &&
+          enabled
       ),
       staleTime: refreshInterval,
       gcTime: refreshInterval
@@ -106,7 +127,12 @@ const useCurrencyBalance = ({
 
   const bitcoinBalances = useBitcoinBalance(address, {
     enabled: Boolean(
-      chain && chain.vmType === 'bvm' && address && _isValidAddress && enabled
+      !adaptedWalletBalanceIsEnabled &&
+        chain &&
+        chain.vmType === 'bvm' &&
+        address &&
+        _isValidAddress &&
+        enabled
     ),
     gcTime: refreshInterval,
     staleTime: refreshInterval
@@ -114,13 +140,27 @@ const useCurrencyBalance = ({
 
   const suiBalances = useSuiBalance(address, currency, {
     enabled: Boolean(
-      chain && chain.vmType === 'suivm' && address && _isValidAddress && enabled
+      !adaptedWalletBalanceIsEnabled &&
+        chain &&
+        chain.vmType === 'suivm' &&
+        address &&
+        _isValidAddress &&
+        enabled
     ),
     gcTime: refreshInterval,
     staleTime: refreshInterval
   })
 
-  if (chain?.vmType === 'evm') {
+  if (adaptedWalletBalanceIsEnabled) {
+    return {
+      value: adaptedWalletBalance.data,
+      queryKey: adaptedWalletBalance.queryKey,
+      isLoading: adaptedWalletBalance.isLoading,
+      isError: adaptedWalletBalance.isError,
+      error: adaptedWalletBalance.error,
+      isDuneBalance: false
+    }
+  } else if (chain?.vmType === 'evm') {
     const value = isErc20Currency ? erc20Balance : ethBalance?.value
     const error = isErc20Currency ? erc20Error : ethError
     const isError = isErc20Currency ? isErc20Error : isEthError

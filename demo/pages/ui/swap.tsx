@@ -160,6 +160,7 @@ const SwapWidgetPage: NextPage = () => {
               }
             )
           }
+
           setWallet(adaptedWallet)
         } else {
           setWallet(undefined)

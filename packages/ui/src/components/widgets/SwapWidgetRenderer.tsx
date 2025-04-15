@@ -46,7 +46,6 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
-import { alreadyAcceptedToken } from '../../utils/localStorage.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -214,7 +213,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedControls: debouncedAmountInputControls
   } = useDebounceState<string>(
     !defaultTradeType || defaultTradeType === 'EXACT_INPUT'
-      ? defaultAmount ?? ''
+      ? (defaultAmount ?? '')
       : '',
     500
   )
@@ -224,7 +223,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? (defaultAmount ?? '') : '',
     500
   )
 
@@ -300,7 +299,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: fromChain,
     address: address,
     currency: fromToken?.address ? (fromToken.address as Address) : undefined,
-    enabled: fromToken !== undefined
+    enabled: fromToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const {
@@ -313,7 +314,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: toChain,
     address: recipient,
     currency: toToken?.address ? (toToken.address as Address) : undefined,
-    enabled: toToken !== undefined
+    enabled: toToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const invalidateBalanceQueries = useCallback(() => {
