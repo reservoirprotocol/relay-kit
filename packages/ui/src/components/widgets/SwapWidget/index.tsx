@@ -485,6 +485,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
+                setGasTopUpEnabled(true)
+                invalidateQuoteQuery()
+                setAmountInputValue('')
+                setAmountOutputValue('')
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
@@ -498,10 +502,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
-              setGasTopUpEnabled(true)
-              invalidateQuoteQuery()
-              setAmountInputValue('')
-              setAmountOutputValue('')
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
