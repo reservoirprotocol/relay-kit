@@ -157,6 +157,7 @@ const SwapWidgetPage: NextPage = () => {
           alignItems: 'center',
           justifyContent: 'center',
           paddingTop: 50,
+          paddingInline: '10px',
           gap: 20
         }}
       >
@@ -164,7 +165,6 @@ const SwapWidgetPage: NextPage = () => {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            width: 'max-content',
             gap: 8
           }}
         >

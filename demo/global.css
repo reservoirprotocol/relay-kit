@@ -1,3 +1,7 @@
+body {
+  margin: 0;
+}
+
 #moonpay-react-sdk-embedded-frame iframe {
   border: none !important;
 }

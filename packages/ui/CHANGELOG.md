@@ -1,5 +1,44 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.8
+
+### Patch Changes
+
+- a8ecc87: Reset swap widget inputs after a successful swap
+- d243416: Fix slice error on confirmation screens
+- 0e55b40: Handle rejecting tx in AGW
+
+## 2.9.7
+
+### Patch Changes
+
+- ed9cddb: Fix chain scroll bug
+
+## 2.9.6
+
+### Patch Changes
+
+- 74929ec: Fix chain filter scroll into view
+- 975b6d1: Add additional data to token select exit event
+- b2782e9: Add endpoint to APIError for debugging
+- Updated dependencies [b2782e9]
+  - @reservoir0x/relay-sdk@1.6.14
+  - @reservoir0x/relay-kit-hooks@1.9.1
+
+## 2.9.5
+
+### Patch Changes
+
+- f0ed8bc: Prevent AGW from receiving incompatible funds
+
+## 2.9.4
+
+### Patch Changes
+
+- 9eef113: Fix token symbol overflow within token selector
+- e5d2bb9: Add privateChainIds to RelayKitProvider options
+- be993e3: Add dropdown-border theme element
+
 ## 2.9.3
 
 ### Patch Changes

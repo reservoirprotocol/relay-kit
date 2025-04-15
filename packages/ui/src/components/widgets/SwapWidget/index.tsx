@@ -1,5 +1,5 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type Dispatch, type FC } from 'react'
+import { useContext, useEffect, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -400,6 +400,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
+                setGasTopUpEnabled(true)
+                invalidateQuoteQuery()
+                setAmountInputValue('')
+                setAmountOutputValue('')
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
@@ -413,7 +417,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
-              setGasTopUpEnabled(true)
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}

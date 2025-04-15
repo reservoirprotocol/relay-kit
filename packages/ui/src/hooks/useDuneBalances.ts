@@ -7,7 +7,6 @@ import {
   type QueryKey
 } from '@tanstack/react-query'
 import { eclipse, isSolanaAddress, solana } from '../utils/solana.js'
-import { isBitcoinAddress } from '../utils/bitcoin.js'
 
 export type DuneBalanceResponse = {
   request_time: string
