@@ -1,10 +1,19 @@
 import { useMemo, type FC } from 'react'
 import { useRelayClient } from '../../../../hooks/index.js'
 import type { TxHashes } from '../TransactionModalRenderer.js'
-import { Flex, Anchor, Text, Skeleton } from '../../../primitives/index.js'
+import {
+  Flex,
+  Anchor,
+  Text,
+  Skeleton,
+  Pill
+} from '../../../primitives/index.js'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowUpRightFromSquare,
+  faRotateRight
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
@@ -47,6 +56,7 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
 
   const refundTx =
     allTxHashes.length > 0 ? allTxHashes[allTxHashes.length - 1] : null
+  const isSameChain = fromChain?.id === toChain?.id
 
   const refundTxUrl =
     refundChain && refundData && refundTx
@@ -57,13 +67,34 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
         )
       : null
 
-  return [fromChain, toChain].map((chain) => {
+  return (isSameChain ? [fromChain] : [fromChain, toChain]).map((chain) => {
+    const isRefundChain = refundData && refundChain?.id === chain?.id
     return (
       <Flex justify="between">
-        <Text style="subtitle2" color="subtle">
-          View {chain?.displayName} Tx
-        </Text>
-        {chain?.id && txHashesByChain[chain.id] && !refundData ? (
+        <Flex css={{ alignItems: 'center', gap: '2' }}>
+          <Text style="subtitle2" color="subtle">
+            View {chain?.displayName} Tx
+          </Text>
+          {isRefundChain ? (
+            <Pill
+              color="gray"
+              css={{
+                py: '1',
+                px: '6px',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <FontAwesomeIcon
+                icon={faRotateRight}
+                style={{ width: 16, height: 16, marginRight: 4 }}
+                color="#889096"
+              />{' '}
+              <Text style="subtitle2">Refunded</Text>
+            </Pill>
+          ) : null}
+        </Flex>
+        {chain?.id && txHashesByChain[chain.id] && !isRefundChain ? (
           <Flex direction="column">
             {txHashesByChain[chain.id].map(({ txHash, chainId, isBatchTx }) => {
               const txUrl = getTxBlockExplorerUrl(
@@ -90,7 +121,7 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
             })}
           </Flex>
         ) : null}
-        {refundData && refundTxUrl ? (
+        {refundData && refundTxUrl && isRefundChain ? (
           <Flex direction="column">
             <Anchor
               key={refundTx?.txHash}
@@ -107,14 +138,21 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
             </Anchor>
           </Flex>
         ) : null}
-        {chain?.id && !txHashesByChain[chain.id] && !isSolverStatusTimeout ? (
+        {chain?.id &&
+        !txHashesByChain[chain.id] &&
+        !isSolverStatusTimeout &&
+        !isRefundChain ? (
           <Flex direction="column">
             <Text color="red" style="subtitle2">
               Order has not been filled yet
             </Text>
           </Flex>
         ) : null}
-        {chain?.id && !txHashesByChain[chain.id] && isSolverStatusTimeout ? (
+        {chain?.id &&
+        !txHashesByChain[chain.id] &&
+        isSolverStatusTimeout &&
+        !refundData &&
+        !isRefundChain ? (
           <Flex direction="column">
             <Skeleton css={{ height: 20 }} />
           </Flex>

@@ -22,6 +22,7 @@ import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
 import { TransactionsByChain } from './TransactionsByChain.js'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -178,9 +179,11 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           ) : (
             <Text style="subtitle1">?</Text>
           )}
-          <Text style="subtitle1" color="subtle">
-            to
-          </Text>
+          <Flex
+            css={{ alignItems: 'center', justifyContent: 'center', p: '2' }}
+          >
+            <FontAwesomeIcon style={{ width: 14 }} icon={faArrowRight} />
+          </Flex>
           {toChain ? (
             <Pill color="gray" css={{ alignItems: 'center', py: '2' }}>
               <ChainIcon chainId={toChain.id} height={20} width={20} />
