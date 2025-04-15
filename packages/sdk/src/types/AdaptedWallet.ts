@@ -10,6 +10,10 @@ export type SvmReceipt = {
   txHash: string
 }
 
+export type SuiReceipt = {
+  digest: string
+}
+
 export type AdaptedWallet = {
   vmType: ChainVM
   getChainId: () => Promise<number>
@@ -30,10 +34,16 @@ export type AdaptedWallet = {
   ) => Promise<
     | TransactionReceipt // evm
     | SvmReceipt // svm
+    | SuiReceipt // suivm
   >
   address: () => Promise<string>
   switchChain: (chainId: number) => Promise<void>
   transport?: CustomTransport | HttpTransport
+  getBalance?: (
+    chainId: number,
+    walletAddress: string,
+    tokenAddress?: string
+  ) => Promise<bigint | undefined>
   // evm wallets that support EIP-5792's atomic batch capability
   // https://www.eip5792.xyz/capabilities/atomicBatch
   supportsAtomicBatch?: (chainId: number) => Promise<boolean>

@@ -430,6 +430,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             onSwapSuccess={(data) => {
               onSwapSuccess?.(data)
               setGasTopUpEnabled(true)
+              invalidateQuoteQuery()
+              setAmountInputValue('')
+              setAmountOutputValue('')
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}

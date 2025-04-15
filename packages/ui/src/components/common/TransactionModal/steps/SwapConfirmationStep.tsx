@@ -307,23 +307,25 @@ export const StepRow: FC<StepRowProps> = ({
                 relayClient?.chains,
                 txHash
               )
-              return (
-                <Anchor
-                  key={txHash}
-                  href={txUrl}
-                  target="_blank"
-                  css={{
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1'
-                  }}
-                >
-                  {!isApproveStep ? 'Deposit: ' : ''}
-                  {truncateAddress(txHash, '...', 6, 4)}{' '}
-                  <FontAwesomeIcon icon={faExternalLink} width={14} />
-                </Anchor>
-              )
+              if (txHash && txUrl) {
+                return (
+                  <Anchor
+                    key={txHash}
+                    href={txUrl}
+                    target="_blank"
+                    css={{
+                      fontSize: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1'
+                    }}
+                  >
+                    {!isApproveStep ? 'Deposit: ' : ''}
+                    {truncateAddress(txHash, '...', 6, 4)}{' '}
+                    <FontAwesomeIcon icon={faExternalLink} width={14} />
+                  </Anchor>
+                )
+              }
             })}
         </Flex>
       </Flex>

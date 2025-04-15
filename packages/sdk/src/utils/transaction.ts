@@ -5,7 +5,8 @@ import type {
   AdaptedWallet,
   TransactionStepItem,
   paths,
-  SvmReceipt
+  SvmReceipt,
+  SuiReceipt
 } from '../types/index.js'
 import { axios } from '../utils/axios.js'
 import type {
@@ -64,7 +65,7 @@ export async function sendTransactionSafely(
     const walletChainId = await wallet.getChainId()
     throw `Current chain id: ${walletChainId} does not match expected chain id: ${chainId} `
   }
-  let receipt: TransactionReceipt | SvmReceipt | undefined
+  let receipt: TransactionReceipt | SvmReceipt | SuiReceipt | undefined
   let transactionCancelled = false
   let confirmationError = false
   const pollingInterval = client.pollingInterval ?? 5000

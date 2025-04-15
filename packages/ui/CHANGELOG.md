@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.8
+
+### Patch Changes
+
+- a8ecc87: Reset swap widget inputs after a successful swap
+- d243416: Fix slice error on confirmation screens
+- 0e55b40: Handle rejecting tx in AGW
+
 ## 2.9.7
 
 ### Patch Changes
