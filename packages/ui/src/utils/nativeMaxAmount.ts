@@ -3,7 +3,8 @@ import fetcher from './fetcher.js'
 import {
   EVM_GAS_BUFFER_MULTIPLIER,
   BTC_FEE_BUFFER_FACTOR,
-  MEMPOOL_API_URL
+  MEMPOOL_API_URL,
+  MINIMUM_GAS_PRICE_WEI
 } from '../constants/nativeCalculation.js'
 
 /**
@@ -13,13 +14,13 @@ import {
  *
  * @param publicClient - A VIEM PublicClient connected to the EVM chain.
  * @param balance - The total native balance of the user (used for early exit).
- * @param gasLimit - Optional: The gas limit to use for estimation (defaults to 210000n).
+ * @param gasLimit - Optional: The gas limit to use for estimation (defaults to 400000n).
  * @returns The calculated gas buffer amount as a bigint, or 0n if estimation fails or balance is zero.
  */
 export const calculateEvmNativeGasBuffer = async (
   publicClient: PublicClient,
   balance: bigint,
-  gasLimit: bigint = 210000n // Default gas limit
+  gasLimit: bigint = 400000n // Default gas limit
 ): Promise<bigint> => {
   if (!balance || balance <= 0n) {
     return 0n // Return 0 if balance is zero or negative
@@ -45,11 +46,15 @@ export const calculateEvmNativeGasBuffer = async (
     }
 
     // Prefer EIP-1559 maxFeePerGas if available, otherwise use gasPrice
-    const gasPriceToUse = feeData.maxFeePerGas ?? feeData.gasPrice
+    let gasPriceToUse = feeData.maxFeePerGas ?? feeData.gasPrice
 
     if (!gasPriceToUse || gasPriceToUse <= 0n) {
       console.error('Invalid gas price data received:', feeData)
       return 0n // Return 0 if gas price is invalid
+    }
+
+    if (gasPriceToUse < MINIMUM_GAS_PRICE_WEI) {
+      gasPriceToUse = MINIMUM_GAS_PRICE_WEI
     }
 
     const estimatedGasCost = gasPriceToUse * gasLimit

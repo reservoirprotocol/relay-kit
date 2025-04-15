@@ -785,23 +785,19 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     fromChain.vmType === 'evm' &&
                                     publicClient
                                   ) {
-                                    const bufferAmount =
-                                      await getFeeBufferAmount(
-                                        fromChain.vmType,
-                                        fromChain.id,
-                                        fromBalance
-                                      )
-                                    handleMaxAmountClicked(bufferAmount, 'max')
+                                    await getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance
+                                    )
                                   }
                                   // BVM Pre-fetch
                                   else if (fromChain.vmType === 'bvm') {
-                                    const bufferAmount =
-                                      await getFeeBufferAmount(
-                                        fromChain.vmType,
-                                        fromChain.id,
-                                        fromBalance
-                                      )
-                                    handleMaxAmountClicked(bufferAmount, 'max')
+                                    await getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance
+                                    )
                                   }
                                 }}
                                 onClick={async () => {
