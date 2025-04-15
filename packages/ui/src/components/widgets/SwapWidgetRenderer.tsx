@@ -433,6 +433,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     undefined,
     {
+      refetchOnWindowFocus: false,
       enabled:
         fromToken !== undefined &&
         toToken !== undefined &&
@@ -465,7 +466,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     required: gasTopUpRequired,
     amount: _gasTopUpAmount,
     amountUsd: _gasTopUpAmountUsd
-  } = useGasTopUpRequired(toChain, toToken, address)
+  } = useGasTopUpRequired(toChain, toToken, recipient)
 
   const quoteParameters =
     fromToken && toToken
@@ -544,6 +545,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     onQuoteReceived,
     {
+      refetchOnWindowFocus: false,
       enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&

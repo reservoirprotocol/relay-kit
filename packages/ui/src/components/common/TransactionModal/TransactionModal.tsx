@@ -63,8 +63,7 @@ export const TransactionModal: FC<TransactionModalProps> = (
     wallet,
     onAnalyticEvent,
     onSuccess,
-    onSwapValidating,
-    invalidateQuoteQuery
+    onSwapValidating
   } = transactionModalProps
   return (
     <TransactionModalRenderer
