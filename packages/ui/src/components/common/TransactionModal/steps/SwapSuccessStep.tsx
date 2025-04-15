@@ -205,7 +205,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               relayClient?.chains,
               txHash
             )
-            if (txUrl && !isBatchTx) {
+            if (txHash && txUrl && !isBatchTx) {
               return (
                 <Anchor key={txHash} href={txUrl} target="_blank">
                   View Tx: {truncateAddress(txHash)}
@@ -364,7 +364,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             txHash
           )
 
-          if (txUrl && !isBatchTx) {
+          if (txHash && txUrl && !isBatchTx) {
             return (
               <Anchor key={txHash} href={txUrl} target="_blank">
                 View Tx: {truncateAddress(txHash)}

@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.14
+
+### Patch Changes
+
+- b2782e9: Add endpoint to APIError for debugging
+
 ## 1.6.13
 
 ### Patch Changes

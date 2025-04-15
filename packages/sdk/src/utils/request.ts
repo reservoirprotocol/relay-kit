@@ -13,6 +13,7 @@ export class APIError extends Error {
   type: string
   statusCode: number
   rawError: any
+  endpoint?: string
 
   constructor(
     message: string = 'Unknown Reason',
@@ -25,6 +26,7 @@ export class APIError extends Error {
     this.name = 'APIError'
     this.type = type
     this.statusCode = statusCode
+    this.endpoint = rawError?.endpoint
     this.rawError = rawError
   }
 }
