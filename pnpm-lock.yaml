@@ -331,9 +331,6 @@ importers:
       '@reservoir0x/relay-sdk':
         specifier: workspace:*
         version: link:../sdk
-      '@solana/web3.js':
-        specifier: ^1.95.3
-        version: 1.98.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@tanstack/react-query':
         specifier: '>=5.0.0'
         version: 5.66.9(react@18.3.1)

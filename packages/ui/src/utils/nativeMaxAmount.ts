@@ -5,13 +5,9 @@ import {
   BTC_FEE_BUFFER_FACTOR,
   MEMPOOL_API_URL,
   MINIMUM_GAS_PRICE_WEI,
-  SVM_LAMPORTS_PER_SIGNATURE,
-  SVM_DEFAULT_COMPUTE_UNITS,
-  SVM_PRIORITY_FEE_BUFFER_MULTIPLIER,
-  SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS,
-  SVM_DEFAULT_FALLBACK_PRIORITY_FEE_MICRO_LAMPORTS
+  SVM_FEE_BUFFER_MULTIPLIER
 } from '../constants/nativeCalculation.js'
-import { type Connection, type RecentPrioritizationFees } from '@solana/web3.js'
+import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -129,81 +125,47 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
  * This buffer includes the base fee for signatures and an estimated priority fee
  * based on recent network activity, multiplied by a safety factor.
  *
- * @param connection - A Solana web3.js Connection object.
- * @param numSignatures - The estimated number of signatures required (default: 1).
+ * @param chainId - The chain ID of the Solana network.
  * @returns The calculated fee buffer amount in lamports as a bigint, or 0n if estimation fails.
  */
 export const calculateSvmNativeFeeBuffer = async (
-  connection: Connection,
-  numSignatures: number = 1 // Default to 1 signature for simple transfers
+  chainId: number
 ): Promise<bigint> => {
   try {
-    // 1. Calculate Base Fee
-    const baseFee = BigInt(numSignatures) * SVM_LAMPORTS_PER_SIGNATURE
-
-    // 2. Estimate Priority Fee
-    let medianPriorityFeeMicroLamports = SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
-    try {
-      // Fetch recent priority fees (consider fees for specific accounts if needed later)
-      const recentFees = await connection.getRecentPrioritizationFees()
-
-      if (recentFees.length > 0) {
-        // Filter out zero fees and sort (using number initially)
-        const nonZeroFees = recentFees
-          .map((f: RecentPrioritizationFees) => f.prioritizationFee) // Use number type from RecentPrioritizationFees
-          .filter((fee: number) => fee > 0) // Use number type
-          .sort((a: number, b: number) => a - b) // Use number type
-
-        if (nonZeroFees.length > 0) {
-          // Calculate median of non-zero fees
-          const mid = Math.floor(nonZeroFees.length / 2)
-          let medianNumber: number
-          if (nonZeroFees.length % 2 === 0) {
-            medianNumber = (nonZeroFees[mid - 1] + nonZeroFees[mid]) / 2
-          } else {
-            medianNumber = nonZeroFees[mid]
-          }
-          // Convert median to BigInt for further calculations
-          medianPriorityFeeMicroLamports = BigInt(Math.ceil(medianNumber))
-        } else {
-          // All recent fees were zero, do nothing as the default is already set.
+    const url = `${MAINNET_RELAY_API}/requests/v2?limit=20&sortBy=createdAt&originChainId=${chainId}`
+    const resp: any = await fetcher(url)
+    if (!resp || !Array.isArray(resp.requests) || resp.requests.length === 0) {
+      console.warn('Invalid response', resp)
+      return 0n
+    }
+    // Extract fees from inTxs[0].fee
+    const fees: bigint[] = resp.requests
+      .map((r: any) => {
+        const feeStr = r?.data?.inTxs?.[0]?.fee
+        try {
+          return BigInt(feeStr)
+        } catch {
+          return null
         }
-        // If all recent fees were 0, we keep the minimum default
-      }
-      // If recentFees is empty, keep the minimum default
-    } catch (priorityFeeError) {
-      console.warn(
-        '[Relay UI] calculateSvmNativeFeeBuffer: Failed to fetch/process priority fees, using minimum:',
-        priorityFeeError
-      )
-      // Use a reasonable fallback default priority fee on error instead of the absolute minimum
-      medianPriorityFeeMicroLamports =
-        SVM_DEFAULT_FALLBACK_PRIORITY_FEE_MICRO_LAMPORTS
+      })
+      .filter((f: bigint | null): f is bigint => f !== null)
+
+    if (fees.length === 0) {
+      console.warn('No valid fees in response')
+      return 0n
     }
-
-    // Ensure priority fee is at least the minimum
-    if (
-      medianPriorityFeeMicroLamports < SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
-    ) {
-      medianPriorityFeeMicroLamports = SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
-    }
-
-    // Calculate estimated priority fee cost in lamports
-    // Priority fee is in micro-lamports per CU. 1 lamport = 1,000,000 micro-lamports.
-    const estimatedPriorityFee =
-      (medianPriorityFeeMicroLamports * SVM_DEFAULT_COMPUTE_UNITS) / 1_000_000n
-
-    // 3. Apply Buffer to Priority Fee and Calculate Total
-    const bufferedPriorityFee =
-      estimatedPriorityFee * SVM_PRIORITY_FEE_BUFFER_MULTIPLIER
-    const totalBufferedFee = baseFee + bufferedPriorityFee
-
-    return totalBufferedFee
-  } catch (error) {
-    console.error(
-      '[Relay UI] calculateSvmNativeFeeBuffer: Error during calculation:',
-      error
+    // Find the maximum fee
+    const maxFee = fees.reduce(
+      (max, current) => (current > max ? current : max),
+      0n
     )
-    return 0n // Return 0 buffer on any unexpected error
+
+    // Apply buffer to the maximum fee
+    const buffer = maxFee * SVM_FEE_BUFFER_MULTIPLIER
+
+    return buffer
+  } catch (error) {
+    console.error('Error fetching Relay requests:', error)
+    return 0n
   }
 }

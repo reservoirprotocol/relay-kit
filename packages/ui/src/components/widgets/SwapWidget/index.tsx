@@ -44,7 +44,6 @@ import {
   getCacheEntry,
   setCacheEntry
 } from '../../../utils/localStorage.js'
-import { Connection } from '@solana/web3.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -131,7 +130,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const hoverEvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const hoverBitcoinFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const hoverSvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
-  const solanaConnectionRef = useRef<Connection | null>(null)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -268,7 +266,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     publicClient,
                     balance
                   )
-                  setCacheEntry(cacheKey, buffer, 5) // Cache for 5 minutes
+                  setCacheEntry(cacheKey, buffer, 5)
                   return buffer
                 } catch (error) {
                   console.error(
@@ -315,37 +313,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             if (cachedBufferStr) {
               return BigInt(cachedBufferStr)
             }
-
-            // Function to get or create Solana connection
-            const getSolanaConnection = () => {
-              if (solanaConnectionRef.current) {
-                return solanaConnectionRef.current
-              }
-              const chain = relayClient?.chains.find((c) => c.id === chainId)
-              if (chain?.httpRpcUrl) {
-                solanaConnectionRef.current = new Connection(
-                  chain.httpRpcUrl,
-                  'confirmed'
-                )
-                return solanaConnectionRef.current
-              }
-              return null
-            }
-
-            const connection = getSolanaConnection()
-
-            if (!connection) {
-              console.error(
-                '[Relay UI] getFeeBufferAmount: Could not establish Solana connection for fee buffer.'
-              )
-              return 0n
-            }
-
-            // Await pre-fetched promise if exists
             if (hoverSvmFetchPromiseRef.current) {
               try {
-                const buffer = await hoverSvmFetchPromiseRef.current
-                return buffer
+                return await hoverSvmFetchPromiseRef.current
               } catch (error) {
                 console.error(
                   'Failed to await pre-fetched SVM fee buffer:',
@@ -353,20 +323,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 )
                 return 0n
               }
-            } else {
-              // Calculate on demand
-              try {
-                // Assuming 1 signature for MAX calc, could be refined if needed
-                const buffer = await calculateSvmNativeFeeBuffer(connection, 1)
-                setCacheEntry(cacheKey, buffer, 5) // Cache for 5 minutes
-                return buffer
-              } catch (error) {
-                console.error(
-                  'Failed to calculate SVM fee buffer on click:',
-                  error
-                )
-                return 0n
-              }
+            }
+
+            try {
+              const buffer = await calculateSvmNativeFeeBuffer(chainId)
+              setCacheEntry(cacheKey, buffer, 5)
+              return buffer
+            } catch (error) {
+              console.error(
+                'Failed to calculate SVM fee buffer on click:',
+                error
+              )
+              return 0n
             }
           }
           return 0n // Return 0 if not native EVM/BVM/SVM or missing data
@@ -887,40 +855,23 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                   // SVM Logic - Separate block
                                   else if (fromChain?.vmType === 'svm') {
-                                    const cacheKey = `svmFeeBuffer:${fromChain.id}`
+                                    const cacheKey = `svmFeeBuffer:${fromChain!.id}`
                                     if (!getCacheEntry(cacheKey)) {
-                                      const rpcUrl = fromChain?.httpRpcUrl
-                                      if (rpcUrl) {
-                                        const connection =
-                                          solanaConnectionRef.current ??
-                                          new Connection(rpcUrl, 'confirmed')
-                                        if (!solanaConnectionRef.current) {
-                                          solanaConnectionRef.current =
-                                            connection
-                                        }
-
-                                        hoverSvmFetchPromiseRef.current =
-                                          calculateSvmNativeFeeBuffer(
-                                            connection,
-                                            1
-                                          )
-                                        try {
-                                          const buffer =
-                                            await hoverSvmFetchPromiseRef.current
-                                          setCacheEntry(cacheKey, buffer, 5)
-                                        } catch (error) {
-                                          console.error(
-                                            '[Relay UI] MAX Hover: Failed to pre-fetch SVM fee buffer:',
-                                            error
-                                          )
-                                        }
-                                        hoverSvmFetchPromiseRef.current = null
-                                      } else {
+                                      hoverSvmFetchPromiseRef.current =
+                                        calculateSvmNativeFeeBuffer(
+                                          fromChain!.id
+                                        )
+                                      try {
+                                        const buffer =
+                                          await hoverSvmFetchPromiseRef.current
+                                        setCacheEntry(cacheKey, buffer, 5)
+                                      } catch (error) {
                                         console.error(
-                                          'Missing httpRpcUrl for SVM chain:',
-                                          fromChain.id
+                                          'Failed to pre-fetch SVM fee buffer:',
+                                          error
                                         )
                                       }
+                                      hoverSvmFetchPromiseRef.current = null
                                     }
                                   }
                                 }}
@@ -929,7 +880,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     return
 
                                   let feeBufferAmount: bigint = 0n
-
                                   // Calculate/fetch buffer ONLY if it's the native token
                                   if (isFromNative) {
                                     feeBufferAmount = await getFeeBufferAmount(
