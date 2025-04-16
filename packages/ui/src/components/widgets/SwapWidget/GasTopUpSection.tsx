@@ -48,7 +48,7 @@ const GasTopUpSection: FC<Props> = ({
       }}
     >
       <Flex justify="between" align="center">
-        <Flex css={{ gap: '2' }} align="center">
+        <Flex css={{ gap: '2', minWidth: 0 }} align="center">
           <ChainTokenIcon
             css={{ width: 24, height: 24 }}
             chainId={toChain?.id}
@@ -57,9 +57,11 @@ const GasTopUpSection: FC<Props> = ({
             }.png`}
             size="sm"
           />
-          <Text style="subtitle2">{toChain?.displayName} gas top up</Text>
+          <Text ellipsify style="subtitle2" css={{ mr: '1' }}>
+            {toChain?.displayName} gas top up
+          </Text>
         </Flex>
-        <Flex align="center" css={{ gap: '1' }}>
+        <Flex align="center" css={{ gap: '1', flexShrink: 0 }}>
           {gasTopUpEnabled ? (
             <>
               <Text style="subtitle2">
