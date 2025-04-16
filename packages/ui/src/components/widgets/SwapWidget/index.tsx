@@ -258,10 +258,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               try {
                 return await hoverEvmFetchPromiseRef.current
               } catch (error) {
-                console.error(
-                  'Failed to await pre-fetched EVM gas buffer:',
-                  error
-                )
                 return 0n // Fallback on error
               }
             } else {
@@ -313,33 +309,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               }
             }
           } else if (vmType === 'svm') {
-            console.log(
-              `[Relay UI] getFeeBufferAmount: Entering SVM block for chain ${chainId}`
-            )
             const cacheKey = `svmFeeBuffer:${chainId}`
             const cachedBufferStr = getCacheEntry(cacheKey)
 
             if (cachedBufferStr) {
-              console.log(
-                `[Relay UI] getFeeBufferAmount: SVM buffer cache hit for chain ${chainId}: ${cachedBufferStr}`
-              )
               return BigInt(cachedBufferStr)
             }
 
             // Function to get or create Solana connection
             const getSolanaConnection = () => {
               if (solanaConnectionRef.current) {
-                console.log(
-                  '[Relay UI] getFeeBufferAmount: Using cached Solana connection.'
-                )
                 return solanaConnectionRef.current
               }
               const chain = relayClient?.chains.find((c) => c.id === chainId)
               if (chain?.httpRpcUrl) {
-                console.log('chain', chain)
-                console.log(
-                  `[Relay UI] getFeeBufferAmount: Creating new Solana connection for ${chain.httpRpcUrl}`
-                )
                 solanaConnectionRef.current = new Connection(
                   chain.httpRpcUrl,
                   'confirmed'
@@ -361,13 +344,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             // Await pre-fetched promise if exists
             if (hoverSvmFetchPromiseRef.current) {
               try {
-                console.log(
-                  `[Relay UI] getFeeBufferAmount: Awaiting pre-fetched SVM buffer for chain ${chainId}...`
-                )
                 const buffer = await hoverSvmFetchPromiseRef.current
-                console.log(
-                  `[Relay UI] getFeeBufferAmount: Pre-fetched SVM buffer received: ${buffer}`
-                )
                 return buffer
               } catch (error) {
                 console.error(
@@ -380,13 +357,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               // Calculate on demand
               try {
                 // Assuming 1 signature for MAX calc, could be refined if needed
-                console.log(
-                  `[Relay UI] getFeeBufferAmount: Calculating SVM buffer on demand for chain ${chainId}...`
-                )
                 const buffer = await calculateSvmNativeFeeBuffer(connection, 1)
-                console.log(
-                  `[Relay UI] getFeeBufferAmount: Calculated SVM buffer: ${buffer}`
-                )
                 setCacheEntry(cacheKey, buffer, 5) // Cache for 5 minutes
                 return buffer
               } catch (error) {
@@ -916,14 +887,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                   // SVM Logic - Separate block
                                   else if (fromChain?.vmType === 'svm') {
-                                    console.log(
-                                      `[Relay UI] MAX Hover: Entering SVM pre-fetch for chain ${fromChain.id}`
-                                    )
                                     const cacheKey = `svmFeeBuffer:${fromChain.id}`
                                     if (!getCacheEntry(cacheKey)) {
-                                      console.log(
-                                        `[Relay UI] MAX Hover: SVM buffer cache miss for chain ${fromChain.id}, attempting pre-fetch...`
-                                      )
                                       const rpcUrl = fromChain?.httpRpcUrl
                                       if (rpcUrl) {
                                         const connection =
@@ -942,9 +907,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                         try {
                                           const buffer =
                                             await hoverSvmFetchPromiseRef.current
-                                          console.log(
-                                            `[Relay UI] MAX Hover: SVM pre-fetch success for chain ${fromChain.id}, buffer: ${buffer}`
-                                          )
                                           setCacheEntry(cacheKey, buffer, 5)
                                         } catch (error) {
                                           console.error(
@@ -970,16 +932,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
                                   // Calculate/fetch buffer ONLY if it's the native token
                                   if (isFromNative) {
-                                    console.log(
-                                      `[Relay UI] MAX Click: Fetching fee buffer for native token on chain ${fromChain.id} (VM: ${fromChain.vmType})...`
-                                    )
                                     feeBufferAmount = await getFeeBufferAmount(
                                       fromChain.vmType,
                                       fromChain.id,
                                       fromBalance
-                                    )
-                                    console.log(
-                                      `[Relay UI] MAX Click: Received fee buffer: ${feeBufferAmount}`
                                     )
                                   }
 
@@ -991,10 +947,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                         ? fromBalance - feeBufferAmount
                                         : 0n // Ensure not negative
                                       : fromBalance // Use full balance otherwise
-
-                                  console.log(
-                                    `[Relay UI] MAX Click: Final Max Amount calculated: ${finalMaxAmount} (Balance: ${fromBalance}, Buffer: ${feeBufferAmount})`
-                                  )
 
                                   handleMaxAmountClicked(finalMaxAmount, 'max')
                                 }}

@@ -138,27 +138,14 @@ export const calculateSvmNativeFeeBuffer = async (
   numSignatures: number = 1 // Default to 1 signature for simple transfers
 ): Promise<bigint> => {
   try {
-    console.log(
-      '[Relay UI] calculateSvmNativeFeeBuffer: Starting calculation...'
-    )
     // 1. Calculate Base Fee
     const baseFee = BigInt(numSignatures) * SVM_LAMPORTS_PER_SIGNATURE
-    console.log(
-      `[Relay UI] calculateSvmNativeFeeBuffer: Base fee (for ${numSignatures} sigs): ${baseFee} lamports`
-    )
 
     // 2. Estimate Priority Fee
     let medianPriorityFeeMicroLamports = SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
     try {
       // Fetch recent priority fees (consider fees for specific accounts if needed later)
-      console.log(
-        '[Relay UI] calculateSvmNativeFeeBuffer: Fetching recent prioritization fees...'
-      )
       const recentFees = await connection.getRecentPrioritizationFees()
-      console.log(
-        `[Relay UI] calculateSvmNativeFeeBuffer: Fetched ${recentFees.length} recent fees. First few:`,
-        recentFees.slice(0, 5)
-      )
 
       if (recentFees.length > 0) {
         // Filter out zero fees and sort (using number initially)
@@ -166,11 +153,6 @@ export const calculateSvmNativeFeeBuffer = async (
           .map((f: RecentPrioritizationFees) => f.prioritizationFee) // Use number type from RecentPrioritizationFees
           .filter((fee: number) => fee > 0) // Use number type
           .sort((a: number, b: number) => a - b) // Use number type
-
-        console.log(
-          `[Relay UI] calculateSvmNativeFeeBuffer: Found ${nonZeroFees.length} non-zero fees. Sorted:`,
-          nonZeroFees.slice(0, 10)
-        )
 
         if (nonZeroFees.length > 0) {
           // Calculate median of non-zero fees
@@ -181,20 +163,12 @@ export const calculateSvmNativeFeeBuffer = async (
           } else {
             medianNumber = nonZeroFees[mid]
           }
-          console.log(
-            `[Relay UI] calculateSvmNativeFeeBuffer: Calculated median (number): ${medianNumber}`
-          )
           // Convert median to BigInt for further calculations
           medianPriorityFeeMicroLamports = BigInt(Math.ceil(medianNumber))
         } else {
-          console.log(
-            '[Relay UI] calculateSvmNativeFeeBuffer: All recent fees were zero.'
-          )
+          // All recent fees were zero, do nothing as the default is already set.
         }
         // If all recent fees were 0, we keep the minimum default
-        console.log(
-          `[Relay UI] calculateSvmNativeFeeBuffer: Median priority fee used (micro-lamports/CU): ${medianPriorityFeeMicroLamports}`
-        )
       }
       // If recentFees is empty, keep the minimum default
     } catch (priorityFeeError) {
@@ -205,18 +179,12 @@ export const calculateSvmNativeFeeBuffer = async (
       // Use a reasonable fallback default priority fee on error instead of the absolute minimum
       medianPriorityFeeMicroLamports =
         SVM_DEFAULT_FALLBACK_PRIORITY_FEE_MICRO_LAMPORTS
-      console.log(
-        `[Relay UI] calculateSvmNativeFeeBuffer: Using fallback priority fee: ${medianPriorityFeeMicroLamports} micro-lamports/CU`
-      )
     }
 
     // Ensure priority fee is at least the minimum
     if (
       medianPriorityFeeMicroLamports < SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
     ) {
-      console.log(
-        `[Relay UI] calculateSvmNativeFeeBuffer: Calculated median ${medianPriorityFeeMicroLamports} was below minimum ${SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS}, using minimum.`
-      )
       medianPriorityFeeMicroLamports = SVM_MINIMUM_PRIORITY_FEE_MICRO_LAMPORTS
     }
 
@@ -229,16 +197,6 @@ export const calculateSvmNativeFeeBuffer = async (
     const bufferedPriorityFee =
       estimatedPriorityFee * SVM_PRIORITY_FEE_BUFFER_MULTIPLIER
     const totalBufferedFee = baseFee + bufferedPriorityFee
-
-    console.log(
-      `[Relay UI] calculateSvmNativeFeeBuffer: Estimated Priority Fee: ${estimatedPriorityFee} lamports (median: ${medianPriorityFeeMicroLamports} micro-lamports/CU, units: ${SVM_DEFAULT_COMPUTE_UNITS})`
-    )
-    console.log(
-      `[Relay UI] calculateSvmNativeFeeBuffer: Buffered Priority Fee: ${bufferedPriorityFee} lamports (multiplier: ${SVM_PRIORITY_FEE_BUFFER_MULTIPLIER})`
-    )
-    console.log(
-      `[Relay UI] calculateSvmNativeFeeBuffer: Total Buffered Fee: ${totalBufferedFee} lamports (Base: ${baseFee}, Buffered Priority: ${bufferedPriorityFee})`
-    )
 
     return totalBufferedFee
   } catch (error) {
