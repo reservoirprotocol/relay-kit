@@ -160,8 +160,11 @@ export const calculateSvmNativeFeeBuffer = async (
       0n
     )
 
+    // Determine the correct multiplier
+    const multiplier = chainId === 9286185 ? 10n : SVM_FEE_BUFFER_MULTIPLIER // Use 10x for Eclipse
+
     // Apply buffer to the maximum fee
-    const buffer = maxFee * SVM_FEE_BUFFER_MULTIPLIER
+    const buffer = maxFee * multiplier
 
     return buffer
   } catch (error) {
