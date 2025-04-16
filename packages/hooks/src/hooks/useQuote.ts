@@ -34,7 +34,7 @@ export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: QuoteBody,
   config?: AxiosRequestConfig
-): Promise<Execute> {
+): Promise<QuoteResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseApiUrl}/quote`)
     axiosPostFetcher(url.href, options, config)
@@ -62,7 +62,7 @@ export default function (
   wallet?: WalletClient | AdaptedWallet,
   options?: QuoteBody,
   onRequest?: () => void,
-  onResponse?: (data: Execute) => void,
+  onResponse?: (data: QuoteResponse) => void,
   queryOptions?: Partial<QueryOptions>,
   onError?: (e: any) => void,
   config?: AxiosRequestConfig
