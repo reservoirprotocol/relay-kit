@@ -26,6 +26,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { JSONToError } from '../../../../utils/errors.js'
 import { TransactionsByChain } from './TransactionsByChain.js'
+import RefundReason from '../../../common/RefundReason.js'
 
 type ErrorStepProps = {
   error?: Error | null
@@ -135,10 +136,11 @@ export const ErrorStep: FC<ErrorStepProps> = ({
 
       {isRefund ? (
         <Text style="subtitle2" css={{ my: '4', textAlign: 'center' }}>
+          <RefundReason reasonCode={transaction?.data?.failReason} />
           {refundDetails
-            ? `It looks like an unknown issue occurred during the transaction. We’ve
+            ? `We’ve
           refunded ${refundDetails.amountFormatted} ${refundDetails.currency?.symbol} on ${refundChain?.displayName}.`
-            : `It looks like an unknown issue occurred during the transaction. We apologize for the inconvenience, a refund has been sent to your wallet address.`}
+            : `We apologize for the inconvenience, a refund has been sent to your wallet address.`}
         </Text>
       ) : (
         <ErrorWell

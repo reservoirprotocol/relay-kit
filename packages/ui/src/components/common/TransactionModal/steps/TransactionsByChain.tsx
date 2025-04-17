@@ -144,7 +144,7 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
         !isRefundChain ? (
           <Flex direction="column">
             <Text color="red" style="subtitle2">
-              Order has not been filled yet
+              Order has not been filled
             </Text>
           </Flex>
         ) : null}
