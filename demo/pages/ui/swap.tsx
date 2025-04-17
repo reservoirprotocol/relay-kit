@@ -134,33 +134,32 @@ const SwapWidgetPage: NextPage = () => {
               connection,
               signer.signAndSendTransaction
             )
+          } else if (isSuiWallet(primaryWallet)) {
+            const suiWallet = primaryWallet as SuiWallet
+            const walletClient = await suiWallet.getWalletClient()
+
+            if (!walletClient) {
+              throw 'Unable to setup Sui wallet'
+            }
+
+            adaptedWallet = adaptSuiWallet(
+              suiWallet.address,
+              103665049, // @TODO: handle sui testnet
+              walletClient as any,
+              async (tx) => {
+                const signedTransaction = await suiWallet.signTransaction(tx)
+
+                const executionResult =
+                  await walletClient.executeTransactionBlock({
+                    options: {},
+                    signature: signedTransaction.signature,
+                    transactionBlock: signedTransaction.bytes
+                  })
+
+                return executionResult
+              }
+            )
           }
-          // else if (isSuiWallet(primaryWallet)) {
-          //   const suiWallet = primaryWallet as SuiWallet
-          //   const walletClient = await suiWallet.getWalletClient()
-
-          //   if (!walletClient) {
-          //     throw 'Unable to setup Sui wallet'
-          //   }
-
-          //   adaptedWallet = adaptSuiWallet(
-          //     suiWallet.address,
-          //     103665049, // @TODO: handle sui testnet
-          //     walletClient as any,
-          //     async (tx) => {
-          //       const signedTransaction = await suiWallet.signTransaction(tx)
-
-          //       const executionResult =
-          //         await walletClient.executeTransactionBlock({
-          //           options: {},
-          //           signature: signedTransaction.signature,
-          //           transactionBlock: signedTransaction.bytes
-          //         })
-
-          //       return executionResult
-          //     }
-          //   )
-          // }
 
           setWallet(adaptedWallet)
         } else {
