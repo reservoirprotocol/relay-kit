@@ -118,6 +118,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [pendingSuccessFlush, setPendingSuccessFlush] = useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -400,15 +401,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
-                setGasTopUpEnabled(true)
-                invalidateQuoteQuery()
-                setAmountInputValue('')
-                setAmountOutputValue('')
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
@@ -416,6 +431,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             swapError={swapError}
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
+              setPendingSuccessFlush(true)
               onSwapSuccess?.(data)
             }}
             onSwapValidating={onSwapValidating}

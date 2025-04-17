@@ -529,7 +529,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           debouncedOutputAmountValue.length > 0 &&
           Number(debouncedOutputAmountValue) !== 0)) &&
       fromToken !== undefined &&
-      toToken !== undefined
+      toToken !== undefined &&
+      !transactionModalOpen &&
+      !depositAddressModalOpen
   )
 
   const {
@@ -568,12 +570,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const invalidateQuoteQuery = useCallback(() => {
+    debugger
     queryClient.invalidateQueries({ queryKey: quoteQueryKey })
   }, [queryClient, quoteQueryKey])
-
-  let error = _quoteData || isFetchingQuote ? null : quoteError
+  let error =
+    _quoteData || (isFetchingQuote && quoteFetchingEnabled) ? null : quoteError
   let quote = error ? undefined : _quoteData
-
   const gasTopUpAmount = quote?.details?.currencyGasTopup?.amount
     ? BigInt(quote?.details?.currencyGasTopup?.amount)
     : _gasTopUpAmount

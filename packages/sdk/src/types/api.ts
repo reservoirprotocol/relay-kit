@@ -4295,44 +4295,6 @@ export interface paths {
                         amountUsd?: string;
                         minimumAmount?: string;
                       };
-                      /**
-                       * @example {
-                       *   "currency": {
-                       *     "chainId": 8453,
-                       *     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-                       *     "symbol": "USDC",
-                       *     "name": "USD Coin",
-                       *     "decimals": 6,
-                       *     "metadata": {
-                       *       "logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png",
-                       *       "verified": false,
-                       *       "isNative": false
-                       *     }
-                       *   },
-                       *   "amount": "30754920",
-                       *   "amountFormatted": "30.75492",
-                       *   "amountUsd": "30.901612",
-                       *   "minimumAmount": "30454920"
-                       * }
-                       */
-                      currencyGasTopup?: {
-                        currency?: {
-                          chainId?: number;
-                          address?: string;
-                          symbol?: string;
-                          name?: string;
-                          decimals?: number;
-                          metadata?: {
-                            logoURI?: string;
-                            verified?: boolean;
-                            isNative?: boolean;
-                          };
-                        };
-                        amount?: string;
-                        amountFormatted?: string;
-                        amountUsd?: string;
-                        minimumAmount?: string;
-                      };
                       rate?: string;
                     };
                     price?: string;

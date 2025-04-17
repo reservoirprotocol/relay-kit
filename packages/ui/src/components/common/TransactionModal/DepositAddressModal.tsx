@@ -48,10 +48,16 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     timeEstimate,
+    onOpenChange,
     invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess
   } = depositAddressModalProps
+
+  useEffect(() => {
+    onOpenChange(open)
+  }, [open])
+
   return (
     <DepositAddressModalRenderer
       open={open}
