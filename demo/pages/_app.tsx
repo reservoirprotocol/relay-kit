@@ -46,9 +46,6 @@ const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 
 const queryClient = new QueryClient()
 
-//@ts-ignore
-window.queryClient = queryClient
-
 const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const { walletFilter, setWalletFilter } = useWalletFilter()
   const [wagmiConfig, setWagmiConfig] = useState<

@@ -106,10 +106,12 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
         (relayClient?.pollingInterval ?? 5000)
 
-  const gasTopUpAmountCurrency = details?.currencyGasTopup?.currency
-  const formattedGasTopUpAmount = details?.currencyGasTopup?.amount
+  const gasTopUpAmountCurrency =
+    transaction?.data?.metadata?.currencyGasTopup?.currency
+  const formattedGasTopUpAmount = transaction?.data?.metadata?.currencyGasTopup
+    ?.amount
     ? formatBN(
-        BigInt(details?.currencyGasTopup?.amount),
+        BigInt(transaction?.data?.metadata?.currencyGasTopup?.amount),
         5,
         gasTopUpAmountCurrency?.decimals ?? 18
       )
