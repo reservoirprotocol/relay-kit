@@ -236,6 +236,8 @@ const SwapWidgetPage: NextPage = () => {
                 setWalletFilter('BTC')
               } else if (chain?.id === 9286185) {
                 setWalletFilter('ECLIPSE')
+              } else if (chain?.vmType === 'suivm') {
+                setWalletFilter('SUI')
               } else {
                 setWalletFilter(undefined)
               }
