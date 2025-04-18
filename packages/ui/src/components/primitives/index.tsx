@@ -9,7 +9,7 @@ import { Pill } from './Pill.js'
 import { default as Anchor } from './Anchor.js'
 import { default as Input } from './Input.js'
 import { AccessibleList, AccessibleListItem } from './AccessibleList.js'
-
+import { StyledSwitch, StyledThumb } from './Switch.js'
 export {
   Box,
   Flex,
@@ -22,5 +22,7 @@ export {
   Anchor,
   Input,
   AccessibleList,
-  AccessibleListItem
+  AccessibleListItem,
+  StyledSwitch,
+  StyledThumb
 }

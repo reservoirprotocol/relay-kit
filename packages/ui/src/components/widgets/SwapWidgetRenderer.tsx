@@ -15,7 +15,8 @@ import {
   useDisconnected,
   usePreviousValueChange,
   useIsWalletCompatible,
-  useFallbackState
+  useFallbackState,
+  useGasTopUpRequired
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -143,6 +144,11 @@ export type ChildrenProps = {
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
+  gasTopUpEnabled: boolean
+  setGasTopUpEnabled: Dispatch<React.SetStateAction<boolean>>
+  gasTopUpRequired: boolean
+  gasTopUpAmount?: bigint
+  gasTopUpAmountUsd?: string
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -205,6 +211,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
+  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
 
   const {
     value: amountInputValue,
@@ -426,6 +433,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     undefined,
     {
+      refetchOnWindowFocus: false,
       enabled:
         fromToken !== undefined &&
         toToken !== undefined &&
@@ -454,6 +462,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCurrentSlippageTolerance(slippageTolerance)
   }, [slippageTolerance])
 
+  const {
+    required: gasTopUpRequired,
+    amount: _gasTopUpAmount,
+    amountUsd: _gasTopUpAmountUsd
+  } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
+
   const quoteParameters =
     fromToken && toToken
       ? {
@@ -478,7 +492,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
-          slippageTolerance: slippageTolerance
+          slippageTolerance: slippageTolerance,
+          topupGas: gasTopUpEnabled && gasTopUpRequired
         }
       : undefined
 
@@ -514,7 +529,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           debouncedOutputAmountValue.length > 0 &&
           Number(debouncedOutputAmountValue) !== 0)) &&
       fromToken !== undefined &&
-      toToken !== undefined
+      toToken !== undefined &&
+      !transactionModalOpen &&
+      !depositAddressModalOpen
   )
 
   const {
@@ -530,6 +547,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     onQuoteReceived,
     {
+      refetchOnWindowFocus: false,
       enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&
@@ -554,9 +572,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const invalidateQuoteQuery = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: quoteQueryKey })
   }, [queryClient, quoteQueryKey])
-
-  let error = _quoteData || isFetchingQuote ? null : quoteError
+  let error =
+    _quoteData || (isFetchingQuote && quoteFetchingEnabled) ? null : quoteError
   let quote = error ? undefined : _quoteData
+  const gasTopUpAmount = quote?.details?.currencyGasTopup?.amount
+    ? BigInt(quote?.details?.currencyGasTopup?.amount)
+    : _gasTopUpAmount
+  const gasTopUpAmountUsd =
+    quote?.details?.currencyGasTopup?.amountUsd ?? _gasTopUpAmountUsd
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -878,6 +901,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toChainWalletVMSupported,
         isRecipientLinked,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         invalidateBalanceQueries,
         invalidateQuoteQuery,
         setUseExternalLiquidity,

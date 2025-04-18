@@ -19,6 +19,7 @@ import useIsAGW from './useIsAGW.js'
 import useFallbackState from './useFallbackState.js'
 import useMoonPayTransaction from './useMoonPayTransaction.js'
 import { useInternalRelayChains } from './useInternalRelayChains.js'
+import useGasTopUpRequired from './useGasTopUpRequired.js'
 
 export {
   useMounted,
@@ -41,5 +42,6 @@ export {
   useIsAGW,
   useFallbackState,
   useMoonPayTransaction,
-  useInternalRelayChains
+  useInternalRelayChains,
+  useGasTopUpRequired
 }

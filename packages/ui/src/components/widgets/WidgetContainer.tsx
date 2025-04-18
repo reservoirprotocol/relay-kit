@@ -91,6 +91,7 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
 }) => {
   const isMounted = useMounted()
   const { isConnected } = useAccount()
+
   return (
     <div className="relay-kit-reset">
       {children()}
@@ -104,8 +105,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             setSwapError={setSwapError}
             open={transactionModalOpen}
             onOpenChange={(open) => {
-              onTransactionModalOpenChange(open)
               setTransactionModalOpen(open)
+              onTransactionModalOpenChange(open)
             }}
             fromChain={fromChain}
             toChain={toChain}
@@ -127,8 +128,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           <DepositAddressModal
             open={depositAddressModalOpen}
             onOpenChange={(open) => {
-              onDepositAddressModalOpenChange(open)
               setDepositAddressModalOpen(open)
+              onDepositAddressModalOpenChange(open)
             }}
             fromChain={fromChain}
             fromToken={fromToken}

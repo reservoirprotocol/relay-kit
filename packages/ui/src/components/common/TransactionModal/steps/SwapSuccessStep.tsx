@@ -1,6 +1,5 @@
 import { type FC } from 'react'
 import {
-  Anchor,
   Box,
   Button,
   Flex,
@@ -14,7 +13,6 @@ import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
-import { truncateAddress } from '../../../../utils/truncate.js'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { type Token } from '../../../../types/index.js'
 import type { useRequests } from '@reservoir0x/relay-kit-hooks'
@@ -23,7 +21,8 @@ import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
-import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
+import { TransactionsByChain } from './TransactionsByChain.js'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -107,6 +106,17 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       (relayClient?.maxPollingAttemptsBeforeTimeout ?? 30) *
         (relayClient?.pollingInterval ?? 5000)
 
+  const gasTopUpAmountCurrency =
+    transaction?.data?.metadata?.currencyGasTopup?.currency
+  const formattedGasTopUpAmount = transaction?.data?.metadata?.currencyGasTopup
+    ?.amount
+    ? formatBN(
+        BigInt(transaction?.data?.metadata?.currencyGasTopup?.amount),
+        5,
+        gasTopUpAmountCurrency?.decimals ?? 18
+      )
+    : undefined
+
   return isDelayedTx ? (
     <>
       <Flex direction="column" align="center" justify="between">
@@ -171,9 +181,11 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           ) : (
             <Text style="subtitle1">?</Text>
           )}
-          <Text style="subtitle1" color="subtle">
-            to
-          </Text>
+          <Flex
+            css={{ alignItems: 'center', justifyContent: 'center', p: '2' }}
+          >
+            <FontAwesomeIcon style={{ width: 14 }} icon={faArrowRight} />
+          </Flex>
           {toChain ? (
             <Pill color="gray" css={{ alignItems: 'center', py: '2' }}>
               <ChainIcon chainId={toChain.id} height={20} width={20} />
@@ -198,21 +210,32 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       </Flex>
 
       {!delayedTxUrl ? (
-        <Flex justify="center">
-          {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
-            const txUrl = getTxBlockExplorerUrl(
-              chainId,
-              relayClient?.chains,
-              txHash
-            )
-            if (txHash && txUrl && !isBatchTx) {
-              return (
-                <Anchor key={txHash} href={txUrl} target="_blank">
-                  View Tx: {truncateAddress(txHash)}
-                </Anchor>
-              )
-            }
-          })}
+        <Flex
+          direction="column"
+          css={{
+            p: '3',
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            gap: '3',
+            width: '100%',
+            borderRadius: 12
+          }}
+        >
+          {formattedGasTopUpAmount ? (
+            <Flex justify="between">
+              <Text style="subtitle2" color="subtle">
+                Additional Gas
+              </Text>
+              <Text style="subtitle2">
+                {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+              </Text>
+            </Flex>
+          ) : null}
+          <TransactionsByChain
+            allTxHashes={allTxHashes}
+            fromChain={fromChain}
+            toChain={toChain}
+          />
         </Flex>
       ) : null}
 
@@ -357,21 +380,33 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             <Text style="subtitle1">?</Text>
           )}
         </Flex>
-        {allTxHashes.map(({ txHash, chainId, isBatchTx }) => {
-          const txUrl = getTxBlockExplorerUrl(
-            chainId,
-            relayClient?.chains,
-            txHash
-          )
-
-          if (txHash && txUrl && !isBatchTx) {
-            return (
-              <Anchor key={txHash} href={txUrl} target="_blank">
-                View Tx: {truncateAddress(txHash)}
-              </Anchor>
-            )
-          }
-        })}
+        <Flex
+          direction="column"
+          css={{
+            p: '3',
+            '--borderColor': 'colors.subtle-border-color',
+            border: '1px solid var(--borderColor)',
+            gap: '3',
+            width: '100%',
+            borderRadius: 12
+          }}
+        >
+          {formattedGasTopUpAmount ? (
+            <Flex justify="between">
+              <Text style="subtitle2" color="subtle">
+                Additional Gas
+              </Text>
+              <Text style="subtitle2">
+                {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+              </Text>
+            </Flex>
+          ) : null}
+          <TransactionsByChain
+            allTxHashes={allTxHashes}
+            fromChain={fromChain}
+            toChain={toChain}
+          />
+        </Flex>
       </Flex>
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>

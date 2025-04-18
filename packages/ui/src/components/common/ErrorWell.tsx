@@ -6,7 +6,7 @@ import type { RelayChain } from '@reservoir0x/relay-sdk'
 interface Props {
   error?: Error | null | AxiosError
   hasTxHashes?: boolean
-  fromChain?: RelayChain
+  fromChain?: RelayChain | null
 }
 
 const ErrorWell: React.FC<Props> = ({ error, hasTxHashes, fromChain }) => {
