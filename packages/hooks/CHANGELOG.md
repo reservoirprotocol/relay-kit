@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.9.2
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+- Updated dependencies [293486b]
+  - @reservoir0x/relay-sdk@1.6.15
+
 ## 1.9.1
 
 ### Patch Changes
