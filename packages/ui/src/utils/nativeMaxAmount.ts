@@ -11,6 +11,7 @@ import {
   ECLIPSE_DEFAULT_FEE_WEI
 } from '../constants/nativeCalculation.js'
 import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { queryRequests } from '@reservoir0x/relay-kit-hooks'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -138,19 +139,25 @@ export const calculateSvmNativeFeeBuffer = async (
   const multiplier = isEclipseChain
     ? ECLIPSE_FEE_BUFFER_MULTIPLIER
     : SOLANA_FEE_BUFFER_MULTIPLIER
+
   const fallbackBuffer = isEclipseChain
     ? ECLIPSE_DEFAULT_FEE_WEI * ECLIPSE_FEE_BUFFER_MULTIPLIER
     : SOLANA_DEFAULT_FEE_LAMPORTS * SOLANA_FEE_BUFFER_MULTIPLIER
 
   try {
-    const url = `${MAINNET_RELAY_API}/requests/v2?limit=20&sortBy=createdAt&originChainId=${chainId}`
-    const resp: any = await fetcher(url)
+    const queryOptions = {
+      limit: '20',
+      originChainId: chainId.toString()
+    } as const
+
+    const resp = await queryRequests(MAINNET_RELAY_API, queryOptions)
+
     if (!resp || !Array.isArray(resp.requests) || resp.requests.length === 0) {
       console.warn('No valid fees found in response. Using fallback buffer.')
       return fallbackBuffer
     }
 
-    // Extract fees from inTxs[0].fee
+    // Extract fees data from the response
     const fees: bigint[] = resp.requests
       .map((r: any) => {
         const feeStr = r?.data?.inTxs?.[0]?.fee
@@ -166,21 +173,14 @@ export const calculateSvmNativeFeeBuffer = async (
       return fallbackBuffer
     }
 
-    // Sort fees in descending order
-    fees.sort((a, b) => (b > a ? 1 : b < a ? -1 : 0))
+    // Find the maximum fee among the valid fees
+    const maxFee = fees.reduce(
+      (max, current) => (current > max ? current : max),
+      0n
+    )
 
-    // Take the top 3 fees (or fewer if less than 3 are available)
-    const topFees = fees.slice(0, 3)
-
-    if (topFees.length === 0) {
-      return fallbackBuffer
-    }
-
-    // Sum the top fees
-    const sumOfTopFees = topFees.reduce((sum, current) => sum + current, 0n)
-
-    // Apply buffer to the sum of the top fees
-    const buffer = sumOfTopFees * multiplier
+    // Apply buffer multiplier to the maximum fee
+    const buffer = maxFee * multiplier
 
     return buffer
   } catch (error) {
