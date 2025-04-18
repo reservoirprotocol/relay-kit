@@ -466,7 +466,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     required: gasTopUpRequired,
     amount: _gasTopUpAmount,
     amountUsd: _gasTopUpAmountUsd
-  } = useGasTopUpRequired(toChain, toToken, recipient)
+  } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
 
   const quoteParameters =
     fromToken && toToken
@@ -570,7 +570,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const invalidateQuoteQuery = useCallback(() => {
-    debugger
     queryClient.invalidateQueries({ queryKey: quoteQueryKey })
   }, [queryClient, quoteQueryKey])
   let error =

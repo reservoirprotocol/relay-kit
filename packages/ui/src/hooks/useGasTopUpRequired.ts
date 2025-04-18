@@ -6,6 +6,7 @@ import { useRelayClient } from '../hooks/index.js'
 
 export default (
   chain?: RelayChain,
+  fromChain?: RelayChain,
   token?: Token,
   address?: string,
   balanceThresholdUsd: string = '2',
@@ -20,6 +21,7 @@ export default (
     chain?.currency?.address !== undefined &&
     chain?.currency?.supportsBridging &&
     chain?.vmType === 'evm' &&
+    chain.id !== fromChain?.id &&
     isErc20Currency
   const { value: gasBalance } = useCurrencyBalance({
     chain,
