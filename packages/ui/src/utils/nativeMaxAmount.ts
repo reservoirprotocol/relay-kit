@@ -4,8 +4,14 @@ import {
   EVM_GAS_BUFFER_MULTIPLIER,
   BTC_FEE_BUFFER_FACTOR,
   MEMPOOL_API_URL,
-  MINIMUM_GAS_PRICE_WEI
+  MINIMUM_GAS_PRICE_WEI,
+  SOLANA_FEE_BUFFER_MULTIPLIER,
+  SOLANA_DEFAULT_FEE_LAMPORTS,
+  ECLIPSE_FEE_BUFFER_MULTIPLIER,
+  ECLIPSE_DEFAULT_FEE_WEI
 } from '../constants/nativeCalculation.js'
+import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { queryRequests } from '@reservoir0x/relay-kit-hooks'
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -115,5 +121,70 @@ export const calculateBitcoinNativeFeeBuffer = async (): Promise<bigint> => {
   } catch (error) {
     console.error('Error calculating Bitcoin native fee buffer:', error)
     return 0n
+  }
+}
+
+/**
+ * Calculates the fee buffer needed for a native SVM (e.g., Solana) or Eclipse transaction.
+ * Uses specific multipliers and default fees for each type.
+ * Falls back to a default fee if API data is unavailable or invalid.
+ *
+ * @param chainId - The chain ID of the SVM or Eclipse network.
+ * @returns The calculated fee buffer amount (in lamports for Solana, Wei for Eclipse) as a bigint, or a fallback buffer if estimation fails.
+ */
+export const calculateSvmNativeFeeBuffer = async (
+  chainId: number
+): Promise<bigint> => {
+  const isEclipseChain = chainId === 9286185
+  const multiplier = isEclipseChain
+    ? ECLIPSE_FEE_BUFFER_MULTIPLIER
+    : SOLANA_FEE_BUFFER_MULTIPLIER
+
+  const fallbackBuffer = isEclipseChain
+    ? ECLIPSE_DEFAULT_FEE_WEI * ECLIPSE_FEE_BUFFER_MULTIPLIER
+    : SOLANA_DEFAULT_FEE_LAMPORTS * SOLANA_FEE_BUFFER_MULTIPLIER
+
+  try {
+    const queryOptions = {
+      limit: '20',
+      originChainId: chainId.toString()
+    } as const
+
+    const resp = await queryRequests(MAINNET_RELAY_API, queryOptions)
+
+    if (!resp || !Array.isArray(resp.requests) || resp.requests.length === 0) {
+      console.warn('No valid fees found in response. Using fallback buffer.')
+      return fallbackBuffer
+    }
+
+    // Extract fees data from the response
+    const fees: bigint[] = resp.requests
+      .map((r: any) => {
+        const feeStr = r?.data?.inTxs?.[0]?.fee
+        try {
+          return BigInt(feeStr)
+        } catch {
+          return null
+        }
+      })
+      .filter((f: bigint | null): f is bigint => f !== null)
+
+    if (fees.length === 0) {
+      return fallbackBuffer
+    }
+
+    // Find the maximum fee among the valid fees
+    const maxFee = fees.reduce(
+      (max, current) => (current > max ? current : max),
+      0n
+    )
+
+    // Apply buffer multiplier to the maximum fee
+    const buffer = maxFee * multiplier
+
+    return buffer
+  } catch (error) {
+    console.error('Error calculating SVM native fee buffer:', error)
+    return fallbackBuffer
   }
 }
