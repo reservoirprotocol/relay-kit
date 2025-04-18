@@ -340,14 +340,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           return 0n // Return 0 if not native EVM/BVM/SVM or missing data
         }
 
-        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+        const handleMaxAmountClicked = async (
+          amount: bigint,
+          percent: string,
+          bufferAmount?: bigint
+        ) => {
           if (fromToken) {
             setAmountInputValue(formatUnits(amount, fromToken?.decimals))
             setTradeType('EXACT_INPUT')
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
-              percent: percent
+              percent: percent,
+              bufferAmount: bufferAmount ? bufferAmount.toString() : '0',
+              chainType: fromChain?.vmType
             })
           }
         }
