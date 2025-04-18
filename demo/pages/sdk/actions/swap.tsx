@@ -10,7 +10,10 @@ import { isSolanaWallet } from '@dynamic-labs/solana'
 import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
 import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
 import { adaptViemWallet } from '@reservoir0x/relay-sdk'
+import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
+import { SuiWallet } from '@dynamic-labs/sui'
+import { isSuiWallet } from '@dynamic-labs/sui'
 
 const SwapActionPage: NextPage = () => {
   const [recipient, setRecipient] = useState<string | undefined>()
@@ -229,6 +232,31 @@ const SwapActionPage: NextPage = () => {
                 } catch (e) {
                   throw e
                 }
+              }
+            )
+          } else if (isSuiWallet(primaryWallet)) {
+            const walletClient = await primaryWallet.getWalletClient()
+
+            if (!walletClient) {
+              throw 'Unable to setup Sui wallet'
+            }
+
+            executionWallet = adaptSuiWallet(
+              primaryWallet?.address,
+              fromChainId,
+              walletClient,
+              async (tx) => {
+                const signedTransaction =
+                  await primaryWallet.signTransaction(tx)
+
+                const executionResult =
+                  await walletClient?.executeTransactionBlock({
+                    options: {},
+                    signature: signedTransaction.signature,
+                    transactionBlock: signedTransaction.bytes
+                  })
+
+                return executionResult
               }
             )
           } else {

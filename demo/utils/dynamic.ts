@@ -30,12 +30,12 @@ export const extractWalletIcon = (wallet: Wallet) => {
   const walletBook = wallet?.connector?.walletBook?.wallets
   let walletLogoId =
     // @ts-ignore
-    wallet?.connector?.wallet?.brand?.spriteId ??
+    (wallet?.connector?.wallet?.brand?.spriteId ??
     (walletBook &&
       wallet.key &&
       walletBook[wallet.key] &&
       walletBook[wallet.key].brand &&
-      walletBook[wallet.key].brand.spriteId)
+      walletBook[wallet.key].brand.spriteId))
       ? walletBook[wallet.key].brand.spriteId
       : undefined
 
@@ -54,12 +54,14 @@ export const extractWalletIcon = (wallet: Wallet) => {
 export const convertToLinkedWallet = (wallet: Wallet): LinkedWallet => {
   const walletIcon = extractWalletIcon(wallet)
   let walletChain = wallet.chain.toLowerCase()
-  let vmType: 'evm' | 'svm' | 'bvm' = 'evm'
+  let vmType: 'evm' | 'svm' | 'bvm' | 'suivm' = 'evm'
 
   if (walletChain === 'sol' || walletChain === 'eclipse') {
     vmType = 'svm'
   } else if (walletChain === 'btc') {
     vmType = 'bvm'
+  } else if (walletChain === 'sui') {
+    vmType = 'suivm'
   }
 
   const address =

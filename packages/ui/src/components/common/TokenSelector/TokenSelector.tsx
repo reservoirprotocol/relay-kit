@@ -508,11 +508,13 @@ const TokenSelector: FC<TokenSelectorProps> = ({
               <AccessibleList
                 onSelect={(value) => {
                   if (value === 'input') return
-                  const [chainId, address] = value.split(':')
+                  const [chainId, ...addressParts] = value.split(':')
+                  const address = addressParts.join(':')
                   const allTokens = [
                     ...sortedUserTokens,
                     ...sortedCombinedTokens
                   ]
+
                   const selectedToken = allTokens.find(
                     (token) =>
                       token.chainId === Number(chainId) &&

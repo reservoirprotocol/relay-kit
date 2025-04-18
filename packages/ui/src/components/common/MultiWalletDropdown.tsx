@@ -68,7 +68,11 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   }, [wallets, chain])
 
   const selectedWallet = useMemo(
-    () => wallets.find((wallet) => wallet.address === selectedWalletAddress),
+    () =>
+      wallets.find(
+        (wallet) =>
+          wallet.address?.toLowerCase() === selectedWalletAddress?.toLowerCase()
+      ),
     [wallets, selectedWalletAddress]
   )
 

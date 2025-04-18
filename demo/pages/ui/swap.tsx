@@ -27,8 +27,10 @@ import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
 import { type Token } from '@reservoir0x/relay-kit-ui'
+import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
+import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 
-const WALLET_VM_TYPES = ['evm', 'bvm', 'svm'] as const
+const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
@@ -132,7 +134,33 @@ const SwapWidgetPage: NextPage = () => {
               connection,
               signer.signAndSendTransaction
             )
+          } else if (isSuiWallet(primaryWallet)) {
+            const suiWallet = primaryWallet as SuiWallet
+            const walletClient = await suiWallet.getWalletClient()
+
+            if (!walletClient) {
+              throw 'Unable to setup Sui wallet'
+            }
+
+            adaptedWallet = adaptSuiWallet(
+              suiWallet.address,
+              103665049, // @TODO: handle sui testnet
+              walletClient as any,
+              async (tx) => {
+                const signedTransaction = await suiWallet.signTransaction(tx)
+
+                const executionResult =
+                  await walletClient.executeTransactionBlock({
+                    options: {},
+                    signature: signedTransaction.signature,
+                    transactionBlock: signedTransaction.bytes
+                  })
+
+                return executionResult
+              }
+            )
           }
+
           setWallet(adaptedWallet)
         } else {
           setWallet(undefined)
@@ -208,6 +236,8 @@ const SwapWidgetPage: NextPage = () => {
                 setWalletFilter('BTC')
               } else if (chain?.id === 9286185) {
                 setWalletFilter('ECLIPSE')
+              } else if (chain?.vmType === 'suivm') {
+                setWalletFilter('SUI')
               } else {
                 setWalletFilter(undefined)
               }
