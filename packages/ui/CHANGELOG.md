@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.9
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+- 9868461: Add ronin wallet compatibility
+- b2187e1: Upgrade to new dune svm balance api
+- Updated dependencies [293486b]
+  - @reservoir0x/relay-kit-hooks@1.9.2
+  - @reservoir0x/relay-sdk@1.6.15
+
 ## 2.9.8
 
 ### Patch Changes

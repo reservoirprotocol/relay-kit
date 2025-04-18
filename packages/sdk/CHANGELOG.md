@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.6.15
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+
 ## 1.6.14
 
 ### Patch Changes
