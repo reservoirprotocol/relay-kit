@@ -65,6 +65,7 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
             <ChainTokenIcon
               chainId={fromToken?.chainId}
               tokenlogoURI={fromToken?.logoURI}
+              tokenSymbol={fromToken?.symbol}
               css={{ height: 32, width: 32 }}
             />
             <Text style="h6" ellipsify>
@@ -103,6 +104,7 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
             <ChainTokenIcon
               chainId={toToken?.chainId}
               tokenlogoURI={toToken?.logoURI}
+              tokenSymbol={toToken?.symbol}
               css={{ height: 32, width: 32 }}
             />
             <Text style="h6" ellipsify>
@@ -143,8 +145,8 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
           const stepTitle = isApproveStep
             ? 'Approve in wallet'
             : hasTxHash
-            ? `Swapping ${fromToken?.symbol} for ${toToken?.symbol}`
-            : 'Confirm swap in wallet'
+              ? `Swapping ${fromToken?.symbol} for ${toToken?.symbol}`
+              : 'Confirm swap in wallet'
 
           return (
             <Box key={step.id}>
@@ -158,6 +160,7 @@ export const ApprovalPlusSwapStep: FC<ApprovalPlusSwapStepProps> = ({
                     <ChainTokenIcon
                       chainId={fromToken?.chainId}
                       tokenlogoURI={fromToken?.logoURI}
+                      tokenSymbol={fromToken?.symbol}
                       css={{
                         borderRadius: 9999999,
                         flexShrink: 0,

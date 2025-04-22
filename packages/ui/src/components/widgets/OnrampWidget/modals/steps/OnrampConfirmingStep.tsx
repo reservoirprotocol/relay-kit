@@ -71,9 +71,10 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
           <ChainTokenIcon
             chainId={fromToken?.chainId}
             tokenlogoURI={fromToken?.logoURI}
+            tokenSymbol={fromToken?.symbol}
           />
           <Text style="subtitle1">
-            You’ll purchase {fromToken?.symbol} ({fromChain?.displayName}) via
+            You'll purchase {fromToken?.symbol} ({fromChain?.displayName}) via
             your card
           </Text>
         </Flex>
@@ -90,6 +91,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
           <ChainTokenIcon
             chainId={toToken?.chainId}
             tokenlogoURI={toToken?.logoURI}
+            tokenSymbol={toToken?.symbol}
           />
           <Text style="subtitle1">
             Relay converts to {toToken?.symbol} ({toChain?.displayName})

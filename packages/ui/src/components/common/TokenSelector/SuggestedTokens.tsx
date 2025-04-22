@@ -94,6 +94,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
             <ChainTokenIcon
               chainId={token.chainId}
               tokenlogoURI={token.logoURI}
+              tokenSymbol={token.symbol}
             />
             <Text style="h6" ellipsify>
               {token.symbol}

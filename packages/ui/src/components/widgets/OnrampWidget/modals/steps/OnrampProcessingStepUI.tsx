@@ -93,6 +93,7 @@ export const OnrampProcessingStepUI: FC<OnrampProcessingStepUIProps> = ({
           <ChainTokenIcon
             chainId={fromToken?.chainId}
             tokenlogoURI={fromToken?.logoURI}
+            tokenSymbol={fromToken?.symbol}
             css={{
               width: 32,
               height: 32,
