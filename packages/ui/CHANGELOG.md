@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.10
+
+### Patch Changes
+
+- 6940a55: Gas top up functionality
+- Updated dependencies [6940a55]
+  - @reservoir0x/relay-sdk@1.7.0
+  - @reservoir0x/relay-kit-hooks@1.9.3
+
 ## 2.9.9
 
 ### Patch Changes
