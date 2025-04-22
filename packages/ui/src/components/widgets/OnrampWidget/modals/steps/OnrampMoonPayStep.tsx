@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, type FC } from 'react'
+import { lazy, memo, Suspense, useEffect, type FC } from 'react'
 import {
   Box,
   ChainTokenIcon,
@@ -87,7 +87,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
   onError
 }) => {
   const moonPayExternalId = !isPassthrough
-    ? quoteRequestId ?? undefined
+    ? (quoteRequestId ?? undefined)
     : passthroughExternalId
   useEffect(() => {
     if (window) {
@@ -217,6 +217,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             <ChainTokenIcon
               chainId={toToken?.chainId}
               tokenlogoURI={toToken?.logoURI}
+              tokenSymbol={toToken?.symbol}
               css={{
                 width: 32,
                 height: 32,
@@ -229,6 +230,7 @@ export const OnrampMoonPayStep: FC<OnrampMoonPayStepProps> = ({
             <ChainTokenIcon
               chainId={fromToken?.chainId}
               tokenlogoURI={fromToken?.logoURI}
+              tokenSymbol={fromToken?.symbol}
               css={{
                 width: 32,
                 height: 32,
