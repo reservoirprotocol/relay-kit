@@ -44,9 +44,7 @@ import {
   getCacheEntry,
   setCacheEntry
 } from '../../../utils/localStorage.js'
-import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
-
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
