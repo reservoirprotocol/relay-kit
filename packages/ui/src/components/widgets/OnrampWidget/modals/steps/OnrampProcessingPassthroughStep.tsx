@@ -9,7 +9,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
 import type { Token } from '../../../../../types/index.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { LoadingSpinner } from '../../../../common/LoadingSpinner.js'
 import MoonPayLogo from '../../../../../img/MoonPayLogo.js'
 
@@ -48,6 +47,7 @@ export const OnrampProcessingPassthroughStep: FC<
         <ChainTokenIcon
           chainId={toToken?.chainId}
           tokenlogoURI={toToken?.logoURI}
+          tokenSymbol={toToken?.symbol}
           css={{
             width: 32,
             height: 32
