@@ -2593,6 +2593,10 @@ export interface paths {
             userOperationGasOverhead?: number;
             /** @description Force executing swap requests via the solver (by default, same-chain swap requests are self-executed) */
             forceSolverExecution?: boolean;
+            /** @description Swap sources to include for swap routing. */
+            includedSwapSources?: string[];
+            /** @description Swap sources to exclude for swap routing. */
+            excludedSwapSources?: string[];
           };
         };
       };
@@ -4076,7 +4080,7 @@ export interface paths {
                     /** @description Slippage tolerance for the swap. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
                     slippageTolerance?: string;
                     /** @enum {string} */
-                    failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "N/A";
+                    failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "SLIPPAGE" | "INCORRECT_DEPOSIT_CURRENCY" | "DOUBLE_SPEND" | "SOLVER_CAPACITY_EXCEEDED" | "DEPOSITED_AMOUNT_TOO_LOW_TO_FILL" | "NEGATIVE_NEW_AMOUNT_AFTER_FEES" | "NO_QUOTES" | "MISSING_REVERT_DATA" | "REVERSE_SWAP_FAILED" | "GENERATE_SWAP_FAILED" | "TOO_LITTLE_RECEIVED" | "EXECUTION_REVERTED" | "NEW_CALLDATA_INCLUDES_HIGHER_RENT_FEE" | "N/A";
                     fees?: {
                       /** @description Estimated gas cost required for execution, in wei */
                       gas?: string;
@@ -4190,6 +4194,7 @@ export interface paths {
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
                        *   "amountUsd": "30.901612",
+                       *   "amountUsdCurrent": "30.901612",
                        *   "minimumAmount": "30454920"
                        * }
                        */
@@ -4209,6 +4214,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        amountUsdCurrent?: string;
                         minimumAmount?: string;
                       };
                       /**
@@ -4228,6 +4234,7 @@ export interface paths {
                        *   "amount": "30754920",
                        *   "amountFormatted": "30.75492",
                        *   "amountUsd": "30.901612",
+                       *   "amountUsdCurrent": "30.901612",
                        *   "minimumAmount": "30454920"
                        * }
                        */
@@ -4247,6 +4254,7 @@ export interface paths {
                         amount?: string;
                         amountFormatted?: string;
                         amountUsd?: string;
+                        amountUsdCurrent?: string;
                         minimumAmount?: string;
                       };
                       /**

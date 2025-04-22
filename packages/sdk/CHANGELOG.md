@@ -1,5 +1,17 @@
 # @reservoir0x/relay-sdk
 
+## 1.7.0
+
+### Minor Changes
+
+- 6940a55: Gas top up functionality
+
+## 1.6.15
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+
 ## 1.6.14
 
 ### Patch Changes

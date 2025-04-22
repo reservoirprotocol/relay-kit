@@ -6,7 +6,7 @@ import type { Styles } from '@reservoir0x/relay-design-system/css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoins } from '@fortawesome/free-solid-svg-icons'
 
-type Size = 'sm' | 'md' | 'lg'
+type Size = 'md' | 'lg'
 
 type ChainTokenProps = {
   chainId?: number
@@ -16,10 +16,6 @@ type ChainTokenProps = {
 }
 
 const SIZES = {
-  sm: {
-    token: 24,
-    chain: 12
-  },
   md: {
     token: 32,
     chain: 16

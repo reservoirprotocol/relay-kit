@@ -1,11 +1,11 @@
-import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
+import { type RelayChain } from '@reservoir0x/relay-sdk'
 import type { FC } from 'react'
 import {
-  ChainTokenIcon,
   Flex,
   Text,
   StyledSwitch,
-  StyledThumb
+  StyledThumb,
+  ChainIcon
 } from '../../primitives/index.js'
 import {
   CollapsibleContent,
@@ -43,20 +43,14 @@ const GasTopUpSection: FC<Props> = ({
       css={{
         p: '3',
         backgroundColor: 'widget-background',
+        border: 'widget-card-border',
         borderRadius: '12px',
-        mb: '6px'
+        mb: 'widget-card-section-gutter'
       }}
     >
       <Flex justify="between" align="center">
         <Flex css={{ gap: '2', minWidth: 0 }} align="center">
-          <ChainTokenIcon
-            css={{ width: 24, height: 24 }}
-            chainId={toChain?.id}
-            tokenlogoURI={`${ASSETS_RELAY_API}/icons/currencies/${
-              currency?.id ?? currency?.symbol?.toLowerCase()
-            }.png`}
-            size="sm"
-          />
+          <ChainIcon height={24} width={24} square chainId={toChain?.id} />
           <Text ellipsify style="subtitle2" css={{ mr: '1' }}>
             {toChain?.displayName} gas top up
           </Text>

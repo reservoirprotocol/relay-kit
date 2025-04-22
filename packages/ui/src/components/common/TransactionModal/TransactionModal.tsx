@@ -61,10 +61,16 @@ export const TransactionModal: FC<TransactionModalProps> = (
     timeEstimate,
     isCanonical,
     wallet,
+    onOpenChange,
     onAnalyticEvent,
     onSuccess,
     onSwapValidating
   } = transactionModalProps
+
+  useEffect(() => {
+    onOpenChange(open)
+  }, [open])
+
   return (
     <TransactionModalRenderer
       open={open}
