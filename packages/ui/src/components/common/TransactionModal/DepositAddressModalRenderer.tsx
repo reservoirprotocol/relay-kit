@@ -59,6 +59,7 @@ export type ChildrenProps = {
   depositAddress?: string
   executionStatus?: ReturnType<typeof useExecutionStatus>['data']
   isLoadingTransaction: boolean
+  toChain?: RelayChain | null
 }
 
 type Props = {
@@ -192,8 +193,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const quote = defaultQuote
     ? defaultQuote
     : isFetchingQuote || isRefetching
-    ? undefined
-    : quoteData
+      ? undefined
+      : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
@@ -341,6 +342,9 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const transaction = transactions[0]
 
   const { fillTime, seconds } = calculateFillTime(transaction)
+  const toChain = toToken?.chainId
+    ? relayClient?.chains.find((chain) => chain.id === toToken?.chainId)
+    : null
 
   return (
     <>
@@ -359,7 +363,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         requestId,
         depositAddress,
         executionStatus,
-        isLoadingTransaction
+        isLoadingTransaction,
+        toChain
       })}
     </>
   )

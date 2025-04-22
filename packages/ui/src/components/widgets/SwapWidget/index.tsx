@@ -34,6 +34,7 @@ import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import GasTopUpSection from './GasTopUpSection.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -117,6 +118,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [pendingSuccessFlush, setPendingSuccessFlush] = useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -218,6 +220,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -394,11 +401,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
@@ -406,10 +431,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             swapError={swapError}
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
+              setPendingSuccessFlush(true)
               onSwapSuccess?.(data)
-              invalidateQuoteQuery()
-              setAmountInputValue('')
-              setAmountOutputValue('')
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
@@ -1054,6 +1077,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       </Box>
                     ) : null}
+                    <GasTopUpSection
+                      toChain={toChain}
+                      gasTopUpEnabled={gasTopUpEnabled}
+                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      gasTopUpRequired={gasTopUpRequired}
+                      gasTopUpAmount={gasTopUpAmount}
+                      gasTopUpAmountUsd={gasTopUpAmountUsd}
+                    />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
                       isFetchingQuote={isFetchingQuote}
