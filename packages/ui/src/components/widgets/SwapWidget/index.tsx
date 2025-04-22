@@ -12,7 +12,8 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import {
   calculateEvmNativeGasBuffer,
-  calculateBitcoinNativeFeeBuffer
+  calculateBitcoinNativeFeeBuffer,
+  calculateSvmNativeFeeBuffer
 } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
@@ -126,8 +127,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
-  const hoverFetchPromiseRef = useRef<Promise<bigint> | null>(null)
+  const hoverEvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const hoverBitcoinFetchPromiseRef = useRef<Promise<bigint> | null>(null)
+  const hoverSvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -236,40 +238,43 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       }) => {
         // Helper function to get the buffer amount, handling cache, hover promises, and calculation
         const getFeeBufferAmount = async (
-          vmType: 'evm' | 'bvm' | string | undefined,
-          chainId: number | undefined,
-          currentBalance: bigint
+          vmType: ChainVM | undefined | null,
+          chainId: number | undefined | null,
+          balance: bigint
         ): Promise<bigint> => {
-          if (vmType === 'evm' && publicClient && chainId !== undefined) {
+          if (!vmType || !chainId) {
+            return 0n
+          }
+
+          if (vmType === 'evm') {
             const cacheKey = `evmGasBuffer:${chainId}`
             const cachedBufferStr = getCacheEntry(cacheKey)
-
             if (cachedBufferStr) {
               return BigInt(cachedBufferStr)
-            } else if (hoverFetchPromiseRef.current) {
+            } else if (hoverEvmFetchPromiseRef.current) {
+              // If a fetch initiated on hover is in progress, await it
               try {
-                return await hoverFetchPromiseRef.current
+                return await hoverEvmFetchPromiseRef.current
               } catch (error) {
-                console.error(
-                  'Failed to await pre-fetched EVM gas buffer:',
-                  error
-                )
-                return 0n
+                return 0n // Fallback on error
               }
             } else {
-              try {
-                const buffer = await calculateEvmNativeGasBuffer(
-                  publicClient,
-                  currentBalance
-                )
-                setCacheEntry(cacheKey, buffer, 5)
-                return buffer
-              } catch (error) {
-                console.error(
-                  'Failed to calculate EVM gas buffer on click:',
-                  error
-                )
-                return 0n
+              // Otherwise, calculate on demand (e.g., on MAX click)
+              if (publicClient) {
+                try {
+                  const buffer = await calculateEvmNativeGasBuffer(
+                    publicClient,
+                    balance
+                  )
+                  setCacheEntry(cacheKey, buffer, 5)
+                  return buffer
+                } catch (error) {
+                  console.error(
+                    'Failed to calculate EVM gas buffer on click:',
+                    error
+                  )
+                  return 0n
+                }
               }
             }
           } else if (vmType === 'bvm') {
@@ -301,18 +306,54 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 return 0n
               }
             }
+          } else if (vmType === 'svm') {
+            const cacheKey = `svmFeeBuffer:${chainId}`
+            const cachedBufferStr = getCacheEntry(cacheKey)
+
+            if (cachedBufferStr) {
+              return BigInt(cachedBufferStr)
+            }
+            if (hoverSvmFetchPromiseRef.current) {
+              try {
+                return await hoverSvmFetchPromiseRef.current
+              } catch (error) {
+                console.error(
+                  'Failed to await pre-fetched SVM fee buffer:',
+                  error
+                )
+                return 0n
+              }
+            }
+
+            try {
+              const buffer = await calculateSvmNativeFeeBuffer(chainId)
+              setCacheEntry(cacheKey, buffer, 5)
+              return buffer
+            } catch (error) {
+              console.error(
+                'Failed to calculate SVM fee buffer on click:',
+                error
+              )
+              return 0n
+            }
           }
-          return 0n // Return 0 if not native EVM/BVM or missing data
+          return 0n // Return 0 if not native EVM/BVM/SVM or missing data
         }
 
-        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+        const handleMaxAmountClicked = async (
+          amount: bigint,
+          percent: string,
+          bufferAmount?: bigint
+        ) => {
           if (fromToken) {
             setAmountInputValue(formatUnits(amount, fromToken?.decimals))
             setTradeType('EXACT_INPUT')
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
-              percent: percent
+              percent: percent,
+              bufferAmount: bufferAmount ? bufferAmount.toString() : '0',
+              chainType: fromChain?.vmType
             })
           }
         }
@@ -695,8 +736,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             <Flex css={{ height: 18 }} />
                           )}
                           {fromBalance &&
-                          (fromChain?.vmType === 'evm' ||
-                            (fromChain?.vmType === 'bvm' && isFromNative)) ? (
+                          (fromChain?.vmType === 'evm' || // EVM
+                            (fromChain?.vmType === 'bvm' && isFromNative) || // Bitcoin Native
+                            fromChain?.vmType === 'svm') ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
                                 aria-label="20%"
@@ -772,32 +814,71 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 }}
                                 color="white"
                                 onMouseEnter={async () => {
+                                  // EVM Logic
                                   if (
-                                    !fromBalance ||
-                                    !fromToken ||
-                                    !fromChain ||
-                                    !isFromNative
-                                  )
-                                    return
-
-                                  // EVM Pre-fetch
-                                  if (
-                                    fromChain.vmType === 'evm' &&
-                                    publicClient
+                                    fromChain?.vmType === 'evm' &&
+                                    publicClient &&
+                                    fromBalance
                                   ) {
-                                    await getFeeBufferAmount(
-                                      fromChain.vmType,
-                                      fromChain.id,
-                                      fromBalance
-                                    )
+                                    const cacheKey = `evmGasBuffer:${fromChain.id}`
+                                    if (!getCacheEntry(cacheKey)) {
+                                      hoverEvmFetchPromiseRef.current =
+                                        calculateEvmNativeGasBuffer(
+                                          publicClient,
+                                          fromBalance
+                                        )
+                                      try {
+                                        const buffer =
+                                          await hoverEvmFetchPromiseRef.current
+                                        setCacheEntry(cacheKey, buffer, 5)
+                                      } catch (error) {
+                                        console.error(
+                                          'Failed to pre-fetch EVM gas buffer:',
+                                          error
+                                        )
+                                      }
+                                      hoverEvmFetchPromiseRef.current = null
+                                    }
                                   }
-                                  // BVM Pre-fetch
-                                  else if (fromChain.vmType === 'bvm') {
-                                    await getFeeBufferAmount(
-                                      fromChain.vmType,
-                                      fromChain.id,
-                                      fromBalance
-                                    )
+                                  // BVM Logic - Separate block
+                                  else if (fromChain?.vmType === 'bvm') {
+                                    const cacheKey = 'bitcoinFeeBuffer'
+                                    if (!getCacheEntry(cacheKey)) {
+                                      hoverBitcoinFetchPromiseRef.current =
+                                        calculateBitcoinNativeFeeBuffer()
+                                      try {
+                                        const buffer =
+                                          await hoverBitcoinFetchPromiseRef.current
+                                        setCacheEntry(cacheKey, buffer, 5)
+                                      } catch (error) {
+                                        console.error(
+                                          'Failed to pre-fetch Bitcoin fee buffer:',
+                                          error
+                                        )
+                                      }
+                                      hoverBitcoinFetchPromiseRef.current = null
+                                    }
+                                  }
+                                  // SVM Logic - Separate block
+                                  else if (fromChain?.vmType === 'svm') {
+                                    const cacheKey = `svmFeeBuffer:${fromChain!.id}`
+                                    if (!getCacheEntry(cacheKey)) {
+                                      hoverSvmFetchPromiseRef.current =
+                                        calculateSvmNativeFeeBuffer(
+                                          fromChain!.id
+                                        )
+                                      try {
+                                        const buffer =
+                                          await hoverSvmFetchPromiseRef.current
+                                        setCacheEntry(cacheKey, buffer, 5)
+                                      } catch (error) {
+                                        console.error(
+                                          'Failed to pre-fetch SVM fee buffer:',
+                                          error
+                                        )
+                                      }
+                                      hoverSvmFetchPromiseRef.current = null
+                                    }
                                   }
                                 }}
                                 onClick={async () => {
@@ -805,7 +886,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     return
 
                                   let feeBufferAmount: bigint = 0n
-
                                   // Calculate/fetch buffer ONLY if it's the native token
                                   if (isFromNative) {
                                     feeBufferAmount = await getFeeBufferAmount(
