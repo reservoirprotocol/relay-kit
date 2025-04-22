@@ -272,11 +272,11 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const transaction = transactions && transactions[0] ? transactions[0] : null
   const toAmountFormatted = transaction?.data?.metadata?.currencyOut
     ?.amountFormatted
-    ? formatBN(
+    ? (formatBN(
         +transaction.data.metadata.currencyOut.amountFormatted,
         5,
         transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
-      ) ?? undefined
+      ) ?? undefined)
     : amountToTokenFormatted
 
   const fillTxUrl = fillTxHash
@@ -457,7 +457,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
             ? toTokenTotalAmount
             : fromToken.symbol === 'ETH'
               ? ethTotalAmount
-              : totalAmount ?? undefined
+              : (totalAmount ?? undefined)
         }
         fiatCurrency={fiatCurrency}
         isPassthrough={isPassthrough}
@@ -527,6 +527,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
           onOpenChange={onOpenChange}
           transaction={transaction ?? undefined}
           fromChain={fromChain}
+          toChain={toChain}
         />
       ) : null}
     </Modal>

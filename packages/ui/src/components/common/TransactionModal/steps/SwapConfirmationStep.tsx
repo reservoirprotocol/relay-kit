@@ -17,6 +17,7 @@ import { faCheck, faExternalLink } from '@fortawesome/free-solid-svg-icons'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { formatTransactionSteps } from '../../../../utils/steps.js'
+import { formatBN } from '../../../../utils/numbers.js'
 
 type SwapConfirmationStepProps = {
   fromToken?: Token
@@ -52,6 +53,15 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
       }),
     [steps, fromToken, toToken, fromChain, toChain, operation]
   )
+
+  const gasTopUpAmountCurrency = quote?.details?.currencyGasTopup?.currency
+  const formattedGasTopUpAmount = quote?.details?.currencyGasTopup?.amount
+    ? formatBN(
+        BigInt(quote?.details?.currencyGasTopup?.amount),
+        5,
+        gasTopUpAmountCurrency?.decimals ?? 18
+      )
+    : undefined
 
   return (
     <>
@@ -124,6 +134,27 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           </Flex>
         </Flex>
       </Flex>
+      {formattedGasTopUpAmount ? (
+        <Flex
+          direction="row"
+          justify="between"
+          css={{
+            backgroundColor: 'subtle-background-color',
+            p: '12px 16px',
+            borderRadius: 12,
+            gap: 2,
+            width: '100%',
+            alignItems: 'center'
+          }}
+        >
+          <Text style="subtitle2" color="subtle">
+            Additional Gas
+          </Text>
+          <Text style="subtitle2">
+            {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+          </Text>
+        </Flex>
+      ) : null}
       <Flex
         direction="column"
         css={{
@@ -205,8 +236,8 @@ export const StepRow: FC<StepRowProps> = ({
             backgroundColor: isCompleted
               ? 'green3'
               : isActive
-              ? 'primary6'
-              : 'gray5',
+                ? 'primary6'
+                : 'gray5',
             color: isCompleted ? 'green11' : isActive ? 'primary6' : 'gray9',
             animation:
               isActive && !isCompleted ? 'pulse-shadow 1s infinite' : 'none',
@@ -276,23 +307,25 @@ export const StepRow: FC<StepRowProps> = ({
                 relayClient?.chains,
                 txHash
               )
-              return (
-                <Anchor
-                  key={txHash}
-                  href={txUrl}
-                  target="_blank"
-                  css={{
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1'
-                  }}
-                >
-                  {!isApproveStep ? 'Deposit: ' : ''}
-                  {truncateAddress(txHash, '...', 6, 4)}{' '}
-                  <FontAwesomeIcon icon={faExternalLink} width={14} />
-                </Anchor>
-              )
+              if (txHash && txUrl) {
+                return (
+                  <Anchor
+                    key={txHash}
+                    href={txUrl}
+                    target="_blank"
+                    css={{
+                      fontSize: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1'
+                    }}
+                  >
+                    {!isApproveStep ? 'Deposit: ' : ''}
+                    {truncateAddress(txHash, '...', 6, 4)}{' '}
+                    <FontAwesomeIcon icon={faExternalLink} width={14} />
+                  </Anchor>
+                )
+              }
             })}
         </Flex>
       </Flex>

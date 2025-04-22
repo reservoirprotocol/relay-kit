@@ -56,7 +56,7 @@ export default (
       if (isSvmAddress) {
         url = `${
           providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
-        }/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+        }/api/echo/beta2/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (!isSvmAddress && !isEvmAddress) {

@@ -1,5 +1,33 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.10
+
+### Patch Changes
+
+- 6940a55: Gas top up functionality
+- Updated dependencies [6940a55]
+  - @reservoir0x/relay-sdk@1.7.0
+  - @reservoir0x/relay-kit-hooks@1.9.3
+
+## 2.9.9
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+- 9868461: Add ronin wallet compatibility
+- b2187e1: Upgrade to new dune svm balance api
+- Updated dependencies [293486b]
+  - @reservoir0x/relay-kit-hooks@1.9.2
+  - @reservoir0x/relay-sdk@1.6.15
+
+## 2.9.8
+
+### Patch Changes
+
+- a8ecc87: Reset swap widget inputs after a successful swap
+- d243416: Fix slice error on confirmation screens
+- 0e55b40: Handle rejecting tx in AGW
+
 ## 2.9.7
 
 ### Patch Changes

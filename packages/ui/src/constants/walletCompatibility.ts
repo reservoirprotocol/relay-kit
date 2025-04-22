@@ -5,7 +5,8 @@ export const WalletChainRestricted: Record<string, number[]> = {
   uniswap: [
     1, 130, 42161, 43114, 8453, 81457, 56, 42220, 10, 137, 480, 324, 7777777
   ],
-  abstract: [2741]
+  abstract: [2741],
+  ronin: [1, 56, 137, 42161, 8453, 2020]
 }
 
 export const WalletChainIncompatible: Record<string, number[]> = {
@@ -15,5 +16,6 @@ export const WalletChainIncompatible: Record<string, number[]> = {
 
 export const NormalizedWalletName: Record<string, string> = {
   phantomevm: 'phantom',
-  magicedensol: 'magiceden'
+  magicedensol: 'magiceden',
+  roninwallet: 'ronin'
 }
