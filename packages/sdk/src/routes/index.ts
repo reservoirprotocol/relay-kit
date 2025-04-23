@@ -36,7 +36,6 @@ export const routes = [
   "/prices/rates",
   "/currencies/v1",
   "/currencies/v2",
-  "/tokenlist",
   "/currencies/token/price",
   "/currencies/add",
   "/currencies/update",
