@@ -5,10 +5,16 @@ import {
   SOLANA_FEE_BUFFER_MULTIPLIER,
   SOLANA_DEFAULT_FEE_LAMPORTS,
   ECLIPSE_FEE_BUFFER_MULTIPLIER,
-  ECLIPSE_DEFAULT_FEE_WEI
-} from '../constants/nativeCalculation.js'
+  ECLIPSE_DEFAULT_FEE_WEI,
+  EVM_DEFAULT_FEE_WEI
+} from '../constants/maxGasBuffer.js'
 import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
 import { queryRequests } from '@reservoir0x/relay-kit-hooks'
+import type { ChainVM } from '@reservoir0x/relay-sdk'
+import { getCacheEntry, setCacheEntry } from './localStorage.js'
+
+// Refs to store ongoing fetch promises
+const fetchPromises: Record<string, Promise<bigint>> = {}
 
 /**
  * Calculates the gas buffer needed for a native EVM token transfer.
@@ -23,11 +29,14 @@ import { queryRequests } from '@reservoir0x/relay-kit-hooks'
 export const calculateEvmNativeGasBuffer = async (
   publicClient: PublicClient,
   balance: bigint,
-  gasLimit: bigint = 400000n // Default gas limit
+  gasLimit: bigint = 400000n
 ): Promise<bigint> => {
   if (!balance || balance <= 0n) {
-    return 0n // Return 0 if balance is zero or negative
+    return 0n
   }
+
+  // Fixed fallback buffer: 0.005 ETH in Wei
+  const defaultBuffer = EVM_DEFAULT_FEE_WEI
 
   try {
     let feeData
@@ -42,9 +51,9 @@ export const calculateEvmNativeGasBuffer = async (
           gasPrice: gasPrice
         }
       } catch (legacyError) {
-        // If both estimations fail, return 0 buffer
+        // If both estimations fail, return fallback buffer
         console.error('Failed to estimate gas price:', legacyError)
-        return 0n
+        return defaultBuffer
       }
     }
 
@@ -53,7 +62,7 @@ export const calculateEvmNativeGasBuffer = async (
 
     if (!gasPriceToUse || gasPriceToUse <= 0n) {
       console.error('Invalid gas price data received:', feeData)
-      return 0n // Return 0 if gas price is invalid
+      return defaultBuffer
     }
 
     if (gasPriceToUse < MINIMUM_GAS_PRICE_WEI) {
@@ -61,13 +70,13 @@ export const calculateEvmNativeGasBuffer = async (
     }
 
     const estimatedGasCost = gasPriceToUse * gasLimit
-    const buffer = estimatedGasCost * EVM_GAS_BUFFER_MULTIPLIER // Use constant
+    const buffer = estimatedGasCost * EVM_GAS_BUFFER_MULTIPLIER
 
     // return the calculated buffer
     return buffer
   } catch (error) {
     console.error('Error calculating EVM native gas buffer:', error)
-    return 0n // Return 0 buffer on any unexpected error
+    return defaultBuffer
   }
 }
 
@@ -134,4 +143,80 @@ export const calculateSvmNativeFeeBuffer = async (
     console.error('Error calculating SVM native fee buffer:', error)
     return fallbackBuffer
   }
+}
+
+/**
+ * Gets the fee buffer amount for a given chain and VM type.
+ * Handles caching, ongoing fetch promises, and initiates calculation if needed.
+ *
+ * @param vmType - The virtual machine type ('evm' or 'svm').
+ * @param chainId - The chain ID.
+ * @param balance - The current balance (required for EVM calculation).
+ * @param publicClient - VIEM PublicClient (required for EVM calculation).
+ * @returns A promise that resolves to the fee buffer amount as a bigint.
+ */
+export const getFeeBufferAmount = async (
+  vmType: ChainVM | undefined | null,
+  chainId: number | undefined | null,
+  balance: bigint,
+  publicClient: PublicClient | null
+): Promise<bigint> => {
+  const cacheKey = `${vmType}FeeBuffer:${chainId}`
+  const cachedBufferStr = getCacheEntry(cacheKey)
+
+  if (cachedBufferStr) {
+    return BigInt(cachedBufferStr)
+  }
+
+  // Check if a fetch is already in progress
+  if (Object.prototype.hasOwnProperty.call(fetchPromises, cacheKey)) {
+    return fetchPromises[cacheKey]
+  }
+
+  // Initiate fetch
+  let calculationPromise: Promise<bigint>
+
+  if (vmType === 'evm') {
+    if (!publicClient) {
+      console.error('PublicClient is required for EVM fee buffer calculation.')
+      return EVM_DEFAULT_FEE_WEI * EVM_GAS_BUFFER_MULTIPLIER
+    }
+    calculationPromise = calculateEvmNativeGasBuffer(publicClient, balance)
+  } else if (vmType === 'svm') {
+    const isEclipseChain = chainId === 9286185
+    const fallbackBuffer = isEclipseChain
+      ? ECLIPSE_DEFAULT_FEE_WEI * ECLIPSE_FEE_BUFFER_MULTIPLIER
+      : SOLANA_DEFAULT_FEE_LAMPORTS * SOLANA_FEE_BUFFER_MULTIPLIER
+    calculationPromise = calculateSvmNativeFeeBuffer(chainId!).catch(
+      (error) => {
+        console.error(
+          `Failed to calculate SVM fee buffer for chain ${chainId}:`,
+          error
+        )
+        return fallbackBuffer
+      }
+    )
+  } else {
+    console.warn(
+      `Unsupported VM type encountered: ${vmType}. Returning default EVM buffer.`
+    )
+    return EVM_DEFAULT_FEE_WEI * EVM_GAS_BUFFER_MULTIPLIER
+  }
+
+  // Store the promise
+  fetchPromises[cacheKey] = calculationPromise
+
+  // Handle caching and cleanup after promise settles
+  calculationPromise
+    .then((buffer) => {
+      setCacheEntry(cacheKey, buffer, 5)
+    })
+    .catch((error) => {
+      console.error(`Error processing fee buffer for ${cacheKey}:`, error)
+    })
+    .finally(() => {
+      delete fetchPromises[cacheKey]
+    })
+
+  return calculationPromise
 }
