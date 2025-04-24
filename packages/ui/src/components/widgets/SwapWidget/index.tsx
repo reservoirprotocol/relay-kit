@@ -763,7 +763,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           )}
                           {fromBalance &&
                           (fromChain?.vmType === 'evm' || // EVM
-                            (fromChain?.vmType === 'bvm' && isFromNative) || // Bitcoin Native
                             fromChain?.vmType === 'svm') ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
