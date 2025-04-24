@@ -12,7 +12,6 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import {
   calculateEvmNativeGasBuffer,
-  calculateBitcoinNativeFeeBuffer,
   calculateSvmNativeFeeBuffer
 } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
@@ -129,7 +128,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const hoverEvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
-  const hoverBitcoinFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const hoverSvmFetchPromiseRef = useRef<Promise<bigint> | null>(null)
   const [pendingSuccessFlush, setPendingSuccessFlush] = useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
@@ -282,35 +280,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   )
                   return 0n
                 }
-              }
-            }
-          } else if (vmType === 'bvm') {
-            const cacheKey = 'bitcoinFeeBuffer'
-            const cachedBufferStr = getCacheEntry(cacheKey)
-
-            if (cachedBufferStr) {
-              return BigInt(cachedBufferStr)
-            } else if (hoverBitcoinFetchPromiseRef.current) {
-              try {
-                return await hoverBitcoinFetchPromiseRef.current
-              } catch (error) {
-                console.error(
-                  'Failed to await pre-fetched Bitcoin fee buffer:',
-                  error
-                )
-                return 0n
-              }
-            } else {
-              try {
-                const buffer = await calculateBitcoinNativeFeeBuffer()
-                setCacheEntry(cacheKey, buffer, 5)
-                return buffer
-              } catch (error) {
-                console.error(
-                  'Failed to calculate Bitcoin fee buffer on click:',
-                  error
-                )
-                return 0n
               }
             }
           } else if (vmType === 'svm') {
@@ -863,25 +832,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                         )
                                       }
                                       hoverEvmFetchPromiseRef.current = null
-                                    }
-                                  }
-                                  // BVM Logic - Separate block
-                                  else if (fromChain?.vmType === 'bvm') {
-                                    const cacheKey = 'bitcoinFeeBuffer'
-                                    if (!getCacheEntry(cacheKey)) {
-                                      hoverBitcoinFetchPromiseRef.current =
-                                        calculateBitcoinNativeFeeBuffer()
-                                      try {
-                                        const buffer =
-                                          await hoverBitcoinFetchPromiseRef.current
-                                        setCacheEntry(cacheKey, buffer, 5)
-                                      } catch (error) {
-                                        console.error(
-                                          'Failed to pre-fetch Bitcoin fee buffer:',
-                                          error
-                                        )
-                                      }
-                                      hoverBitcoinFetchPromiseRef.current = null
                                     }
                                   }
                                   // SVM Logic - Separate block
