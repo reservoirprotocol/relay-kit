@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 1.7.1
+
+### Patch Changes
+
+- effd487: Add fallback mechanism when InternalJSONRPC occurrs
+- af85e2a: Sync sdk types and update sugested tokens to use logoURI from featured tokens
+
 ## 1.7.0
 
 ### Minor Changes

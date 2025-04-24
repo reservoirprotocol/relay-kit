@@ -1,5 +1,19 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.11
+
+### Patch Changes
+
+- afdb901: Render fallback token placeholder using symbol initial
+- b2af4e9: Add sei to ME wallet compatibility
+- effd487: Add fallback mechanism when InternalJSONRPC occurrs
+- 6416987: Max Button gas estimation improvements for evm
+- af85e2a: Sync sdk types and update sugested tokens to use logoURI from featured tokens
+- Updated dependencies [effd487]
+- Updated dependencies [af85e2a]
+  - @reservoir0x/relay-sdk@1.7.1
+  - @reservoir0x/relay-kit-hooks@1.9.4
+
 ## 2.9.10
 
 ### Patch Changes
