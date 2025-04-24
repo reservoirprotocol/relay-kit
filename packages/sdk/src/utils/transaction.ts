@@ -74,7 +74,7 @@ export async function sendTransactionSafely(
     (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
   let waitingForConfirmation = true
   let attemptCount = 0
-
+  let skipWaitingForTransaction = false
   let txHash: string | undefined
 
   // Check if batching txs is supported and if there are multiple items to batch
@@ -90,11 +90,32 @@ export async function sendTransactionSafely(
       items as TransactionStepItem[]
     )
   } else {
-    txHash = await wallet.handleSendTransactionStep(
-      chainId,
-      Array.isArray(items) ? items[0] : items,
-      step
-    )
+    try {
+      txHash = await wallet.handleSendTransactionStep(
+        chainId,
+        Array.isArray(items) ? items[0] : items,
+        step
+      )
+    } catch (e) {
+      if (
+        e instanceof Error &&
+        e.name &&
+        e.name === 'InternalRpcError' &&
+        e.message.includes('is not a function')
+      ) {
+        getClient()?.log(
+          [
+            'Execute Steps: Detected internal RPC Error, skipping tx validation',
+            e
+          ],
+          LogLevel.Verbose
+        )
+        //Skip waiting for confirmation as sometimes these errors result in false positives
+        skipWaitingForTransaction = true
+      } else {
+        throw e
+      }
+    }
   }
 
   if ((txHash as any) === 'null') {
@@ -116,6 +137,7 @@ export async function sendTransactionSafely(
   })
 
   if (
+    txHash &&
     !isBatchTransaction &&
     !Array.isArray(items) &&
     chainId === details?.currencyOut?.currency?.chainId
@@ -129,14 +151,17 @@ export async function sendTransactionSafely(
     })
   }
 
-  if (!txHash) {
+  if (!txHash && !skipWaitingForTransaction) {
     throw Error(
       'Transaction hash not returned from handleSendTransactionStep method'
     )
   }
-  setTxHashes([
-    { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
-  ])
+
+  if (txHash) {
+    setTxHashes([
+      { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+    ])
+  }
 
   //Set up internal functions
   const validate = (res: AxiosResponse) => {
@@ -156,9 +181,20 @@ export async function sendTransactionSafely(
         setInternalTxHashes([
           { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
         ])
+      } else if (res?.data?.inTxHashes) {
+        const depositTxHashes: NonNullable<
+          Execute['steps'][0]['items']
+        >[0]['txHashes'] = res.data?.inTxHashes?.map((hash: Address) => {
+          return {
+            txHash: hash,
+            chainId: res?.data?.originChainId ?? chainId,
+            isBatchTx: isBatchTransaction
+          }
+        })
+        setInternalTxHashes(depositTxHashes)
       }
 
-      const chainTxHashes: NonNullable<
+      const fillTxHashes: NonNullable<
         Execute['steps'][0]['items']
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
         return {
@@ -166,7 +202,7 @@ export async function sendTransactionSafely(
           chainId: res?.data?.destinationChainId ?? crossChainIntentChainId
         }
       })
-      setTxHashes(chainTxHashes)
+      setTxHashes(fillTxHashes)
       return true
     }
     return false
@@ -203,7 +239,11 @@ export async function sendTransactionSafely(
 
     if (attemptCount >= maximumAttempts) {
       if (receipt) {
-        throw new SolverStatusTimeoutError(txHash as Address, attemptCount)
+        throw new SolverStatusTimeoutError(
+          txHash as Address,
+          attemptCount,
+          skipWaitingForTransaction
+        )
       } else {
         throw new DepositTransactionTimeoutError(
           txHash as Address,
@@ -221,6 +261,14 @@ export async function sendTransactionSafely(
   const waitForTransaction = () => {
     const controller = new AbortController()
     const signal = controller.signal
+
+    if (skipWaitingForTransaction) {
+      return {
+        promise: Promise.resolve(),
+        controller
+      }
+    }
+
     // Handle transaction replacements and cancellations
     return {
       promise: wallet
