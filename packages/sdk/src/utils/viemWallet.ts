@@ -2,7 +2,14 @@ import type { AdaptedWallet } from '../types/index.js'
 import { LogLevel } from './logger.js'
 import { getClient } from '../client.js'
 import type { Account, Address, Hex, WalletClient } from 'viem'
-import { createPublicClient, custom, fallback, hexToBigInt, http } from 'viem'
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  fallback,
+  hexToBigInt,
+  http
+} from 'viem'
 import { eip5792Actions } from 'viem/experimental'
 
 export function isViemWalletClient(
@@ -72,7 +79,13 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         throw 'Chain not found when sending transaction'
       }
 
-      return await wallet.sendTransaction({
+      const viemClient = createWalletClient({
+        account: wallet.account ?? stepData.from,
+        chain,
+        transport: custom(wallet.transport)
+      })
+
+      return await viemClient.sendTransaction({
         chain,
         data: stepData.data,
         account: wallet.account ?? stepData.from, // use signer.account if it's defined
