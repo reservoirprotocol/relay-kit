@@ -4,7 +4,7 @@ import { createClient } from '../client'
 import { executeBridge } from '../../tests/data/executeBridge'
 import { executeSteps } from './executeSteps'
 import { MAINNET_RELAY_API } from '../constants/servers'
-import { createWalletClient, http } from 'viem'
+import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
 import type { ChainVM, Execute } from '../types'
@@ -39,6 +39,8 @@ const waitForTransactionReceipt = (args: any) => {
   })
 }
 
+let lastCreatedWalletClient: any
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -57,6 +59,14 @@ vi.mock('viem', async () => {
           resolve(1n)
         })
       }
+      return client
+    },
+    createWalletClient: (args: any) => {
+      console.log('CREATING WALLET CLIENT')
+      //@ts-ignore
+      const client = viem.createWalletClient(args)
+      client.sendTransaction = vi.fn().mockResolvedValue('0x')
+      lastCreatedWalletClient = client
       return client
     }
   }
@@ -1114,7 +1124,9 @@ describe('Base tests', () => {
   })
 
   it('Should use gas fee estimations by default', async () => {
-    const walletClient = createWalletClient({
+    const viem = await vi.importActual('viem')
+    //@ts-ignore
+    const walletClient = viem.createWalletClient({
       chain: mainnet,
       transport: http()
     })
@@ -1129,7 +1141,7 @@ describe('Base tests', () => {
       undefined
     )
 
-    expect(walletClient.sendTransaction).toHaveBeenCalledWith(
+    expect(lastCreatedWalletClient?.sendTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         maxFeePerGas: 19138328136n,
         maxPriorityFeePerGas: 3244774195n,
@@ -1139,11 +1151,13 @@ describe('Base tests', () => {
   })
 
   it('Should omit gas fee estimations', async () => {
+    const viem = await vi.importActual('viem')
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API,
       useGasFeeEstimations: false
     })
-    const walletClient = createWalletClient({
+    //@ts-ignore
+    const walletClient = viem.createWalletClient({
       chain: mainnet,
       transport: http()
     })
@@ -1157,7 +1171,7 @@ describe('Base tests', () => {
       bridgeData,
       undefined
     )
-    expect(walletClient.sendTransaction).not.toHaveBeenCalledWith(
+    expect(lastCreatedWalletClient?.sendTransaction).not.toHaveBeenCalledWith(
       expect.objectContaining({
         maxFeePerGas: 19138328136n,
         maxPriorityFeePerGas: 3244774195n,
