@@ -715,11 +715,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 borderRadius: 'widget-border-radius'
                               }}
                             />
-                          ) : inputAmountUsd && inputAmountUsd > 0 ? (
+                          ) : inputAmountUsd &&
+                            inputAmountUsd > 0 &&
+                            fromTokenPriceData?.price &&
+                            fromTokenPriceData.price > 0 ? (
                             formatDollar(inputAmountUsd)
-                          ) : (
-                            formatDollar(0)
-                          )}
+                          ) : null}
                         </Text>
                         <Flex
                           align="center"
@@ -1171,11 +1172,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                     borderRadius: 'widget-border-radius'
                                   }}
                                 />
-                              ) : outputAmountUsd && outputAmountUsd > 0 ? (
+                              ) : outputAmountUsd &&
+                                outputAmountUsd > 0 &&
+                                toTokenPriceData?.price &&
+                                toTokenPriceData.price > 0 ? (
                                 formatDollar(outputAmountUsd)
-                              ) : (
-                                formatDollar(0)
-                              )}
+                              ) : null}
                             </Text>
                             {quote?.details?.currencyOut?.amountUsd &&
                             !isFetchingQuote &&
