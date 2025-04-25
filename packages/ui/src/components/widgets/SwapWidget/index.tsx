@@ -3,12 +3,14 @@ import { useContext, useEffect, useMemo, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
+import { usePublicClient } from 'wagmi'
 import type { LinkedWallet, Token } from '../../../types/index.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import { getFeeBufferAmount } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -34,6 +36,7 @@ import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import GasTopUpSection from './GasTopUpSection.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 
 // shared query options for useTokenPrice
@@ -125,6 +128,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [pendingSuccessFlush, setPendingSuccessFlush] = useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -226,6 +230,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -298,14 +307,20 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           return calculateUsdValue(toTokenPriceData?.price, amountOutputValue)
         }, [toTokenPriceData, amountOutputValue])
 
-        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+        const handleMaxAmountClicked = async (
+          amount: bigint,
+          percent: string,
+          bufferAmount?: bigint
+        ) => {
           if (fromToken) {
             setAmountInputValue(formatUnits(amount, fromToken?.decimals))
             setTradeType('EXACT_INPUT')
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
-              percent: percent
+              percent: percent,
+              bufferAmount: bufferAmount ? bufferAmount.toString() : '0',
+              chainType: fromChain?.vmType
             })
           }
         }
@@ -371,6 +386,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const toChain = relayClient?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
+
+        // Get public client for the fromChain to estimate gas
+        const publicClient = usePublicClient({ chainId: fromChain?.id })
 
         useEffect(() => {
           if (
@@ -469,11 +487,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
@@ -481,10 +517,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             swapError={swapError}
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
+              setPendingSuccessFlush(true)
               onSwapSuccess?.(data)
-              invalidateQuoteQuery()
-              setAmountInputValue('')
-              setAmountOutputValue('')
             }}
             onSwapValidating={onSwapValidating}
             onAnalyticEvent={onAnalyticEvent}
@@ -711,12 +745,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             <Flex css={{ height: 18 }} />
                           )}
                           {fromBalance &&
-                          (fromChain?.vmType === 'evm' ||
-                            (isFromNative &&
-                              fromBalance >
-                                BigInt(
-                                  0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                ))) ? (
+                          (fromChain?.vmType === 'evm' || // EVM
+                            fromChain?.vmType === 'svm') ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
                                 aria-label="20%"
@@ -791,23 +821,55 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                 }}
                                 color="white"
-                                onClick={() => {
-                                  const percentageBuffer =
-                                    (fromBalance * 1n) / 100n // 1% of the balance
-                                  const fixedBuffer = BigInt(
-                                    0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                  ) // Fixed buffer of 0.02 tokens
-                                  const solanaBuffer =
-                                    percentageBuffer > fixedBuffer
-                                      ? percentageBuffer
-                                      : fixedBuffer
+                                onMouseEnter={() => {
+                                  if (
+                                    fromChain?.vmType === 'evm' &&
+                                    publicClient &&
+                                    fromBalance
+                                  ) {
+                                    getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance,
+                                      publicClient
+                                    )
+                                  } else if (
+                                    fromChain?.vmType === 'svm' &&
+                                    fromChain.id
+                                  ) {
+                                    getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      0n,
+                                      null
+                                    )
+                                  }
+                                }}
+                                onClick={async () => {
+                                  if (!fromBalance || !fromToken || !fromChain)
+                                    return
+
+                                  let feeBufferAmount: bigint = 0n
+                                  if (isFromNative) {
+                                    feeBufferAmount = await getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance,
+                                      publicClient ?? null
+                                    )
+                                  }
+
+                                  const finalMaxAmount =
+                                    isFromNative && feeBufferAmount > 0n
+                                      ? fromBalance > feeBufferAmount
+                                        ? fromBalance - feeBufferAmount
+                                        : 0n
+                                      : fromBalance
+
                                   handleMaxAmountClicked(
-                                    isFromNative
-                                      ? fromChain?.vmType === 'svm'
-                                        ? fromBalance - solanaBuffer
-                                        : fromBalance - percentageBuffer
-                                      : fromBalance,
-                                    'max'
+                                    finalMaxAmount,
+                                    'max',
+                                    isFromNative ? feeBufferAmount : 0n
                                   )
                                 }}
                               >
@@ -1178,6 +1240,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       </Box>
                     ) : null}
+                    <GasTopUpSection
+                      toChain={toChain}
+                      gasTopUpEnabled={gasTopUpEnabled}
+                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      gasTopUpRequired={gasTopUpRequired}
+                      gasTopUpAmount={gasTopUpAmount}
+                      gasTopUpAmountUsd={gasTopUpAmountUsd}
+                    />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
                       isFetchingQuote={isFetchingQuote}

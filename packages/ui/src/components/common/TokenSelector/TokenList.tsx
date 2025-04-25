@@ -106,6 +106,7 @@ export const TokenList: FC<TokenListProps> = ({
                 <ChainTokenIcon
                   chainId={token.chainId}
                   tokenlogoURI={token.logoURI}
+                  tokenSymbol={token.symbol}
                   size="lg"
                 />
                 <Flex

@@ -61,11 +61,16 @@ export const TransactionModal: FC<TransactionModalProps> = (
     timeEstimate,
     isCanonical,
     wallet,
+    onOpenChange,
     onAnalyticEvent,
     onSuccess,
-    onSwapValidating,
-    invalidateQuoteQuery
+    onSwapValidating
   } = transactionModalProps
+
+  useEffect(() => {
+    onOpenChange(open)
+  }, [open])
+
   return (
     <TransactionModalRenderer
       open={open}
@@ -290,6 +295,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
             onOpenChange={onOpenChange}
             transaction={transaction}
             fromChain={fromChain}
+            toChain={toChain}
           />
         ) : null}
       </Flex>

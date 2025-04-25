@@ -1,5 +1,47 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.11
+
+### Patch Changes
+
+- afdb901: Render fallback token placeholder using symbol initial
+- b2af4e9: Add sei to ME wallet compatibility
+- effd487: Add fallback mechanism when InternalJSONRPC occurrs
+- 6416987: Max Button gas estimation improvements for evm
+- af85e2a: Sync sdk types and update sugested tokens to use logoURI from featured tokens
+- Updated dependencies [effd487]
+- Updated dependencies [af85e2a]
+  - @reservoir0x/relay-sdk@1.7.1
+  - @reservoir0x/relay-kit-hooks@1.9.4
+
+## 2.9.10
+
+### Patch Changes
+
+- 6940a55: Gas top up functionality
+- Updated dependencies [6940a55]
+  - @reservoir0x/relay-sdk@1.7.0
+  - @reservoir0x/relay-kit-hooks@1.9.3
+
+## 2.9.9
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+- 9868461: Add ronin wallet compatibility
+- b2187e1: Upgrade to new dune svm balance api
+- Updated dependencies [293486b]
+  - @reservoir0x/relay-kit-hooks@1.9.2
+  - @reservoir0x/relay-sdk@1.6.15
+
+## 2.9.8
+
+### Patch Changes
+
+- a8ecc87: Reset swap widget inputs after a successful swap
+- d243416: Fix slice error on confirmation screens
+- 0e55b40: Handle rejecting tx in AGW
+
 ## 2.9.7
 
 ### Patch Changes

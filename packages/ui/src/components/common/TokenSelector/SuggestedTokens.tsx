@@ -31,7 +31,13 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
 
     return chain.featuredTokens
       .filter((token) => (depositAddressOnly ? token.supportsBridging : true))
-      .map((currency) => convertApiCurrencyToToken(currency, chainId))
+      .map((currency) => {
+        return {
+          ...currency,
+          chainId: Number(chainId),
+          verified: true
+        }
+      })
   }, [chain?.featuredTokens, chainId, depositAddressOnly])
 
   if (!suggestedTokens.length) {
@@ -93,7 +99,8 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
           >
             <ChainTokenIcon
               chainId={token.chainId}
-              tokenlogoURI={token.logoURI}
+              tokenlogoURI={token?.metadata?.logoURI}
+              tokenSymbol={token.symbol}
             />
             <Text style="h6" ellipsify>
               {token.symbol}
