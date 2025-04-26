@@ -73,7 +73,6 @@ export async function sendTransactionSafely(
     (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
   let waitingForConfirmation = true
   let attemptCount = 0
-  let skipWaitingForTransaction = false
   let txHash: string | undefined
 
   // Check if batching txs is supported and if there are multiple items to batch
@@ -89,32 +88,11 @@ export async function sendTransactionSafely(
       items as TransactionStepItem[]
     )
   } else {
-    try {
-      txHash = await wallet.handleSendTransactionStep(
-        chainId,
-        Array.isArray(items) ? items[0] : items,
-        step
-      )
-    } catch (e) {
-      if (
-        e instanceof Error &&
-        e.name &&
-        e.name === 'InternalRpcError' &&
-        e.message.includes('is not a function')
-      ) {
-        getClient()?.log(
-          [
-            'Execute Steps: Detected internal RPC Error, skipping tx validation',
-            e
-          ],
-          LogLevel.Verbose
-        )
-        //Skip waiting for confirmation as sometimes these errors result in false positives
-        skipWaitingForTransaction = true
-      } else {
-        throw e
-      }
-    }
+    txHash = await wallet.handleSendTransactionStep(
+      chainId,
+      Array.isArray(items) ? items[0] : items,
+      step
+    )
   }
 
   if ((txHash as any) === 'null') {
@@ -150,17 +128,15 @@ export async function sendTransactionSafely(
     })
   }
 
-  if (!txHash && !skipWaitingForTransaction) {
+  if (!txHash) {
     throw Error(
       'Transaction hash not returned from handleSendTransactionStep method'
     )
   }
 
-  if (txHash) {
-    setTxHashes([
-      { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
-    ])
-  }
+  setTxHashes([
+    { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
+  ])
 
   //Set up internal functions
   const validate = (res: AxiosResponse) => {
@@ -238,11 +214,7 @@ export async function sendTransactionSafely(
 
     if (attemptCount >= maximumAttempts) {
       if (receipt) {
-        throw new SolverStatusTimeoutError(
-          txHash as Address,
-          attemptCount,
-          skipWaitingForTransaction
-        )
+        throw new SolverStatusTimeoutError(txHash as Address, attemptCount)
       } else {
         throw new DepositTransactionTimeoutError(
           txHash as Address,
@@ -260,13 +232,6 @@ export async function sendTransactionSafely(
   const waitForTransaction = () => {
     const controller = new AbortController()
     const signal = controller.signal
-
-    if (skipWaitingForTransaction) {
-      return {
-        promise: Promise.resolve(),
-        controller
-      }
-    }
 
     // Handle transaction replacements and cancellations
     return {

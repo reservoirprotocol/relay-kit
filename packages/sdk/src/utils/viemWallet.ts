@@ -82,7 +82,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       const viemClient = createWalletClient({
         account: wallet.account ?? stepData.from,
         chain,
-        transport: custom(wallet.transport)
+        transport: custom(wallet.transport, { retryCount: 10, retryDelay: 200 })
       })
 
       return await viemClient.sendTransaction({
@@ -157,9 +157,29 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         if (!chain) {
           throw 'Chain missing from Relay Client'
         }
-        await wallet.addChain({
-          chain: chain?.viemChain!
-        })
+        try {
+          await wallet.addChain({
+            chain: chain?.viemChain!
+          })
+        } catch (e: any) {
+          if (
+            e instanceof Error &&
+            e.name &&
+            e.name === 'InternalRpcError' &&
+            e.message.includes('is not a function')
+          ) {
+            getClient()?.log(
+              [
+                'Execute Steps: Detected internal RPC Error when adding a chain to the wallet',
+                e
+              ],
+              LogLevel.Verbose
+            )
+            return
+          } else {
+            throw e
+          }
+        }
         return
       }
     },
