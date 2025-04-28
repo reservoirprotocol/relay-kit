@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.7.2
+
+### Patch Changes
+
+- 4fb4ac3: Fix add ethereum chain errors
+
 ## 1.7.1
 
 ### Patch Changes

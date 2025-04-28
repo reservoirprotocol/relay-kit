@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.12
+
+### Patch Changes
+
+- fe2398d: Display estimated USD value for input token before swap quote is available
+- Updated dependencies [4fb4ac3]
+  - @reservoir0x/relay-sdk@1.7.2
+  - @reservoir0x/relay-kit-hooks@1.9.5
+
 ## 2.9.11
 
 ### Patch Changes
