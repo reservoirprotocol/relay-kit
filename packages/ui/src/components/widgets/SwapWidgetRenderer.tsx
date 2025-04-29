@@ -497,6 +497,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         }
       : undefined
 
+  const onQuoteRequested: Parameters<typeof useQuote>['3'] = (
+    options,
+    config
+  ) => {
+    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_REQUESTED, {
+      parameters: options,
+      httpConfig: config
+    })
+  }
+
   const onQuoteReceived: Parameters<typeof useQuote>['4'] = ({
     details,
     steps
@@ -544,7 +554,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     relayClient ? relayClient : undefined,
     wallet,
     quoteParameters,
-    undefined,
+    onQuoteRequested,
     onQuoteReceived,
     {
       refetchOnWindowFocus: false,
@@ -778,7 +788,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
 
     try {
-      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, {
+        quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
+      })
       setWaitingForSteps(true)
 
       if (!executeSwap) {
@@ -799,7 +811,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
-          chainId: fromToken.chainId
+          chainId: fromToken.chainId,
+          quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
         })
         await _wallet?.switchChain(fromToken.chainId)
       }
