@@ -61,7 +61,7 @@ export default function (
   client?: RelayClient,
   wallet?: WalletClient | AdaptedWallet,
   options?: QuoteBody,
-  onRequest?: () => void,
+  onRequest?: (options?: QuoteBody, config?: AxiosRequestConfig) => void,
   onResponse?: (data: QuoteResponse) => void,
   queryOptions?: Partial<QueryOptions>,
   onError?: (e: any) => void,
@@ -71,7 +71,7 @@ export default function (
   const response = (useQuery as QueryType)({
     queryKey: queryKey,
     queryFn: () => {
-      onRequest?.()
+      onRequest?.(options, config)
       if (options && client?.source && !options.referrer) {
         options.referrer = client.source
       }
