@@ -25,7 +25,7 @@ import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
 import { convertRelayChainToDynamicNetwork } from 'utils/dynamic'
 import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
-import { HttpTransport } from 'viem'
+import { EIP1193RequestFn, fallback, Transport } from 'viem'
 import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
@@ -82,12 +82,21 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             : viemChains) as [Chain, ...Chain[]],
           multiInjectedProviderDiscovery: false,
           transports: chains.reduce(
-            (transportsConfig: Record<number, HttpTransport>, chain) => {
+            (
+              transportsConfig: Record<
+                number,
+                Transport<string, Record<string, any>, EIP1193RequestFn>
+              >,
+              chain
+            ) => {
               const network = chainIdToAlchemyNetworkMap[chain.id]
               if (network && ALCHEMY_API_KEY) {
-                transportsConfig[chain.id] = http(
-                  `https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
-                )
+                transportsConfig[chain.id] = fallback([
+                  http(
+                    `https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+                  ),
+                  http()
+                ])
               } else {
                 transportsConfig[chain.id] = http() // Fallback to default HTTP transport
               }

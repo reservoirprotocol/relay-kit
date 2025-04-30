@@ -1,6 +1,6 @@
 {
   "name": "@reservoir0x/relay-kit-hooks",
-  "version": "1.9.0",
+  "version": "1.9.5",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",

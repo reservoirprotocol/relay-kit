@@ -1,14 +1,16 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useState, type FC } from 'react'
+import { useContext, useEffect, useMemo, useState, type FC } from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
+import { usePublicClient } from 'wagmi'
 import type { LinkedWallet, Token } from '../../../types/index.js'
 import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import { getFeeBufferAmount } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
 import { EventNames } from '../../../constants/events.js'
@@ -17,7 +19,7 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { faClipboard, faRotate } from '@fortawesome/free-solid-svg-icons'
+import { faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
@@ -34,6 +36,15 @@ import { isChainLocked } from '../../../utils/tokenSelector.js'
 import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
+import GasTopUpSection from './GasTopUpSection.js'
+import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+
+// shared query options for useTokenPrice
+const tokenPriceQueryOptions = {
+  staleTime: 60 * 1000, // 1 minute
+  refetchInterval: 30 * 1000, // 30 seconds
+  refetchOnWindowFocus: false
+}
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -117,6 +128,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false)
   const [depositAddressModalOpen, setDepositAddressModalOpen] = useState(false)
   const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [pendingSuccessFlush, setPendingSuccessFlush] = useState(false)
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
@@ -222,12 +234,88 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         isRecipientLinked,
         swapError,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
         invalidateQuoteQuery
       }) => {
-        const handleMaxAmountClicked = (amount: bigint, percent: string) => {
+        // helper to calculate the USD value of a token
+        const calculateUsdValue = (
+          price?: number,
+          amountString?: string
+        ): number | undefined => {
+          if (price && price > 0 && amountString && Number(amountString) > 0) {
+            try {
+              return parseFloat(amountString) * price
+            } catch (e) {
+              console.error(
+                'Failed to parse amount string for USD calculation',
+                amountString,
+                e
+              )
+            }
+          }
+          return undefined
+        }
+
+        //  Retrieve the price of the `from` token
+        const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
+          useTokenPrice(
+            relayClient?.baseApiUrl,
+            {
+              address: fromToken?.address ?? '',
+              chainId: fromToken?.chainId ?? 0
+            },
+            {
+              enabled: !!(
+                fromToken?.address &&
+                fromToken.chainId &&
+                amountInputValue &&
+                Number(amountInputValue) > 0
+              ),
+              ...tokenPriceQueryOptions
+            }
+          )
+
+        // Retrieve the price of the `to` token
+        const { data: toTokenPriceData, isLoading: isLoadingToTokenPrice } =
+          useTokenPrice(
+            relayClient?.baseApiUrl,
+            {
+              address: toToken?.address ?? '',
+              chainId: toToken?.chainId ?? 0
+            },
+            {
+              enabled: !!(
+                toToken?.address &&
+                toToken.chainId &&
+                amountOutputValue &&
+                Number(amountOutputValue) > 0
+              ),
+              ...tokenPriceQueryOptions
+            }
+          )
+
+        // Calculate the USD value of the input amount
+        const inputAmountUsd = useMemo(() => {
+          return calculateUsdValue(fromTokenPriceData?.price, amountInputValue)
+        }, [fromTokenPriceData, amountInputValue])
+
+        // Calculate the USD value of the output amount
+        const outputAmountUsd = useMemo(() => {
+          return calculateUsdValue(toTokenPriceData?.price, amountOutputValue)
+        }, [toTokenPriceData, amountOutputValue])
+
+        const handleMaxAmountClicked = async (
+          amount: bigint,
+          percent: string,
+          bufferAmount?: bigint
+        ) => {
           if (fromToken) {
             const formattedAmount = formatUnits(amount, fromToken?.decimals)
             setAmountInputValue(formattedAmount)
@@ -309,6 +397,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         const toChain = relayClient?.chains?.find(
           (chain) => chain.id === toToken?.chainId
         )
+
+        // Get public client for the fromChain to estimate gas
+        const publicClient = usePublicClient({ chainId: fromChain?.id })
 
         useEffect(() => {
           if (
@@ -472,11 +563,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 setSteps(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             onDepositAddressModalOpenChange={(open) => {
               if (!open) {
                 setSwapError(null)
+                if (pendingSuccessFlush) {
+                  setGasTopUpEnabled(true)
+                  invalidateQuoteQuery()
+                  setAmountInputValue('')
+                  setAmountOutputValue('')
+                  setPendingSuccessFlush(false)
+                }
+              } else if (pendingSuccessFlush) {
+                setPendingSuccessFlush(false)
               }
             }}
             useExternalLiquidity={useExternalLiquidity}
@@ -484,6 +593,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             swapError={swapError}
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
+              setPendingSuccessFlush(true)
               onSwapSuccess?.(data)
             }}
             onSwapValidating={onSwapValidating}
@@ -562,13 +672,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           autoFocus={!disableInputAutoFocus}
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
-                            isUsdInputMode
-                              ? usdInputValue
-                              : tradeType === 'EXACT_INPUT'
-                                ? amountInputValue
+                            tradeType === 'EXACT_INPUT'
+                              ? amountInputValue
+                              : amountInputValue
+                                ? formatFixedLength(amountInputValue, 8)
                                 : amountInputValue
-                                  ? formatFixedLength(amountInputValue, 8)
-                                  : amountInputValue
                           }
                           setValue={(e) => {
                             if (isUsdInputMode) {
@@ -663,52 +771,38 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        {quote?.details?.currencyIn?.amountUsd &&
-                        Number(quote.details.currencyIn.amountUsd) > 0 ? (
-                          <>
-                            {isUsdInputMode ? (
-                              <Text style="subtitle3" color="subtleSecondary">
-                                {conversionRate && Number(usdInputValue) > 0
-                                  ? `${formatFixedLength((Number(usdInputValue) / conversionRate).toString(), 8)} ${fromToken?.symbol || ''}`
-                                  : '0'}
-                              </Text>
-                            ) : (
-                              <Text style="subtitle3" color="subtleSecondary">
-                                {formatDollar(
-                                  Number(quote.details.currencyIn.amountUsd)
-                                )}
-                              </Text>
-                            )}
-
-                            {/* Switch input modes */}
-                            <Button
-                              aria-label="swap input"
-                              size="none"
+                        <Text
+                          style="subtitle3"
+                          color="subtleSecondary"
+                          css={{
+                            minHeight: 18,
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                        >
+                          {quote?.details?.currencyIn?.amountUsd &&
+                          !isFetchingQuote ? (
+                            formatDollar(
+                              Number(quote.details.currencyIn.amountUsd)
+                            )
+                          ) : isLoadingFromTokenPrice &&
+                            amountInputValue &&
+                            Number(amountInputValue) > 0 ? (
+                            <Box
                               css={{
-                                color: 'gray9',
-                                px: '1',
-                                py: '1',
-                                minHeight: '23px',
-                                lineHeight: '100%',
-                                backgroundColor: 'widget-selector-background',
-                                border: 'none',
-                                _hover: {
-                                  backgroundColor:
-                                    'widget-selector-hover-background'
-                                }
+                                width: 45,
+                                height: 12,
+                                backgroundColor: 'gray7',
+                                borderRadius: 'widget-border-radius'
                               }}
-                              color="white"
-                              onClick={toggleInputMode}
-                            >
-                              <FontAwesomeIcon
-                                icon={faRotate}
-                                width={10}
-                                height={10}
-                              />
-                            </Button>
-                          </>
-                        ) : null}
-
+                            />
+                          ) : inputAmountUsd &&
+                            inputAmountUsd > 0 &&
+                            fromTokenPriceData?.price &&
+                            fromTokenPriceData.price > 0 ? (
+                            formatDollar(inputAmountUsd)
+                          ) : null}
+                        </Text>
                         <Flex
                           align="center"
                           css={{ gap: '3', marginLeft: 'auto', height: 23 }}
@@ -733,12 +827,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             <Flex css={{ height: 18 }} />
                           )}
                           {fromBalance &&
-                          (fromChain?.vmType === 'evm' ||
-                            (isFromNative &&
-                              fromBalance >
-                                BigInt(
-                                  0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                ))) ? (
+                          (fromChain?.vmType === 'evm' || // EVM
+                            fromChain?.vmType === 'svm') ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
                                 aria-label="20%"
@@ -813,23 +903,55 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   }
                                 }}
                                 color="white"
-                                onClick={() => {
-                                  const percentageBuffer =
-                                    (fromBalance * 1n) / 100n // 1% of the balance
-                                  const fixedBuffer = BigInt(
-                                    0.02 * 10 ** (fromToken?.decimals ?? 18)
-                                  ) // Fixed buffer of 0.02 tokens
-                                  const solanaBuffer =
-                                    percentageBuffer > fixedBuffer
-                                      ? percentageBuffer
-                                      : fixedBuffer
+                                onMouseEnter={() => {
+                                  if (
+                                    fromChain?.vmType === 'evm' &&
+                                    publicClient &&
+                                    fromBalance
+                                  ) {
+                                    getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance,
+                                      publicClient
+                                    )
+                                  } else if (
+                                    fromChain?.vmType === 'svm' &&
+                                    fromChain.id
+                                  ) {
+                                    getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      0n,
+                                      null
+                                    )
+                                  }
+                                }}
+                                onClick={async () => {
+                                  if (!fromBalance || !fromToken || !fromChain)
+                                    return
+
+                                  let feeBufferAmount: bigint = 0n
+                                  if (isFromNative) {
+                                    feeBufferAmount = await getFeeBufferAmount(
+                                      fromChain.vmType,
+                                      fromChain.id,
+                                      fromBalance,
+                                      publicClient ?? null
+                                    )
+                                  }
+
+                                  const finalMaxAmount =
+                                    isFromNative && feeBufferAmount > 0n
+                                      ? fromBalance > feeBufferAmount
+                                        ? fromBalance - feeBufferAmount
+                                        : 0n
+                                      : fromBalance
+
                                   handleMaxAmountClicked(
-                                    isFromNative
-                                      ? fromChain?.vmType === 'svm'
-                                        ? fromBalance - solanaBuffer
-                                        : fromBalance - percentageBuffer
-                                      : fromBalance,
-                                    'max'
+                                    finalMaxAmount,
+                                    'max',
+                                    isFromNative ? feeBufferAmount : 0n
                                   )
                                 }}
                               >
@@ -1106,26 +1228,53 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        {quote?.details?.currencyOut?.amountUsd &&
-                        Number(quote.details.currencyOut.amountUsd) > 0 ? (
-                          <Flex align="center" css={{ gap: '1' }}>
+                        {toToken ? (
+                          <Flex
+                            align="center"
+                            css={{
+                              gap: '1',
+                              minHeight: 18
+                            }}
+                          >
                             <Text style="subtitle3" color="subtleSecondary">
-                              {formatDollar(
-                                Number(quote.details.currencyOut.amountUsd)
-                              )}
+                              {quote?.details?.currencyOut?.amountUsd &&
+                              !isFetchingQuote ? (
+                                formatDollar(
+                                  Number(quote.details.currencyOut.amountUsd)
+                                )
+                              ) : isLoadingToTokenPrice &&
+                                amountOutputValue &&
+                                Number(amountOutputValue) > 0 ? (
+                                <Box
+                                  css={{
+                                    width: 45,
+                                    height: 12,
+                                    backgroundColor: 'gray7',
+                                    borderRadius: 'widget-border-radius'
+                                  }}
+                                />
+                              ) : outputAmountUsd &&
+                                outputAmountUsd > 0 &&
+                                toTokenPriceData?.price &&
+                                toTokenPriceData.price > 0 ? (
+                                formatDollar(outputAmountUsd)
+                              ) : null}
                             </Text>
-                            <Text
-                              style="subtitle3"
-                              color={feeBreakdown?.totalFees.priceImpactColor}
-                              css={{
-                                display: 'flex',
-                                alignItems: 'center'
-                              }}
-                            >
-                              ({feeBreakdown?.totalFees.priceImpactPercentage})
-                            </Text>
+                            {quote?.details?.currencyOut?.amountUsd &&
+                            !isFetchingQuote &&
+                            quote.details.totalImpact?.percent ? (
+                              <Text
+                                style="subtitle3"
+                                color={feeBreakdown?.totalFees.priceImpactColor}
+                              >
+                                ({feeBreakdown?.totalFees.priceImpactPercentage}
+                                )
+                              </Text>
+                            ) : null}
                           </Flex>
-                        ) : null}
+                        ) : (
+                          <Flex css={{ height: 18 }} />
+                        )}
                         <Flex css={{ marginLeft: 'auto' }}>
                           {toToken ? (
                             <BalanceDisplay
@@ -1174,6 +1323,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         />
                       </Box>
                     ) : null}
+                    <GasTopUpSection
+                      toChain={toChain}
+                      gasTopUpEnabled={gasTopUpEnabled}
+                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      gasTopUpRequired={gasTopUpRequired}
+                      gasTopUpAmount={gasTopUpAmount}
+                      gasTopUpAmountUsd={gasTopUpAmountUsd}
+                    />
                     <FeeBreakdown
                       feeBreakdown={feeBreakdown}
                       isFetchingQuote={isFetchingQuote}
@@ -1250,7 +1407,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         }
                         onClick={() => {
                           if (fromChainWalletVMSupported) {
-                            // If either address is not valid, open the link wallet modal
                             if (!isValidToAddress || !isValidFromAddress) {
                               if (
                                 multiWalletSupportEnabled &&

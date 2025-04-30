@@ -25,13 +25,16 @@ import type { useRequests } from '@reservoir0x/relay-kit-hooks'
 import type { RelayChain } from '@reservoir0x/relay-sdk'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { JSONToError } from '../../../../utils/errors.js'
+import { TransactionsByChain } from './TransactionsByChain.js'
+import RefundReason from '../../../common/RefundReason.js'
 
 type ErrorStepProps = {
   error?: Error | null
   address?: Address | string
   allTxHashes: TxHashes
   transaction?: ReturnType<typeof useRequests>['data']['0']
-  fromChain?: RelayChain
+  fromChain?: RelayChain | null
+  toChain?: RelayChain | null
   onOpenChange: (open: boolean) => void
 }
 
@@ -41,6 +44,7 @@ export const ErrorStep: FC<ErrorStepProps> = ({
   allTxHashes,
   transaction,
   fromChain,
+  toChain,
   onOpenChange
 }) => {
   const parsedError = JSONToError(error)
@@ -132,10 +136,11 @@ export const ErrorStep: FC<ErrorStepProps> = ({
 
       {isRefund ? (
         <Text style="subtitle2" css={{ my: '4', textAlign: 'center' }}>
+          <RefundReason reasonCode={transaction?.data?.failReason} />
           {refundDetails
-            ? `It looks like an unknown issue occurred during the transaction. We’ve
+            ? `We’ve
           refunded ${refundDetails.amountFormatted} ${refundDetails.currency?.symbol} on ${refundChain?.displayName}.`
-            : `It looks like an unknown issue occurred during the transaction. We apologize for the inconvenience, a refund has been sent to your wallet address.`}
+            : `We apologize for the inconvenience, a refund has been sent to your wallet address.`}
         </Text>
       ) : (
         <ErrorWell
@@ -149,81 +154,22 @@ export const ErrorStep: FC<ErrorStepProps> = ({
           <Flex
             direction="column"
             css={{
-              px: '4',
-              py: '3',
-              gap: '3',
+              p: '3',
               '--borderColor': 'colors.subtle-border-color',
               border: '1px solid var(--borderColor)',
-              borderRadius: 12,
+              gap: '3',
               width: '100%',
+              borderRadius: 12,
               mb: 24
             }}
           >
-            <Flex justify="between" align="center" css={{ gap: '3' }}>
-              <Text style="subtitle1">Deposit Tx</Text>
-              {depositTx ? (
-                <Anchor
-                  href={depositTxUrl}
-                  target="_blank"
-                  css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-                >
-                  {truncateAddress(depositTx.txHash)}
-                  <FontAwesomeIcon
-                    icon={faArrowUpRightFromSquare}
-                    style={{ width: 16, height: 16 }}
-                  />
-                </Anchor>
-              ) : (
-                <Text color="red" style="subtitle2">
-                  Order has not been filled
-                </Text>
-              )}
-            </Flex>
-            <Flex justify="between" align="center" css={{ gap: '3' }}>
-              <Flex align="center" css={{ gap: '2' }}>
-                <Text style="subtitle1">Fill Tx</Text>
-                {isRefund ? (
-                  <Pill
-                    color="gray"
-                    css={{
-                      py: '1',
-                      px: '6px',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <FontAwesomeIcon
-                      icon={faRotateRight}
-                      style={{ width: 16, height: 16, marginRight: 4 }}
-                      color="#889096"
-                    />{' '}
-                    <Text style="subtitle2">Refunded</Text>
-                  </Pill>
-                ) : null}
-              </Flex>
-
-              {fillTx ? (
-                <Anchor
-                  href={fillTxUrl}
-                  target="_blank"
-                  css={{ display: 'flex', alignItems: 'center', gap: '1' }}
-                >
-                  {truncateAddress(fillTx.txHash)}
-                  <FontAwesomeIcon
-                    icon={faArrowUpRightFromSquare}
-                    style={{ width: 16, height: 16 }}
-                  />
-                </Anchor>
-              ) : null}
-
-              {!fillTx && !isSolverStatusTimeout ? (
-                <Text color="red" style="subtitle2">
-                  Order has not been filled
-                </Text>
-              ) : null}
-
-              {!fillTx && isSolverStatusTimeout ? <Skeleton /> : null}
-            </Flex>
+            <TransactionsByChain
+              allTxHashes={allTxHashes}
+              fromChain={fromChain}
+              toChain={toChain}
+              isSolverStatusTimeout={isSolverStatusTimeout}
+              refundData={refundDetails}
+            />
           </Flex>
 
           <Flex css={{ gap: '3', width: '100%' }}>

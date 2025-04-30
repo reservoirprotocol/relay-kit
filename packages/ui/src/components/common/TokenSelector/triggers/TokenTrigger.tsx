@@ -55,6 +55,7 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
         <ChainTokenIcon
           chainId={token.chainId}
           tokenlogoURI={token.logoURI}
+          tokenSymbol={token.symbol}
           css={{ width: 32, height: 32 }}
         />
         <Flex

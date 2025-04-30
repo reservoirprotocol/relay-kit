@@ -15,7 +15,8 @@ import {
   useDisconnected,
   usePreviousValueChange,
   useIsWalletCompatible,
-  useFallbackState
+  useFallbackState,
+  useGasTopUpRequired
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
@@ -46,7 +47,6 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
-import { alreadyAcceptedToken } from '../../utils/localStorage.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -144,6 +144,11 @@ export type ChildrenProps = {
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean
   recipientWalletSupportsChain?: boolean
+  gasTopUpEnabled: boolean
+  setGasTopUpEnabled: Dispatch<React.SetStateAction<boolean>>
+  gasTopUpRequired: boolean
+  gasTopUpAmount?: bigint
+  gasTopUpAmountUsd?: string
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -206,6 +211,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
+  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
 
   const {
     value: amountInputValue,
@@ -214,7 +220,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     debouncedControls: debouncedAmountInputControls
   } = useDebounceState<string>(
     !defaultTradeType || defaultTradeType === 'EXACT_INPUT'
-      ? defaultAmount ?? ''
+      ? (defaultAmount ?? '')
       : '',
     500
   )
@@ -224,7 +230,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXPECTED_OUTPUT' ? defaultAmount ?? '' : '',
+    defaultTradeType === 'EXPECTED_OUTPUT' ? (defaultAmount ?? '') : '',
     500
   )
 
@@ -427,6 +433,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     undefined,
     {
+      refetchOnWindowFocus: false,
       enabled:
         fromToken !== undefined &&
         toToken !== undefined &&
@@ -455,6 +462,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setCurrentSlippageTolerance(slippageTolerance)
   }, [slippageTolerance])
 
+  const {
+    required: gasTopUpRequired,
+    amount: _gasTopUpAmount,
+    amountUsd: _gasTopUpAmountUsd
+  } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
+
   const quoteParameters =
     fromToken && toToken
       ? {
@@ -479,9 +492,20 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
-          slippageTolerance: slippageTolerance
+          slippageTolerance: slippageTolerance,
+          topupGas: gasTopUpEnabled && gasTopUpRequired
         }
       : undefined
+
+  const onQuoteRequested: Parameters<typeof useQuote>['3'] = (
+    options,
+    config
+  ) => {
+    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_REQUESTED, {
+      parameters: options,
+      httpConfig: config
+    })
+  }
 
   const onQuoteReceived: Parameters<typeof useQuote>['4'] = ({
     details,
@@ -515,7 +539,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           debouncedOutputAmountValue.length > 0 &&
           Number(debouncedOutputAmountValue) !== 0)) &&
       fromToken !== undefined &&
-      toToken !== undefined
+      toToken !== undefined &&
+      !transactionModalOpen &&
+      !depositAddressModalOpen
   )
 
   const {
@@ -528,9 +554,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     relayClient ? relayClient : undefined,
     wallet,
     quoteParameters,
-    undefined,
+    onQuoteRequested,
     onQuoteReceived,
     {
+      refetchOnWindowFocus: false,
       enabled: quoteFetchingEnabled,
       refetchInterval:
         !transactionModalOpen &&
@@ -555,9 +582,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const invalidateQuoteQuery = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: quoteQueryKey })
   }, [queryClient, quoteQueryKey])
-
-  let error = _quoteData || isFetchingQuote ? null : quoteError
+  let error =
+    _quoteData || (isFetchingQuote && quoteFetchingEnabled) ? null : quoteError
   let quote = error ? undefined : _quoteData
+  const gasTopUpAmount = quote?.details?.currencyGasTopup?.amount
+    ? BigInt(quote?.details?.currencyGasTopup?.amount)
+    : _gasTopUpAmount
+  const gasTopUpAmountUsd =
+    quote?.details?.currencyGasTopup?.amountUsd ?? _gasTopUpAmountUsd
 
   useDisconnected(address, () => {
     setCustomToAddress(undefined)
@@ -708,7 +740,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           (typeof error.message === 'string' &&
             error.message.includes('Plugin Closed')) ||
           (typeof error.message === 'string' &&
-            error.message.includes('denied transaction')))
+            error.message.includes('denied transaction')) ||
+          (typeof error.message === 'string' &&
+            error.message.includes('Failed to initialize request') &&
+            fromChain?.id === 2741)) // Abstract @TODO: remove once privy improves handling rejected transactions
       ) {
         // Close the transaction modal if the user rejects the tx
         setTransactionModalOpen(false)
@@ -753,7 +788,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
 
     try {
-      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED)
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, {
+        quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
+      })
       setWaitingForSteps(true)
 
       if (!executeSwap) {
@@ -774,7 +811,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
-          chainId: fromToken.chainId
+          chainId: fromToken.chainId,
+          quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
         })
         await _wallet?.switchChain(fromToken.chainId)
       }
@@ -876,6 +914,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         toChainWalletVMSupported,
         isRecipientLinked,
         recipientWalletSupportsChain,
+        gasTopUpEnabled,
+        setGasTopUpEnabled,
+        gasTopUpRequired,
+        gasTopUpAmount,
+        gasTopUpAmountUsd,
         invalidateBalanceQueries,
         invalidateQuoteQuery,
         setUseExternalLiquidity,

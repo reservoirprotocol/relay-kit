@@ -2,15 +2,15 @@ import { type FC } from 'react'
 import Flex from './Flex.js'
 import ChainIcon from './ChainIcon.js'
 import Box from './Box.js'
+import Text from './Text.js'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoins } from '@fortawesome/free-solid-svg-icons'
 
 type Size = 'md' | 'lg'
 
 type ChainTokenProps = {
   chainId?: number
   tokenlogoURI?: string
+  tokenSymbol?: string
   css?: Styles
   size?: Size
 }
@@ -29,6 +29,7 @@ const SIZES = {
 export const ChainTokenIcon: FC<ChainTokenProps> = ({
   chainId,
   tokenlogoURI,
+  tokenSymbol,
   css = {},
   size = 'md'
 }) => {
@@ -48,7 +49,7 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
             overflow: 'hidden'
           }}
         />
-      ) : (
+      ) : tokenSymbol ? (
         <Box
           css={{
             width: dimensions.token,
@@ -61,13 +62,9 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
             justifyContent: 'center'
           }}
         >
-          <FontAwesomeIcon
-            icon={faCoins}
-            width={dimensions.token / 2}
-            height={dimensions.token / 2}
-          />
+          <Text style="h6">{tokenSymbol?.charAt(0).toUpperCase()}</Text>
         </Box>
-      )}
+      ) : null}
       <ChainIcon
         chainId={chainId}
         width={dimensions.chain}

@@ -1,5 +1,10 @@
 export const routes = [
+  "/app-fees/{wallet}/balances",
+  "/app-fees/{wallet}/claim",
   "/chains",
+  "/chains/add",
+  "/chains/update",
+  "/chains/status",
   "/chains/health",
   "/config",
   "/config/v2",
@@ -24,14 +29,16 @@ export const routes = [
   "/requests/metadata",
   "/transactions/index",
   "/transactions/single",
+  "/block/index",
   "/transactions/status",
   "/loadforge.txt",
   "/conduit/install",
   "/prices/rates",
   "/currencies/v1",
   "/currencies/v2",
-  "/tokenlist",
   "/currencies/token/price",
+  "/currencies/add",
+  "/currencies/update",
   "/currencies/trending",
   "/provision/chain"
 ];

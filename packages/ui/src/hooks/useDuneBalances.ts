@@ -7,7 +7,6 @@ import {
   type QueryKey
 } from '@tanstack/react-query'
 import { eclipse, isSolanaAddress, solana } from '../utils/solana.js'
-import { isBitcoinAddress } from '../utils/bitcoin.js'
 
 export type DuneBalanceResponse = {
   request_time: string
@@ -57,7 +56,7 @@ export default (
       if (isSvmAddress) {
         url = `${
           providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
-        }/api/echo/beta/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+        }/api/echo/beta2/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (!isSvmAddress && !isEvmAddress) {

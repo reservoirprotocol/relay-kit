@@ -23,7 +23,7 @@ export function prepareBatchTransaction(steps: Execute['steps']) {
   const secondStepId = steps[1]?.id // deposit or swap
 
   const batchedStep = {
-    id: `approve-and-${secondStepId}`,
+    id: `approve-and-${secondStepId}` as any,
     action: 'Confirm transaction in your wallet',
     description: `Batching approval and ${secondStepId} transactions`,
     kind: 'transaction' as const,

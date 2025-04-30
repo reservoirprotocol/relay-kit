@@ -48,10 +48,16 @@ export const DepositAddressModal: FC<DepositAddressModalProps> = (
     debouncedInputAmountValue,
     debouncedOutputAmountValue,
     timeEstimate,
+    onOpenChange,
     invalidateBalanceQueries,
     onAnalyticEvent,
     onSuccess
   } = depositAddressModalProps
+
+  useEffect(() => {
+    onOpenChange(open)
+  }, [open])
+
   return (
     <DepositAddressModalRenderer
       open={open}
@@ -140,6 +146,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   fillTime,
   seconds,
   fromChain,
+  toChain,
   recipient,
   depositAddress,
   executionStatus,
@@ -234,6 +241,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
             onOpenChange={onOpenChange}
             transaction={transaction}
             fromChain={fromChain}
+            toChain={toChain}
           />
         ) : null}
       </Flex>

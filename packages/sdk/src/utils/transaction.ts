@@ -73,7 +73,6 @@ export async function sendTransactionSafely(
     (2.5 * 60 * 1000) / pollingInterval // default to 2 minutes and 30 seconds worth of attempts
   let waitingForConfirmation = true
   let attemptCount = 0
-
   let txHash: string | undefined
 
   // Check if batching txs is supported and if there are multiple items to batch
@@ -115,6 +114,7 @@ export async function sendTransactionSafely(
   })
 
   if (
+    txHash &&
     !isBatchTransaction &&
     !Array.isArray(items) &&
     chainId === details?.currencyOut?.currency?.chainId
@@ -133,6 +133,7 @@ export async function sendTransactionSafely(
       'Transaction hash not returned from handleSendTransactionStep method'
     )
   }
+
   setTxHashes([
     { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
   ])
@@ -155,9 +156,20 @@ export async function sendTransactionSafely(
         setInternalTxHashes([
           { txHash: txHash, chainId: chainId, isBatchTx: isBatchTransaction }
         ])
+      } else if (res?.data?.inTxHashes) {
+        const depositTxHashes: NonNullable<
+          Execute['steps'][0]['items']
+        >[0]['txHashes'] = res.data?.inTxHashes?.map((hash: Address) => {
+          return {
+            txHash: hash,
+            chainId: res?.data?.originChainId ?? chainId,
+            isBatchTx: isBatchTransaction
+          }
+        })
+        setInternalTxHashes(depositTxHashes)
       }
 
-      const chainTxHashes: NonNullable<
+      const fillTxHashes: NonNullable<
         Execute['steps'][0]['items']
       >[0]['txHashes'] = res.data?.txHashes?.map((hash: Address) => {
         return {
@@ -165,7 +177,7 @@ export async function sendTransactionSafely(
           chainId: res?.data?.destinationChainId ?? crossChainIntentChainId
         }
       })
-      setTxHashes(chainTxHashes)
+      setTxHashes(fillTxHashes)
       return true
     }
     return false
@@ -220,6 +232,7 @@ export async function sendTransactionSafely(
   const waitForTransaction = () => {
     const controller = new AbortController()
     const signal = controller.signal
+
     // Handle transaction replacements and cancellations
     return {
       promise: wallet
