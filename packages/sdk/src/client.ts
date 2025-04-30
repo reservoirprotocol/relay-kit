@@ -30,6 +30,7 @@ export type RelayClientOptions = {
   chains?: RelayChain[]
   useGasFeeEstimations?: boolean
   uiVersion?: string
+  logger?: (message: Parameters<typeof logUtil>['0'], level: LogLevel) => void
 }
 
 let _client: RelayClient
@@ -115,6 +116,17 @@ export class RelayClient {
       options.useGasFeeEstimations !== undefined
         ? options.useGasFeeEstimations
         : this.useGasFeeEstimations
+
+    if (options.logger) {
+      this.log = options.logger
+    } else {
+      this.log = (
+        message: Parameters<typeof logUtil>['0'],
+        level: LogLevel = LogLevel.Info
+      ) => {
+        logUtil(message, level, this.logLevel)
+      }
+    }
 
     if (options.chains) {
       this.chains = options.chains
