@@ -505,7 +505,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     options,
     config
   ) => {
-    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_REQUESTED, {
+    onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
       httpConfig: config
     })
@@ -515,7 +515,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     details,
     steps
   }) => {
-    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+    onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
       wallet_connector: connector?.name,
       amount_in: details?.currencyIn?.amountFormatted,
       currency_in: details?.currencyIn?.currency?.symbol,
