@@ -139,9 +139,14 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     relayClient ? relayClient : undefined,
     undefined,
     quoteParameters,
-    () => {},
+    (options, config) => {
+      onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
+        parameters: options,
+        httpConfig: config
+      })
+    },
     ({ steps, details }) => {
-      onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+      onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
         wallet_connector: connector?.name,
         quote_id: steps ? extractQuoteId(steps) : undefined,
         amount_in: details?.currencyIn?.amountFormatted,
