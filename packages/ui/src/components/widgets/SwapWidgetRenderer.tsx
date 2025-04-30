@@ -47,6 +47,7 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
+import { murmurhash } from '../../utils/hashing.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -505,16 +506,19 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     options,
     config
   ) => {
+    const quoteRequestId = murmurhash(options ?? {})
     onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
-      httpConfig: config
+      httpConfig: config,
+      quoteRequestId
     })
   }
 
-  const onQuoteReceived: Parameters<typeof useQuote>['4'] = ({
-    details,
-    steps
-  }) => {
+  const onQuoteReceived: Parameters<typeof useQuote>['4'] = (
+    { details, steps },
+    options
+  ) => {
+    const quoteRequestId = murmurhash(options ?? {})
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
       wallet_connector: connector?.name,
       amount_in: details?.currencyIn?.amountFormatted,
@@ -528,7 +532,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         details?.slippageTolerance?.destination?.percent,
       slippage_tolerance_origin_percentage:
         details?.slippageTolerance?.origin?.percent,
-      steps
+      steps,
+      quoteRequestId
     })
   }
 
