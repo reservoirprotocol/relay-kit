@@ -62,7 +62,7 @@ export default function (
   wallet?: WalletClient | AdaptedWallet,
   options?: QuoteBody,
   onRequest?: (options?: QuoteBody, config?: AxiosRequestConfig) => void,
-  onResponse?: (data: QuoteResponse) => void,
+  onResponse?: (data: QuoteResponse, options?: QuoteBody) => void,
   queryOptions?: Partial<QueryOptions>,
   onError?: (e: any) => void,
   config?: AxiosRequestConfig
@@ -84,7 +84,7 @@ export default function (
       })
       promise
         .then((response: any) => {
-          onResponse?.(response)
+          onResponse?.(response, options)
         })
         .catch((e) => {
           if (onError) {
