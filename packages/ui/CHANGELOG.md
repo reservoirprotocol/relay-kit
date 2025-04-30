@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.13
+
+### Patch Changes
+
+- 052745e: Add a quoteRequestId when requests and receiving a quote
+- fe54a20: Improve quote and swap analytics
+- c3c4a53: Rename quote events
+- Updated dependencies [052745e]
+- Updated dependencies [fe54a20]
+- Updated dependencies [bc85ead]
+  - @reservoir0x/relay-kit-hooks@1.9.6
+  - @reservoir0x/relay-sdk@1.7.3
+
 ## 2.9.12
 
 ### Patch Changes
