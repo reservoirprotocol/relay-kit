@@ -33,6 +33,7 @@ import { getDeadAddress } from '@reservoir0x/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
 import { errorToJSON } from '../../../utils/errors.js'
+import { murmurhash } from '../../../utils/hashing.js'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
@@ -140,12 +141,15 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     undefined,
     quoteParameters,
     (options, config) => {
+      const quoteRequestId = murmurhash(options ?? {})
       onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
         parameters: options,
-        httpConfig: config
+        httpConfig: config,
+        quoteRequestId
       })
     },
-    ({ steps, details }) => {
+    ({ steps, details }, options) => {
+      const quoteRequestId = murmurhash(options ?? {})
       onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
         wallet_connector: connector?.name,
         quote_id: steps ? extractQuoteId(steps) : undefined,
@@ -161,7 +165,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           details?.slippageTolerance?.origin?.percent,
         is_canonical: false,
         is_deposit_address: true,
-        steps
+        steps,
+        quoteRequestId
       })
     },
     {
