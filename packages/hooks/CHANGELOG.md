@@ -1,5 +1,45 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.9.6
+
+### Patch Changes
+
+- 052745e: Add a quoteRequestId when requests and receiving a quote
+- fe54a20: Improve quote and swap analytics
+- Updated dependencies [bc85ead]
+  - @reservoir0x/relay-sdk@1.7.3
+
+## 1.9.5
+
+### Patch Changes
+
+- Updated dependencies [4fb4ac3]
+  - @reservoir0x/relay-sdk@1.7.2
+
+## 1.9.4
+
+### Patch Changes
+
+- Updated dependencies [effd487]
+- Updated dependencies [af85e2a]
+  - @reservoir0x/relay-sdk@1.7.1
+
+## 1.9.3
+
+### Patch Changes
+
+- 6940a55: Gas top up functionality
+- Updated dependencies [6940a55]
+  - @reservoir0x/relay-sdk@1.7.0
+
+## 1.9.2
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+- Updated dependencies [293486b]
+  - @reservoir0x/relay-sdk@1.6.15
+
 ## 1.9.1
 
 ### Patch Changes

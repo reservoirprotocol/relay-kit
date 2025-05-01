@@ -1,6 +1,5 @@
 export class SolverStatusTimeoutError extends Error {
   txHash: `0x${string}`
-  blockExplorerBaseUrl?: string
 
   constructor(txHash: `0x${string}`, attemptCount: number) {
     super(

@@ -86,6 +86,7 @@ export const OnrampSuccessStep: FC<OnrampSuccessStepProps> = ({
           <ChainTokenIcon
             chainId={toToken.chainId}
             tokenlogoURI={toToken.logoURI}
+            tokenSymbol={toToken.symbol}
             css={{ height: 32, width: 32 }}
           />
           {isLoadingTransaction ? (

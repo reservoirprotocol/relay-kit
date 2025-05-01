@@ -74,10 +74,6 @@ const SwapButton: FC<SwapButtonProps> = ({
             !recipientWalletSupportsChain)
         }
         onClick={() => {
-          onAnalyticEvent?.(EventNames.SWAP_BUTTON_CLICKED, {
-            context,
-            ctaCopy
-          })
           onClick()
         }}
       >

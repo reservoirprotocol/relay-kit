@@ -17,6 +17,7 @@ import { faCheck, faExternalLink } from '@fortawesome/free-solid-svg-icons'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { formatTransactionSteps } from '../../../../utils/steps.js'
+import { formatBN } from '../../../../utils/numbers.js'
 
 type SwapConfirmationStepProps = {
   fromToken?: Token
@@ -53,6 +54,15 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
     [steps, fromToken, toToken, fromChain, toChain, operation]
   )
 
+  const gasTopUpAmountCurrency = quote?.details?.currencyGasTopup?.currency
+  const formattedGasTopUpAmount = quote?.details?.currencyGasTopup?.amount
+    ? formatBN(
+        BigInt(quote?.details?.currencyGasTopup?.amount),
+        5,
+        gasTopUpAmountCurrency?.decimals ?? 18
+      )
+    : undefined
+
   return (
     <>
       <Flex
@@ -76,6 +86,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           <ChainTokenIcon
             chainId={fromToken?.chainId}
             tokenlogoURI={fromToken?.logoURI}
+            tokenSymbol={fromToken?.symbol}
             css={{ height: 32, width: 32 }}
           />
           <Flex direction="column" align="start" css={{ gap: '1' }}>
@@ -112,6 +123,7 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           <ChainTokenIcon
             chainId={toToken?.chainId}
             tokenlogoURI={toToken?.logoURI}
+            tokenSymbol={toToken?.symbol}
             css={{ height: 32, width: 32 }}
           />
           <Flex direction="column" align="start" css={{ gap: '1' }}>
@@ -124,6 +136,27 @@ export const SwapConfirmationStep: FC<SwapConfirmationStepProps> = ({
           </Flex>
         </Flex>
       </Flex>
+      {formattedGasTopUpAmount ? (
+        <Flex
+          direction="row"
+          justify="between"
+          css={{
+            backgroundColor: 'subtle-background-color',
+            p: '12px 16px',
+            borderRadius: 12,
+            gap: 2,
+            width: '100%',
+            alignItems: 'center'
+          }}
+        >
+          <Text style="subtitle2" color="subtle">
+            Additional Gas
+          </Text>
+          <Text style="subtitle2">
+            {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+          </Text>
+        </Flex>
+      ) : null}
       <Flex
         direction="column"
         css={{

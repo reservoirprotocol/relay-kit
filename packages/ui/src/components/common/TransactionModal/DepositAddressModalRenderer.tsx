@@ -33,6 +33,7 @@ import { getDeadAddress } from '@reservoir0x/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
 import { errorToJSON } from '../../../utils/errors.js'
+import { murmurhash } from '../../../utils/hashing.js'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
@@ -59,6 +60,7 @@ export type ChildrenProps = {
   depositAddress?: string
   executionStatus?: ReturnType<typeof useExecutionStatus>['data']
   isLoadingTransaction: boolean
+  toChain?: RelayChain | null
 }
 
 type Props = {
@@ -138,9 +140,17 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     relayClient ? relayClient : undefined,
     undefined,
     quoteParameters,
-    () => {},
-    ({ steps, details }) => {
-      onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+    (options, config) => {
+      const quoteRequestId = murmurhash(options ?? {})
+      onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
+        parameters: options,
+        httpConfig: config,
+        quoteRequestId
+      })
+    },
+    ({ steps, details }, options) => {
+      const quoteRequestId = murmurhash(options ?? {})
+      onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
         wallet_connector: connector?.name,
         quote_id: steps ? extractQuoteId(steps) : undefined,
         amount_in: details?.currencyIn?.amountFormatted,
@@ -155,7 +165,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           details?.slippageTolerance?.origin?.percent,
         is_canonical: false,
         is_deposit_address: true,
-        steps
+        steps,
+        quoteRequestId
       })
     },
     {
@@ -192,8 +203,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const quote = defaultQuote
     ? defaultQuote
     : isFetchingQuote || isRefetching
-    ? undefined
-    : quoteData
+      ? undefined
+      : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
@@ -341,6 +352,9 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const transaction = transactions[0]
 
   const { fillTime, seconds } = calculateFillTime(transaction)
+  const toChain = toToken?.chainId
+    ? relayClient?.chains.find((chain) => chain.id === toToken?.chainId)
+    : null
 
   return (
     <>
@@ -359,7 +373,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         requestId,
         depositAddress,
         executionStatus,
-        isLoadingTransaction
+        isLoadingTransaction,
+        toChain
       })}
     </>
   )

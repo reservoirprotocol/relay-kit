@@ -2,7 +2,14 @@ import type { AdaptedWallet } from '../types/index.js'
 import { LogLevel } from './logger.js'
 import { getClient } from '../client.js'
 import type { Account, Address, Hex, WalletClient } from 'viem'
-import { createPublicClient, custom, fallback, hexToBigInt, http } from 'viem'
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  fallback,
+  hexToBigInt,
+  http
+} from 'viem'
 import { eip5792Actions } from 'viem/experimental'
 
 export function isViemWalletClient(
@@ -72,7 +79,13 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         throw 'Chain not found when sending transaction'
       }
 
-      return await wallet.sendTransaction({
+      const viemClient = createWalletClient({
+        account: wallet.account ?? stepData.from,
+        chain,
+        transport: custom(wallet.transport, { retryCount: 10, retryDelay: 200 })
+      })
+
+      return await viemClient.sendTransaction({
         chain,
         data: stepData.data,
         account: wallet.account ?? stepData.from, // use signer.account if it's defined
@@ -144,9 +157,29 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         if (!chain) {
           throw 'Chain missing from Relay Client'
         }
-        await wallet.addChain({
-          chain: chain?.viemChain!
-        })
+        try {
+          await wallet.addChain({
+            chain: chain?.viemChain!
+          })
+        } catch (e: any) {
+          if (
+            e instanceof Error &&
+            e.name &&
+            e.name === 'InternalRpcError' &&
+            e.message.includes('is not a function')
+          ) {
+            getClient()?.log(
+              [
+                'Execute Steps: Detected internal RPC Error when adding a chain to the wallet',
+                e
+              ],
+              LogLevel.Verbose
+            )
+            return
+          } else {
+            throw e
+          }
+        }
         return
       }
     },

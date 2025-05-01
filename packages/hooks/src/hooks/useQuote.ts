@@ -34,7 +34,7 @@ export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: QuoteBody,
   config?: AxiosRequestConfig
-): Promise<Execute> {
+): Promise<QuoteResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseApiUrl}/quote`)
     axiosPostFetcher(url.href, options, config)
@@ -61,8 +61,8 @@ export default function (
   client?: RelayClient,
   wallet?: WalletClient | AdaptedWallet,
   options?: QuoteBody,
-  onRequest?: () => void,
-  onResponse?: (data: Execute) => void,
+  onRequest?: (options?: QuoteBody, config?: AxiosRequestConfig) => void,
+  onResponse?: (data: QuoteResponse, options?: QuoteBody) => void,
   queryOptions?: Partial<QueryOptions>,
   onError?: (e: any) => void,
   config?: AxiosRequestConfig
@@ -71,7 +71,7 @@ export default function (
   const response = (useQuery as QueryType)({
     queryKey: queryKey,
     queryFn: () => {
-      onRequest?.()
+      onRequest?.(options, config)
       if (options && client?.source && !options.referrer) {
         options.referrer = client.source
       }
@@ -84,7 +84,7 @@ export default function (
       })
       promise
         .then((response: any) => {
-          onResponse?.(response)
+          onResponse?.(response, options)
         })
         .catch((e) => {
           if (onError) {

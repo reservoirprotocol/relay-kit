@@ -1,5 +1,36 @@
 # @reservoir0x/relay-sdk
 
+## 1.7.3
+
+### Patch Changes
+
+- bc85ead: Add ability to override default logger
+
+## 1.7.2
+
+### Patch Changes
+
+- 4fb4ac3: Fix add ethereum chain errors
+
+## 1.7.1
+
+### Patch Changes
+
+- effd487: Add fallback mechanism when InternalJSONRPC occurrs
+- af85e2a: Sync sdk types and update sugested tokens to use logoURI from featured tokens
+
+## 1.7.0
+
+### Minor Changes
+
+- 6940a55: Gas top up functionality
+
+## 1.6.15
+
+### Patch Changes
+
+- 293486b: Add additional refund reason messaging
+
 ## 1.6.14
 
 ### Patch Changes
