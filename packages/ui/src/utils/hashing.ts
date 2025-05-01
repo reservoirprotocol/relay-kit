@@ -1,4 +1,4 @@
-import { x64 } from 'murmurhash3js-revisited'
+import { sha256 as _sha256 } from '@noble/hashes/sha2.js'
 
 function normalizeAndStringify(obj: Record<string, any>): string {
   const replacer = (_key: string, value: any) => {
@@ -28,13 +28,9 @@ function normalizeAndStringify(obj: Record<string, any>): string {
   return JSON.stringify(sorted, replacer)
 }
 
-// MurmurHash3 is a non-cryptographic hash function designed for:
-// Speed
-// Good distribution
-// Low collision rates
-// Use in hash tables, caches, deduplication, or ID generation
-
-export function murmurhash(params: Record<string, any>): string {
+export function sha256(params: Record<string, any>): string {
   const str = normalizeAndStringify(params)
-  return x64.hash128(new TextEncoder().encode(str))
+  const bytes = new TextEncoder().encode(str)
+  const hash = _sha256(bytes)
+  return [...hash].map((b) => Number(b).toString(16).padStart(2, '0')).join('')
 }
