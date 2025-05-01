@@ -120,7 +120,7 @@ export function addressesEqual(
   b?: string
 ): boolean {
   if (!a || !b) return false
-  if (vmType === 'evm') {
+  if (vmType === 'evm' || vmType === 'suivm') {
     return a.toLowerCase() === b.toLowerCase()
   }
   return a === b
