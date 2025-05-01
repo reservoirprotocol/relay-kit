@@ -307,7 +307,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: fromChain,
     address: address,
     currency: fromToken?.address ? (fromToken.address as Address) : undefined,
-    enabled: fromToken !== undefined
+    enabled: fromToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const {
@@ -320,7 +322,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: toChain,
     address: recipient,
     currency: toToken?.address ? (toToken.address as Address) : undefined,
-    enabled: toToken !== undefined
+    enabled: toToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const invalidateBalanceQueries = useCallback(() => {
