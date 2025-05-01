@@ -113,3 +113,15 @@ export function findSupportedWallet(
   }
   return undefined
 }
+
+export function addressesEqual(
+  vmType: ChainVM,
+  a?: string,
+  b?: string
+): boolean {
+  if (!a || !b) return false
+  if (vmType === 'evm') {
+    return a.toLowerCase() === b.toLowerCase()
+  }
+  return a === b
+}
