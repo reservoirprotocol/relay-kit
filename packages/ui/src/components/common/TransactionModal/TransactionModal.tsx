@@ -192,8 +192,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   isCanonical,
   fromChain,
   toChain,
-  isLoadingTransaction,
-  invalidateQuoteQuery
+  isLoadingTransaction
 }) => {
   useEffect(() => {
     if (!open) {
@@ -206,7 +205,6 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setStartTimestamp(0)
       setSwapError(null)
       setSteps(null)
-      invalidateQuoteQuery()
     } else {
       setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)

@@ -589,6 +589,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const invalidateQuoteQuery = useCallback(() => {
+    debugger
     queryClient.invalidateQueries({ queryKey: quoteQueryKey })
   }, [queryClient, quoteQueryKey])
   let error =

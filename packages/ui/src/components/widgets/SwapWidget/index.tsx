@@ -489,10 +489,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 setSteps(null)
                 if (pendingSuccessFlush) {
                   setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
                   setAmountInputValue('')
                   setAmountOutputValue('')
                   setPendingSuccessFlush(false)
+                } else {
+                  invalidateQuoteQuery()
                 }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
@@ -503,10 +504,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 setSwapError(null)
                 if (pendingSuccessFlush) {
                   setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
                   setAmountInputValue('')
                   setAmountOutputValue('')
                   setPendingSuccessFlush(false)
+                } else {
+                  invalidateQuoteQuery()
                 }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
