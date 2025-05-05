@@ -87,9 +87,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
         const steps = quote?.steps
         const details = quote?.details
         const fees = quote?.fees
-        onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
-          quote_id: steps ? extractQuoteId(steps) : undefined
-        })
         onSwapValidating?.({
           steps: steps,
           fees: fees,

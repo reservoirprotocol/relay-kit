@@ -1,5 +1,7 @@
+import type { SvmReceipt, SuiReceipt } from '../types/index.js'
 import type { paths } from './api.js'
 import type { AxiosRequestConfig } from 'axios'
+import type { TransactionReceipt } from 'viem'
 
 export type CallFees =
   paths['/execute/call/v2']['post']['responses']['200']['content']['application/json']['fees']
@@ -48,6 +50,7 @@ export type Execute = {
     depositAddress?: string
     items: {
       status: 'complete' | 'incomplete'
+      receipt?: TransactionReceipt | SvmReceipt | SuiReceipt
       progressState?: TransactionStepState | SignatureStepState
       data?: any
       check?: CheckApi
