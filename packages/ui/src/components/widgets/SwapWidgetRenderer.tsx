@@ -47,6 +47,8 @@ import {
 import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
+import { sha256 } from '../../utils/hashing.js'
+import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -306,7 +308,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: fromChain,
     address: address,
     currency: fromToken?.address ? (fromToken.address as Address) : undefined,
-    enabled: fromToken !== undefined
+    enabled: fromToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const {
@@ -319,7 +323,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     chain: toChain,
     address: recipient,
     currency: toToken?.address ? (toToken.address as Address) : undefined,
-    enabled: toToken !== undefined
+    enabled: toToken !== undefined,
+    refreshInterval: undefined,
+    wallet
   })
 
   const invalidateBalanceQueries = useCallback(() => {
@@ -501,17 +507,22 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     options,
     config
   ) => {
-    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_REQUESTED, {
+    const interval = get15MinuteInterval()
+    const quoteRequestId = sha256({ ...options, interval })
+    onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
-      httpConfig: config
+      http_config: config,
+      quote_id: quoteRequestId
     })
   }
 
-  const onQuoteReceived: Parameters<typeof useQuote>['4'] = ({
-    details,
-    steps
-  }) => {
-    onAnalyticEvent?.(EventNames.SWAP_EXECUTE_QUOTE_RECEIVED, {
+  const onQuoteReceived: Parameters<typeof useQuote>['4'] = (
+    { details, steps },
+    options
+  ) => {
+    const interval = get15MinuteInterval()
+    const quoteRequestId = sha256({ ...options, interval })
+    onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
       wallet_connector: connector?.name,
       amount_in: details?.currencyIn?.amountFormatted,
       currency_in: details?.currencyIn?.currency?.symbol,
@@ -524,7 +535,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         details?.slippageTolerance?.destination?.percent,
       slippage_tolerance_origin_percentage:
         details?.slippageTolerance?.origin?.percent,
-      steps
+      steps,
+      quote_id: quoteRequestId
     })
   }
 
@@ -571,10 +583,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const errorMessage = errorToJSON(
         e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
       )
+      const interval = get15MinuteInterval()
+      const quoteRequestId = sha256({ ...quoteParameters, interval })
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
-        parameters: quoteParameters
+        parameters: quoteParameters,
+        quote_id: quoteRequestId
       })
     }
   )

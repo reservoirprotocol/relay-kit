@@ -1,5 +1,17 @@
 # @reservoir0x/relay-sdk
 
+## 1.7.4
+
+### Patch Changes
+
+- ee3693a: Add sui wallet adapter
+
+## 1.7.3
+
+### Patch Changes
+
+- bc85ead: Add ability to override default logger
+
 ## 1.7.2
 
 ### Patch Changes

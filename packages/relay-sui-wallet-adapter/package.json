@@ -1,7 +1,7 @@
 {
-    "name": "@reservoir0x/relay-ethers-wallet-adapter",
-    "version": "16.0.4",
-    "description": "An adapter used to convert an ethersjs signer to an Adapted Wallet for use in the @reservoir0x/relay-sdk",
+    "name": "@reservoir0x/relay-sui-wallet-adapter",
+    "version": "0.0.2",
+    "description": "A Sui wallet adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
     "main": "./_cjs/src/index.js",
@@ -35,10 +35,13 @@
         "url": "https://github.com/reservoirprotocol/relay-sdk"
     },
     "keywords": [
-        "nft",
+        "sui",
+        "sui-adapter",
         "reservoir",
-        "relay-ethers-wallet-adapter",
-        "reservoir-ethers-wallet-adapter",
+        "relay",
+        "adapter",
+        "relay-sui-wallet-adapter",
+        "reservoir-sui-wallet-adapter",
         "relay",
         "protocol",
         "sdk-adapter"
@@ -50,12 +53,12 @@
         "rimraf": "^5.0.5"
     },
     "dependencies": {
-        "axios": "^0.27.2"
+        "@types/node": "^22.5.4",
+        "axios": "^1.6.5"
     },
     "peerDependencies": {
         "@reservoir0x/relay-sdk": "workspace:*",
-        "@ethersproject/abstract-signer": "^5.7.0",
-        "ethers": "^5.6.1",
+        "@mysten/sui": "1.24.0",
         "viem": "^2.21.55"
     }
 }

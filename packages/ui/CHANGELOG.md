@@ -1,5 +1,29 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.9.14
+
+### Patch Changes
+
+- ee3693a: Add sui wallet adapter
+- 83769eb: Switch to sha256 from murmur3 to fix esm compatibility issue
+- 3ae300a: Fix address comparison logic in MultiWalletDropdown
+- Updated dependencies [ee3693a]
+  - @reservoir0x/relay-sdk@1.7.4
+  - @reservoir0x/relay-kit-hooks@1.9.7
+
+## 2.9.13
+
+### Patch Changes
+
+- 052745e: Add a quoteRequestId when requests and receiving a quote
+- fe54a20: Improve quote and swap analytics
+- c3c4a53: Rename quote events
+- Updated dependencies [052745e]
+- Updated dependencies [fe54a20]
+- Updated dependencies [bc85ead]
+  - @reservoir0x/relay-kit-hooks@1.9.6
+  - @reservoir0x/relay-sdk@1.7.3
+
 ## 2.9.12
 
 ### Patch Changes
