@@ -897,7 +897,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           !submittedEvents.includes(EventNames.FILL_SUCCESS)
         ) {
           //Sometimes a fill may be quicker than the tx receipt is available, so we need to handle this scenario
-          if (!submittedEvents.includes(EventNames.DEPOSIT_SUCCESS)) {
+          if (
+            !submittedEvents.includes(EventNames.DEPOSIT_SUCCESS) &&
+            !submittedEvents.includes(EventNames.BATCH_TX_SUBMITTED)
+          ) {
             onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
             submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
           }
