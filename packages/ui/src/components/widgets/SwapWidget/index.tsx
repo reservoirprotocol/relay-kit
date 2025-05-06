@@ -486,15 +486,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             tradeType={tradeType}
             onTransactionModalOpenChange={(open) => {
               if (!open) {
+                if (pendingSuccessFlush) {
+                  setPendingSuccessFlush(false)
+                } else if (steps) {
+                  invalidateQuoteQuery()
+                }
                 setSwapError(null)
                 setSteps(null)
-                if (pendingSuccessFlush) {
-                  setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
-                  setAmountInputValue('')
-                  setAmountOutputValue('')
-                  setPendingSuccessFlush(false)
-                }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
               }
@@ -503,11 +501,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 if (pendingSuccessFlush) {
-                  setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
-                  setAmountInputValue('')
-                  setAmountOutputValue('')
                   setPendingSuccessFlush(false)
+                } else {
+                  invalidateQuoteQuery()
                 }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
@@ -519,6 +515,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               setPendingSuccessFlush(true)
+              setGasTopUpEnabled(true)
+              setAmountInputValue('')
+              setAmountOutputValue('')
               onSwapSuccess?.(data)
             }}
             onSwapValidating={onSwapValidating}
