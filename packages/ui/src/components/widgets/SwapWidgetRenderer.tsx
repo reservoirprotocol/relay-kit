@@ -837,7 +837,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         const { step, stepItem } = getCurrentStep(currentSteps)
 
         if (step && stepItem) {
-          const isApproval = step.id === 'approve'
+          //@ts-expect-error
+          const isApproval = step.id === 'approve' || step.id === 'approval'
           let submittedEvent = isApproval
             ? EventNames.APPROVAL_SUBMITTED
             : EventNames.DEPOSIT_SUBMITTED
