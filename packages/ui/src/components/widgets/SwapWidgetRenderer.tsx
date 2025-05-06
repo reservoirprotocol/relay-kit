@@ -837,27 +837,28 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         const { step, stepItem } = getCurrentStep(currentSteps)
 
         if (step && stepItem) {
-          const isApproval = step.id === 'approve'
+          //@ts-expect-error
+          const isApproval = step.id === 'approve' || step.id === 'approval'
           let submittedEvent = isApproval
             ? EventNames.APPROVAL_SUBMITTED
             : EventNames.DEPOSIT_SUBMITTED
           const successEvent = isApproval
             ? EventNames.APPROVAL_SUCCESS
             : EventNames.DEPOSIT_SUCCESS
+          const isBatchTransaction = Boolean(
+            Array.isArray(step.items) &&
+              step.items.length > 1 &&
+              wallet?.handleBatchTransactionStep
+          )
+          if (!isApproval && isBatchTransaction) {
+            submittedEvent = EventNames.BATCH_TX_SUBMITTED
+          }
           if (
             !submittedEvents.includes(submittedEvent) &&
             !stepItem.receipt &&
             stepItem?.txHashes &&
             stepItem?.txHashes?.length > 0
           ) {
-            const isBatchTransaction = Boolean(
-              Array.isArray(step.items) &&
-                step.items.length > 1 &&
-                wallet?.handleBatchTransactionStep
-            )
-            if (!isApproval && isBatchTransaction) {
-              submittedEvent = EventNames.BATCH_TX_SUBMITTED
-            }
             submittedEvents.push(submittedEvent)
             onAnalyticEvent?.(submittedEvent, swapEventData)
           } else if (
@@ -879,7 +880,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             !submittedEvents.includes(EventNames.FILL_SUCCESS)
           ) {
             //Sometimes a fill may be quicker than the tx receipt is available, so we need to handle this scenario
-            if (!submittedEvents.includes(EventNames.DEPOSIT_SUCCESS)) {
+            if (
+              !submittedEvents.includes(EventNames.DEPOSIT_SUCCESS) &&
+              !isBatchTransaction
+            ) {
               onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
               submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
             }
