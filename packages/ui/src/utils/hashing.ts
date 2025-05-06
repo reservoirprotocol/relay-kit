@@ -15,16 +15,24 @@ function normalizeAndStringify(obj: Record<string, any>): string {
     return value
   }
 
-  const sorted = Object.keys(obj)
-    .sort()
-    .reduce(
-      (acc, key) => {
-        acc[key] = obj[key]
-        return acc
-      },
-      {} as Record<string, any>
-    )
+  const sortObject = (obj: Record<string, any>): any => {
+    if (obj === null || typeof obj !== 'object') {
+      return obj
+    }
 
+    if (Array.isArray(obj)) {
+      return obj.map(sortObject)
+    }
+
+    // Convert object to array of [key, value] pairs and sort by key
+    const sortedEntries = Object.entries(obj)
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([key, value]) => [key, sortObject(value)])
+
+    return sortedEntries
+  }
+
+  const sorted = sortObject(obj)
   return JSON.stringify(sorted, replacer)
 }
 
