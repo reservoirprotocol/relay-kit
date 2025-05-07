@@ -50,6 +50,7 @@ import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
 import { sha256 } from '../../utils/hashing.js'
+import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -513,11 +514,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     options,
     config
   ) => {
-    const quoteRequestId = sha256(options ?? {})
+    const interval = get15MinuteInterval()
+    const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
-      httpConfig: config,
-      quoteRequestId
+      http_config: config,
+      quote_id: quoteRequestId
     })
   }
 
@@ -525,8 +527,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     { details, steps },
     options
   ) => {
+<<<<<<< HEAD
     wallet
     const quoteRequestId = sha256(options ?? {})
+=======
+    const interval = get15MinuteInterval()
+    const quoteRequestId = sha256({ ...options, interval })
+>>>>>>> main
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
       wallet_connector: linkedWallet?.connector,
       amount_in: details?.currencyIn?.amountFormatted,
@@ -541,7 +548,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       slippage_tolerance_origin_percentage:
         details?.slippageTolerance?.origin?.percent,
       steps,
-      quoteRequestId
+      quote_id: quoteRequestId
     })
   }
 
@@ -588,10 +595,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const errorMessage = errorToJSON(
         e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
       )
+      const interval = get15MinuteInterval()
+      const quoteRequestId = sha256({ ...quoteParameters, interval })
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: linkedWallet?.connector,
         error_message: errorMessage,
-        parameters: quoteParameters
+        parameters: quoteParameters,
+        quote_id: quoteRequestId
       })
     }
   )

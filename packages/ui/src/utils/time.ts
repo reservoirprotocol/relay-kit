@@ -26,3 +26,12 @@ export const formatSeconds = (seconds: number): string => {
   const sDisplay = s > 0 ? s + (s == 1 ? ' s' : 's ') : ''
   return `${dDisplay} ${hDisplay} ${mDisplay} ${sDisplay}`.trim()
 }
+
+export const get15MinuteInterval = () => {
+  const now = new Date()
+  const minutes = now.getUTCMinutes()
+  const interval = Math.floor(minutes / 15)
+  const intervalStart = new Date(now)
+  intervalStart.setUTCMinutes(interval * 15, 0, 0)
+  return intervalStart.getTime()
+}
