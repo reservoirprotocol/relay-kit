@@ -848,7 +848,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         const { step, stepItem } = getCurrentStep(currentSteps)
         const swapEventData = getSwapEventData(
           quote?.details,
-          quote?.steps ? (quote?.steps as Execute['steps']) : null,
+          currentSteps,
           linkedWallet?.connector
         )
         if (step && stepItem) {
