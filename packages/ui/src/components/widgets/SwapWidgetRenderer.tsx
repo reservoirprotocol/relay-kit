@@ -527,13 +527,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     { details, steps },
     options
   ) => {
-<<<<<<< HEAD
-    wallet
-    const quoteRequestId = sha256(options ?? {})
-=======
     const interval = get15MinuteInterval()
     const quoteRequestId = sha256({ ...options, interval })
->>>>>>> main
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
       wallet_connector: linkedWallet?.connector,
       amount_in: details?.currencyIn?.amountFormatted,
