@@ -153,6 +153,7 @@ export type ChildrenProps = {
   gasTopUpRequired: boolean
   gasTopUpAmount?: bigint
   gasTopUpAmountUsd?: string
+  linkedWallet?: LinkedWallet
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -386,7 +387,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isSvmSwap = fromChain?.vmType === 'svm' || toChain?.vmType === 'svm'
   const isBvmSwap = fromChain?.vmType === 'bvm' || toChain?.vmType === 'bvm'
   const linkedWallet = linkedWallets?.find(
-    (linkedWallet) => address === linkedWallet.address
+    (linkedWallet) =>
+      address ===
+      (linkedWallet.vmType === 'evm'
+        ? linkedWallet.address.toLowerCase()
+        : linkedWallet.address)
   )
   const isRecipientLinked =
     (recipient
@@ -525,7 +530,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const interval = get15MinuteInterval()
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
-      wallet_connector: connector?.name,
+      wallet_connector: linkedWallet?.connector,
       amount_in: details?.currencyIn?.amountFormatted,
       currency_in: details?.currencyIn?.currency?.symbol,
       chain_id_in: details?.currencyIn?.currency?.chainId,
@@ -588,7 +593,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const interval = get15MinuteInterval()
       const quoteRequestId = sha256({ ...quoteParameters, interval })
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
-        wallet_connector: connector?.name,
+        wallet_connector: linkedWallet?.connector,
         error_message: errorMessage,
         parameters: quoteParameters,
         quote_id: quoteRequestId
@@ -781,7 +786,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const swapEventData = getSwapEventData(
         quote?.details,
         currentSteps ?? null,
-        connector
+        linkedWallet?.connector
       )
       const isApproval = step?.id === 'approve'
       const errorEvent = isApproval
@@ -804,7 +809,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const swapEventData = getSwapEventData(
         quote?.details,
         quote?.steps ? (quote?.steps as Execute['steps']) : null,
-        connector
+        linkedWallet?.connector
       )
       onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, swapEventData)
       setWaitingForSteps(true)
@@ -841,9 +846,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
         //tracking
         const { step, stepItem } = getCurrentStep(currentSteps)
-
+        const swapEventData = getSwapEventData(
+          quote?.details,
+          quote?.steps ? (quote?.steps as Execute['steps']) : null,
+          linkedWallet?.connector
+        )
         if (step && stepItem) {
-          //@ts-expect-error
+          //@ts-ignore
           const isApproval = step.id === 'approve' || step.id === 'approval'
           let submittedEvent = isApproval
             ? EventNames.APPROVAL_SUBMITTED
@@ -943,7 +952,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     waitingForSteps,
     executeSwap,
     setSteps,
-    invalidateBalanceQueries
+    invalidateBalanceQueries,
+    linkedWallet
   ])
 
   return (
@@ -1017,7 +1027,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         invalidateQuoteQuery,
         setUseExternalLiquidity,
         setDetails,
-        setSwapError
+        setSwapError,
+        linkedWallet
       })}
     </>
   )
