@@ -5,7 +5,11 @@ import type { Address } from 'viem'
 import { formatUnits } from 'viem'
 import { usePublicClient } from 'wagmi'
 import type { LinkedWallet, Token } from '../../../types/index.js'
-import { formatFixedLength, formatDollar } from '../../../utils/numbers.js'
+import {
+  formatFixedLength,
+  formatDollar,
+  formatNumber
+} from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
@@ -38,6 +42,7 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { faArrowDownArrowUp } from '@fortawesome/pro-solid-svg-icons'
 
 // shared query options for useTokenPrice
 const tokenPriceQueryOptions = {
@@ -132,6 +137,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [unverifiedTokens, setUnverifiedTokens] = useState<
     { token: Token; context: 'to' | 'from' }[]
   >([])
+  const [isUsdInputMode, setIsUsdInputMode] = useState(false)
+  const [usdInputValue, setUsdInputValue] = useState('')
+  const [tokenInputCache, setTokenInputCache] = useState('')
+  const [conversionRate, setConversionRate] = useState<number | null>(null)
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
@@ -313,15 +322,22 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           bufferAmount?: bigint
         ) => {
           if (fromToken) {
-            setAmountInputValue(formatUnits(amount, fromToken?.decimals))
+            const formattedAmount = formatUnits(amount, fromToken?.decimals)
+            setAmountInputValue(formattedAmount)
             setTradeType('EXACT_INPUT')
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
-              percent: percent,
-              bufferAmount: bufferAmount ? bufferAmount.toString() : '0',
-              chainType: fromChain?.vmType
+              percent: percent
             })
+
+            if (isUsdInputMode && conversionRate) {
+              const numericTokenAmount = Number(formattedAmount)
+              if (!isNaN(numericTokenAmount)) {
+                const usdEquivalent = numericTokenAmount * conversionRate
+                setUsdInputValue(usdEquivalent.toFixed(2))
+              }
+            }
           }
         }
 
@@ -461,6 +477,102 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
         )
 
+        // toggle between token and usd input mode
+        const toggleInputMode = () => {
+          if (!isUsdInputMode) {
+            let newUsdValue = ''
+            if (
+              quote?.details?.currencyIn?.amountUsd &&
+              Number(quote.details.currencyIn.amountUsd) > 0
+            ) {
+              newUsdValue = String(Number(quote.details.currencyIn.amountUsd))
+            } else if (inputAmountUsd && inputAmountUsd > 0) {
+              newUsdValue = inputAmountUsd.toFixed(2)
+            } else if (
+              amountInputValue &&
+              Number(amountInputValue) > 0 &&
+              conversionRate &&
+              conversionRate > 0
+            ) {
+              newUsdValue = (Number(amountInputValue) * conversionRate).toFixed(
+                2
+              )
+            }
+
+            setTokenInputCache(amountInputValue)
+
+            setUsdInputValue(newUsdValue)
+            setIsUsdInputMode(true)
+            setTradeType('EXACT_INPUT')
+          } else {
+            if (!usdInputValue && tokenInputCache) {
+              setAmountInputValue(tokenInputCache)
+            }
+            setIsUsdInputMode(false)
+            setTradeType('EXACT_INPUT')
+          }
+        }
+
+        // update conversion rate
+        useEffect(() => {
+          if (isUsdInputMode) {
+            // When in USD input mode, the conversion rate is the price of the fromToken.
+            if (fromTokenPriceData?.price && fromTokenPriceData.price > 0) {
+              setConversionRate(fromTokenPriceData.price)
+            } else {
+              // If no price data, or price is 0, clear the rate to avoid stale calculations.
+              setConversionRate(null)
+            }
+          } else {
+            // When in token input mode, calculate rate from quote if available.
+            if (
+              amountInputValue &&
+              Number(amountInputValue) > 0 &&
+              quote?.details?.currencyIn?.amountUsd
+            ) {
+              const tokenVal = Number(amountInputValue)
+              const usdVal = Number(quote.details.currencyIn.amountUsd)
+              if (tokenVal > 0 && usdVal > 0) {
+                const rate = usdVal / tokenVal
+                setConversionRate(rate)
+              } else {
+                setConversionRate(null)
+              }
+            } else if (!amountInputValue || Number(amountInputValue) === 0) {
+              // If in token mode and token input is cleared or zero, clear the rate
+              setConversionRate(null)
+            }
+          }
+        }, [isUsdInputMode, fromTokenPriceData, quote, amountInputValue])
+
+        //Update token input value when USD input changes in USD mode
+        useEffect(() => {
+          if (isUsdInputMode) {
+            if (conversionRate && conversionRate > 0 && usdInputValue) {
+              const usdValue = Number(usdInputValue)
+              if (!isNaN(usdValue) && usdValue >= 0) {
+                const tokenEquivalent = (usdValue / conversionRate).toFixed(
+                  fromToken?.decimals ?? 8
+                )
+                if (amountInputValue !== tokenEquivalent) {
+                  setAmountInputValue(tokenEquivalent)
+                }
+              }
+            } else if (usdInputValue === '') {
+              if (amountInputValue !== '') {
+                setAmountInputValue('')
+              }
+            }
+          }
+        }, [
+          isUsdInputMode,
+          usdInputValue,
+          conversionRate,
+          setAmountInputValue,
+          fromToken?.decimals,
+          amountInputValue
+        ])
+
         return (
           <WidgetContainer
             steps={steps}
@@ -593,19 +705,26 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       >
                         <AmountInput
                           autoFocus={!disableInputAutoFocus}
+                          prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
-                            tradeType === 'EXACT_INPUT'
-                              ? amountInputValue
-                              : amountInputValue
-                                ? formatFixedLength(amountInputValue, 8)
+                            isUsdInputMode
+                              ? usdInputValue
+                              : tradeType === 'EXACT_INPUT'
+                                ? amountInputValue
                                 : amountInputValue
+                                  ? formatFixedLength(amountInputValue, 8)
+                                  : amountInputValue
                           }
                           setValue={(e) => {
-                            setAmountInputValue(e)
-                            setTradeType('EXACT_INPUT')
-                            if (Number(e) === 0) {
-                              setAmountOutputValue('')
-                              debouncedAmountInputControls.flush()
+                            if (isUsdInputMode) {
+                              setUsdInputValue(e)
+                            } else {
+                              setAmountInputValue(e)
+                              setTradeType('EXACT_INPUT')
+                              if (Number(e) === 0) {
+                                setAmountOutputValue('')
+                                debouncedAmountInputControls.flush()
+                              }
                             }
                           }}
                           onFocus={() => {
@@ -689,38 +808,91 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        <Text
-                          style="subtitle3"
-                          color="subtleSecondary"
-                          css={{
-                            minHeight: 18,
-                            display: 'flex',
-                            alignItems: 'center'
-                          }}
-                        >
-                          {quote?.details?.currencyIn?.amountUsd &&
-                          !isFetchingQuote ? (
-                            formatDollar(
-                              Number(quote.details.currencyIn.amountUsd)
-                            )
-                          ) : isLoadingFromTokenPrice &&
-                            amountInputValue &&
-                            Number(amountInputValue) > 0 ? (
-                            <Box
-                              css={{
-                                width: 45,
-                                height: 12,
-                                backgroundColor: 'gray7',
-                                borderRadius: 'widget-border-radius'
+                        <Flex align="center" css={{ gap: '4px' }}>
+                          <Text
+                            style="subtitle3"
+                            color="subtleSecondary"
+                            css={{
+                              minHeight: 18,
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {isUsdInputMode ? (
+                              fromToken ? (
+                                // In USD input mode, show token equivalent
+                                usdInputValue && Number(usdInputValue) > 0 ? (
+                                  // USD input has a value
+                                  amountInputValue &&
+                                  conversionRate &&
+                                  !isLoadingFromTokenPrice ? (
+                                    `${formatNumber(amountInputValue, 4, false)} ${fromToken.symbol}`
+                                  ) : (
+                                    <Box
+                                      css={{
+                                        width: 45,
+                                        height: 12,
+                                        backgroundColor: 'gray7',
+                                        borderRadius: 'widget-border-radius'
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  // USD input is empty or zero, show "0 TOKEN_SYMBOL"
+                                  `0 ${fromToken.symbol}`
+                                )
+                              ) : null
+                            ) : quote?.details?.currencyIn?.amountUsd &&
+                              !isFetchingQuote ? (
+                              // In token input mode, show USD equivalent from quote
+                              formatDollar(
+                                Number(quote.details.currencyIn.amountUsd)
+                              )
+                            ) : isLoadingFromTokenPrice && // This is for the direct fromToken price, used when quote isn't available yet
+                              amountInputValue &&
+                              Number(amountInputValue) > 0 ? (
+                              <Box
+                                css={{
+                                  width: 45,
+                                  height: 12,
+                                  backgroundColor: 'gray7',
+                                  borderRadius: 'widget-border-radius'
+                                }}
+                              />
+                            ) : inputAmountUsd &&
+                              inputAmountUsd > 0 &&
+                              fromTokenPriceData?.price &&
+                              fromTokenPriceData.price > 0 ? (
+                              formatDollar(inputAmountUsd)
+                            ) : (
+                              // Default to $0.00 if no other value available in token input mode
+                              formatDollar(0)
+                            )}
+                          </Text>
+                          <Button
+                            size="none"
+                            color="ghost"
+                            css={{
+                              color: 'gray11',
+                              alignSelf: 'center',
+                              justifyContent: 'center',
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '100px',
+                              padding: '4px',
+                              backgroundColor: 'gray3'
+                            }}
+                            onClick={toggleInputMode}
+                          >
+                            <FontAwesomeIcon
+                              icon={faArrowDownArrowUp}
+                              style={{
+                                height: '10px',
+                                width: '16px'
                               }}
                             />
-                          ) : inputAmountUsd &&
-                            inputAmountUsd > 0 &&
-                            fromTokenPriceData?.price &&
-                            fromTokenPriceData.price > 0 ? (
-                            formatDollar(inputAmountUsd)
-                          ) : null}
-                        </Text>
+                          </Button>
+                        </Flex>
                         <Flex
                           align="center"
                           css={{ gap: '3', marginLeft: 'auto', height: 23 }}
@@ -927,6 +1099,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               handleSetToToken(fromToken)
                               debouncedAmountInputControls.flush()
                               debouncedAmountOutputControls.flush()
+                              toggleInputMode()
                             }
                           }}
                         >
@@ -1146,53 +1319,54 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        {toToken ? (
-                          <Flex
-                            align="center"
-                            css={{
-                              gap: '1',
-                              minHeight: 18
-                            }}
-                          >
-                            <Text style="subtitle3" color="subtleSecondary">
-                              {quote?.details?.currencyOut?.amountUsd &&
-                              !isFetchingQuote ? (
-                                formatDollar(
-                                  Number(quote.details.currencyOut.amountUsd)
-                                )
-                              ) : isLoadingToTokenPrice &&
-                                amountOutputValue &&
-                                Number(amountOutputValue) > 0 ? (
-                                <Box
-                                  css={{
-                                    width: 45,
-                                    height: 12,
-                                    backgroundColor: 'gray7',
-                                    borderRadius: 'widget-border-radius'
-                                  }}
-                                />
-                              ) : outputAmountUsd &&
-                                outputAmountUsd > 0 &&
-                                toTokenPriceData?.price &&
-                                toTokenPriceData.price > 0 ? (
-                                formatDollar(outputAmountUsd)
-                              ) : null}
+                        <Flex
+                          align="center"
+                          css={{
+                            gap: '1',
+                            minHeight: 18
+                          }}
+                        >
+                          <Text style="subtitle3" color="subtleSecondary">
+                            {toToken &&
+                            quote?.details?.currencyOut?.amountUsd &&
+                            !isFetchingQuote ? (
+                              formatDollar(
+                                Number(quote.details.currencyOut.amountUsd)
+                              )
+                            ) : toToken &&
+                              isLoadingToTokenPrice &&
+                              amountOutputValue &&
+                              Number(amountOutputValue) > 0 ? (
+                              <Box
+                                css={{
+                                  width: 45,
+                                  height: 12,
+                                  backgroundColor: 'gray7',
+                                  borderRadius: 'widget-border-radius'
+                                }}
+                              />
+                            ) : toToken &&
+                              outputAmountUsd &&
+                              outputAmountUsd > 0 &&
+                              toTokenPriceData?.price &&
+                              toTokenPriceData.price > 0 ? (
+                              formatDollar(outputAmountUsd)
+                            ) : (
+                              formatDollar(0)
+                            )}
+                          </Text>
+                          {toToken &&
+                          quote?.details?.currencyOut?.amountUsd &&
+                          !isFetchingQuote &&
+                          quote.details.totalImpact?.percent ? (
+                            <Text
+                              style="subtitle3"
+                              color={feeBreakdown?.totalFees.priceImpactColor}
+                            >
+                              ({feeBreakdown?.totalFees.priceImpactPercentage})
                             </Text>
-                            {quote?.details?.currencyOut?.amountUsd &&
-                            !isFetchingQuote &&
-                            quote.details.totalImpact?.percent ? (
-                              <Text
-                                style="subtitle3"
-                                color={feeBreakdown?.totalFees.priceImpactColor}
-                              >
-                                ({feeBreakdown?.totalFees.priceImpactPercentage}
-                                )
-                              </Text>
-                            ) : null}
-                          </Flex>
-                        ) : (
-                          <Flex css={{ height: 18 }} />
-                        )}
+                          ) : null}
+                        </Flex>
                         <Flex css={{ marginLeft: 'auto' }}>
                           {toToken ? (
                             <BalanceDisplay
