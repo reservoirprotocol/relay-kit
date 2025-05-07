@@ -204,7 +204,6 @@ export type StepRowProps = {
   action: string
   isActive: boolean
   isCompleted: boolean
-  progressState?: string
   txHashes?: { txHash: string; chainId: number }[]
   isWalletAction: boolean
   chainId?: number
@@ -215,7 +214,6 @@ export const StepRow: FC<StepRowProps> = ({
   action,
   isActive,
   isCompleted,
-  progressState,
   txHashes,
   isWalletAction,
   chainId,

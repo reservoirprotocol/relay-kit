@@ -38,6 +38,7 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { getSwapEventData } from '../../../utils/quote.js'
 
 // shared query options for useTokenPrice
 const tokenPriceQueryOptions = {
@@ -235,6 +236,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         gasTopUpRequired,
         gasTopUpAmount,
         gasTopUpAmountUsd,
+        linkedWallet,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -1377,6 +1379,17 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 setAddressModalOpen(true)
                               }
                             } else {
+                              const swapEventData = getSwapEventData(
+                                quote?.details,
+                                quote?.steps
+                                  ? (quote?.steps as Execute['steps'])
+                                  : null,
+                                linkedWallet?.connector
+                              )
+                              onAnalyticEvent?.(
+                                EventNames.SWAP_CTA_CLICKED,
+                                swapEventData
+                              )
                               setDepositAddressModalOpen(true)
                             }
                           }

@@ -46,7 +46,8 @@ export async function sendTransactionSafely(
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
   isValidating?: (res?: AxiosResponse<any, any>) => void,
-  details?: Execute['details']
+  details?: Execute['details'],
+  setReceipt?: (receipt: TransactionReceipt | SvmReceipt | SuiReceipt) => void
 ) {
   const client = getClient()
   try {
@@ -140,7 +141,7 @@ export async function sendTransactionSafely(
   ])
 
   //Set up internal functions
-  const validate = (res: AxiosResponse) => {
+  const validate = (res: AxiosResponse<any, any>) => {
     getClient()?.log(
       ['Execute Steps: Polling for confirmation', res],
       LogLevel.Verbose
@@ -193,13 +194,29 @@ export async function sendTransactionSafely(
       !transactionCancelled &&
       !confirmationError
     ) {
-      let res
+      let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
-        res = await axios.request({
-          url: `${request.baseURL}${check?.endpoint}`,
-          method: check?.method,
-          headers: headers
-        })
+        try {
+          res = await axios.request({
+            url: `${request.baseURL}${check?.endpoint}`,
+            method: check?.method,
+            headers: headers
+          })
+        } catch (e) {
+          getClient()?.log(
+            ['Execute Steps: Polling for confirmation api error', e],
+            LogLevel.Verbose
+          )
+          res = {
+            data: {},
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {
+              headers: {} as AxiosRequestHeaders
+            }
+          }
+        }
       }
       if (!res || validate(res)) {
         waitingForConfirmation = false // transaction confirmed
@@ -286,6 +303,7 @@ export async function sendTransactionSafely(
             return
           }
           receipt = data
+          setReceipt?.(receipt)
           if (
             receipt &&
             typeof receipt === 'object' &&
