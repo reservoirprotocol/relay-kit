@@ -1,5 +1,19 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.0
+
+### Minor Changes
+
+- d430ab3: Overhaul analytics events
+
+### Patch Changes
+
+- 47a0157: Add interval to regenerate hash every 15m
+- 16beb2e: Refresh quote data when tx modal closes
+- Updated dependencies [d430ab3]
+  - @reservoir0x/relay-sdk@1.8.0
+  - @reservoir0x/relay-kit-hooks@1.9.8
+
 ## 2.9.14
 
 ### Patch Changes
