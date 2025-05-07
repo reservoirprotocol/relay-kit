@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 1.8.0
+
+### Minor Changes
+
+- d430ab3: Overhaul analytics events
+
 ## 1.7.4
 
 ### Patch Changes
