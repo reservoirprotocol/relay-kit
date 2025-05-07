@@ -263,7 +263,7 @@ export const getCurrentStep = (steps?: Execute['steps'] | null) => {
 export const getSwapEventData = (
   details: Execute['details'],
   steps: Execute['steps'] | null,
-  connector?: Connector
+  connector?: string
 ) => {
   let operation: string | undefined = details?.operation
 
@@ -284,7 +284,7 @@ export const getSwapEventData = (
   }
 
   return {
-    wallet_connector: connector?.name,
+    wallet_connector: connector,
     quote_id: steps ? extractQuoteId(steps) : undefined,
     amount_in: details?.currencyIn?.amount,
     currency_in: details?.currencyIn?.currency?.symbol,
