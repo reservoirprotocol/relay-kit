@@ -518,6 +518,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
+      wallet_connector: linkedWallet?.connector,
       chain_id_in: options?.originChainId,
       chain_id_out: options?.destinationChainId,
       http_config: config,
