@@ -7,7 +7,6 @@ import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
-import type { Connector } from 'wagmi'
 
 export const parseFees = (
   selectedTo: RelayChain,

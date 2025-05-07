@@ -389,9 +389,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const linkedWallet = linkedWallets?.find(
     (linkedWallet) =>
       address ===
-      (linkedWallet.vmType === 'evm'
-        ? linkedWallet.address.toLowerCase()
-        : linkedWallet.address)
+        (linkedWallet.vmType === 'evm'
+          ? linkedWallet.address.toLowerCase()
+          : linkedWallet.address) || linkedWallet.address === address
   )
   const isRecipientLinked =
     (recipient
@@ -518,6 +518,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
+      chain_id_in: options?.originChainId,
+      chain_id_out: options?.destinationChainId,
       http_config: config,
       quote_id: quoteRequestId
     })
@@ -530,14 +532,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const interval = get15MinuteInterval()
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
+      parameters: options,
       wallet_connector: linkedWallet?.connector,
       amount_in: details?.currencyIn?.amountFormatted,
+      amount_in_raw: details?.currencyIn?.amount,
       currency_in: details?.currencyIn?.currency?.symbol,
       chain_id_in: details?.currencyIn?.currency?.chainId,
       amount_out: details?.currencyOut?.amountFormatted,
+      amount_out_raw: details?.currencyOut?.amount,
       currency_out: details?.currencyOut?.currency?.symbol,
       chain_id_out: details?.currencyOut?.currency?.chainId,
-      is_canonical: useExternalLiquidity,
       slippage_tolerance_destination_percentage:
         details?.slippageTolerance?.destination?.percent,
       slippage_tolerance_origin_percentage:
