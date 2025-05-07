@@ -788,11 +788,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       )
 
       const { step, stepItem } = getCurrentStep(currentSteps)
-      const swapEventData = getSwapEventData(
-        quote?.details,
-        currentSteps ?? null,
-        linkedWallet?.connector
-      )
+      const swapEventData = {
+        ...getSwapEventData(
+          quote?.details,
+          currentSteps ?? null,
+          linkedWallet?.connector
+        ),
+        error_message: errorMessage
+      }
       const isApproval = step?.id === 'approve'
       const errorEvent = isApproval
         ? EventNames.APPROVAL_ERROR
@@ -807,7 +810,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       }
 
       setSwapError(errorMessage)
-      onSwapError?.(errorMessage, quote as Execute)
+      onSwapError?.(errorMessage, { ...quote, steps: currentSteps } as Execute)
     }
 
     try {
