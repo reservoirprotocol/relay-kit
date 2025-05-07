@@ -754,6 +754,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const swap = useCallback(async () => {
+    let submittedEvents: string[] = []
+
     const swapErrorHandler = (
       error: any,
       currentSteps?: Execute['steps'] | null
@@ -802,6 +804,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         : EventNames.DEPOSIT_ERROR
 
       if (stepItem?.receipt && stepItem.check) {
+        //In some cases there's a race condition where an error is thrown before the steps get a chance to call
+        //the callback which triggers the success event. This is a workaround to ensure the success event is triggered when
+        //we have a receipt and require a fill check if we haven't already send the success event.
+        const successEvent = isApproval
+          ? EventNames.APPROVAL_SUCCESS
+          : EventNames.DEPOSIT_SUCCESS
+        if (!submittedEvents.includes(successEvent)) {
+          onAnalyticEvent?.(successEvent, swapEventData)
+          submittedEvents.push(successEvent)
+        }
         onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
       } else if (!stepItem?.receipt) {
         onAnalyticEvent?.(errorEvent, swapEventData)
@@ -846,7 +858,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       }
 
       let _currentSteps: Execute['steps'] | undefined = undefined
-      let submittedEvents: string[] = []
 
       executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
