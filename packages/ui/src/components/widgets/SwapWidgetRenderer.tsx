@@ -522,7 +522,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       chain_id_in: options?.originChainId,
       chain_id_out: options?.destinationChainId,
       http_config: config,
-      quote_id: quoteRequestId
+      quote_request_id: quoteRequestId
     })
   }
 
@@ -548,7 +548,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       slippage_tolerance_origin_percentage:
         details?.slippageTolerance?.origin?.percent,
       steps,
-      quote_id: quoteRequestId
+      quote_request_id: quoteRequestId,
+      quote_id: steps ? extractQuoteId(steps) : undefined
     })
   }
 
@@ -601,7 +602,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         wallet_connector: linkedWallet?.connector,
         error_message: errorMessage,
         parameters: quoteParameters,
-        quote_id: quoteRequestId
+        quote_request_id: quoteRequestId
       })
     }
   )

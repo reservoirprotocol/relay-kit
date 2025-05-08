@@ -34,6 +34,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
 import { errorToJSON } from '../../../utils/errors.js'
 import { sha256 } from '../../../utils/hashing.js'
+import { get15MinuteInterval } from '../../../utils/time.js'
 
 export enum TransactionProgressStep {
   WaitingForDeposit,
@@ -141,32 +142,37 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     undefined,
     quoteParameters,
     (options, config) => {
-      const quoteRequestId = sha256(options ?? {})
+      const interval = get15MinuteInterval()
+      const quoteRequestId = sha256({ ...options, interval })
       onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
         parameters: options,
         httpConfig: config,
-        quoteRequestId
+        quote_request_id: quoteRequestId,
+        chain_id_in: options?.originChainId,
+        chain_id_out: options?.destinationChainId
       })
     },
     ({ steps, details }, options) => {
-      const quoteRequestId = sha256(options ?? {})
+      const interval = get15MinuteInterval()
+      const quoteRequestId = sha256({ ...options, interval })
       onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
+        parameters: options,
         wallet_connector: connector?.name,
         quote_id: steps ? extractQuoteId(steps) : undefined,
+        quote_request_id: quoteRequestId,
         amount_in: details?.currencyIn?.amountFormatted,
+        amount_in_raw: details?.currencyIn?.amount,
         currency_in: details?.currencyIn?.currency?.symbol,
         chain_id_in: details?.currencyIn?.currency?.chainId,
         amount_out: details?.currencyOut?.amountFormatted,
+        amount_out_raw: details?.currencyOut?.amount,
         currency_out: details?.currencyOut?.currency?.symbol,
         chain_id_out: details?.currencyOut?.currency?.chainId,
         slippage_tolerance_destination_percentage:
           details?.slippageTolerance?.destination?.percent,
         slippage_tolerance_origin_percentage:
           details?.slippageTolerance?.origin?.percent,
-        is_canonical: false,
-        is_deposit_address: true,
-        steps,
-        quoteRequestId
+        steps
       })
     },
     {
@@ -192,10 +198,13 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       const errorMessage = errorToJSON(
         e?.response?.data?.message ? new Error(e?.response?.data?.message) : e
       )
+      const interval = get15MinuteInterval()
+      const quoteRequestId = sha256({ ...quoteParameters, interval })
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
         wallet_connector: connector?.name,
         error_message: errorMessage,
-        parameters: quoteParameters
+        parameters: quoteParameters,
+        quote_request_id: quoteRequestId
       })
     }
   )
