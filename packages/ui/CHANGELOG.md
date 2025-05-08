@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.2
+
+### Patch Changes
+
+- 09be9a1: Add quote_request_id to all swap events
+
 ## 2.10.1
 
 ### Patch Changes
