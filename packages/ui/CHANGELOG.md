@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.1
+
+### Patch Changes
+
+- 1c1c05c: Fix issues with quote_id
+
 ## 2.10.0
 
 ### Minor Changes
