@@ -9,7 +9,7 @@ import {
   type SimulateContractRequest
 } from '../utils/index.js'
 import { isViemWalletClient } from '../utils/viemWallet.js'
-import { getClient } from '../client.js'
+import { getClient, RelayClient } from '../client.js'
 import type { AdaptedWallet, Execute, paths } from '../types/index.js'
 import { getDeadAddress } from '../constants/address.js'
 
@@ -32,11 +32,42 @@ export type GetQuoteParameters = {
   toChainId: number
   toCurrency: string
   tradeType: QuoteBodyOptions['tradeType']
+  user?: string
   wallet?: AdaptedWallet | WalletClient
   amount?: string
   recipient?: string
-  options?: Omit<QuoteBodyOptions, 'user' | 'source' | 'txs' | 'tradeType'>
+  options?: Omit<QuoteBodyOptions, 'source' | 'txs' | 'tradeType'>
   txs?: (NonNullable<QuoteBody['txs']>[0] | SimulateContractRequest)[]
+}
+
+const getDefaultQuoteParameters = async (
+  client: RelayClient,
+  toChainId: number,
+  chainId: number,
+  recipient?: string,
+  adaptedWallet?: AdaptedWallet
+): Promise<Partial<GetQuoteParameters>> => {
+  const fromChain = client.chains.find((chain) => chain.id === chainId)
+  const toChain = client.chains.find((chain) => chain.id === toChainId)
+  const originDeadAddress = fromChain
+    ? getDeadAddress(fromChain.vmType, fromChain.id)
+    : undefined
+  const destinationDeadAddress = toChain
+    ? getDeadAddress(toChain.vmType, toChain.id)
+    : undefined
+
+  let caller: string | undefined
+
+  if (adaptedWallet) {
+    caller = await adaptedWallet.address()
+  }
+
+  return {
+    user: caller || originDeadAddress || zeroAddress,
+    recipient: recipient
+      ? (recipient as string)
+      : caller || destinationDeadAddress || zeroAddress
+  }
 }
 
 /**
@@ -44,7 +75,8 @@ export type GetQuoteParameters = {
  * @param data - {@link GetQuoteParameters}
  */
 export async function getQuote(
-  parameters: GetQuoteParameters
+  parameters: GetQuoteParameters,
+  includeDefaultParameters?: boolean
 ): Promise<Execute> {
   const {
     toChainId,
@@ -56,7 +88,8 @@ export async function getQuote(
     amount = '0',
     recipient,
     options,
-    txs
+    txs,
+    user
   } = parameters
 
   const client = getClient()
@@ -66,12 +99,10 @@ export async function getQuote(
   }
 
   let adaptedWallet: AdaptedWallet | undefined
-  let caller: string | undefined
   if (wallet) {
     adaptedWallet = isViemWalletClient(wallet)
       ? adaptViemWallet(wallet as WalletClient)
       : wallet
-    caller = await adaptedWallet.address()
   }
 
   let preparedTransactions: QuoteBody['txs']
@@ -86,26 +117,38 @@ export async function getQuote(
     })
   }
 
-  const fromChain = client.chains.find((chain) => chain.id === chainId)
-  const toChain = client.chains.find((chain) => chain.id === toChainId)
+  let defaultParameters: Partial<GetQuoteParameters> | undefined = undefined
 
-  const originDeadAddress = fromChain
-    ? getDeadAddress(fromChain.vmType, fromChain.id)
-    : undefined
-  const destinationDeadAddress = toChain
-    ? getDeadAddress(toChain.vmType, toChain.id)
-    : undefined
+  if (includeDefaultParameters) {
+    defaultParameters = await getDefaultQuoteParameters(
+      client,
+      toChainId,
+      chainId,
+      recipient,
+      adaptedWallet
+    )
+  }
+
+  if (!user && !defaultParameters?.user) {
+    throw new Error('User is required')
+  }
+
+  if (!recipient && !defaultParameters?.recipient) {
+    throw new Error('Recipient is required')
+  }
 
   const query: QuoteBody = {
-    user: caller || originDeadAddress || zeroAddress,
+    user: includeDefaultParameters
+      ? (defaultParameters?.user as string)
+      : (user as string),
     destinationCurrency: toCurrency,
     destinationChainId: toChainId,
     originCurrency: currency,
     originChainId: chainId,
     amount,
-    recipient: recipient
-      ? (recipient as string)
-      : caller || destinationDeadAddress || zeroAddress,
+    recipient: includeDefaultParameters
+      ? (defaultParameters?.recipient as string)
+      : (recipient as string),
     tradeType,
     referrer: client.source || undefined,
     txs: preparedTransactions,
