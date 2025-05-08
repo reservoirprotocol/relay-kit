@@ -1,12 +1,18 @@
-import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
+import type {
+  Execute,
+  GetQuoteParameters,
+  paths,
+  RelayChain
+} from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
-import { formatSeconds } from './time.js'
+import { formatSeconds, get15MinuteInterval } from './time.js'
 import type { QuoteResponse, useQuote } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
+import { sha256 } from './hashing.js'
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -262,7 +268,8 @@ export const getCurrentStep = (steps?: Execute['steps'] | null) => {
 export const getSwapEventData = (
   details: Execute['details'],
   steps: Execute['steps'] | null,
-  connector?: string
+  connector?: string,
+  quoteParameters?: Parameters<typeof useQuote>['2']
 ) => {
   let operation: string | undefined = details?.operation
 
@@ -281,9 +288,12 @@ export const getSwapEventData = (
       operation = 'cross_chain_swap'
     }
   }
+  const interval = get15MinuteInterval()
+  const quoteRequestId = sha256({ ...quoteParameters, interval })
 
   return {
     wallet_connector: connector,
+    quote_request_id: quoteRequestId,
     quote_id: steps ? extractQuoteId(steps) : undefined,
     amount_in: details?.currencyIn?.amount,
     currency_in: details?.currencyIn?.currency?.symbol,

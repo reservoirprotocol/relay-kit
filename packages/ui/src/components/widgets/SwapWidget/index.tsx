@@ -237,6 +237,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         gasTopUpAmount,
         gasTopUpAmountUsd,
         linkedWallet,
+        quoteParameters,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -1384,7 +1385,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 quote?.steps
                                   ? (quote?.steps as Execute['steps'])
                                   : null,
-                                linkedWallet?.connector
+                                linkedWallet?.connector,
+                                quoteParameters
                               )
                               onAnalyticEvent?.(
                                 EventNames.SWAP_CTA_CLICKED,

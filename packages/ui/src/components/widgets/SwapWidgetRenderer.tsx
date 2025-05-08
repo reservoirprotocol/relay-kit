@@ -154,6 +154,7 @@ export type ChildrenProps = {
   gasTopUpAmount?: bigint
   gasTopUpAmountUsd?: string
   linkedWallet?: LinkedWallet
+  quoteParameters?: Parameters<typeof useQuote>['2']
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -481,7 +482,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     amountUsd: _gasTopUpAmountUsd
   } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
 
-  const quoteParameters =
+  const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
       ? {
           user: fromAddressWithFallback,
@@ -795,7 +796,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ...getSwapEventData(
           quote?.details,
           currentSteps ?? null,
-          linkedWallet?.connector
+          linkedWallet?.connector,
+          quoteParameters
         ),
         error_message: errorMessage
       }
@@ -830,7 +832,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const swapEventData = getSwapEventData(
         quote?.details,
         quote?.steps ? (quote?.steps as Execute['steps']) : null,
-        linkedWallet?.connector
+        linkedWallet?.connector,
+        quoteParameters
       )
       onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, swapEventData)
       setWaitingForSteps(true)
@@ -864,12 +867,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         setSteps(currentSteps)
         _currentSteps = currentSteps
 
-        //tracking
         const { step, stepItem } = getCurrentStep(currentSteps)
         const swapEventData = getSwapEventData(
           quote?.details,
           currentSteps,
-          linkedWallet?.connector
+          linkedWallet?.connector,
+          quoteParameters
         )
         if (step && stepItem) {
           //@ts-ignore
@@ -1048,7 +1051,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         setUseExternalLiquidity,
         setDetails,
         setSwapError,
-        linkedWallet
+        linkedWallet,
+        quoteParameters
       })}
     </>
   )
