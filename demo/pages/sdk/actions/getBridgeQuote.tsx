@@ -126,16 +126,19 @@ const GetBridgeQuotePage: NextPage = () => {
             throw 'Missing Client!'
           }
 
-          const quote = await client?.actions.getQuote({
-            chainId: fromChainId,
-            wallet, // optional
-            toChainId,
-            amount,
-            currency,
-            toCurrency: zeroAddress,
-            recipient: recipient ? (recipient as Address) : undefined,
-            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXPECTED_OUTPUT'
-          })
+          const quote = await client?.actions.getQuote(
+            {
+              chainId: fromChainId,
+              wallet, // optional
+              toChainId,
+              amount,
+              currency,
+              toCurrency: zeroAddress,
+              recipient: recipient ? (recipient as Address) : undefined,
+              tradeType: useExactInput ? 'EXACT_INPUT' : 'EXPECTED_OUTPUT'
+            },
+            true
+          )
           setResponse(quote)
         }}
       >

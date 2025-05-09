@@ -122,16 +122,19 @@ const GetSwapQuote: NextPage = () => {
             throw 'Missing Client!'
           }
 
-          const quote = await client?.actions.getQuote({
-            chainId: fromChainId,
-            wallet,
-            toChainId,
-            toCurrency,
-            amount,
-            currency: fromCurrency,
-            recipient: recipient ? (recipient as Address) : undefined,
-            tradeType: useExactOuput ? 'EXPECTED_OUTPUT' : 'EXACT_INPUT'
-          })
+          const quote = await client?.actions.getQuote(
+            {
+              chainId: fromChainId,
+              wallet,
+              toChainId,
+              toCurrency,
+              amount,
+              currency: fromCurrency,
+              recipient: recipient ? (recipient as Address) : undefined,
+              tradeType: useExactOuput ? 'EXPECTED_OUTPUT' : 'EXACT_INPUT'
+            },
+            true
+          )
           setResponse(quote)
         }}
       >

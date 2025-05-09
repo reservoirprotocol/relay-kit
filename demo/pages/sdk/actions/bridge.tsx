@@ -142,20 +142,23 @@ const BridgeActionPage: NextPage = () => {
             throw 'Must include an amount for bridging'
           }
 
-          const quote = await client?.actions.getQuote({
-            chainId: fromChainId,
-            wallet,
-            toChainId,
-            amount,
-            currency,
-            toCurrency: currency,
-            recipient: recipient ? (recipient as Address) : undefined,
-            tradeType: useExactInput ? 'EXACT_INPUT' : 'EXPECTED_OUTPUT',
-            options: {
-              usePermit: usePermit,
-              useExternalLiquidity: canonical
-            }
-          })
+          const quote = await client?.actions.getQuote(
+            {
+              chainId: fromChainId,
+              wallet,
+              toChainId,
+              amount,
+              currency,
+              toCurrency: currency,
+              recipient: recipient ? (recipient as Address) : undefined,
+              tradeType: useExactInput ? 'EXACT_INPUT' : 'EXPECTED_OUTPUT',
+              options: {
+                usePermit: usePermit,
+                useExternalLiquidity: canonical
+              }
+            },
+            true
+          )
 
           if (!quote) {
             throw 'Missing a quote'

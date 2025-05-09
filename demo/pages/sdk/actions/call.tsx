@@ -109,15 +109,18 @@ const CallActionPage: NextPage = () => {
           if (!wallet) {
             throw 'Please connect to execute transactions'
           }
-          const quote = await client?.actions.getQuote({
-            chainId: fromChainId,
-            wallet, // optional
-            txs: txs as any,
-            toChainId,
-            currency: zeroAddress,
-            toCurrency: zeroAddress,
-            tradeType: 'EXACT_OUTPUT'
-          })
+          const quote = await client?.actions.getQuote(
+            {
+              chainId: fromChainId,
+              wallet, // optional
+              txs: txs as any,
+              toChainId,
+              currency: zeroAddress,
+              toCurrency: zeroAddress,
+              tradeType: 'EXACT_OUTPUT'
+            },
+            true
+          )
 
           if (!quote) {
             throw 'Missing quote!'

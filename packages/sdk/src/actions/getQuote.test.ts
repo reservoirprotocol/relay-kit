@@ -38,15 +38,18 @@ describe('Should test the getQuote action.', () => {
     })
 
     await expect(
-      client?.actions?.getQuote({
-        wallet,
-        toChainId: 1,
-        chainId: 8453,
-        currency: '0x0000000000000000000000000000000000000000',
-        toCurrency: '0x0000000000000000000000000000000000000000',
-        tradeType: 'EXACT_INPUT',
-        amount: '1000000000000000' // 0.001 ETH
-      })
+      client?.actions?.getQuote(
+        {
+          wallet,
+          toChainId: 1,
+          chainId: 8453,
+          currency: '0x0000000000000000000000000000000000000000',
+          toCurrency: '0x0000000000000000000000000000000000000000',
+          tradeType: 'EXACT_INPUT',
+          amount: '1000000000000000' // 0.001 ETH
+        },
+        true
+      )
     ).rejects.toThrow('RelayClient missing api url configuration')
   })
 
@@ -55,14 +58,17 @@ describe('Should test the getQuote action.', () => {
       baseApiUrl: MAINNET_RELAY_API
     })
 
-    await client?.actions?.getQuote({
-      toChainId: 1,
-      chainId: 8453,
-      currency: '0x0000000000000000000000000000000000000000',
-      toCurrency: '0x0000000000000000000000000000000000000000',
-      tradeType: 'EXACT_INPUT',
-      amount: '1000000000000000' // 0.001 ETH
-    })
+    await client?.actions?.getQuote(
+      {
+        toChainId: 1,
+        chainId: 8453,
+        currency: '0x0000000000000000000000000000000000000000',
+        toCurrency: '0x0000000000000000000000000000000000000000',
+        tradeType: 'EXACT_INPUT',
+        amount: '1000000000000000' // 0.001 ETH
+      },
+      true
+    )
 
     expect(axiosRequestSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -86,21 +92,24 @@ describe('Should test the getQuote action.', () => {
       baseApiUrl: MAINNET_RELAY_API
     })
 
-    await client?.actions?.getQuote({
-      toChainId: 1,
-      chainId: 8453,
-      currency: '0x0000000000000000000000000000000000000000',
-      toCurrency: '0x0000000000000000000000000000000000000000',
-      tradeType: 'EXACT_INPUT',
-      amount: '1000000000000000', // 0.001 ETH
-      txs: [
-        {
-          data: '0x',
-          value: '0',
-          to: '0x'
-        }
-      ]
-    })
+    await client?.actions?.getQuote(
+      {
+        toChainId: 1,
+        chainId: 8453,
+        currency: '0x0000000000000000000000000000000000000000',
+        toCurrency: '0x0000000000000000000000000000000000000000',
+        tradeType: 'EXACT_INPUT',
+        amount: '1000000000000000', // 0.001 ETH
+        txs: [
+          {
+            data: '0x',
+            value: '0',
+            to: '0x'
+          }
+        ]
+      },
+      true
+    )
 
     expect(axiosRequestSpy).toHaveBeenCalledWith(
       expect.objectContaining({

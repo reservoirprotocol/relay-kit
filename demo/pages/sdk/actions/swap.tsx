@@ -263,17 +263,20 @@ const SwapActionPage: NextPage = () => {
             throw 'Unable to configure wallet'
           }
 
-          const quote = await client?.actions.getQuote({
-            chainId: fromChainId,
-            wallet: executionWallet,
-            toChainId,
-            toCurrency,
-            amount,
-            currency: fromCurrency,
-            recipient: recipient ? (recipient as Address) : undefined,
-            txs: [...(txs as any)],
-            tradeType
-          })
+          const quote = await client?.actions.getQuote(
+            {
+              chainId: fromChainId,
+              wallet: executionWallet,
+              toChainId,
+              toCurrency,
+              amount,
+              currency: fromCurrency,
+              recipient: recipient ? (recipient as Address) : undefined,
+              txs: [...(txs as any)],
+              tradeType
+            },
+            true
+          )
           if (!quote) {
             throw 'Missing the quote'
           }
