@@ -36,7 +36,7 @@ export type GetQuoteParameters = {
   wallet?: AdaptedWallet | WalletClient
   amount?: string
   recipient?: string
-  options?: Omit<QuoteBodyOptions, 'source' | 'txs' | 'tradeType'>
+  options?: Omit<Partial<QuoteBodyOptions>, 'source' | 'txs' | 'tradeType'>
   txs?: (NonNullable<QuoteBody['txs']>[0] | SimulateContractRequest)[]
 }
 
