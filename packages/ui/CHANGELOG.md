@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.3
+
+### Patch Changes
+
+- b74d695: Fix race condition with events
+
 ## 2.10.2
 
 ### Patch Changes
