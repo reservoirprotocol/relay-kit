@@ -816,8 +816,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         if (!submittedEvents.includes(successEvent)) {
           onAnalyticEvent?.(successEvent, swapEventData)
           submittedEvents.push(successEvent)
+          //To preserve the order of events we need to delay sending the fill error event but mark that we did send it to avoid duplicates
+          setTimeout(() => {
+            onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
+          }, 20)
+        } else {
+          onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
         }
-        onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
       } else if (!stepItem?.receipt) {
         onAnalyticEvent?.(errorEvent, swapEventData)
       } else {
@@ -924,8 +929,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             ) {
               onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
               submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
+              //To preserve the order of events we need to delay sending the fill success event but mark that we did send it to avoid duplicates
+              setTimeout(() => {
+                onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+              }, 20)
+            } else {
+              onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
             }
-            onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
             submittedEvents.push(EventNames.FILL_SUCCESS)
           }
         } else if (
@@ -941,8 +951,13 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           ) {
             onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
             submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
+            //To preserve the order of events we need to delay sending the fill success event but mark that we did send it to avoid duplicates
+            setTimeout(() => {
+              onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+            }, 20)
+          } else {
+            onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
           }
-          onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
           submittedEvents.push(EventNames.FILL_SUCCESS)
         }
       })
