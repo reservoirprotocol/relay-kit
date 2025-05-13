@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.4
+
+### Patch Changes
+
+- eed08f3: Fix gas top up bigint error
+- Updated dependencies [e5d8e39]
+  - @reservoir0x/relay-sdk@1.8.1
+  - @reservoir0x/relay-kit-hooks@1.9.9
+
 ## 2.10.3
 
 ### Patch Changes
