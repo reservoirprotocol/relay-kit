@@ -823,10 +823,17 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         } else {
           onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
         }
-      } else if (!stepItem?.receipt) {
+      } else if (
+        !stepItem?.receipt ||
+        !(
+          typeof stepItem.receipt === 'object' &&
+          'status' in stepItem.receipt &&
+          stepItem.receipt.status === 'reverted'
+        )
+      ) {
         onAnalyticEvent?.(errorEvent, swapEventData)
       } else {
-        onAnalyticEvent?.(EventNames.SWAP_ERROR)
+        onAnalyticEvent?.(EventNames.SWAP_ERROR, swapEventData)
       }
 
       setSwapError(errorMessage)
