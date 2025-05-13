@@ -126,7 +126,7 @@ const DepositAddressesPage: NextPage = () => {
                 refundTo: refundAddress
               }
             }
-            const data = await getQuote(quoteData)
+            const data = await getQuote(quoteData, true)
             setQuote(data)
             const depositStepData =
               data.steps &&
