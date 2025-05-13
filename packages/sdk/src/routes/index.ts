@@ -40,5 +40,7 @@ export const routes = [
   "/currencies/add",
   "/currencies/update",
   "/currencies/trending",
+  "/chains/{chainId}/currencies/{address}",
+  "/chains/{chainId}/currencies/{address}/chart",
   "/provision/chain"
 ];
