@@ -23,7 +23,6 @@ import type { BridgeFee, Token } from '../../../types/index.js'
 import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
 import { parseFees } from '../../../utils/quote.js'
-
 export enum TransactionProgressStep {
   Confirmation,
   Success,

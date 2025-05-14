@@ -87,9 +87,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
         const steps = quote?.steps
         const details = quote?.details
         const fees = quote?.fees
-        onAnalyticEvent?.(EventNames.TRANSACTION_VALIDATING, {
-          quote_id: steps ? extractQuoteId(steps) : undefined
-        })
         onSwapValidating?.({
           steps: steps,
           fees: fees,
@@ -192,8 +189,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   isCanonical,
   fromChain,
   toChain,
-  isLoadingTransaction,
-  invalidateQuoteQuery
+  isLoadingTransaction
 }) => {
   useEffect(() => {
     if (!open) {
@@ -206,7 +202,6 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setStartTimestamp(0)
       setSwapError(null)
       setSteps(null)
-      invalidateQuoteQuery()
     } else {
       setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)

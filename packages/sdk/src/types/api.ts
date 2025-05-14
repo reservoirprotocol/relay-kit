@@ -249,7 +249,7 @@ export interface paths {
             active?: boolean;
             metadata?: Record<string, never>;
             /** @enum {string} */
-            nativeCurrency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+            nativeCurrency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
             /** @enum {string} */
             vmType: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
           };
@@ -471,7 +471,7 @@ export interface paths {
           /** @description User address, when supplied returns user balance and max bridge amount */
           user?: string;
           /** @description Restricts the user balance and capacity to a particular currency when supplied with a currency id. Defaults to the native currency of the destination chain. */
-          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+          currency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
         };
       };
       responses: {
@@ -524,7 +524,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -623,7 +623,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -634,10 +634,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
               };
               breakdown?: {
                   /** @description Amount that will be bridged in the estimated time */
@@ -699,7 +699,7 @@ export interface paths {
             originChainId: number;
             destinationChainId: number;
             /** @enum {string} */
-            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+            currency: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
             /** @description Amount to bridge as the base amount (can be switched to exact input using the dedicated flag), denoted in wei */
             amount: string;
             /** @description App fees to be charged for execution */
@@ -1133,7 +1133,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -1144,10 +1144,10 @@ export interface paths {
                  * @description The currency for all relayer fees (gas and service)
                  * @enum {string}
                  */
-                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+                relayerCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
                 app?: string;
                 /** @enum {string} */
-                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc";
+                appCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd";
               };
               /**
                * @example {
@@ -2036,6 +2036,7 @@ export interface paths {
             /** @description User address that will make the deposit on a given origin chain */
             user: string;
             recipient?: string;
+            refundTo?: string;
             origins: {
                 chainId: number;
                 currency: string;
@@ -2051,6 +2052,7 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
+            txsGasLimit?: number;
             partial?: boolean;
             /** @enum {string} */
             tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
@@ -2555,6 +2557,8 @@ export interface paths {
                 value?: string;
                 data?: string;
               }[];
+            /** @description Total gas limit for the destination chain call transactions */
+            txsGasLimit?: number;
             referrer?: string;
             referrerAddress?: string;
             /** @description Address to send the refund to in the case of failure, if not specified then the recipient address or user address is used */
@@ -3999,6 +4003,7 @@ export interface paths {
           chainId?: string;
           referrer?: string;
           sortBy?: "createdAt" | "updatedAt";
+          sortDirection?: "asc" | "desc";
         };
       };
       responses: {
@@ -4075,7 +4080,7 @@ export interface paths {
                     /** @description Slippage tolerance for the swap. This value is in basis points (1/100th of a percent), e.g. 50 for 0.5% slippage */
                     slippageTolerance?: string;
                     /** @enum {string} */
-                    failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "SLIPPAGE" | "INCORRECT_DEPOSIT_CURRENCY" | "DOUBLE_SPEND" | "SOLVER_CAPACITY_EXCEEDED" | "DEPOSITED_AMOUNT_TOO_LOW_TO_FILL" | "NEGATIVE_NEW_AMOUNT_AFTER_FEES" | "NO_QUOTES" | "MISSING_REVERT_DATA" | "REVERSE_SWAP_FAILED" | "GENERATE_SWAP_FAILED" | "TOO_LITTLE_RECEIVED" | "EXECUTION_REVERTED" | "NEW_CALLDATA_INCLUDES_HIGHER_RENT_FEE" | "N/A";
+                    failReason?: "UNKNOWN" | "AMOUNT_TOO_LOW_TO_REFUND" | "DEPOSIT_ADDRESS_MISMATCH" | "DEPOSIT_CHAIN_MISMATCH" | "SLIPPAGE" | "INCORRECT_DEPOSIT_CURRENCY" | "DOUBLE_SPEND" | "SOLVER_CAPACITY_EXCEEDED" | "DEPOSITED_AMOUNT_TOO_LOW_TO_FILL" | "NEGATIVE_NEW_AMOUNT_AFTER_FEES" | "NO_QUOTES" | "MISSING_REVERT_DATA" | "REVERSE_SWAP_FAILED" | "GENERATE_SWAP_FAILED" | "TOO_LITTLE_RECEIVED" | "EXECUTION_REVERTED" | "NEW_CALLDATA_INCLUDES_HIGHER_RENT_FEE" | "TRANSACTION_REVERTED" | "N/A";
                     fees?: {
                       /** @description Estimated gas cost required for execution, in wei */
                       gas?: string;
@@ -4295,6 +4300,7 @@ export interface paths {
                     price?: string;
                     usesExternalLiquidity?: boolean;
                     timeEstimate?: number;
+                    triggeredByCcm?: boolean;
                     outTxs?: {
                         /** @description Total fees in wei */
                         fee?: string;
@@ -4829,7 +4835,7 @@ export interface paths {
       parameters: {
         query?: {
           chainId?: number;
-          sortBy?: "buyTxCount" | "buyUsdVolume";
+          sortBy?: "relay24hBuyTxCount" | "relay24hBuyUsdVolume" | "coingecko6hTrending";
           limit?: number;
         };
       };
@@ -4843,19 +4849,6 @@ export interface paths {
                 symbol?: string;
                 name?: string;
                 decimals?: number;
-                transactions?: {
-                  "24h"?: {
-                    buy?: number;
-                  };
-                };
-                volume?: {
-                  "24h"?: {
-                    buy?: {
-                      raw?: string;
-                      usd?: number;
-                    };
-                  };
-                };
                 /** @enum {string} */
                 vmType?: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
                 metadata?: {
@@ -4864,6 +4857,141 @@ export interface paths {
                   isNative?: boolean;
                 };
               })[];
+          };
+        };
+      };
+    };
+  };
+  "/chains/{chainId}/currencies/{address}": {
+    get: {
+      parameters: {
+        path: {
+          chainId: number;
+          address: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              chainId?: number;
+              address?: string;
+              symbol?: string;
+              name?: string;
+              decimals?: number;
+              /** @enum {string} */
+              vmType?: "bvm" | "evm" | "svm" | "tvm" | "tonvm" | "suivm";
+              metadata?: {
+                logoURI?: string;
+                verified?: boolean;
+                isNative?: boolean;
+              };
+              price?: number;
+              marketCap?: string;
+              fdv?: string;
+              codexChainName?: string;
+              createdAt?: number;
+              socialLinks?: {
+                website?: string;
+                twitter?: string;
+                coingecko?: string;
+                discord?: string;
+              };
+              volume?: {
+                "24h"?: {
+                  raw?: string;
+                  usd?: number;
+                };
+              };
+              priceChange?: {
+                "5m"?: string;
+                "1h"?: string;
+                "4h"?: string;
+                "24h"?: string;
+              };
+              pair?: {
+                address?: string;
+                token0?: {
+                  address?: string;
+                  symbol?: string;
+                  metadata?: {
+                    logoURI?: string;
+                  };
+                };
+                token1?: {
+                  address?: string;
+                  symbol?: string;
+                  metadata?: {
+                    logoURI?: string;
+                  };
+                };
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              /** @description Error message */
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/chains/{chainId}/currencies/{address}/chart": {
+    get: {
+      parameters: {
+        query?: {
+          /** @description Timeframe for chart data can be either of the following */
+          timeframe?: "5M" | "1H" | "4H" | "24H" | "7D" | "30D" | "MAX";
+        };
+        path: {
+          chainId: number;
+          address: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              traders?: number[];
+              transactions?: number[];
+              t?: number[];
+              o?: number[];
+              h?: number[];
+              l?: number[];
+              c?: number[];
+              volume?: string[];
+              buyers?: number[];
+              buys?: number[];
+              buyVolume?: string[];
+              sellers?: number[];
+              sells?: number[];
+              sellVolume?: string[];
+              sumTraders?: number;
+              sumSellers?: number;
+              sumBuyers?: number;
+              sumTransactions?: number;
+              sumSells?: number;
+              sumBuys?: number;
+              sumVolume?: string;
+              sumSellVolume?: string;
+              sumBuyVolume?: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          content: {
+            "application/json": {
+              /** @description Error message */
+              message?: string;
+            };
           };
         };
       };

@@ -1,12 +1,18 @@
-import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
+import type {
+  Execute,
+  GetQuoteParameters,
+  paths,
+  RelayChain
+} from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
-import { formatSeconds } from './time.js'
+import { formatSeconds, get15MinuteInterval } from './time.js'
 import type { QuoteResponse, useQuote } from '@reservoir0x/relay-kit-hooks'
 import type { ComponentPropsWithoutRef } from 'react'
 import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
+import { sha256 } from './hashing.js'
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -240,5 +246,76 @@ export const appendMetadataToRequest = (
       method: 'POST',
       data: triggerData
     })
+  }
+}
+
+export const getCurrentStep = (steps?: Execute['steps'] | null) => {
+  if (!steps) {
+    return { step: null, stepItem: null }
+  }
+
+  const executableSteps = steps.filter(
+    (step) => step.items && step.items.length > 0
+  )
+
+  const step = executableSteps.find((step) =>
+    step.items.some((item) => item.status === 'incomplete')
+  )
+  const stepItem = step?.items.find((item) => item.status === 'incomplete')
+  return { step, stepItem }
+}
+
+export const getSwapEventData = (
+  details: Execute['details'],
+  steps: Execute['steps'] | null,
+  connector?: string,
+  quoteParameters?: Parameters<typeof useQuote>['2']
+) => {
+  let operation: string | undefined = details?.operation
+
+  if (operation === 'swap') {
+    const isSameChain =
+      details?.currencyIn?.currency?.chainId ===
+      details?.currencyOut?.currency?.chainId
+    if (isSameChain) {
+      operation = 'same_chain_swap'
+    } else if (
+      details?.currencyIn?.currency?.symbol ===
+      details?.currencyOut?.currency?.symbol
+    ) {
+      operation = 'bridge'
+    } else {
+      operation = 'cross_chain_swap'
+    }
+  }
+  const interval = get15MinuteInterval()
+  const quoteRequestId = sha256({ ...quoteParameters, interval })
+
+  return {
+    wallet_connector: connector,
+    quote_request_id: quoteRequestId,
+    quote_id: steps ? extractQuoteId(steps) : undefined,
+    amount_in: details?.currencyIn?.amount,
+    currency_in: details?.currencyIn?.currency?.symbol,
+    chain_id_in: details?.currencyIn?.currency?.chainId,
+    amount_out: details?.currencyOut?.amount,
+    currency_out: details?.currencyOut?.currency?.symbol,
+    chain_id_out: details?.currencyOut?.currency?.chainId,
+    deposit_address: steps?.find((step) => step.depositAddress)?.depositAddress,
+    txHashes: steps
+      ?.map((step) => {
+        let txHashes: { chainId: number; txHash: string }[] = []
+        step.items?.forEach((item) => {
+          if (item.txHashes) {
+            txHashes = txHashes.concat([
+              ...(item.txHashes ?? []),
+              ...(item.internalTxHashes ?? [])
+            ])
+          }
+        })
+        return txHashes
+      })
+      .flat(),
+    operation
   }
 }

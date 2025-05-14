@@ -42,6 +42,7 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { getSwapEventData } from '../../../utils/quote.js'
 import { faArrowDownArrowUp } from '@fortawesome/pro-solid-svg-icons'
 
 // shared query options for useTokenPrice
@@ -244,6 +245,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         gasTopUpRequired,
         gasTopUpAmount,
         gasTopUpAmountUsd,
+        linkedWallet,
+        quoteParameters,
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
@@ -597,15 +600,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             tradeType={tradeType}
             onTransactionModalOpenChange={(open) => {
               if (!open) {
+                if (pendingSuccessFlush) {
+                  setPendingSuccessFlush(false)
+                } else if (steps) {
+                  invalidateQuoteQuery()
+                }
                 setSwapError(null)
                 setSteps(null)
-                if (pendingSuccessFlush) {
-                  setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
-                  setAmountInputValue('')
-                  setAmountOutputValue('')
-                  setPendingSuccessFlush(false)
-                }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
               }
@@ -614,11 +615,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               if (!open) {
                 setSwapError(null)
                 if (pendingSuccessFlush) {
-                  setGasTopUpEnabled(true)
-                  invalidateQuoteQuery()
-                  setAmountInputValue('')
-                  setAmountOutputValue('')
                   setPendingSuccessFlush(false)
+                } else {
+                  invalidateQuoteQuery()
                 }
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
@@ -630,6 +629,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setSwapError={setSwapError}
             onSwapSuccess={(data) => {
               setPendingSuccessFlush(true)
+              setGasTopUpEnabled(true)
+              setAmountInputValue('')
+              setAmountOutputValue('')
               onSwapSuccess?.(data)
             }}
             onSwapValidating={onSwapValidating}
@@ -1552,6 +1554,18 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 setAddressModalOpen(true)
                               }
                             } else {
+                              const swapEventData = getSwapEventData(
+                                quote?.details,
+                                quote?.steps
+                                  ? (quote?.steps as Execute['steps'])
+                                  : null,
+                                linkedWallet?.connector,
+                                quoteParameters
+                              )
+                              onAnalyticEvent?.(
+                                EventNames.SWAP_CTA_CLICKED,
+                                swapEventData
+                              )
                               setDepositAddressModalOpen(true)
                             }
                           }

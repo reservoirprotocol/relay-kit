@@ -29,6 +29,8 @@ import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
   extractQuoteId,
+  getCurrentStep,
+  getSwapEventData,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
@@ -151,6 +153,8 @@ export type ChildrenProps = {
   gasTopUpRequired: boolean
   gasTopUpAmount?: bigint
   gasTopUpAmountUsd?: string
+  linkedWallet?: LinkedWallet
+  quoteParameters?: Parameters<typeof useQuote>['2']
   invalidateBalanceQueries: () => void
   invalidateQuoteQuery: () => void
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
@@ -384,7 +388,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const isSvmSwap = fromChain?.vmType === 'svm' || toChain?.vmType === 'svm'
   const isBvmSwap = fromChain?.vmType === 'bvm' || toChain?.vmType === 'bvm'
   const linkedWallet = linkedWallets?.find(
-    (linkedWallet) => address === linkedWallet.address
+    (linkedWallet) =>
+      address ===
+        (linkedWallet.vmType === 'evm'
+          ? linkedWallet.address.toLowerCase()
+          : linkedWallet.address) || linkedWallet.address === address
   )
   const isRecipientLinked =
     (recipient
@@ -474,7 +482,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     amountUsd: _gasTopUpAmountUsd
   } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
 
-  const quoteParameters =
+  const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
       ? {
           user: fromAddressWithFallback,
@@ -511,8 +519,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_REQUESTED, {
       parameters: options,
+      wallet_connector: linkedWallet?.connector,
+      chain_id_in: options?.originChainId,
+      chain_id_out: options?.destinationChainId,
       http_config: config,
-      quote_id: quoteRequestId
+      quote_request_id: quoteRequestId
     })
   }
 
@@ -523,20 +534,23 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     const interval = get15MinuteInterval()
     const quoteRequestId = sha256({ ...options, interval })
     onAnalyticEvent?.(EventNames.QUOTE_RECEIVED, {
-      wallet_connector: connector?.name,
+      parameters: options,
+      wallet_connector: linkedWallet?.connector,
       amount_in: details?.currencyIn?.amountFormatted,
+      amount_in_raw: details?.currencyIn?.amount,
       currency_in: details?.currencyIn?.currency?.symbol,
       chain_id_in: details?.currencyIn?.currency?.chainId,
       amount_out: details?.currencyOut?.amountFormatted,
+      amount_out_raw: details?.currencyOut?.amount,
       currency_out: details?.currencyOut?.currency?.symbol,
       chain_id_out: details?.currencyOut?.currency?.chainId,
-      is_canonical: useExternalLiquidity,
       slippage_tolerance_destination_percentage:
         details?.slippageTolerance?.destination?.percent,
       slippage_tolerance_origin_percentage:
         details?.slippageTolerance?.origin?.percent,
       steps,
-      quote_id: quoteRequestId
+      quote_request_id: quoteRequestId,
+      quote_id: steps ? extractQuoteId(steps) : undefined
     })
   }
 
@@ -586,10 +600,10 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const interval = get15MinuteInterval()
       const quoteRequestId = sha256({ ...quoteParameters, interval })
       onAnalyticEvent?.(EventNames.QUOTE_ERROR, {
-        wallet_connector: connector?.name,
+        wallet_connector: linkedWallet?.connector,
         error_message: errorMessage,
         parameters: quoteParameters,
-        quote_id: quoteRequestId
+        quote_request_id: quoteRequestId
       })
     }
   )
@@ -742,7 +756,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const swap = useCallback(async () => {
-    const swapErrorHandler = (error: any) => {
+    let submittedEvents: string[] = []
+
+    const swapErrorHandler = (
+      error: any,
+      currentSteps?: Execute['steps'] | null
+    ) => {
       if (
         error &&
         ((typeof error.message === 'string' &&
@@ -772,40 +791,63 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           : error
       )
 
-      onAnalyticEvent?.(EventNames.SWAP_ERROR, {
-        error_message: errorMessage,
-        wallet_connector: connector?.name,
-        quote_id: extractQuoteId(steps ?? (quote?.steps as Execute['steps'])),
-        amount_in: parseFloat(`${debouncedInputAmountValue}`),
-        currency_in: fromToken?.symbol,
-        chain_id_in: fromToken?.chainId,
-        amount_out: parseFloat(`${debouncedOutputAmountValue}`),
-        currency_out: toToken?.symbol,
-        chain_id_out: toToken?.chainId,
-        is_canonical: useExternalLiquidity,
-        txHashes: (steps ?? (quote?.steps as Execute['steps']))
-          ?.map((step) => {
-            let txHashes: { chainId: number; txHash: string }[] = []
-            step.items?.forEach((item) => {
-              if (item.txHashes) {
-                txHashes = txHashes.concat([
-                  ...(item.txHashes ?? []),
-                  ...(item.internalTxHashes ?? [])
-                ])
-              }
-            })
-            return txHashes
-          })
-          .flat()
-      })
+      const { step, stepItem } = getCurrentStep(currentSteps)
+      const swapEventData = {
+        ...getSwapEventData(
+          quote?.details,
+          currentSteps ?? null,
+          linkedWallet?.connector,
+          quoteParameters
+        ),
+        error_message: errorMessage
+      }
+      const isApproval = step?.id === 'approve'
+      const errorEvent = isApproval
+        ? EventNames.APPROVAL_ERROR
+        : EventNames.DEPOSIT_ERROR
+
+      if (stepItem?.receipt && stepItem.check) {
+        //In some cases there's a race condition where an error is thrown before the steps get a chance to call
+        //the callback which triggers the success event. This is a workaround to ensure the success event is triggered when
+        //we have a receipt and require a fill check if we haven't already send the success event.
+        const successEvent = isApproval
+          ? EventNames.APPROVAL_SUCCESS
+          : EventNames.DEPOSIT_SUCCESS
+        if (!submittedEvents.includes(successEvent)) {
+          onAnalyticEvent?.(successEvent, swapEventData)
+          submittedEvents.push(successEvent)
+          //To preserve the order of events we need to delay sending the fill error event but mark that we did send it to avoid duplicates
+          setTimeout(() => {
+            onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
+          }, 20)
+        } else {
+          onAnalyticEvent?.(EventNames.FILL_ERROR, swapEventData)
+        }
+      } else if (
+        !stepItem?.receipt ||
+        !(
+          typeof stepItem.receipt === 'object' &&
+          'status' in stepItem.receipt &&
+          stepItem.receipt.status === 'reverted'
+        )
+      ) {
+        onAnalyticEvent?.(errorEvent, swapEventData)
+      } else {
+        onAnalyticEvent?.(EventNames.SWAP_ERROR, swapEventData)
+      }
+
       setSwapError(errorMessage)
-      onSwapError?.(errorMessage, quote as Execute)
+      onSwapError?.(errorMessage, { ...quote, steps: currentSteps } as Execute)
     }
 
     try {
-      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, {
-        quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
-      })
+      const swapEventData = getSwapEventData(
+        quote?.details,
+        quote?.steps ? (quote?.steps as Execute['steps']) : null,
+        linkedWallet?.connector,
+        quoteParameters
+      )
+      onAnalyticEvent?.(EventNames.SWAP_CTA_CLICKED, swapEventData)
       setWaitingForSteps(true)
 
       if (!executeSwap) {
@@ -826,17 +868,108 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       if (fromToken && fromToken?.chainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
-          chainId: fromToken.chainId,
-          quote_id: quote?.steps ? extractQuoteId(quote.steps) : undefined
+          ...swapEventData
         })
         await _wallet?.switchChain(fromToken.chainId)
       }
 
+      let _currentSteps: Execute['steps'] | undefined = undefined
+
       executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
+        _currentSteps = currentSteps
+
+        const { step, stepItem } = getCurrentStep(currentSteps)
+        const swapEventData = getSwapEventData(
+          quote?.details,
+          currentSteps,
+          linkedWallet?.connector,
+          quoteParameters
+        )
+        if (step && stepItem) {
+          //@ts-ignore
+          const isApproval = step.id === 'approve' || step.id === 'approval'
+          let submittedEvent = isApproval
+            ? EventNames.APPROVAL_SUBMITTED
+            : EventNames.DEPOSIT_SUBMITTED
+          const successEvent = isApproval
+            ? EventNames.APPROVAL_SUCCESS
+            : EventNames.DEPOSIT_SUCCESS
+          const isBatchTransaction = Boolean(
+            Array.isArray(step.items) &&
+              step.items.length > 1 &&
+              wallet?.handleBatchTransactionStep
+          )
+          if (!isApproval && isBatchTransaction) {
+            submittedEvent = EventNames.BATCH_TX_SUBMITTED
+          }
+          if (
+            !submittedEvents.includes(submittedEvent) &&
+            !stepItem.receipt &&
+            stepItem?.txHashes &&
+            stepItem?.txHashes?.length > 0
+          ) {
+            submittedEvents.push(submittedEvent)
+            onAnalyticEvent?.(submittedEvent, swapEventData)
+          } else if (
+            !submittedEvents.includes(successEvent) &&
+            stepItem.receipt &&
+            !(
+              typeof stepItem.receipt === 'object' &&
+              'status' in stepItem.receipt &&
+              stepItem.receipt.status === 'reverted'
+            )
+          ) {
+            onAnalyticEvent?.(successEvent, swapEventData)
+            submittedEvents.push(successEvent)
+          }
+
+          if (
+            stepItem.status === 'complete' &&
+            stepItem.check &&
+            !submittedEvents.includes(EventNames.FILL_SUCCESS)
+          ) {
+            //Sometimes a fill may be quicker than the tx receipt is available, so we need to handle this scenario
+            if (
+              !submittedEvents.includes(EventNames.DEPOSIT_SUCCESS) &&
+              !isBatchTransaction
+            ) {
+              onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
+              submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
+              //To preserve the order of events we need to delay sending the fill success event but mark that we did send it to avoid duplicates
+              setTimeout(() => {
+                onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+              }, 20)
+            } else {
+              onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+            }
+            submittedEvents.push(EventNames.FILL_SUCCESS)
+          }
+        } else if (
+          currentSteps?.every((step) =>
+            step.items?.every((item) => item.status === 'complete')
+          ) &&
+          !submittedEvents.includes(EventNames.FILL_SUCCESS)
+        ) {
+          //Sometimes a fill may be quicker than the tx receipt is available, so we need to handle this scenario
+          if (
+            !submittedEvents.includes(EventNames.DEPOSIT_SUCCESS) &&
+            !submittedEvents.includes(EventNames.BATCH_TX_SUBMITTED)
+          ) {
+            onAnalyticEvent?.(EventNames.DEPOSIT_SUCCESS, swapEventData)
+            submittedEvents.push(EventNames.DEPOSIT_SUCCESS)
+            //To preserve the order of events we need to delay sending the fill success event but mark that we did send it to avoid duplicates
+            setTimeout(() => {
+              onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+            }, 20)
+          } else {
+            onAnalyticEvent?.(EventNames.FILL_SUCCESS, swapEventData)
+          }
+          submittedEvents.push(EventNames.FILL_SUCCESS)
+        }
       })
         ?.catch((error: any) => {
-          swapErrorHandler(error)
+          swapErrorHandler(error, _currentSteps)
         })
         .finally(() => {
           setWaitingForSteps(false)
@@ -864,7 +997,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     waitingForSteps,
     executeSwap,
     setSteps,
-    invalidateBalanceQueries
+    invalidateBalanceQueries,
+    linkedWallet
   ])
 
   return (
@@ -938,7 +1072,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         invalidateQuoteQuery,
         setUseExternalLiquidity,
         setDetails,
-        setSwapError
+        setSwapError,
+        linkedWallet,
+        quoteParameters
       })}
     </>
   )

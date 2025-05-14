@@ -283,7 +283,18 @@ export async function executeSteps(
                         })
                       }
                     },
-                    json?.details
+                    json?.details,
+                    (receipt) => {
+                      stepItem.receipt = receipt
+                      if (json) {
+                        setState({
+                          steps: [...json.steps],
+                          fees: { ...json?.fees },
+                          breakdown: json?.breakdown,
+                          details: json?.details
+                        })
+                      }
+                    }
                   )
                 } catch (e) {
                   throw e

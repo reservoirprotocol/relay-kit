@@ -1,5 +1,46 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.4
+
+### Patch Changes
+
+- eed08f3: Fix gas top up bigint error
+- Updated dependencies [e5d8e39]
+  - @reservoir0x/relay-sdk@1.8.1
+  - @reservoir0x/relay-kit-hooks@1.9.9
+
+## 2.10.3
+
+### Patch Changes
+
+- b74d695: Fix race condition with events
+
+## 2.10.2
+
+### Patch Changes
+
+- 09be9a1: Add quote_request_id to all swap events
+
+## 2.10.1
+
+### Patch Changes
+
+- 1c1c05c: Fix issues with quote_id
+
+## 2.10.0
+
+### Minor Changes
+
+- d430ab3: Overhaul analytics events
+
+### Patch Changes
+
+- 47a0157: Add interval to regenerate hash every 15m
+- 16beb2e: Refresh quote data when tx modal closes
+- Updated dependencies [d430ab3]
+  - @reservoir0x/relay-sdk@1.8.0
+  - @reservoir0x/relay-kit-hooks@1.9.8
+
 ## 2.9.14
 
 ### Patch Changes
