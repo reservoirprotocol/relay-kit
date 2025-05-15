@@ -16,8 +16,7 @@ import {
   usePreviousValueChange,
   useIsWalletCompatible,
   useFallbackState,
-  useGasTopUpRequired,
-  useMounted
+  useGasTopUpRequired
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
 import { formatUnits, parseUnits } from 'viem'
