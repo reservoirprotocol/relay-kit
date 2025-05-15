@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.5
+
+### Patch Changes
+
+- 2ee2f44: Fix receipt validation
+- Updated dependencies [5759fd0]
+  - @reservoir0x/relay-sdk@2.0.0
+  - @reservoir0x/relay-kit-hooks@1.9.10
+
 ## 2.10.4
 
 ### Patch Changes
