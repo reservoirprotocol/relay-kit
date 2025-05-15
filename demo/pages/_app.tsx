@@ -17,7 +17,7 @@ import {
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
 import {
-  DynamicContextProvider,
+  // DynamicContextProvider,
   FilterChain
 } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
@@ -40,13 +40,13 @@ type AppWrapperProps = {
   children: ReactNode
 }
 
-// const DynamicContextProvider = dynamic(
-//   () =>
-//     import('@dynamic-labs/sdk-react-core').then(
-//       (mod) => mod.DynamicContextProvider
-//     ),
-//   { ssr: true }
-// )
+const DynamicContextProvider = dynamic(
+  () =>
+    import('@dynamic-labs/sdk-react-core').then(
+      (mod) => mod.DynamicContextProvider
+    ),
+  { ssr: true }
+)
 
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 
