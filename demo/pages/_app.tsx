@@ -16,10 +16,7 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
-import {
-  // DynamicContextProvider,
-  FilterChain
-} from '@dynamic-labs/sdk-react-core'
+import { FilterChain } from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
@@ -32,7 +29,6 @@ import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
-import { DebugProvider } from 'context/DebugProvider'
 import { MoonPayProvider } from 'context/MoonpayProvider'
 import dynamic from 'next/dynamic'
 
@@ -131,138 +127,123 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       enableSystem
       disableTransitionOnChange
     >
-      <DebugProvider name="ThemeProvider">
-        <RelayKitProvider
-          options={{
-            baseApiUrl: relayApi,
-            source: 'relay-demo',
-            logLevel: LogLevel.Verbose,
-            duneConfig: {
-              apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-              apiBaseUrl: 'https://api.dune.com'
-            },
-            chains,
-            privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
-            appName: 'Relay Demo',
-            useGasFeeEstimations: true
-            // appFees: [
-            //   {
-            //     recipient: '0x0000000000000000000000000000000000000000',
-            //     fee: '100' // 1%
-            //   }
-            // ]
-          }}
-          // theme={
+      <RelayKitProvider
+        options={{
+          baseApiUrl: relayApi,
+          source: 'relay-demo',
+          logLevel: LogLevel.Verbose,
+          duneConfig: {
+            apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
+            apiBaseUrl: 'https://api.dune.com'
+          },
+          chains,
+          privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
+          appName: 'Relay Demo',
+          useGasFeeEstimations: true
+          // appFees: [
           //   {
-          // primaryColor: 'red',
-          // anchor: {
-          //   color: 'red'
-          // }
-          // focusColor: 'green',
-          // subtleBorderColor: 'green',
-          // text: {
-          //   default: 'red',
-          //   subtle: 'purple'
-          // },
-          // input: {
-          //   background: 'red'
-          // },
-          // buttons: {
-          //   tertiary: {
-          //     background: 'orange',
-          //     color: 'red',
-          //     hover: {
-          //       color: 'blue',
-          //       background: 'purple'
-          //     }
-          //   },
-          //   disabled: {
-          //     background: 'green',
-          //     color: 'red'
+          //     recipient: '0x0000000000000000000000000000000000000000',
+          //     fee: '100' // 1%
           //   }
-          // },
-          // widget: {
-          // boxShadow:
-          //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
-          // background: 'pink',
-          // borderRadius: '0px',
-          // border: '2px solid orange',
-          // card: {
-          //   background: 'pink'
-          // }
-          // selector: {
-          //   background: 'red',
-          //   hover: {
-          //     background: 'green'
-          //   }
-          // }
-          // }
-          // modal: {
-          //   background: 'orange'
-          // },
-          // dropdown: {
-          //   background: 'red',
-          //   borderRadius: '0px'
-          // }
-          //   }
-          // }
-        >
-          <DebugProvider name="RelayKitProvider">
-            <DynamicContextProvider
-              settings={{
-                logLevel: 'INFO',
-                environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
-                walletConnectors: [
-                  EthereumWalletConnectors,
-                  SolanaWalletConnectors,
-                  BitcoinWalletConnectors,
-                  EclipseWalletConnectors,
-                  SuiWalletConnectors,
-                  AbstractEvmWalletConnectors
-                ],
-                cssOverrides: `
+          // ]
+        }}
+        // theme={
+        //   {
+        // primaryColor: 'red',
+        // anchor: {
+        //   color: 'red'
+        // }
+        // focusColor: 'green',
+        // subtleBorderColor: 'green',
+        // text: {
+        //   default: 'red',
+        //   subtle: 'purple'
+        // },
+        // input: {
+        //   background: 'red'
+        // },
+        // buttons: {
+        //   tertiary: {
+        //     background: 'orange',
+        //     color: 'red',
+        //     hover: {
+        //       color: 'blue',
+        //       background: 'purple'
+        //     }
+        //   },
+        //   disabled: {
+        //     background: 'green',
+        //     color: 'red'
+        //   }
+        // },
+        // widget: {
+        // boxShadow:
+        //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
+        // background: 'pink',
+        // borderRadius: '0px',
+        // border: '2px solid orange',
+        // card: {
+        //   background: 'pink'
+        // }
+        // selector: {
+        //   background: 'red',
+        //   hover: {
+        //     background: 'green'
+        //   }
+        // }
+        // }
+        // modal: {
+        //   background: 'orange'
+        // },
+        // dropdown: {
+        //   background: 'red',
+        //   borderRadius: '0px'
+        // }
+        //   }
+        // }
+      >
+        <DynamicContextProvider
+          settings={{
+            logLevel: 'INFO',
+            environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID ?? '',
+            walletConnectors: [
+              EthereumWalletConnectors,
+              SolanaWalletConnectors,
+              BitcoinWalletConnectors,
+              EclipseWalletConnectors,
+              SuiWalletConnectors,
+              AbstractEvmWalletConnectors
+            ],
+            cssOverrides: `
               [data-testid="send-balance-button"] {
                 display: none;
               }
             `,
-                walletsFilter: walletFilter
-                  ? FilterChain(walletFilter)
-                  : undefined,
-                overrides: {
-                  evmNetworks: () => {
-                    return (chains ?? [])
-                      .filter((chain) => chain.vmType === 'evm')
-                      .map((chain) => {
-                        return convertRelayChainToDynamicNetwork(chain)
-                      })
-                  }
-                },
-                initialAuthenticationMode: 'connect-only',
-                events: {
-                  onAuthFlowClose: () => {
-                    setWalletFilter(undefined)
-                  }
-                }
-              }}
-            >
-              <DebugProvider name="DynamicContextProvider">
-                <WagmiProvider config={wagmiConfig}>
-                  <DebugProvider name="WagmiProvider"></DebugProvider>
-                  <MoonPayProvider>
-                    <DebugProvider name="MoonPayProvider">
-                      <DynamicWagmiConnector>
-                        <DebugProvider name="DynamicWagmiConnector">
-                          {children}
-                        </DebugProvider>
-                      </DynamicWagmiConnector>
-                    </DebugProvider>
-                  </MoonPayProvider>
-                </WagmiProvider>
-              </DebugProvider>
-            </DynamicContextProvider>
-          </DebugProvider>
-        </RelayKitProvider>
-      </DebugProvider>
+            walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
+            overrides: {
+              evmNetworks: () => {
+                return (chains ?? [])
+                  .filter((chain) => chain.vmType === 'evm')
+                  .map((chain) => {
+                    return convertRelayChainToDynamicNetwork(chain)
+                  })
+              }
+            },
+            initialAuthenticationMode: 'connect-only',
+            events: {
+              onAuthFlowClose: () => {
+                setWalletFilter(undefined)
+              }
+            }
+          }}
+        >
+          <WagmiProvider config={wagmiConfig}>
+            <MoonPayProvider>
+              <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+            </MoonPayProvider>
+          </WagmiProvider>
+        </DynamicContextProvider>
+      </RelayKitProvider>
     </ThemeProvider>
   )
 }
