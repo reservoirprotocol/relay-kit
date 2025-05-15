@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 18.0.0
+
+### Patch Changes
+
+- 5759fd0: [BREAKING] Update sdk getQuote method to optionally include defaults
+- Updated dependencies [5759fd0]
+  - @reservoir0x/relay-sdk@2.0.0
+
 ## 17.0.1
 
 ### Patch Changes

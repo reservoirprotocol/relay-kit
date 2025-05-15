@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.0.0
+
+### Major Changes
+
+- 5759fd0: [BREAKING] Update sdk getQuote method to optionally include defaults
+
 ## 1.8.1
 
 ### Patch Changes
