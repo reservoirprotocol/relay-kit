@@ -1,6 +1,6 @@
+import useIsMounted from 'hooks/useIsMounted'
 import { useRouter } from 'next/router'
 import { FC } from 'react'
-import { useIsMounted } from 'usehooks-ts'
 
 export const BaseApiSwitcher: FC = () => {
   const router = useRouter()
