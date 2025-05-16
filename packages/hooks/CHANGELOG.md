@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.9.11
+
+### Patch Changes
+
+- dab775f: Lock viem version to patch only to avoid breaking changes
+- Updated dependencies [dab775f]
+  - @reservoir0x/relay-sdk@2.0.1
+
 ## 1.9.10
 
 ### Patch Changes
