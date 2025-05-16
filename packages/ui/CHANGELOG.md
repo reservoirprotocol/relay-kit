@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.6
+
+### Patch Changes
+
+- 1df049b: Add status to quote error
+- e572905: Adjust gas top up copy
+- dab775f: Lock viem version to patch only to avoid breaking changes
+- Updated dependencies [dab775f]
+  - @reservoir0x/relay-kit-hooks@1.9.11
+  - @reservoir0x/relay-sdk@2.0.1
+
 ## 2.10.5
 
 ### Patch Changes

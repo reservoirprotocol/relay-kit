@@ -1,5 +1,13 @@
 # @reservoir0x/relay-sui-wallet-adapter
 
+## 2.0.1
+
+### Patch Changes
+
+- dab775f: Lock viem version to patch only to avoid breaking changes
+- Updated dependencies [dab775f]
+  - @reservoir0x/relay-sdk@2.0.1
+
 ## 2.0.0
 
 ### Patch Changes
