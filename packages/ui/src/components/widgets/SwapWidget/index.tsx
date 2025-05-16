@@ -1247,7 +1247,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <GasTopUpSection
                       toChain={toChain}
                       gasTopUpEnabled={gasTopUpEnabled}
-                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      onGasTopUpEnabled={(enabled) => {
+                        setGasTopUpEnabled(enabled)
+                        onAnalyticEvent?.(EventNames.GAS_TOP_UP_TOGGLE, {
+                          enabled,
+                          amount: gasTopUpAmount,
+                          amount_usd: gasTopUpAmountUsd,
+                          quote
+                        })
+                      }}
                       gasTopUpRequired={gasTopUpRequired}
                       gasTopUpAmount={gasTopUpAmount}
                       gasTopUpAmountUsd={gasTopUpAmountUsd}
