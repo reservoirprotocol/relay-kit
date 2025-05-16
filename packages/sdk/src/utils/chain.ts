@@ -9,10 +9,13 @@ type RelayAPIChain = Required<
   >['0']
 >
 
-const viemChainMap = Object.values(viemChains).reduce((chains, chain) => {
-  chains[chain.id] = chain
-  return chains
-}, {} as Record<number, Chain>)
+const viemChainMap = Object.values(viemChains).reduce(
+  (chains, chain) => {
+    chains[chain.id] = chain
+    return chains
+  },
+  {} as Record<number, Chain>
+)
 
 export const configureViemChain = (
   chain: RelayAPIChain
@@ -77,11 +80,11 @@ export const convertViemChainToRelayChain = (
     displayName: chain.name,
     httpRpcUrl:
       chain.rpcUrls.default && chain.rpcUrls.default && chain.rpcUrls.default
-        ? chain.rpcUrls.default.http[0] ?? ''
+        ? (chain.rpcUrls.default.http[0] ?? '')
         : '',
     wsRpcUrl:
       chain.rpcUrls && chain.rpcUrls.default.webSocket
-        ? chain.rpcUrls.default.webSocket[0] ?? ''
+        ? (chain.rpcUrls.default.webSocket[0] ?? '')
         : '',
     icon: {
       dark: `${ASSETS_RELAY_API}/icons/${chain.id}/dark.png`,

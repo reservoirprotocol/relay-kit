@@ -10,6 +10,9 @@
     "packages/*",
     "demo"
   ],
+  "resolutions": {
+    "@solana/web3.js": "1.98.2"
+  },
   "scripts": {
     "demo": "pnpm --filter relay-sdk-demo dev",
     "demo:analyze": "ANALYZE=true pnpm run -C demo/ build",

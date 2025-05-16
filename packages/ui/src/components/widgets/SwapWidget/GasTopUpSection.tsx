@@ -81,9 +81,8 @@ const GasTopUpSection: FC<Props> = ({
       <CollapsibleRoot open={gasTopUpEnabled}>
         <CollapsibleContent>
           <Text style="subtitle2" color="subtle" css={{ pt: '2' }}>
-            You’re low on {toChain?.displayName} gas ({toChain?.displayName}{' '}
-            {currency.symbol}). Top up to cover future transactions on{' '}
-            {toChain?.displayName}.
+            Add {gasTopUpAmountUsd ? formatDollar(+gasTopUpAmountUsd) : 'funds'}{' '}
+            to this swap to cover future transactions on {toChain?.displayName}.
           </Text>
         </CollapsibleContent>
       </CollapsibleRoot>
