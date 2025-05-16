@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.0.1
+
+### Patch Changes
+
+- dab775f: Lock viem version to patch only to avoid breaking changes
+
 ## 2.0.0
 
 ### Major Changes
