@@ -59,7 +59,7 @@
     },
     "peerDependencies": {
         "@reservoir0x/relay-sdk": "workspace:*",
-        "@solana/web3.js": "^1.95.3",
+        "@solana/web3.js": "~1.98.2",
         "viem": "~2.23.4"
     }
 }
