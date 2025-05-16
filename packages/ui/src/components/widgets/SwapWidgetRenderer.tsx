@@ -603,7 +603,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         wallet_connector: linkedWallet?.connector,
         error_message: errorMessage,
         parameters: quoteParameters,
-        quote_request_id: quoteRequestId
+        quote_request_id: quoteRequestId,
+        status_code: e.status ?? ''
       })
     }
   )
