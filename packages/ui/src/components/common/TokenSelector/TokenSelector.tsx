@@ -16,7 +16,7 @@ import {
 import type { Token } from '../../../types/index.js'
 import { type ChainFilterValue } from './ChainFilter.js'
 import useRelayClient from '../../../hooks/useRelayClient.js'
-import { isAddress, type Address } from 'viem'
+import { type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
 import { useTokenList } from '@reservoir0x/relay-kit-hooks'
@@ -67,6 +67,7 @@ export type TokenSelectorProps = {
   popularChainIds?: number[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onDeclineToken?: (token?: Token, context?: string) => void
 }
 
 const TokenSelector: FC<TokenSelectorProps> = ({
@@ -83,7 +84,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   supportedWalletVMs,
   popularChainIds,
   setToken,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onDeclineToken
 }) => {
   const relayClient = useRelayClient()
   const { chains: allRelayChains } = useInternalRelayChains()
@@ -716,6 +718,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             if (token) {
               handleTokenSelection(token)
             }
+            setUnverifiedTokenModalOpen(false)
+          }}
+          onDeclineToken={(token) => {
+            onDeclineToken?.(token, context)
             setUnverifiedTokenModalOpen(false)
           }}
         />

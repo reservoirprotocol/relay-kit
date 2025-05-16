@@ -72,6 +72,7 @@ type BaseSwapWidgetProps = {
   onSwapValidating?: (data: Execute) => void
   onSwapSuccess?: (data: Execute) => void
   onSwapError?: (error: string, data?: Execute) => void
+  onDeclineToken?: (token?: Token, context?: string) => void
 }
 
 type MultiWalletDisabledProps = BaseSwapWidgetProps & {
@@ -121,7 +122,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onAnalyticEvent,
   onSwapSuccess,
   onSwapValidating,
-  onSwapError
+  onSwapError,
+  onDeclineToken
 }): JSX.Element => {
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
@@ -135,7 +137,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   >([])
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
-
   //Handle external unverified tokens
   useEffect(() => {
     if (fromToken && 'verified' in fromToken && !fromToken.verified) {
@@ -685,6 +686,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               />
                             </div>
                           }
+                          onDeclineToken={onDeclineToken}
                         />
                       </Flex>
                       <Flex
@@ -1142,6 +1144,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               : undefined
                           }
                           popularChainIds={popularChainIds}
+                          onDeclineToken={onDeclineToken}
                         />
                       </Flex>
                       <Flex
