@@ -1,4 +1,4 @@
-import { NextPage } from 'next'
+import { NextPage, GetServerSideProps } from 'next'
 import { SlippageToleranceConfig, SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
@@ -29,6 +29,7 @@ import { isEclipseWallet } from '@dynamic-labs/eclipse'
 import { type Token } from '@reservoir0x/relay-kit-ui'
 import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
 import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
+import Head from 'next/head'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
 
@@ -178,6 +179,10 @@ const SwapWidgetPage: NextPage = () => {
         background: theme === 'light' ? 'rgba(245, 242, 255, 1)' : '#1c172b'
       }}
     >
+      <Head>
+        <title>Swap Widget</title>
+        <meta name="description" content="Swap Widget" />
+      </Head>
       <div
         style={{
           display: 'flex',
@@ -350,6 +355,14 @@ const SwapWidgetPage: NextPage = () => {
       </div>
     </Layout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {
+      ssr: true
+    }
+  }
 }
 
 export default SwapWidgetPage

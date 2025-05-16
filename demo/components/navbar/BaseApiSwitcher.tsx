@@ -1,9 +1,12 @@
+import useIsMounted from 'hooks/useIsMounted'
 import { useRouter } from 'next/router'
 import { FC } from 'react'
 
 export const BaseApiSwitcher: FC = () => {
   const router = useRouter()
+  const isMounted = useIsMounted()
 
+  if (!isMounted) return null
   return (
     <select
       value={router.query.api === 'testnets' ? 'testnets' : 'mainnets'}
