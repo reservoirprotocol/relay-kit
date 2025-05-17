@@ -23,6 +23,7 @@ type UnverifiedTokenModalProps = {
   onAcceptToken: (token?: Token, context?: string) => void
   onDecline?: (token?: Token, context?: string) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
+  onDeclineToken?: (token?: Token, context?: string) => void
 }
 
 export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
@@ -31,7 +32,8 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
   data,
   onAcceptToken,
   onDecline,
-  onAnalyticEvent
+  onAnalyticEvent,
+  onDeclineToken
 }) => {
   const client = useRelayClient()
   const chain = client?.chains?.find(
@@ -47,9 +49,11 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
       onOpenChange={onOpenChange}
       onPointerDownOutside={() => {
         onDecline?.(data?.token, data?.context)
+        onDeclineToken?.(data?.token, data?.context)
       }}
       onCloseButtonClicked={() => {
         onDecline?.(data?.token, data?.context)
+        onDeclineToken?.(data?.token, data?.context)
       }}
       css={{
         overflow: 'hidden',
@@ -100,7 +104,7 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
             </Flex>
           </Flex>
           <Text style="subtitle2" color="subtle" css={{ textAlign: 'center' }}>
-            This token isn’t traded on leading U.S. centralized exchanges or
+            This token isn't traded on leading U.S. centralized exchanges or
             frequently swapped on major DEXes. Always conduct your own research
             before trading.
           </Text>
@@ -132,8 +136,9 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
           <Flex css={{ gap: '3', width: '100%' }}>
             <Button
               onClick={() => {
-                onDecline?.(data?.token, data?.context)
                 onOpenChange(false)
+                onDecline?.(data?.token, data?.context)
+                onDeclineToken?.(data?.token, data?.context)
               }}
               color="ghost"
               css={{

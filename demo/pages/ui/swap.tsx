@@ -304,6 +304,9 @@ const SwapWidgetPage: NextPage = () => {
               console.log('onSwapSuccess Triggered', data)
             }}
             slippageTolerance={slippageTolerance}
+            onDeclineToken={(token?: Token, context?: string) => {
+              console.log('onDeclineToken Triggered', token)
+            }}
           />
         </div>
       </div>
