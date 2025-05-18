@@ -95,8 +95,11 @@ importers:
       '@solana/web3.js':
         specifier: 1.98.2
         version: 1.98.2(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)
+      '@tanstack/query-core':
+        specifier: ^5.76.0
+        version: 5.76.0
       '@tanstack/react-query':
-        specifier: ^5.20.2
+        specifier: ^5.76.1
         version: 5.76.1(react@18.3.1)
       '@types/node':
         specifier: ^22.5.4

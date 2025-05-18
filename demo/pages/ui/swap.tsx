@@ -11,24 +11,11 @@ import {
   Wallet
 } from '@dynamic-labs/sdk-react-core'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { isEthereumWallet } from '@dynamic-labs/ethereum'
-import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
-import {
-  AdaptedWallet,
-  adaptViemWallet,
-  ChainVM,
-  RelayChain
-} from '@reservoir0x/relay-sdk'
+import { AdaptedWallet, ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
 import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
-import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
-import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
-import { isEclipseWallet } from '@dynamic-labs/eclipse'
 import { type Token } from '@reservoir0x/relay-kit-ui'
-import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
-import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 import Head from 'next/head'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
@@ -99,67 +86,94 @@ const SwapWidgetPage: NextPage = () => {
       try {
         if (primaryWallet !== null) {
           let adaptedWallet: AdaptedWallet | undefined
-          if (isEthereumWallet(primaryWallet)) {
+          const dynamicLabsEthereum = await import('@dynamic-labs/ethereum')
+          if (dynamicLabsEthereum.isEthereumWallet(primaryWallet)) {
+            const { adaptViemWallet } = await import('@reservoir0x/relay-sdk')
             const walletClient = await primaryWallet.getWalletClient()
             adaptedWallet = adaptViemWallet(walletClient)
-          } else if (isBitcoinWallet(primaryWallet)) {
-            const wallet = convertToLinkedWallet(primaryWallet)
-            adaptedWallet = adaptBitcoinWallet(
-              wallet.address,
-              async (_address, _psbt, dynamicParams) => {
-                try {
-                  // Request the wallet to sign the PSBT
-                  const response = await primaryWallet.signPsbt(dynamicParams)
+          } else {
+            const dynamicLabsBitcoin = await import('@dynamic-labs/bitcoin')
+            if (dynamicLabsBitcoin.isBitcoinWallet(primaryWallet)) {
+              const { adaptBitcoinWallet } = await import(
+                '@reservoir0x/relay-bitcoin-wallet-adapter'
+              )
+              const wallet = convertToLinkedWallet(primaryWallet)
+              adaptedWallet = adaptBitcoinWallet(
+                wallet.address,
+                async (_address, _psbt, dynamicParams) => {
+                  try {
+                    // Request the wallet to sign the PSBT
+                    const response = await primaryWallet.signPsbt(dynamicParams)
 
-                  if (!response) {
-                    throw 'Missing psbt response'
+                    if (!response) {
+                      throw 'Missing psbt response'
+                    }
+                    return response.signedPsbt
+                  } catch (e) {
+                    throw e
                   }
-                  return response.signedPsbt
-                } catch (e) {
-                  throw e
+                }
+              )
+            } else {
+              const dynamicLabsSolana = await import('@dynamic-labs/solana')
+              const dynamicLabsEclipse = await import('@dynamic-labs/eclipse')
+              if (
+                dynamicLabsSolana.isSolanaWallet(primaryWallet) ||
+                dynamicLabsEclipse.isEclipseWallet(primaryWallet)
+              ) {
+                const { adaptSolanaWallet } = await import(
+                  '@reservoir0x/relay-svm-wallet-adapter'
+                )
+                const connection = await (primaryWallet as any).getConnection()
+                const signer = await (primaryWallet as any).getSigner()
+                const _chainId = dynamicLabsEclipse.isEclipseWallet(
+                  primaryWallet
+                )
+                  ? 9286185
+                  : 792703809
+                adaptedWallet = adaptSolanaWallet(
+                  primaryWallet.address,
+                  _chainId,
+                  connection,
+                  signer.signAndSendTransaction
+                )
+              } else {
+                const dynamicLabsSui = await import('@dynamic-labs/sui')
+                // Declare the type for SuiWallet from the imported module
+                type SuiWalletType = import('@dynamic-labs/sui').SuiWallet
+
+                if (dynamicLabsSui.isSuiWallet(primaryWallet)) {
+                  const { adaptSuiWallet } = await import(
+                    '@reservoir0x/relay-sui-wallet-adapter'
+                  )
+                  const suiWallet = primaryWallet as SuiWalletType // Use the locally declared type
+                  const walletClient = await suiWallet.getWalletClient()
+
+                  if (!walletClient) {
+                    throw 'Unable to setup Sui wallet'
+                  }
+
+                  adaptedWallet = adaptSuiWallet(
+                    suiWallet.address,
+                    103665049, // @TODO: handle sui testnet
+                    walletClient as any,
+                    async (tx) => {
+                      const signedTransaction =
+                        await suiWallet.signTransaction(tx)
+
+                      const executionResult =
+                        await walletClient.executeTransactionBlock({
+                          options: {},
+                          signature: signedTransaction.signature,
+                          transactionBlock: signedTransaction.bytes
+                        })
+
+                      return executionResult
+                    }
+                  )
                 }
               }
-            )
-          } else if (
-            isSolanaWallet(primaryWallet) ||
-            isEclipseWallet(primaryWallet)
-          ) {
-            const connection = await (primaryWallet as any).getConnection()
-            const signer = await (primaryWallet as any).getSigner()
-            const _chainId = isEclipseWallet(primaryWallet)
-              ? 9286185
-              : 792703809
-            adaptedWallet = adaptSolanaWallet(
-              primaryWallet.address,
-              _chainId,
-              connection,
-              signer.signAndSendTransaction
-            )
-          } else if (isSuiWallet(primaryWallet)) {
-            const suiWallet = primaryWallet as SuiWallet
-            const walletClient = await suiWallet.getWalletClient()
-
-            if (!walletClient) {
-              throw 'Unable to setup Sui wallet'
             }
-
-            adaptedWallet = adaptSuiWallet(
-              suiWallet.address,
-              103665049, // @TODO: handle sui testnet
-              walletClient as any,
-              async (tx) => {
-                const signedTransaction = await suiWallet.signTransaction(tx)
-
-                const executionResult =
-                  await walletClient.executeTransactionBlock({
-                    options: {},
-                    signature: signedTransaction.signature,
-                    transactionBlock: signedTransaction.bytes
-                  })
-
-                return executionResult
-              }
-            )
           }
 
           setWallet(adaptedWallet)
