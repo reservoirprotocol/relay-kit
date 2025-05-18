@@ -1,4 +1,4 @@
-import { NextPage, GetServerSideProps } from 'next'
+import { NextPage } from 'next'
 import { SlippageToleranceConfig, SwapWidget } from '@reservoir0x/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
@@ -372,14 +372,6 @@ const SwapWidgetPage: NextPage = () => {
       </div>
     </Layout>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {
-      ssr: true
-    }
-  }
 }
 
 export default SwapWidgetPage
