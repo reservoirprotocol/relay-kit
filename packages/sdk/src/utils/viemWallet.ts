@@ -224,7 +224,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         throw 'Chain not found when sending transaction'
       }
 
-      const id = await eip5792Wallet.sendCalls({
+      const { id } = await eip5792Wallet.sendCalls({
         chain,
         account: wallet.account as Account,
         calls
