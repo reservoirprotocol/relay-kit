@@ -16,7 +16,10 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
-import { FilterChain } from '@dynamic-labs/sdk-react-core'
+import {
+  FilterChain,
+  DynamicContextProvider
+} from '@dynamic-labs/sdk-react-core'
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum'
 import { SolanaWalletConnectors } from '@dynamic-labs/solana'
 import { BitcoinWalletConnectors } from '@dynamic-labs/bitcoin'
@@ -35,14 +38,6 @@ import dynamic from 'next/dynamic'
 type AppWrapperProps = {
   children: ReactNode
 }
-
-const DynamicContextProvider = dynamic(
-  () =>
-    import('@dynamic-labs/sdk-react-core').then(
-      (mod) => mod.DynamicContextProvider
-    ),
-  { ssr: true }
-)
 
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 
