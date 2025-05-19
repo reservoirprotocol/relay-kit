@@ -5,6 +5,9 @@
  */
 const nextConfig = {
   /* config options here */
+  experimental: {
+    outputFileTracing: false
+  }
 }
 
 export default nextConfig
