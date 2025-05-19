@@ -11,7 +11,12 @@ const nextConfig = {
       '@reservoir0x/relay-kit-ui',
       'viem'
     ]
-  }
+  },
+  transpilePackages: [
+    '@dynamic-labs/wagmi-connector',
+    '@dynamic-labs/sdk-react-core',
+    '@dynamic-labs/wallet-book'
+  ]
 }
 
 export default nextConfig
