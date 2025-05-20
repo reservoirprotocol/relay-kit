@@ -33,7 +33,6 @@ import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { MoonPayProvider } from 'context/MoonpayProvider'
-import dynamic from 'next/dynamic'
 
 type AppWrapperProps = {
   children: ReactNode

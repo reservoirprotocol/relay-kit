@@ -5,9 +5,12 @@
  */
 const nextConfig = {
   /* config options here */
-  experimental: {
-    outputFileTracing: false
-  }
+  bundlePagesRouterDependencies: true,
+  transpilePackages: [
+    '@dynamic-labs/wagmi-connector',
+    '@dynamic-labs/sdk-react-core',
+    '@dynamic-labs/wallet-book'
+  ]
 }
 
 export default nextConfig
