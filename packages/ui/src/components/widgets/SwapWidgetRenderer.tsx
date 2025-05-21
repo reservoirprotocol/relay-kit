@@ -763,6 +763,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       error: any,
       currentSteps?: Execute['steps'] | null
     ) => {
+      const errorMessage = errorToJSON(
+        error?.response?.data?.message
+          ? new Error(error?.response?.data?.message)
+          : error
+      )
       if (
         error &&
         ((typeof error.message === 'string' &&
@@ -782,15 +787,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       ) {
         // Close the transaction modal if the user rejects the tx
         setTransactionModalOpen(false)
-        onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET)
+        onAnalyticEvent?.(EventNames.USER_REJECTED_WALLET, {
+          error_message: errorMessage
+        })
         return
       }
-
-      const errorMessage = errorToJSON(
-        error?.response?.data?.message
-          ? new Error(error?.response?.data?.message)
-          : error
-      )
 
       const { step, stepItem } = getCurrentStep(currentSteps)
       const swapEventData = {
