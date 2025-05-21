@@ -2056,6 +2056,7 @@ export interface paths {
             partial?: boolean;
             /** @enum {string} */
             tradeType: "EXACT_INPUT" | "EXACT_OUTPUT";
+            referrer?: string;
             useUserOperation?: boolean;
             userOperationGasOverhead?: number;
             gasLimitForDepositSpecifiedTxs?: number;
@@ -2572,6 +2573,8 @@ export interface paths {
              * @default true
              */
             useReceiver?: boolean;
+            /** @description Experimental field, do not use in production yet */
+            useEscrow?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this to use permit (eip3009) when bridging, only works on supported currency such as usdc */
@@ -4890,6 +4893,7 @@ export interface paths {
               price?: number;
               marketCap?: string;
               fdv?: string;
+              liquidity?: string;
               codexChainName?: string;
               codexChainShortName?: string;
               createdAt?: number;
@@ -4901,7 +4905,6 @@ export interface paths {
               };
               volume?: {
                 "24h"?: {
-                  raw?: string;
                   usd?: number;
                 };
               };
