@@ -604,7 +604,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         error_message: errorMessage,
         parameters: quoteParameters,
         quote_request_id: quoteRequestId,
-        status_code: e.status ?? ''
+        status_code: e.response.status ?? e.status ?? ''
       })
     }
   )
