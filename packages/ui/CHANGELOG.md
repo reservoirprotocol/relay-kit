@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.8
+
+### Patch Changes
+
+- dc09164: Fix broken suggested token logoUrl
+- 43bee2a: add AVAX to ME wallet compatibility
+- Updated dependencies [e169c87]
+  - @reservoir0x/relay-sdk@2.0.2
+  - @reservoir0x/relay-kit-hooks@1.9.12
+
 ## 2.10.7
 
 ### Patch Changes
