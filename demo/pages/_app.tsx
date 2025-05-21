@@ -186,7 +186,10 @@ const getInitialProps = async ({
       }
     }
 
-    const url = new URL(`${MAINNET_RELAY_API}/chains`)
+    const isTestnet = ctx.query.api === 'testnets'
+    const baseApiUrl = isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API
+
+    const url = new URL(`${baseApiUrl}/chains`)
     const chainsResponse = await fetch(url.href)
 
     if (!chainsResponse?.ok) {
