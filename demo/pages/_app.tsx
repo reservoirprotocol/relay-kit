@@ -2,17 +2,18 @@ import '@reservoir0x/relay-kit-ui/styles.css'
 import '../fonts.css'
 import '../global.css'
 
-import type { AppProps } from 'next/app'
-import React, { ReactNode, FC, useState, useEffect, lazy } from 'react'
+import type { AppProps, AppContext } from 'next/app'
+import React, { ReactNode, FC, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createConfig, http, WagmiProvider } from 'wagmi'
-import { Chain, mainnet, optimism } from 'wagmi/chains'
-import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { Chain, mainnet, optimism, base, zora } from 'wagmi/chains'
 import {
   convertViemChainToRelayChain,
   LogLevel,
   MAINNET_RELAY_API,
-  TESTNET_RELAY_API
+  TESTNET_RELAY_API,
+  configureViemChain,
+  type RelayChain
 } from '@reservoir0x/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
@@ -36,25 +37,15 @@ import { MoonPayProvider } from 'context/MoonpayProvider'
 
 type AppWrapperProps = {
   children: ReactNode
+  dynamicChains: RelayChain[]
 }
 
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_KEY || ''
 
 const queryClient = new QueryClient()
 
-const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
+const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
   const { walletFilter, setWalletFilter } = useWalletFilter()
-  const [wagmiConfig, setWagmiConfig] = useState<
-    ReturnType<typeof createConfig>
-  >(
-    createConfig({
-      chains: [mainnet],
-      ssr: true,
-      transports: {
-        [mainnet.id]: http()
-      }
-    })
-  )
   const router = useRouter()
   const [relayApi, setRelayApi] = useState(MAINNET_RELAY_API)
 
@@ -66,53 +57,33 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
     }
   }, [router.query.api])
 
-  const { chains, viemChains } = useRelayChains(
-    relayApi,
-    {
-      includeChains: process.env.NEXT_PUBLIC_INCLUDE_CHAINS
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false
-    }
-  )
-
-  useEffect(() => {
-    if (chains && viemChains) {
-      setWagmiConfig(
-        createConfig({
-          chains: (viemChains && viemChains.length === 0
-            ? [mainnet]
-            : viemChains) as [Chain, ...Chain[]],
-          multiInjectedProviderDiscovery: false,
-          ssr: true,
-          transports: chains.reduce(
-            (
-              transportsConfig: Record<
-                number,
-                Transport<string, Record<string, any>, EIP1193RequestFn>
-              >,
-              chain
-            ) => {
-              const network = chainIdToAlchemyNetworkMap[chain.id]
-              if (network && ALCHEMY_API_KEY) {
-                transportsConfig[chain.id] = fallback([
-                  http(
-                    `https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
-                  ),
-                  http()
-                ])
-              } else {
-                transportsConfig[chain.id] = http() // Fallback to default HTTP transport
-              }
-              return transportsConfig
-            },
-            {}
-          )
-        })
-      )
-    }
-  }, [chains, relayApi, viemChains])
+  const viemChains = dynamicChains.map((chain) => chain.viemChain) as [
+    Chain,
+    ...Chain[]
+  ]
+  const wagmiConfig = createConfig({
+    chains: viemChains,
+    multiInjectedProviderDiscovery: false,
+    ssr: true,
+    transports: viemChains.reduce(
+      (transportsConfig, chain) => {
+        const network = chainIdToAlchemyNetworkMap[chain.id]
+        if (network && ALCHEMY_API_KEY) {
+          transportsConfig[chain.id] = fallback([
+            http(`https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`),
+            http()
+          ])
+        } else {
+          transportsConfig[chain.id] = http()
+        }
+        return transportsConfig
+      },
+      {} as Record<
+        number,
+        Transport<string, Record<string, any>, EIP1193RequestFn>
+      >
+    )
+  })
 
   return (
     <ThemeProvider
@@ -130,71 +101,11 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
             apiBaseUrl: 'https://api.dune.com'
           },
-          chains,
+          chains: dynamicChains,
           privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
           appName: 'Relay Demo',
           useGasFeeEstimations: true
-          // appFees: [
-          //   {
-          //     recipient: '0x0000000000000000000000000000000000000000',
-          //     fee: '100' // 1%
-          //   }
-          // ]
         }}
-        // theme={
-        //   {
-        // primaryColor: 'red',
-        // anchor: {
-        //   color: 'red'
-        // }
-        // focusColor: 'green',
-        // subtleBorderColor: 'green',
-        // text: {
-        //   default: 'red',
-        //   subtle: 'purple'
-        // },
-        // input: {
-        //   background: 'red'
-        // },
-        // buttons: {
-        //   tertiary: {
-        //     background: 'orange',
-        //     color: 'red',
-        //     hover: {
-        //       color: 'blue',
-        //       background: 'purple'
-        //     }
-        //   },
-        //   disabled: {
-        //     background: 'green',
-        //     color: 'red'
-        //   }
-        // },
-        // widget: {
-        // boxShadow:
-        //   '0px 0px 30px 0px #0000000D, inset 0px 0px 30px 0px #0000000D'
-        // background: 'pink',
-        // borderRadius: '0px',
-        // border: '2px solid orange',
-        // card: {
-        //   background: 'pink'
-        // }
-        // selector: {
-        //   background: 'red',
-        //   hover: {
-        //     background: 'green'
-        //   }
-        // }
-        // }
-        // modal: {
-        //   background: 'orange'
-        // },
-        // dropdown: {
-        //   background: 'red',
-        //   borderRadius: '0px'
-        // }
-        //   }
-        // }
       >
         <DynamicContextProvider
           settings={{
@@ -216,7 +127,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             walletsFilter: walletFilter ? FilterChain(walletFilter) : undefined,
             overrides: {
               evmNetworks: () => {
-                return (chains ?? [])
+                return (dynamicChains ?? [])
                   .filter((chain) => chain.vmType === 'evm')
                   .map((chain) => {
                     return convertRelayChainToDynamicNetwork(chain)
@@ -242,16 +153,75 @@ const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   )
 }
 
-function MyApp({ Component, pageProps }: AppProps) {
+type MyAppProps = AppProps & {
+  dynamicChains: RelayChain[]
+}
+
+function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <WalletFilterProvider>
       <QueryClientProvider client={queryClient}>
-        <AppWrapper>
+        <AppWrapper dynamicChains={pageProps.dynamicChains}>
           <Component {...pageProps} />
         </AppWrapper>
       </QueryClientProvider>
     </WalletFilterProvider>
   )
 }
+
+const getInitialProps = async ({
+  ctx
+}: AppContext): Promise<{ pageProps: { dynamicChains: RelayChain[] } }> => {
+  const backupChains = [mainnet, base, zora, optimism].map((chain) =>
+    convertViemChainToRelayChain(chain)
+  )
+
+  try {
+    // Skip fetching on client-side
+    if (!ctx.res) {
+      return {
+        pageProps: {
+          dynamicChains: backupChains
+        }
+      }
+    }
+
+    const isTestnet = ctx.query.api === 'testnets'
+    const baseApiUrl = isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API
+
+    const url = new URL(`${baseApiUrl}/chains`)
+    const chainsResponse = await fetch(url.href)
+
+    if (!chainsResponse?.ok) {
+      throw new Error(`Chains API failed with status ${chainsResponse?.status}`)
+    }
+
+    const response = await chainsResponse.json()
+    const relayChains = response?.chains?.map((chain: any) =>
+      configureViemChain(chain)
+    )
+
+    // Set cache headers
+    ctx.res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=10, stale-while-revalidate=300'
+    )
+
+    return {
+      pageProps: {
+        dynamicChains: relayChains ?? backupChains
+      }
+    }
+  } catch (e) {
+    console.error('Falling back to backup chains:', e)
+    return {
+      pageProps: {
+        dynamicChains: backupChains
+      }
+    }
+  }
+}
+
+MyApp.getInitialProps = getInitialProps
 
 export default MyApp
