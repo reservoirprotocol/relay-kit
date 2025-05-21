@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.7
+
+### Patch Changes
+
+- a4f7deb: Fix status code data point for quote_error
+
 ## 2.10.6
 
 ### Patch Changes
