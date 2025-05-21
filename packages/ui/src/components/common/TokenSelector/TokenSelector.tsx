@@ -615,11 +615,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       chainId={chainFilter.id}
                       depositAddressOnly={depositAddressOnly}
                       onSelect={(token) => {
-                        const newToken = convertApiCurrencyToToken(
-                          token,
-                          token.chainId!
-                        )
-                        handleTokenSelection(newToken)
+                        handleTokenSelection(token)
                       }}
                     />
                   ) : null}
