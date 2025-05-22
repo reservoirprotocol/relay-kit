@@ -294,6 +294,19 @@ export async function executeSteps(
                           details: json?.details
                         })
                       }
+                    },
+                    (checkStatus) => {
+                      if (checkStatus != stepItem.checkStatus) {
+                        stepItem.checkStatus = checkStatus
+                        if (json) {
+                          setState({
+                            steps: [...json.steps],
+                            fees: { ...json?.fees },
+                            breakdown: json?.breakdown,
+                            details: json?.details
+                          })
+                        }
+                      }
                     }
                   )
                 } catch (e) {

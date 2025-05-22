@@ -316,6 +316,20 @@ export const getSwapEventData = (
         return txHashes
       })
       .flat(),
-    operation
+    operation,
+    checkStatuses: steps
+      ?.map((step) => {
+        let checkStatuses: { stepId: string; checkStatus: string }[] = []
+        step.items?.forEach((item) => {
+          if (item.checkStatus) {
+            checkStatuses.push({
+              stepId: step.id,
+              checkStatus: item.checkStatus
+            })
+          }
+        })
+        return checkStatuses
+      })
+      .flat()
   }
 }
