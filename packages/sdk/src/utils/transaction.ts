@@ -308,7 +308,7 @@ export async function sendTransactionSafely(
             getClient()?.log(['Transaction cancelled'], LogLevel.Verbose)
           }
         )
-        .then(async (data) => {
+        .then((data) => {
           if (signal.aborted) {
             return
           }
