@@ -47,7 +47,10 @@ export async function sendTransactionSafely(
   crossChainIntentChainId?: number,
   isValidating?: (res?: AxiosResponse<any, any>) => void,
   details?: Execute['details'],
-  setReceipt?: (receipt: TransactionReceipt | SvmReceipt | SuiReceipt) => void
+  setReceipt?: (receipt: TransactionReceipt | SvmReceipt | SuiReceipt) => void,
+  setCheckStatus?: (
+    checkStatus: NonNullable<Execute['steps'][0]['items']>[0]['checkStatus']
+  ) => void
 ) {
   const client = getClient()
   try {
@@ -147,6 +150,8 @@ export async function sendTransactionSafely(
       LogLevel.Verbose
     )
 
+    setCheckStatus?.(res.data?.status)
+
     if (res.status === 200 && res.data && res.data.status === 'failure') {
       throw Error('Transaction failed')
     }
@@ -186,7 +191,7 @@ export async function sendTransactionSafely(
   }
 
   // Poll the confirmation url to confirm the transaction went through
-  const pollForConfirmation = async () => {
+  const pollForConfirmation = async (receiptController?: AbortController) => {
     isValidating?.()
     while (
       waitingForConfirmation &&
@@ -218,6 +223,12 @@ export async function sendTransactionSafely(
           }
         }
       }
+
+      if (res?.data?.status === 'pending' && waitingForConfirmation) {
+        //we can now abort checking for the receipt as we know it's complete by the backend
+        receiptController?.abort()
+      }
+
       if (!res || validate(res)) {
         waitingForConfirmation = false // transaction confirmed
       } else if (res) {
@@ -251,7 +262,6 @@ export async function sendTransactionSafely(
     const controller = new AbortController()
     const signal = controller.signal
 
-    // Handle transaction replacements and cancellations
     return {
       promise: wallet
         .handleConfirmTransactionStep(
@@ -298,7 +308,7 @@ export async function sendTransactionSafely(
             getClient()?.log(['Transaction cancelled'], LogLevel.Verbose)
           }
         )
-        .then((data) => {
+        .then(async (data) => {
           if (signal.aborted) {
             return
           }
@@ -376,7 +386,7 @@ export async function sendTransactionSafely(
   } else {
     const { promise: receiptPromise, controller: receiptController } =
       waitForTransaction()
-    const confirmationPromise = pollForConfirmation()
+    const confirmationPromise = pollForConfirmation(receiptController)
 
     await Promise.race([receiptPromise, confirmationPromise])
 
