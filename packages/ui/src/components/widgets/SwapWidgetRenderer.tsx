@@ -808,7 +808,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ? EventNames.APPROVAL_ERROR
         : EventNames.DEPOSIT_ERROR
 
-      if (stepItem?.receipt && stepItem.check) {
+      //Filter out receipt/deposit transaction errors, those are approval/deposit errors
+      if (
+        stepItem?.receipt &&
+        stepItem.check &&
+        !errorMessage.includes('TransactionConfirmationError') &&
+        (typeof stepItem.receipt === 'object' && 'status' in stepItem.receipt
+          ? stepItem.receipt.status !== 'reverted'
+          : true) &&
+        (!stepItem.checkStatus || stepItem.checkStatus !== 'unknown')
+      ) {
         //In some cases there's a race condition where an error is thrown before the steps get a chance to call
         //the callback which triggers the success event. This is a workaround to ensure the success event is triggered when
         //we have a receipt and require a fill check if we haven't already send the success event.
@@ -914,13 +923,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             submittedEvents.push(submittedEvent)
             onAnalyticEvent?.(submittedEvent, swapEventData)
           } else if (
-            !submittedEvents.includes(successEvent) &&
-            stepItem.receipt &&
-            !(
-              typeof stepItem.receipt === 'object' &&
-              'status' in stepItem.receipt &&
-              stepItem.receipt.status === 'reverted'
-            )
+            (!submittedEvents.includes(successEvent) &&
+              stepItem.receipt &&
+              !(
+                typeof stepItem.receipt === 'object' &&
+                'status' in stepItem.receipt &&
+                stepItem.receipt.status === 'reverted'
+              )) ||
+            stepItem.checkStatus === 'pending'
           ) {
             onAnalyticEvent?.(successEvent, swapEventData)
             submittedEvents.push(successEvent)

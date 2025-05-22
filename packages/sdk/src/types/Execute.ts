@@ -51,6 +51,14 @@ export type Execute = {
     items: {
       status: 'complete' | 'incomplete'
       receipt?: TransactionReceipt | SvmReceipt | SuiReceipt
+      checkStatus?:
+        | 'refund'
+        | 'delayed'
+        | 'waiting'
+        | 'failure'
+        | 'pending'
+        | 'success'
+        | 'unknown'
       progressState?: TransactionStepState | SignatureStepState
       data?: any
       check?: CheckApi
