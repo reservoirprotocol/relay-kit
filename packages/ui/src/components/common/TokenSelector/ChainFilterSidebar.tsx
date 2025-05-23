@@ -75,20 +75,16 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
 
   useEffect(() => {
     if (activeChainRef.current && isOpen && !hasScrolledOnOpen) {
-      const timer = setTimeout(() => {
-        activeChainRef.current?.scrollIntoView({
-          behavior: 'instant',
-          block: 'nearest'
-        })
-        setHasScrolledOnOpen(true)
-      }, 100)
-
-      return () => clearTimeout(timer)
+      activeChainRef.current.scrollIntoView({
+        behavior: 'instant',
+        block: 'nearest'
+      })
+      setHasScrolledOnOpen(true)
     } else if (!isOpen) {
       setHasScrolledOnOpen(false)
       activeChainRef.current = null
     }
-  }, [activeChainRef.current, isOpen, hasScrolledOnOpen])
+  }, [isOpen, hasScrolledOnOpen])
 
   return (
     <Flex
@@ -233,7 +229,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                             tokenSearchInputRef?.focus()
                           }
                         }}
-                        activeChainRef={activeChainRef}
+                        activeChainRef={active ? activeChainRef : undefined}
                         value={chain.id?.toString()}
                         key={chain.id?.toString()}
                       />
@@ -258,7 +254,7 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
                         tokenSearchInputRef?.focus()
                       }
                     }}
-                    activeChainRef={activeChainRef}
+                    activeChainRef={active ? activeChainRef : undefined}
                     value={chain.id?.toString()}
                     key={chain.id?.toString()}
                   />
