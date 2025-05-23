@@ -115,7 +115,7 @@ const AnimatedContent = forwardRef<
     : {
         initial: {
           opacity: 0,
-          top: '55%',
+          top: '50%',
           transform: 'translateX(-50%) translateY(-50%)'
         },
         animate: {
@@ -125,7 +125,7 @@ const AnimatedContent = forwardRef<
         },
         exit: {
           opacity: 0,
-          top: '55%',
+          top: '50%',
           transform: 'translateX(-50%) translateY(-50%)'
         }
       }
@@ -139,7 +139,7 @@ const AnimatedContent = forwardRef<
       <motion.div
         key={isMobile + 'modal'}
         ref={forwardedRef}
-        transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.3 }}
+        transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.1 }}
         {...animation}
       >
         <VisuallyHidden>
