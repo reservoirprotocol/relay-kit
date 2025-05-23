@@ -78,7 +78,6 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
               pr: '2',
               gap: 1,
               alignItems: 'center',
-              maxWidth: 110,
               '--borderColor': 'colors.gray5',
               border: '1px solid var(--borderColor)',
               borderRadius: '100px',

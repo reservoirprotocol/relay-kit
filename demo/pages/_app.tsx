@@ -190,6 +190,14 @@ const getInitialProps = async ({
     const baseApiUrl = isTestnet ? TESTNET_RELAY_API : MAINNET_RELAY_API
 
     const url = new URL(`${baseApiUrl}/chains`)
+
+    if (process.env.NEXT_PUBLIC_INCLUDE_CHAINS) {
+      url.searchParams.set(
+        'includeChains',
+        process.env.NEXT_PUBLIC_INCLUDE_CHAINS
+      )
+    }
+
     const chainsResponse = await fetch(url.href)
 
     if (!chainsResponse?.ok) {
