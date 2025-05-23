@@ -141,7 +141,7 @@ const AnimatedContent = forwardRef<
         ref={forwardedRef}
         transition={{
           type: isMobile ? 'tween' : undefined,
-          duration: 0.1,
+          duration: 0.2,
           ease: isMobile ? undefined : 'linear'
         }}
         {...animation}
