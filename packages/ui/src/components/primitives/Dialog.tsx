@@ -139,7 +139,11 @@ const AnimatedContent = forwardRef<
       <motion.div
         key={isMobile + 'modal'}
         ref={forwardedRef}
-        transition={{ type: isMobile ? 'tween' : 'spring', duration: 0.1 }}
+        transition={{
+          type: isMobile ? 'tween' : undefined,
+          duration: 0.1,
+          ease: isMobile ? undefined : 'linear'
+        }}
         {...animation}
       >
         <VisuallyHidden>
