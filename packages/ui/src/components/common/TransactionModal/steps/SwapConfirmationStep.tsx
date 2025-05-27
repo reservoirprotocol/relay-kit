@@ -10,7 +10,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
-import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import { faCheck, faExternalLink } from '@fortawesome/free-solid-svg-icons'
@@ -26,7 +25,7 @@ type SwapConfirmationStepProps = {
   toChain?: RelayChain
   fromAmountFormatted: string
   toAmountFormatted: string
-  quote?: ReturnType<typeof useQuote>['data']
+  quote?: Execute | null
   steps: Execute['steps'] | null
 }
 

@@ -45,7 +45,7 @@ export type ChildrenProps = {
   setCurrentStepItem: Dispatch<
     SetStateAction<ExecuteStepItem | null | undefined>
   >
-  quote: ReturnType<typeof useQuote>['data']
+  quote: Execute | null
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   steps: Execute['steps'] | null
@@ -81,14 +81,11 @@ type Props = {
   slippageTolerance?: string
   wallet?: AdaptedWallet
   steps: Execute['steps'] | null
-  quote: ReturnType<typeof useQuote>['data']
+  quote: Execute | null
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   children: (props: ChildrenProps) => ReactNode
-  onSuccess?: (
-    quote: ReturnType<typeof useQuote>['data'],
-    steps: Execute['steps']
-  ) => void
+  onSuccess?: (quote: Execute, steps: Execute['steps']) => void
   onValidating?: (quote: Execute) => void
 }
 
@@ -195,7 +192,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       progressStep !== TransactionProgressStep.Success
     ) {
       setProgressStep(TransactionProgressStep.Success)
-      onSuccess?.(quote, steps)
+      onSuccess?.(quote as Execute, steps)
     }
   }, [steps, swapError])
 
