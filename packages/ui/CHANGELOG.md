@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.10
+
+### Patch Changes
+
+- 260725c: Remove max width from suggested token pills
+- 665cc92: Fix token selector scroll bug and improve dialog animation
+
 ## 2.10.9
 
 ### Patch Changes
