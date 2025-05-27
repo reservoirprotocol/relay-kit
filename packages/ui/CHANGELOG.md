@@ -1,5 +1,21 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.10
+
+### Patch Changes
+
+- 260725c: Remove max width from suggested token pills
+- 665cc92: Fix token selector scroll bug and improve dialog animation
+
+## 2.10.9
+
+### Patch Changes
+
+- dd0f93c: Improve DEPOSIT_SUCCESS logic by checking pending status
+- Updated dependencies [dd0f93c]
+  - @reservoir0x/relay-sdk@2.0.3
+  - @reservoir0x/relay-kit-hooks@1.9.13
+
 ## 2.10.8
 
 ### Patch Changes

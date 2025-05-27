@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.0.3
+
+### Patch Changes
+
+- dd0f93c: Improve DEPOSIT_SUCCESS logic by checking pending status
+
 ## 2.0.2
 
 ### Patch Changes
