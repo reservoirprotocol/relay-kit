@@ -15,6 +15,8 @@ import useSuiBalance from './useSuiBalance.js'
 import useAdaptedWalletBalance from './useAdaptedWalletBalance.js'
 import { isValidAddress } from '../utils/address.js'
 import useRelayClient from './useRelayClient.js'
+import useEclipseBalance from '../hooks/useEclipseBalance.js'
+import { eclipse } from '../utils/solana.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -116,6 +118,7 @@ const useCurrencyBalance = ({
         !adaptedWalletBalanceIsEnabled &&
           chain &&
           chain.vmType === 'svm' &&
+          chain.id !== eclipse.id &&
           address &&
           _isValidAddress &&
           enabled
@@ -151,6 +154,18 @@ const useCurrencyBalance = ({
     staleTime: refreshInterval
   })
 
+  const eclipseBalances = useEclipseBalance(address, {
+    enabled: Boolean(
+      !adaptedWalletBalanceIsEnabled &&
+        chain &&
+        chain.vmType === 'svm' &&
+        chain.id === eclipse.id &&
+        address &&
+        _isValidAddress &&
+        enabled
+    )
+  })
+
   if (adaptedWalletBalanceIsEnabled) {
     return {
       value: adaptedWalletBalance.data,
@@ -170,22 +185,33 @@ const useCurrencyBalance = ({
       : ethBalanceIsLoading
     return { value, queryKey, isLoading, isError, error, isDuneBalance: false }
   } else if (chain?.vmType === 'svm') {
+    let value: undefined | bigint = undefined
+    let isDuneBalance = true
+
+    if (chain.id === eclipse.id) {
+      value = eclipseBalances.data?.balance
+      isDuneBalance = true
+    } else {
+      value =
+        currency &&
+        duneBalances.balanceMap &&
+        duneBalances.balanceMap[`${chain.id}:${currency}`] &&
+        duneBalances.balanceMap[`${chain.id}:${currency}`].amount
+          ? BigInt(
+              duneBalances.balanceMap[`${chain.id}:${currency}`].amount ?? 0
+            )
+          : undefined
+      isDuneBalance = false
+    }
+
     if (_isValidAddress) {
       return {
-        value:
-          currency &&
-          duneBalances.balanceMap &&
-          duneBalances.balanceMap[`${chain.id}:${currency}`] &&
-          duneBalances.balanceMap[`${chain.id}:${currency}`].amount
-            ? BigInt(
-                duneBalances.balanceMap[`${chain.id}:${currency}`].amount ?? 0
-              )
-            : undefined,
+        value,
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,
         isError: duneBalances.isError,
         error: duneBalances.error,
-        isDuneBalance: true
+        isDuneBalance
       }
     } else {
       return {
