@@ -1182,6 +1182,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               ) : null}
                             </Text>
                             {quote?.details?.currencyOut?.amountUsd &&
+                            quote?.details?.currencyOut?.amountUsd != '0' &&
                             !isFetchingQuote &&
                             quote.details.totalImpact?.percent ? (
                               <Text

@@ -8,7 +8,9 @@ const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
 
 function formatDollar(price?: number | null) {
   const formatted =
-    price !== undefined && price !== null ? formatUsdCurrency(price) : '-'
+    price !== undefined && price !== null && price !== 0
+      ? formatUsdCurrency(price)
+      : '-'
   if (formatted === '$0.00' && price && price > 0) {
     return '< $0.01'
   }
