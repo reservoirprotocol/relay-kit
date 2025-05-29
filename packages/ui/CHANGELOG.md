@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.11
+
+### Patch Changes
+
+- df9ec72: Allow slippage to be set to 0.01 in the slippage configuration component
+- 6fa5e73: Hide amount usd if returned value is 0
+- eaeab61: Use eclipse RPC for widget balances
+
 ## 2.10.10
 
 ### Patch Changes
