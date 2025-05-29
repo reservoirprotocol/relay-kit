@@ -22,7 +22,7 @@ import {
 import type { BridgeFee, Token } from '../../../types/index.js'
 import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
-import { parseFees } from '../../../utils/quote.js'
+import { calculatePriceTimeEstimate, parseFees } from '../../../utils/quote.js'
 export enum TransactionProgressStep {
   Confirmation,
   Success,
@@ -71,6 +71,7 @@ export type ChildrenProps = {
   } | null
   isLoadingTransaction: boolean
   isAutoSlippage: boolean
+  timeEstimate?: { time: number; formattedTime: string }
 }
 
 type Props = {
@@ -232,6 +233,7 @@ export const TransactionModalRenderer: FC<Props> = ({
   }, [quote, fromToken, toToken, relayClient])
 
   const isAutoSlippage = slippageTolerance === undefined
+  const timeEstimate = calculatePriceTimeEstimate(quote?.details)
 
   return (
     <>
@@ -260,7 +262,8 @@ export const TransactionModalRenderer: FC<Props> = ({
         requestId,
         feeBreakdown,
         isLoadingTransaction,
-        isAutoSlippage
+        isAutoSlippage,
+        timeEstimate
       })}
     </>
   )
