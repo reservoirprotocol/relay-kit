@@ -24,7 +24,6 @@ type TransactionModalProps = {
   fromToken?: Token
   toToken?: Token
   address?: Address | string
-  timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
   useExternalLiquidity: boolean
   slippageTolerance?: string
@@ -58,7 +57,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
     toToken,
     useExternalLiquidity,
     slippageTolerance,
-    timeEstimate,
     isCanonical,
     wallet,
     onOpenChange,
@@ -149,7 +147,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
           <InnerTransactionModal
             address={address}
             onAnalyticEvent={onAnalyticEvent}
-            timeEstimate={timeEstimate}
             isCanonical={isCanonical}
             {...transactionModalProps}
             {...rendererProps}
