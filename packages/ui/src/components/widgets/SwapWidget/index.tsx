@@ -241,7 +241,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
-        invalidateQuoteQuery
+        invalidateQuoteQuery,
+        quoteInProgress,
+        setQuoteInProgress
       }) => {
         // helper to calculate the USD value of a token
         const calculateUsdValue = (
@@ -468,7 +470,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           <WidgetContainer
             steps={steps}
             setSteps={setSteps}
-            quote={quote}
+            quoteInProgress={quoteInProgress}
+            setQuoteInProgress={setQuoteInProgress}
             transactionModalOpen={transactionModalOpen}
             setTransactionModalOpen={setTransactionModalOpen}
             depositAddressModalOpen={depositAddressModalOpen}
@@ -495,6 +498,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                 }
                 setSwapError(null)
                 setSteps(null)
+                setQuoteInProgress(null)
               } else if (pendingSuccessFlush) {
                 setPendingSuccessFlush(false)
               }
