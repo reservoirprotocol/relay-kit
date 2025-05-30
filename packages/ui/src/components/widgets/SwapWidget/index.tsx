@@ -43,7 +43,6 @@ import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 import { getSwapEventData } from '../../../utils/quote.js'
-import { faArrowDownArrowUp } from '@fortawesome/pro-solid-svg-icons'
 
 // shared query options for useTokenPrice
 const tokenPriceQueryOptions = {
@@ -888,7 +887,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             onClick={toggleInputMode}
                           >
                             <FontAwesomeIcon
-                              icon={faArrowDownArrowUp}
+                              icon={faArrowDown}
                               style={{
                                 height: '10px',
                                 width: '16px'
