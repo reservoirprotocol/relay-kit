@@ -1,5 +1,29 @@
 # @reservoir0x/relay-sdk
 
+## 2.0.3
+
+### Patch Changes
+
+- dd0f93c: Improve DEPOSIT_SUCCESS logic by checking pending status
+
+## 2.0.2
+
+### Patch Changes
+
+- e169c87: Sync api types
+
+## 2.0.1
+
+### Patch Changes
+
+- dab775f: Lock viem version to patch only to avoid breaking changes
+
+## 2.0.0
+
+### Major Changes
+
+- 5759fd0: [BREAKING] Update sdk getQuote method to optionally include defaults
+
 ## 1.8.1
 
 ### Patch Changes

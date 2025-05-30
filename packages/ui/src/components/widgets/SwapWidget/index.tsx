@@ -576,77 +576,77 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         ])
 
         return (
-          <WidgetContainer
-            steps={steps}
-            setSteps={setSteps}
-            quote={quote}
-            transactionModalOpen={transactionModalOpen}
-            setTransactionModalOpen={setTransactionModalOpen}
-            depositAddressModalOpen={depositAddressModalOpen}
-            setDepositAddressModalOpen={setDepositAddressModalOpen}
-            addressModalOpen={addressModalOpen}
-            setAddressModalOpen={setAddressModalOpen}
-            fromToken={fromToken}
-            fromChain={fromChain}
-            toToken={toToken}
-            toChain={toChain}
-            address={address}
-            recipient={recipient}
-            amountInputValue={amountInputValue}
-            amountOutputValue={amountOutputValue}
-            debouncedInputAmountValue={debouncedInputAmountValue}
-            debouncedOutputAmountValue={debouncedOutputAmountValue}
-            tradeType={tradeType}
-            onTransactionModalOpenChange={(open) => {
-              if (!open) {
-                if (pendingSuccessFlush) {
+          <>
+            <WidgetContainer
+              steps={steps}
+              setSteps={setSteps}
+              quote={quote}
+              transactionModalOpen={transactionModalOpen}
+              setTransactionModalOpen={setTransactionModalOpen}
+              depositAddressModalOpen={depositAddressModalOpen}
+              setDepositAddressModalOpen={setDepositAddressModalOpen}
+              addressModalOpen={addressModalOpen}
+              setAddressModalOpen={setAddressModalOpen}
+              fromToken={fromToken}
+              fromChain={fromChain}
+              toToken={toToken}
+              toChain={toChain}
+              address={address}
+              recipient={recipient}
+              amountInputValue={amountInputValue}
+              amountOutputValue={amountOutputValue}
+              debouncedInputAmountValue={debouncedInputAmountValue}
+              debouncedOutputAmountValue={debouncedOutputAmountValue}
+              tradeType={tradeType}
+              onTransactionModalOpenChange={(open) => {
+                if (!open) {
+                  if (pendingSuccessFlush) {
+                    setPendingSuccessFlush(false)
+                  } else if (steps) {
+                    invalidateQuoteQuery()
+                  }
+                  setSwapError(null)
+                  setSteps(null)
+                } else if (pendingSuccessFlush) {
                   setPendingSuccessFlush(false)
-                } else if (steps) {
-                  invalidateQuoteQuery()
                 }
-                setSwapError(null)
-                setSteps(null)
-              } else if (pendingSuccessFlush) {
-                setPendingSuccessFlush(false)
-              }
-            }}
-            onDepositAddressModalOpenChange={(open) => {
-              if (!open) {
-                setSwapError(null)
-                if (pendingSuccessFlush) {
+              }}
+              onDepositAddressModalOpenChange={(open) => {
+                if (!open) {
+                  setSwapError(null)
+                  if (pendingSuccessFlush) {
+                    setPendingSuccessFlush(false)
+                  } else {
+                    invalidateQuoteQuery()
+                  }
+                } else if (pendingSuccessFlush) {
                   setPendingSuccessFlush(false)
-                } else {
-                  invalidateQuoteQuery()
                 }
-              } else if (pendingSuccessFlush) {
-                setPendingSuccessFlush(false)
-              }
-            }}
-            useExternalLiquidity={useExternalLiquidity}
-            slippageTolerance={slippageTolerance}
-            swapError={swapError}
-            setSwapError={setSwapError}
-            onSwapSuccess={(data) => {
-              setPendingSuccessFlush(true)
-              setGasTopUpEnabled(true)
-              setAmountInputValue('')
-              setAmountOutputValue('')
-              onSwapSuccess?.(data)
-            }}
-            onSwapValidating={onSwapValidating}
-            onAnalyticEvent={onAnalyticEvent}
-            invalidateBalanceQueries={invalidateBalanceQueries}
-            invalidateQuoteQuery={invalidateQuoteQuery}
-            customToAddress={customToAddress}
-            setCustomToAddress={setCustomToAddress}
-            timeEstimate={timeEstimate}
-            wallet={wallet}
-            linkedWallets={linkedWallets}
-            multiWalletSupportEnabled={multiWalletSupportEnabled}
-          >
-            {() => {
-              return (
-                <>
+              }}
+              useExternalLiquidity={useExternalLiquidity}
+              slippageTolerance={slippageTolerance}
+              swapError={swapError}
+              setSwapError={setSwapError}
+              onSwapSuccess={(data) => {
+                setPendingSuccessFlush(true)
+                setGasTopUpEnabled(true)
+                setAmountInputValue('')
+                setAmountOutputValue('')
+                onSwapSuccess?.(data)
+              }}
+              onSwapValidating={onSwapValidating}
+              onAnalyticEvent={onAnalyticEvent}
+              invalidateBalanceQueries={invalidateBalanceQueries}
+              invalidateQuoteQuery={invalidateQuoteQuery}
+              customToAddress={customToAddress}
+              setCustomToAddress={setCustomToAddress}
+              timeEstimate={timeEstimate}
+              wallet={wallet}
+              linkedWallets={linkedWallets}
+              multiWalletSupportEnabled={multiWalletSupportEnabled}
+            >
+              {() => {
+                return (
                   <Flex
                     direction="column"
                     css={{
@@ -1420,7 +1420,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     <GasTopUpSection
                       toChain={toChain}
                       gasTopUpEnabled={gasTopUpEnabled}
-                      onGasTopUpEnabled={setGasTopUpEnabled}
+                      onGasTopUpEnabled={(enabled) => {
+                        setGasTopUpEnabled(enabled)
+                        onAnalyticEvent?.(EventNames.GAS_TOP_UP_TOGGLE, {
+                          enabled,
+                          amount: gasTopUpAmount,
+                          amount_usd: gasTopUpAmountUsd,
+                          quote
+                        })
+                      }}
                       gasTopUpRequired={gasTopUpRequired}
                       gasTopUpAmount={gasTopUpAmount}
                       gasTopUpAmountUsd={gasTopUpAmountUsd}
@@ -1573,75 +1581,73 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       />
                     )}
                   </Flex>
-                  <UnverifiedTokenModal
-                    open={unverifiedTokens.length > 0}
-                    onOpenChange={() => {}}
-                    data={
-                      unverifiedTokens.length > 0
-                        ? unverifiedTokens[0]
-                        : undefined
+                )
+              }}
+            </WidgetContainer>
+            <UnverifiedTokenModal
+              open={unverifiedTokens.length > 0}
+              onOpenChange={() => {}}
+              data={
+                unverifiedTokens.length > 0 ? unverifiedTokens[0] : undefined
+              }
+              onDecline={(token, context) => {
+                const tokens = unverifiedTokens.filter(
+                  (unverifiedToken) =>
+                    !(
+                      unverifiedToken.context === context &&
+                      unverifiedToken.token.address === token?.address &&
+                      unverifiedToken.token.chainId === token?.chainId
+                    )
+                )
+                setUnverifiedTokens(tokens)
+              }}
+              onAcceptToken={(token, context) => {
+                if (token) {
+                  if (context === 'to') {
+                    onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+                      direction: 'output',
+                      token_symbol: token.symbol
+                    })
+                    if (
+                      token.address === fromToken?.address &&
+                      token.chainId === fromToken?.chainId &&
+                      address === recipient &&
+                      (!lockToToken || !fromToken)
+                    ) {
+                      handleSetToToken(fromToken)
+                      handleSetFromToken(toToken)
+                    } else {
+                      handleSetToToken(token)
                     }
-                    onDecline={(token, context) => {
-                      const tokens = unverifiedTokens.filter(
-                        (unverifiedToken) =>
-                          !(
-                            unverifiedToken.context === context &&
-                            unverifiedToken.token.address === token?.address &&
-                            unverifiedToken.token.chainId === token?.chainId
-                          )
-                      )
-                      setUnverifiedTokens(tokens)
-                    }}
-                    onAcceptToken={(token, context) => {
-                      if (token) {
-                        if (context === 'to') {
-                          onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                            direction: 'output',
-                            token_symbol: token.symbol
-                          })
-                          if (
-                            token.address === fromToken?.address &&
-                            token.chainId === fromToken?.chainId &&
-                            address === recipient &&
-                            (!lockToToken || !fromToken)
-                          ) {
-                            handleSetToToken(fromToken)
-                            handleSetFromToken(toToken)
-                          } else {
-                            handleSetToToken(token)
-                          }
-                        } else if (context === 'from') {
-                          onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
-                            direction: 'input',
-                            token_symbol: token.symbol
-                          })
-                          if (
-                            token.address === toToken?.address &&
-                            token.chainId === toToken?.chainId &&
-                            address === recipient &&
-                            (!lockToToken || !fromToken)
-                          ) {
-                            handleSetFromToken(toToken)
-                            handleSetToToken(fromToken)
-                          } else {
-                            handleSetFromToken(token)
-                          }
-                        }
-                      }
-                      const tokens = unverifiedTokens.filter(
-                        (unverifiedToken) =>
-                          !(
-                            unverifiedToken.token.address === token?.address &&
-                            unverifiedToken.token.chainId === token?.chainId
-                          )
-                      )
-                      setUnverifiedTokens(tokens)
-                    }}
-                  />
-                </>
-              )
-            }}
-          </WidgetContainer>
+                  } else if (context === 'from') {
+                    onAnalyticEvent?.(EventNames.SWAP_TOKEN_SELECT, {
+                      direction: 'input',
+                      token_symbol: token.symbol
+                    })
+                    if (
+                      token.address === toToken?.address &&
+                      token.chainId === toToken?.chainId &&
+                      address === recipient &&
+                      (!lockToToken || !fromToken)
+                    ) {
+                      handleSetFromToken(toToken)
+                      handleSetToToken(fromToken)
+                    } else {
+                      handleSetFromToken(token)
+                    }
+                  }
+                }
+                const tokens = unverifiedTokens.filter(
+                  (unverifiedToken) =>
+                    !(
+                      unverifiedToken.token.address === token?.address &&
+                      unverifiedToken.token.chainId === token?.chainId
+                    )
+                )
+                setUnverifiedTokens(tokens)
+              }}
+            />
+          </>
         )
       }}
     </SwapWidgetRenderer>

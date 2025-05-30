@@ -1,5 +1,65 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.11
+
+### Patch Changes
+
+- df9ec72: Allow slippage to be set to 0.01 in the slippage configuration component
+- 6fa5e73: Hide amount usd if returned value is 0
+- eaeab61: Use eclipse RPC for widget balances
+
+## 2.10.10
+
+### Patch Changes
+
+- 260725c: Remove max width from suggested token pills
+- 665cc92: Fix token selector scroll bug and improve dialog animation
+
+## 2.10.9
+
+### Patch Changes
+
+- dd0f93c: Improve DEPOSIT_SUCCESS logic by checking pending status
+- Updated dependencies [dd0f93c]
+  - @reservoir0x/relay-sdk@2.0.3
+  - @reservoir0x/relay-kit-hooks@1.9.13
+
+## 2.10.8
+
+### Patch Changes
+
+- dc09164: Fix broken suggested token logoUrl
+- 43bee2a: add AVAX to ME wallet compatibility
+- Updated dependencies [e169c87]
+  - @reservoir0x/relay-sdk@2.0.2
+  - @reservoir0x/relay-kit-hooks@1.9.12
+
+## 2.10.7
+
+### Patch Changes
+
+- a4f7deb: Fix status code data point for quote_error
+
+## 2.10.6
+
+### Patch Changes
+
+- 1df049b: Add status to quote error
+- e572905: Adjust gas top up copy
+- dab775f: Lock viem version to patch only to avoid breaking changes
+- Updated dependencies [dab775f]
+  - @reservoir0x/relay-kit-hooks@1.9.11
+  - @reservoir0x/relay-sdk@2.0.1
+
+## 2.10.5
+
+### Patch Changes
+
+- 2ee2f44: Fix receipt validation
+- Updated dependencies [5759fd0]
+  - @reservoir0x/relay-sdk@2.0.0
+  - @reservoir0x/relay-kit-hooks@1.9.10
+
 ## 2.10.4
 
 ### Patch Changes

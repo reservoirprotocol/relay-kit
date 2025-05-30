@@ -1,5 +1,34 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies [dd0f93c]
+  - @reservoir0x/relay-sdk@2.0.3
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies [e169c87]
+  - @reservoir0x/relay-sdk@2.0.2
+
+## 7.0.1
+
+### Patch Changes
+
+- dab775f: Lock viem version to patch only to avoid breaking changes
+- Updated dependencies [dab775f]
+  - @reservoir0x/relay-sdk@2.0.1
+
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies [5759fd0]
+  - @reservoir0x/relay-sdk@2.0.0
+
 ## 6.0.1
 
 ### Patch Changes

@@ -113,7 +113,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
       mode === 'Auto' ||
       displayValue === undefined ||
       isNaN(value) ||
-      value < 0.1
+      value < 0.01
 
     if (isAuto) {
       setDisplayValue(undefined)

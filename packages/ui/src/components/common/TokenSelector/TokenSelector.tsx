@@ -357,6 +357,18 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       } catch (error) {
         console.error(error)
       }
+
+      if (openChange) {
+        // Set the initial chain filter before opening the modal
+        const chainFilter = getInitialChainFilter(
+          chainFilterOptions,
+          context,
+          depositAddressOnly,
+          token
+        )
+        setChainFilter(chainFilter)
+      }
+
       setOpen(openChange)
     },
     [
@@ -365,7 +377,10 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       context,
       address,
       onAnalyticEvent,
-      setOpen
+      setOpen,
+      chainFilterOptions,
+      depositAddressOnly,
+      token
     ]
   )
 
@@ -434,16 +449,6 @@ const TokenSelector: FC<TokenSelectorProps> = ({
   useEffect(() => {
     if (!open) {
       resetState()
-    } else {
-      // Get initial chain filter
-      const chainFilter = getInitialChainFilter(
-        chainFilterOptions,
-        context,
-        depositAddressOnly,
-        token
-      )
-
-      setChainFilter(chainFilter)
     }
   }, [open])
 
@@ -615,11 +620,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                       chainId={chainFilter.id}
                       depositAddressOnly={depositAddressOnly}
                       onSelect={(token) => {
-                        const newToken = convertApiCurrencyToToken(
-                          token,
-                          token.chainId!
-                        )
-                        handleTokenSelection(newToken)
+                        handleTokenSelection(token)
                       }}
                     />
                   ) : null}

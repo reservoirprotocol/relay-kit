@@ -6,15 +6,14 @@ import {
   Flex,
   Text
 } from '../../primitives/index.js'
-import { convertApiCurrencyToToken } from '../../../utils/tokens.js'
 import { useMemo } from 'react'
-import { type Currency } from '@reservoir0x/relay-kit-hooks'
 import { useInternalRelayChains } from '../../../hooks/index.js'
+import type { Token } from '../../../types/index.js'
 
 type SuggestedTokensProps = {
   chainId: number
   depositAddressOnly?: boolean
-  onSelect: (token: Currency) => void
+  onSelect: (token: Token) => void
 }
 
 export const SuggestedTokens: FC<SuggestedTokensProps> = ({
@@ -35,7 +34,8 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
         return {
           ...currency,
           chainId: Number(chainId),
-          verified: true
+          verified: true,
+          logoURI: currency?.metadata?.logoURI ?? ''
         }
       })
   }, [chain?.featuredTokens, chainId, depositAddressOnly])
@@ -65,7 +65,7 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
               e.preventDefault()
               onSelect({
                 ...token
-              })
+              } as Token)
             }}
             color="ghost"
             size="none"
@@ -78,7 +78,6 @@ export const SuggestedTokens: FC<SuggestedTokensProps> = ({
               pr: '2',
               gap: 1,
               alignItems: 'center',
-              maxWidth: 110,
               '--borderColor': 'colors.gray5',
               border: '1px solid var(--borderColor)',
               borderRadius: '100px',
