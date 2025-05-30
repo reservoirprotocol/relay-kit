@@ -98,7 +98,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     : null
   const timeEstimateMs =
     ((details?.timeEstimate ?? 0) +
-      (fromChain && fromChain.id === bitcoin.id ? 600 : 0)) *
+      ((fromChain && fromChain.id === bitcoin.id) ||
+      (toChain && toChain.id === bitcoin.id)
+        ? 600
+        : 0)) *
     1000
   const isDelayedTx =
     isCanonical ||
