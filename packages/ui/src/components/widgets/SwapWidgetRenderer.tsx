@@ -809,10 +809,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         : EventNames.DEPOSIT_ERROR
 
       //Filter out receipt/deposit transaction errors, those are approval/deposit errors
+      const isTransactionConfirmationError =
+        (error &&
+          typeof error.message === 'string' &&
+          error.message.includes('TransactionConfirmationError')) ||
+        (error.name && error.name.includes('TransactionConfirmationError'))
       if (
         stepItem?.receipt &&
         stepItem.check &&
-        !errorMessage.includes('TransactionConfirmationError') &&
+        !isTransactionConfirmationError &&
         (typeof stepItem.receipt === 'object' && 'status' in stepItem.receipt
           ? stepItem.receipt.status !== 'reverted'
           : true) &&
@@ -836,11 +841,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         }
       } else if (
         !stepItem?.receipt ||
-        !(
-          typeof stepItem.receipt === 'object' &&
+        (typeof stepItem.receipt === 'object' &&
           'status' in stepItem.receipt &&
-          stepItem.receipt.status === 'reverted'
-        )
+          stepItem.receipt.status === 'reverted')
       ) {
         onAnalyticEvent?.(errorEvent, swapEventData)
       } else {
