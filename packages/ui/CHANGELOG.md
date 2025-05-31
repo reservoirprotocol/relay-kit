@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.10.12
+
+### Patch Changes
+
+- c40a8ea: Fix tx confirmation issue preventing the error screen from showing
+
 ## 2.10.11
 
 ### Patch Changes
