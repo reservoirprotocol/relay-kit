@@ -16,7 +16,6 @@ import { SwapSuccessStep } from './steps/SwapSuccessStep.js'
 import { formatBN } from '../../../utils/numbers.js'
 import { extractQuoteId } from '../../../utils/quote.js'
 import type { LinkedWallet } from '../../../types/index.js'
-import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 type TransactionModalProps = {
   open: boolean
@@ -25,7 +24,6 @@ type TransactionModalProps = {
   fromToken?: Token
   toToken?: Token
   address?: Address | string
-  timeEstimate?: { time: number; formattedTime: string }
   isCanonical?: boolean
   useExternalLiquidity: boolean
   slippageTolerance?: string
@@ -34,7 +32,8 @@ type TransactionModalProps = {
   multiWalletSupportEnabled?: boolean
   steps: Execute['steps'] | null
   setSteps: Dispatch<SetStateAction<Execute['steps'] | null>>
-  quote: ReturnType<typeof useQuote>['data']
+  setQuote: Dispatch<SetStateAction<null | Execute>>
+  quote: Execute | null
   swapError: Error | null
   setSwapError: Dispatch<SetStateAction<Error | null>>
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -58,7 +57,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
     toToken,
     useExternalLiquidity,
     slippageTolerance,
-    timeEstimate,
     isCanonical,
     wallet,
     onOpenChange,
@@ -149,7 +147,6 @@ export const TransactionModal: FC<TransactionModalProps> = (
           <InnerTransactionModal
             address={address}
             onAnalyticEvent={onAnalyticEvent}
-            timeEstimate={timeEstimate}
             isCanonical={isCanonical}
             {...transactionModalProps}
             {...rendererProps}
@@ -189,7 +186,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   isCanonical,
   fromChain,
   toChain,
-  isLoadingTransaction
+  isLoadingTransaction,
+  setQuote
 }) => {
   useEffect(() => {
     if (!open) {
@@ -202,6 +200,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       setStartTimestamp(0)
       setSwapError(null)
       setSteps(null)
+      setQuote(null)
     } else {
       setProgressStep(TransactionProgressStep.Confirmation)
       onAnalyticEvent?.(EventNames.SWAP_MODAL_OPEN)

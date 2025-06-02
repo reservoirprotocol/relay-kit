@@ -7,11 +7,9 @@ import type { ChildrenProps } from './SwapWidgetRenderer.js'
 import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
 import { useAccount } from 'wagmi'
 import type { LinkedWallet } from '../../types/index.js'
-import type { useQuote } from '@reservoir0x/relay-kit-hooks'
 
 export type WidgetContainerProps = {
   steps: Execute['steps'] | null
-  quote: ReturnType<typeof useQuote>['data']
   transactionModalOpen: boolean
   depositAddressModalOpen: boolean
   addressModalOpen: boolean
@@ -50,12 +48,15 @@ export type WidgetContainerProps = {
   | 'setSteps'
   | 'swapError'
   | 'setSwapError'
+  | 'quoteInProgress'
+  | 'setQuoteInProgress'
 >
 
 const WidgetContainer: FC<WidgetContainerProps> = ({
   steps,
   setSteps,
-  quote,
+  quoteInProgress,
+  setQuoteInProgress,
   transactionModalOpen,
   setTransactionModalOpen,
   depositAddressModalOpen,
@@ -100,7 +101,8 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
           <TransactionModal
             steps={steps}
             setSteps={setSteps}
-            quote={quote}
+            quote={quoteInProgress}
+            setQuote={setQuoteInProgress}
             swapError={swapError}
             setSwapError={setSwapError}
             open={transactionModalOpen}
@@ -116,7 +118,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             slippageTolerance={slippageTolerance}
             address={address}
             isCanonical={useExternalLiquidity}
-            timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
             onSwapValidating={onSwapValidating}
@@ -138,7 +139,6 @@ const WidgetContainer: FC<WidgetContainerProps> = ({
             debouncedOutputAmountValue={debouncedOutputAmountValue}
             address={address}
             recipient={recipient}
-            timeEstimate={timeEstimate}
             onAnalyticEvent={onAnalyticEvent}
             onSuccess={onSwapSuccess}
             invalidateBalanceQueries={invalidateBalanceQueries}
