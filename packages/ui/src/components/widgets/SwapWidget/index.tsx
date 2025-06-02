@@ -1362,16 +1362,14 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        <Flex align="center" css={{ gap: '4px' }}>
-                          <Text
-                            style="subtitle3"
-                            color="subtleSecondary"
-                            css={{
-                              minHeight: 18,
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
+                        <Flex
+                          align="center"
+                          css={{
+                            gap: '1',
+                            minHeight: 18
+                          }}
+                        >
+                          <Text style="subtitle3" color="subtleSecondary">
                             {isUsdInputMode ? (
                               toToken ? (
                                 // In USD input mode, show token equivalent
@@ -1423,23 +1421,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               formatDollar(0)
                             )}
                           </Text>
-                          <Button
-                            size="none"
-                            color="ghost"
-                            css={{
-                              color: 'gray11',
-                              alignSelf: 'center',
-                              justifyContent: 'center',
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '100px',
-                              padding: '4px',
-                              backgroundColor: 'gray3'
-                            }}
-                            onClick={toggleInputMode}
-                          >
-                            <SwitchIcon width={16} height={10} />
-                          </Button>
                           {!isUsdInputMode &&
                           toToken &&
                           quote?.details?.currencyOut?.amountUsd &&
