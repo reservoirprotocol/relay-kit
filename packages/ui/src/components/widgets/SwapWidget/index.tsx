@@ -12,7 +12,7 @@ import {
 } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
+import { SwitchIcon } from '../../../icons/index.js'
 import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
 import { getFeeBufferAmount } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
@@ -23,7 +23,7 @@ import WidgetContainer from '../WidgetContainer.js'
 import SwapButton from '../SwapButton.js'
 import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
-import { faClipboard } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
@@ -139,6 +139,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   >([])
   const [isUsdInputMode, setIsUsdInputMode] = useState(false)
   const [usdInputValue, setUsdInputValue] = useState('')
+  const [usdOutputValue, setUsdOutputValue] = useState('')
   const [tokenInputCache, setTokenInputCache] = useState('')
   const [conversionRate, setConversionRate] = useState<number | null>(null)
   const hasLockedToken = lockFromToken || lockToToken
@@ -282,8 +283,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               enabled: !!(
                 fromToken?.address &&
                 fromToken.chainId &&
-                amountInputValue &&
-                Number(amountInputValue) > 0
+                ((amountInputValue && Number(amountInputValue) > 0) ||
+                  (isUsdInputMode &&
+                    usdInputValue &&
+                    Number(usdInputValue) > 0))
               ),
               ...tokenPriceQueryOptions
             }
@@ -510,6 +513,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             if (!usdInputValue && tokenInputCache) {
               setAmountInputValue(tokenInputCache)
             }
+            setUsdInputValue('')
+            setUsdOutputValue('')
             setIsUsdInputMode(false)
             setTradeType('EXACT_INPUT')
           }
@@ -573,6 +578,39 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           setAmountInputValue,
           fromToken?.decimals,
           amountInputValue
+        ])
+
+        //Update USD output value when in USD mode
+        useEffect(() => {
+          if (isUsdInputMode) {
+            if (quote?.details?.currencyOut?.amountUsd && !isFetchingQuote) {
+              // Use quote USD value when available
+              const quoteUsdValue = Number(quote.details.currencyOut.amountUsd)
+              if (!isNaN(quoteUsdValue) && quoteUsdValue >= 0) {
+                setUsdOutputValue(quoteUsdValue.toFixed(2))
+              }
+            } else if (
+              toTokenPriceData?.price &&
+              toTokenPriceData.price > 0 &&
+              amountOutputValue &&
+              Number(amountOutputValue) > 0
+            ) {
+              // Fallback to direct token price calculation
+              const tokenAmount = Number(amountOutputValue)
+              const usdEquivalent = tokenAmount * toTokenPriceData.price
+              if (!isNaN(usdEquivalent) && usdEquivalent >= 0) {
+                setUsdOutputValue(usdEquivalent.toFixed(2))
+              }
+            } else if (!amountOutputValue || Number(amountOutputValue) === 0) {
+              setUsdOutputValue('')
+            }
+          }
+        }, [
+          isUsdInputMode,
+          quote?.details?.currencyOut?.amountUsd,
+          isFetchingQuote,
+          toTokenPriceData?.price,
+          amountOutputValue
         ])
 
         return (
@@ -886,13 +924,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             }}
                             onClick={toggleInputMode}
                           >
-                            <FontAwesomeIcon
-                              icon={faArrowDown}
-                              style={{
-                                height: '10px',
-                                width: '16px'
-                              }}
-                            />
+                            <SwitchIcon width={16} height={10} />
                           </Button>
                         </Flex>
                         <Flex
@@ -1220,22 +1252,31 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         css={{ gap: '4', width: '100%' }}
                       >
                         <AmountInput
+                          prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
-                            tradeType === 'EXPECTED_OUTPUT'
-                              ? amountOutputValue
-                              : amountOutputValue
-                                ? formatFixedLength(amountOutputValue, 8)
+                            isUsdInputMode
+                              ? usdOutputValue
+                              : tradeType === 'EXPECTED_OUTPUT'
+                                ? amountOutputValue
                                 : amountOutputValue
+                                  ? formatFixedLength(amountOutputValue, 8)
+                                  : amountOutputValue
                           }
                           setValue={(e) => {
-                            setAmountOutputValue(e)
-                            setTradeType('EXPECTED_OUTPUT')
-                            if (Number(e) === 0) {
-                              setAmountInputValue('')
-                              debouncedAmountOutputControls.flush()
+                            if (!isUsdInputMode) {
+                              setAmountOutputValue(e)
+                              setTradeType('EXPECTED_OUTPUT')
+                              if (Number(e) === 0) {
+                                setAmountInputValue('')
+                                debouncedAmountOutputControls.flush()
+                              }
                             }
                           }}
-                          disabled={!toToken || !fromChainWalletVMSupported}
+                          disabled={
+                            isUsdInputMode ||
+                            !toToken ||
+                            !fromChainWalletVMSupported
+                          }
                           onFocus={() => {
                             onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
                           }}
@@ -1321,17 +1362,42 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         justify="between"
                         css={{ gap: '3', width: '100%' }}
                       >
-                        <Flex
-                          align="center"
-                          css={{
-                            gap: '1',
-                            minHeight: 18
-                          }}
-                        >
-                          <Text style="subtitle3" color="subtleSecondary">
-                            {toToken &&
-                            quote?.details?.currencyOut?.amountUsd &&
-                            !isFetchingQuote ? (
+                        <Flex align="center" css={{ gap: '4px' }}>
+                          <Text
+                            style="subtitle3"
+                            color="subtleSecondary"
+                            css={{
+                              minHeight: 18,
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {isUsdInputMode ? (
+                              toToken ? (
+                                // In USD input mode, show token equivalent
+                                usdOutputValue && Number(usdOutputValue) > 0 ? (
+                                  // USD output has a value
+                                  amountOutputValue &&
+                                  !isLoadingToTokenPrice ? (
+                                    `${formatNumber(amountOutputValue, 4, false)} ${toToken.symbol}`
+                                  ) : (
+                                    <Box
+                                      css={{
+                                        width: 45,
+                                        height: 12,
+                                        backgroundColor: 'gray7',
+                                        borderRadius: 'widget-border-radius'
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  // USD output is empty or zero, show "0 TOKEN_SYMBOL"
+                                  `0 ${toToken.symbol}`
+                                )
+                              ) : null
+                            ) : toToken &&
+                              quote?.details?.currencyOut?.amountUsd &&
+                              !isFetchingQuote ? (
                               formatDollar(
                                 Number(quote.details.currencyOut.amountUsd)
                               )
@@ -1357,7 +1423,25 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               formatDollar(0)
                             )}
                           </Text>
-                          {toToken &&
+                          <Button
+                            size="none"
+                            color="ghost"
+                            css={{
+                              color: 'gray11',
+                              alignSelf: 'center',
+                              justifyContent: 'center',
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '100px',
+                              padding: '4px',
+                              backgroundColor: 'gray3'
+                            }}
+                            onClick={toggleInputMode}
+                          >
+                            <SwitchIcon width={16} height={10} />
+                          </Button>
+                          {!isUsdInputMode &&
+                          toToken &&
                           quote?.details?.currencyOut?.amountUsd &&
                           !isFetchingQuote &&
                           quote.details.totalImpact?.percent ? (
