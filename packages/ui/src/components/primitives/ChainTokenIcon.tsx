@@ -37,7 +37,16 @@ export const ChainTokenIcon: FC<ChainTokenProps> = ({
   const dimensions = SIZES[size]
 
   return chainId ? (
-    <Flex css={{ position: 'relative', flexShrink: 0, ...css }}>
+    <Flex
+      css={{
+        position: 'relative',
+        flexShrink: 0,
+        width: dimensions.token,
+        height: dimensions.token,
+        overflow: 'hidden',
+        ...css
+      }}
+    >
       {isValidTokenLogo ? (
         <img
           alt={'Token'}
