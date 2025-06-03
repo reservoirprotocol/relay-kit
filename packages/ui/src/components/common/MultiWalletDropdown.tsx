@@ -77,13 +77,15 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
 
   const isSupportedSelectedWallet = useMemo(
     () =>
-      isValidAddress(
-        chain?.vmType,
-        selectedWalletAddress,
-        chain?.id,
-        selectedWallet?.connector,
-        connectorKeyOverrides
-      ),
+      chain
+        ? isValidAddress(
+            chain?.vmType,
+            selectedWalletAddress,
+            chain?.id,
+            selectedWallet?.connector,
+            connectorKeyOverrides
+          )
+        : true,
     [
       selectedWalletAddress,
       selectedWallet,

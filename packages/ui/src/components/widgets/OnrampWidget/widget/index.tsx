@@ -402,7 +402,6 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
                   onAnalyticEvent={onAnalyticEvent}
                   fromChainWalletVMSupported={false}
                   supportedWalletVMs={[]}
-                  // restrictedToken={toToken}
                   setToken={(token) => {
                     setToken(token)
                     onTokenChange?.(token)
