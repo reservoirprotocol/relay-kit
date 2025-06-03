@@ -101,7 +101,7 @@ export default function (
   })
 
   const executeQuote = useCallback(
-    (onProgress: onProgress) => {
+    (onProgress: onProgress, abortController?: AbortController) => {
       if (!wallet) {
         throw 'Missing a valid wallet'
       }
@@ -110,10 +110,18 @@ export default function (
         throw 'Missing a quote'
       }
 
+      // Wrap onProgress to check for abort signal
+      const wrappedOnProgress = (data: ProgressData) => {
+        if (abortController?.signal.aborted) {
+          return
+        }
+        onProgress(data)
+      }
+
       const promise = client?.actions?.execute({
         wallet,
         quote: response.data as Execute,
-        onProgress
+        onProgress: wrappedOnProgress
       })
 
       return promise
@@ -131,7 +139,10 @@ export default function (
       }) as Omit<ReturnType<QueryType>, 'data'> & {
         data?: QuoteResponse
         queryKey: QueryKey
-        executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
+        executeQuote: (
+          onProgress: onProgress,
+          abortController?: AbortController
+        ) => Promise<Execute> | undefined
       },
     [
       response.data,
