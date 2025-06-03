@@ -187,10 +187,14 @@ const useCurrencyBalance = ({
   } else if (chain?.vmType === 'svm') {
     let value: undefined | bigint = undefined
     let isDuneBalance = true
+    let isError = false
+    let error: Error | null = null
 
     if (chain.id === eclipse.id) {
       value = eclipseBalances.data?.balance
       isDuneBalance = true
+      isError = eclipseBalances.isError
+      error = eclipseBalances.error
     } else {
       value =
         currency &&
@@ -202,6 +206,8 @@ const useCurrencyBalance = ({
             )
           : undefined
       isDuneBalance = false
+      isError = duneBalances.isError
+      error = duneBalances.error
     }
 
     if (_isValidAddress) {
@@ -209,8 +215,8 @@ const useCurrencyBalance = ({
         value,
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,
-        isError: duneBalances.isError,
-        error: duneBalances.error,
+        isError,
+        error,
         isDuneBalance
       }
     } else {
@@ -218,9 +224,9 @@ const useCurrencyBalance = ({
         value: undefined,
         queryKey: duneBalances.queryKey,
         isLoading: duneBalances.isLoading,
-        isError: duneBalances.isError,
-        error: duneBalances.error,
-        isDuneBalance: true
+        isError,
+        error,
+        isDuneBalance
       }
     }
   } else if (chain?.vmType === 'bvm') {
