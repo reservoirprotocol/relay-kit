@@ -216,13 +216,13 @@ export const TransactionModalRenderer: FC<Props> = ({
             ? true
             : false,
         refetchInterval(query) {
-          if (query.state.dataUpdateCount > 5) {
+          if (query.state.dataUpdateCount > 10) {
             console.log('refetchInterval', 'cancelled')
             return 0
           }
           if (!query.state.data?.pages[0].requests?.[0]) {
             console.log('refetchInterval', 'refetching')
-            return 2500 * query.state.dataUpdateCount
+            return 2500
           }
           console.log('refetchInterval', 'no refetch')
           return 0
