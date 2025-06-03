@@ -147,7 +147,8 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
   recipient,
   depositAddress,
   executionStatus,
-  isLoadingTransaction
+  isLoadingTransaction,
+  requestId
 }) => {
   const details = quote?.details
 
@@ -228,6 +229,7 @@ const InnerDepositAddressModal: FC<InnerDepositAddressModalProps> = ({
             isCanonical={false}
             details={details}
             isLoadingTransaction={isLoadingTransaction}
+            requestId={requestId}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

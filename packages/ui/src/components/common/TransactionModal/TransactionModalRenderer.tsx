@@ -200,24 +200,35 @@ export const TransactionModalRenderer: FC<Props> = ({
   const requestId = useMemo(() => extractDepositRequestId(steps), [steps])
 
   // Fetch Success Tx
-  const { data: transactions, isLoading: isLoadingTransaction } = useRequests(
-    (progressStep === TransactionProgressStep.Success ||
-      progressStep === TransactionProgressStep.Error) &&
-      (requestId || allTxHashes[0])
-      ? requestId
+  const { data: transactions, isInitialLoading: isLoadingTransaction } =
+    useRequests(
+      (progressStep === TransactionProgressStep.Success ||
+        progressStep === TransactionProgressStep.Error) &&
+        requestId
         ? { id: requestId }
-        : { hash: allTxHashes[0]?.txHash, user: address }
-      : undefined,
-    relayClient?.baseApiUrl,
-    {
-      enabled:
-        (progressStep === TransactionProgressStep.Success ||
-          progressStep === TransactionProgressStep.Error) &&
-        (requestId || allTxHashes[0])
-          ? true
-          : false
-    }
-  )
+        : undefined,
+      relayClient?.baseApiUrl,
+      {
+        enabled:
+          (progressStep === TransactionProgressStep.Success ||
+            progressStep === TransactionProgressStep.Error) &&
+          (requestId || allTxHashes[0])
+            ? true
+            : false,
+        refetchInterval(query) {
+          if (query.state.dataUpdateCount > 5) {
+            console.log('refetchInterval', 'cancelled')
+            return 0
+          }
+          if (!query.state.data?.pages[0].requests?.[0]) {
+            console.log('refetchInterval', 'refetching')
+            return 2500 * query.state.dataUpdateCount
+          }
+          console.log('refetchInterval', 'no refetch')
+          return 0
+        }
+      }
+    )
   const transaction = transactions[0]
   const { fillTime, seconds } = calculateFillTime(transaction)
   const { fillTime: executionTime, seconds: executionTimeSeconds } =
