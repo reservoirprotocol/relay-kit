@@ -23,8 +23,11 @@ export type ExecuteActionParameters = {
  * @param data.depositGasLimit A gas limit to use in base units (wei, etc)
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.onProgress Callback to update UI state as execution progresses
+ * @param abortController Optional AbortController to cancel the execution
  */
-export async function execute(data: ExecuteActionParameters) {
+export async function execute(
+  data: ExecuteActionParameters
+): Promise<{ data: Execute; abortController?: AbortController }> {
   const { quote, wallet, depositGasLimit, onProgress } = data
   const client = getClient()
 
@@ -43,6 +46,9 @@ export async function execute(data: ExecuteActionParameters) {
     if (!adaptedWallet) {
       throw new Error('AdaptedWallet is required to execute steps')
     }
+
+    // Instantiate a new abort controller
+    const abortController = new AbortController()
 
     const chainId = quote.details?.currencyIn?.currency?.chainId
 
@@ -66,6 +72,13 @@ export async function execute(data: ExecuteActionParameters) {
       request,
       adaptedWallet,
       ({ steps, fees, breakdown, details, refunded, error }) => {
+        if (abortController.signal.aborted) {
+          console.log(
+            'Relay SDK: Execution aborted, skipping progress callback'
+          )
+          return
+        }
+
         const { currentStep, currentStepItem, txHashes } =
           getCurrentStepData(steps)
 
@@ -90,7 +103,7 @@ export async function execute(data: ExecuteActionParameters) {
           }
         : undefined
     )
-    return data
+    return { data, abortController }
   } catch (err: any) {
     console.error(err)
     throw err
