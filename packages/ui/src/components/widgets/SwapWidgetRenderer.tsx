@@ -19,7 +19,7 @@ import {
   useGasTopUpRequired
 } from '../../hooks/index.js'
 import type { Address, WalletClient } from 'viem'
-import { formatUnits, parseUnits } from 'viem'
+import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
@@ -335,6 +335,21 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     wallet
   })
 
+  // ethBalance is used to determine if we should use permit
+  const { value: ethBalance, queryKey: ethBalanceQueryKey } =
+    useCurrencyBalance({
+      chain: fromChain,
+      address: recipient,
+      currency: zeroAddress,
+      enabled:
+        fromChain?.vmType === 'evm' && fromToken?.address !== zeroAddress,
+      refreshInterval: undefined,
+      wallet
+    })
+
+  const hasLowEthBalance =
+    ethBalance !== undefined && ethBalance < 100000000000000n // 0.0001 eth
+
   const invalidateBalanceQueries = useCallback(() => {
     const invalidatePeriodically = (invalidateFn: () => void) => {
       let maxRefreshes = 4
@@ -350,6 +365,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
 
     queryClient.invalidateQueries({ queryKey: ['useDuneBalances'] })
+    queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
 
     // Dune balances are sometimes stale, because of this we need to aggressively fetch them
     // for a predetermined period to make sure we get back a fresh response
@@ -485,6 +501,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     amountUsd: _gasTopUpAmountUsd
   } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
 
+  const usePermitEnabled =
+    fromChain?.vmType === 'evm' &&
+    fromToken?.address !== zeroAddress &&
+    hasLowEthBalance
+
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
       ? {
@@ -510,7 +531,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
           slippageTolerance: slippageTolerance,
-          topupGas: gasTopUpEnabled && gasTopUpRequired
+          topupGas: gasTopUpEnabled && gasTopUpRequired,
+          usePermit: usePermitEnabled
         }
       : undefined
 
