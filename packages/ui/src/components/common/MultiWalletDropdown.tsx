@@ -110,7 +110,10 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           onAnalyticEvent?.(
             open
               ? EventNames.WALLET_SELECTOR_OPEN
-              : EventNames.WALLET_SELECTOR_CLOSE
+              : EventNames.WALLET_SELECTOR_CLOSE,
+            {
+              context
+            }
           )
         }
       }}
