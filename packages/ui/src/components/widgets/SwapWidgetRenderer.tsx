@@ -5,14 +5,7 @@ import type {
   ReactNode,
   SetStateAction
 } from 'react'
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useRef
-} from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   useCurrencyBalance,
   useENSResolver,
@@ -169,6 +162,7 @@ export type ChildrenProps = {
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
+  abortController: AbortController | null
 }
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
@@ -228,9 +222,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
   const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
-
-  // AbortController ref to manage swap execution cancellation
-  const swapAbortControllerRef = useRef<AbortController | null>(null)
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null)
 
   const {
     value: amountInputValue,
@@ -817,6 +810,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         error_message: errorMessage
       }
       const isApproval = step?.id === 'approve'
+      const errorEvent = isApproval
+        ? EventNames.APPROVAL_ERROR
+        : EventNames.DEPOSIT_ERROR
 
       //Filter out receipt/deposit transaction errors, those are approval/deposit errors
       const isTransactionConfirmationError =
@@ -824,7 +820,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           typeof error.message === 'string' &&
           error.message.includes('TransactionConfirmationError')) ||
         (error.name && error.name.includes('TransactionConfirmationError'))
-
       if (
         stepItem?.receipt &&
         stepItem.check &&
@@ -856,14 +851,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           'status' in stepItem.receipt &&
           stepItem.receipt.status === 'reverted')
       ) {
-        const errorEvent = isApproval
-          ? EventNames.APPROVAL_ERROR
-          : EventNames.DEPOSIT_ERROR
-        if (context === 'Deposit') {
-          onAnalyticEvent?.(EventNames.DEPOSIT_ERROR, swapEventData)
-        } else {
-          onAnalyticEvent?.(errorEvent, swapEventData)
-        }
+        onAnalyticEvent?.(errorEvent, swapEventData)
       } else {
         onAnalyticEvent?.(EventNames.SWAP_ERROR, swapEventData)
       }
@@ -890,10 +878,6 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         throw 'Missing a wallet'
       }
 
-      // Create new AbortController for this swap execution
-      const abortController = new AbortController()
-      swapAbortControllerRef.current = abortController
-
       setSteps(quote?.steps as Execute['steps'])
       setQuoteInProgress(quote as Execute)
       setTransactionModalOpen(true)
@@ -912,17 +896,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
       let _currentSteps: Execute['steps'] | undefined = undefined
 
-      ;(
-        executeSwap as (
-          onProgress: (data: { steps: Execute['steps'] }) => void,
-          abortController?: AbortController
-        ) => Promise<Execute> | undefined
-      )(({ steps: currentSteps }: { steps: Execute['steps'] }) => {
-        // Check if execution was aborted before updating state
-        if (abortController.signal.aborted) {
-          return
-        }
-
+      executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
         _currentSteps = currentSteps
 
@@ -993,12 +967,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             }
             submittedEvents.push(EventNames.FILL_SUCCESS)
           }
-        }
-
-        // Handle case where all steps are complete but fill success event hasn't been sent
-        if (
-          currentSteps?.every((step: any) =>
-            step.items?.every((item: any) => item.status === 'complete')
+        } else if (
+          currentSteps?.every((step) =>
+            step.items?.every((item) => item.status === 'complete')
           ) &&
           !submittedEvents.includes(EventNames.FILL_SUCCESS)
         ) {
@@ -1018,29 +989,27 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           }
           submittedEvents.push(EventNames.FILL_SUCCESS)
         }
-      }, abortController)
-        ?.catch((error: any) => {
-          // Don't handle errors if execution was aborted
-          if (!abortController.signal.aborted) {
-            swapErrorHandler(error, _currentSteps)
+      })
+        ?.then((executeResult) => {
+          // Store the AbortController for potential cancellation
+          if (
+            executeResult &&
+            typeof executeResult === 'object' &&
+            'abortController' in executeResult
+          ) {
+            setAbortController((executeResult as any).abortController)
           }
+        })
+        ?.catch((error: any) => {
+          swapErrorHandler(error, _currentSteps)
         })
         .finally(() => {
-          // Only cleanup if execution wasn't aborted
-          if (!abortController.signal.aborted) {
-            setWaitingForSteps(false)
-            invalidateBalanceQueries()
-          }
-          // Clear the abort controller reference
-          if (swapAbortControllerRef.current === abortController) {
-            swapAbortControllerRef.current = null
-          }
+          setWaitingForSteps(false)
+          setAbortController(null)
+          invalidateBalanceQueries()
         })
     } catch (error: any) {
-      // Don't handle errors if execution was aborted
-      if (!swapAbortControllerRef.current?.signal.aborted) {
-        swapErrorHandler(error)
-      }
+      swapErrorHandler(error)
       setWaitingForSteps(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1063,16 +1032,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setSteps,
     setQuoteInProgress,
     invalidateBalanceQueries,
-    linkedWallet
+    linkedWallet,
+    abortController
   ])
-
-  // Abort ongoing swap execution when transaction modal closes
-  useEffect(() => {
-    if (!transactionModalOpen && swapAbortControllerRef.current) {
-      swapAbortControllerRef.current.abort()
-      swapAbortControllerRef.current = null
-    }
-  }, [transactionModalOpen])
 
   return (
     <>
@@ -1149,7 +1111,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         quoteInProgress,
         setQuoteInProgress,
         linkedWallet,
-        quoteParameters
+        quoteParameters,
+        abortController
       })}
     </>
   )
