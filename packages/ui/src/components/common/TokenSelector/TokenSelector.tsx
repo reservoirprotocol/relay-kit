@@ -54,7 +54,6 @@ import { useInternalRelayChains } from '../../../hooks/index.js'
 
 export type TokenSelectorProps = {
   token?: Token
-  restrictedToken?: Token
   trigger: ReactNode
   chainIdsFilter?: number[]
   lockedChainIds?: number[]
@@ -71,7 +70,6 @@ export type TokenSelectorProps = {
 
 const TokenSelector: FC<TokenSelectorProps> = ({
   token,
-  restrictedToken,
   trigger,
   chainIdsFilter,
   lockedChainIds,
