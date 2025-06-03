@@ -157,7 +157,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                     : 'anchor-color'
               }}
             >
-              {isSupportedSelectedWallet
+              {isSupportedSelectedWallet &&
+              selectedWalletAddress &&
+              selectedWalletAddress != ''
                 ? displayName && chain?.vmType === 'evm'
                   ? displayName
                   : truncateAddress(selectedWalletAddress)
