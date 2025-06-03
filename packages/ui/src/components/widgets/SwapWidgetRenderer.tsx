@@ -896,7 +896,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
       let _currentSteps: Execute['steps'] | undefined = undefined
 
-      executeSwap(({ steps: currentSteps }) => {
+      const execPromise = executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
         _currentSteps = currentSteps
 
@@ -990,16 +990,17 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           submittedEvents.push(EventNames.FILL_SUCCESS)
         }
       })
-        ?.then((executeResult) => {
-          // Store the AbortController for potential cancellation
-          if (
-            executeResult &&
-            typeof executeResult === 'object' &&
-            'abortController' in executeResult
-          ) {
-            setAbortController((executeResult as any).abortController)
-          }
-        })
+
+      // Store the AbortController for potential cancellation immediately
+      if (
+        execPromise &&
+        typeof execPromise === 'object' &&
+        'abortController' in execPromise
+      ) {
+        setAbortController((execPromise as any).abortController)
+      }
+
+      execPromise
         ?.catch((error: any) => {
           swapErrorHandler(error, _currentSteps)
         })
