@@ -952,7 +952,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           )}
                           {fromBalance &&
                           (fromChain?.vmType === 'evm' || // EVM
-                            fromChain?.vmType === 'svm') ? (
+                            fromChain?.vmType === 'svm') &&
+                          !isUsdInputMode ? (
                             <Flex css={{ gap: '1' }}>
                               <Button
                                 aria-label="20%"
