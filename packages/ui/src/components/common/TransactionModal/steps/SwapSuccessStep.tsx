@@ -38,6 +38,7 @@ type SwapSuccessStepProps = {
   details?: Execute['details'] | null
   isLoadingTransaction?: boolean
   onOpenChange: (open: boolean) => void
+  requestId: string | null
 }
 
 export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
@@ -53,7 +54,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   isCanonical,
   details,
   isLoadingTransaction,
-  onOpenChange
+  onOpenChange,
+  requestId
 }) => {
   const relayClient = useRelayClient()
   const isWrap = details?.operation === 'wrap'
@@ -93,8 +95,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   const toChain = _toToken
     ? relayClient?.chains.find((chain) => chain.id === _toToken?.chainId)
     : null
-  const delayedTxUrl = transaction?.data?.inTxs?.[0]?.hash
-    ? `${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`
+  const delayedTxUrl = requestId
+    ? `${baseTransactionUrl}/transaction/${requestId}`
     : null
   const timeEstimateMs =
     ((details?.timeEstimate ?? 0) +
@@ -415,9 +417,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       </Flex>
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
-        {transaction?.data?.inTxs?.[0]?.hash ? (
+        {requestId ? (
           <a
-            href={`${baseTransactionUrl}/transaction/${transaction?.data?.inTxs?.[0]?.hash}`}
+            href={`${baseTransactionUrl}/transaction/${requestId}`}
             style={{ width: '100%' }}
             target="_blank"
             onClick={(e) => {
