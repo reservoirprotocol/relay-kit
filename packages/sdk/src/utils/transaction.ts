@@ -389,9 +389,14 @@ export async function sendTransactionSafely(
     const confirmationPromise = pollForConfirmation(receiptController)
 
     await Promise.race([receiptPromise, confirmationPromise])
+    const isSameChain = details?.currencyOut?.currency?.chainId === chainId
 
     if (waitingForConfirmation) {
-      await confirmationPromise
+      if (!isSameChain) {
+        await confirmationPromise
+      } else {
+        waitingForConfirmation = false
+      }
     }
 
     if (!receipt) {
