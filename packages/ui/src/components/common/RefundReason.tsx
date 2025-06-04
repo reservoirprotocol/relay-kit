@@ -75,6 +75,14 @@ const RefundReason: React.FC<RefundReasonProps> = ({ reasonCode }) => {
           </>
         )
       }
+      case 'DEPOSITED_AMOUNT_TOO_LOW_TO_FILL': {
+        return (
+          <>
+            Your transaction has been refunded because the deposited amount was
+            too low. Try adjusting the slippage or amount.
+          </>
+        )
+      }
       case 'AMOUNT_TOO_LOW_TO_REFUND': {
         return (
           <>
@@ -86,7 +94,7 @@ const RefundReason: React.FC<RefundReasonProps> = ({ reasonCode }) => {
             >
               contact support
             </Anchor>{' '}
-            if you have assistance.{' '}
+            if you need assistance.{' '}
           </>
         )
       }

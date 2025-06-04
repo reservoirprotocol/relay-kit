@@ -250,7 +250,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         setSwapError,
         setUseExternalLiquidity,
         invalidateBalanceQueries,
-        invalidateQuoteQuery
+        invalidateQuoteQuery,
+        quoteInProgress,
+        setQuoteInProgress
       }) => {
         // helper to calculate the USD value of a token
         const calculateUsdValue = (
@@ -797,7 +799,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             fromChainWalletVMSupported
                           }
                           supportedWalletVMs={supportedWalletVMs}
-                          restrictedToken={toToken}
                           setToken={(token) => {
                             if (
                               token.address === toToken?.address &&
@@ -1170,9 +1171,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               disablePasteWalletAddressOption
                             }
                             selectedWalletAddress={recipient}
-                            onSelect={(wallet) =>
+                            onSelect={(wallet) => {
                               setCustomToAddress(wallet.address)
-                            }
+                            }}
                             chain={toChain}
                             onLinkNewWallet={() => {
                               if (!address && toChainWalletVMSupported) {
@@ -1311,7 +1312,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             fromChainWalletVMSupported
                           }
                           supportedWalletVMs={supportedWalletVMs}
-                          restrictedToken={fromToken}
                           setToken={(token) => {
                             if (
                               token.address === fromToken?.address &&

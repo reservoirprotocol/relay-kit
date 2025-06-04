@@ -28,7 +28,11 @@ import { useRelayClient } from '../../../hooks/index.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { useAccount } from 'wagmi'
-import { extractDepositAddress, extractQuoteId } from '../../../utils/quote.js'
+import {
+  calculatePriceTimeEstimate,
+  extractDepositAddress,
+  extractQuoteId
+} from '../../../utils/quote.js'
 import { getDeadAddress } from '@reservoir0x/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
@@ -62,6 +66,7 @@ export type ChildrenProps = {
   executionStatus?: ReturnType<typeof useExecutionStatus>['data']
   isLoadingTransaction: boolean
   toChain?: RelayChain | null
+  timeEstimate?: { time: number; formattedTime: string }
 }
 
 type Props = {
@@ -75,7 +80,6 @@ type Props = {
   recipient?: string
   customToAddress?: Address
   wallet?: AdaptedWallet
-  defaultQuote?: Execute
   invalidateBalanceQueries: () => void
   children: (props: ChildrenProps) => ReactNode
   onSuccess?: (
@@ -95,7 +99,6 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   debouncedInputAmountValue,
   debouncedOutputAmountValue,
   recipient,
-  defaultQuote,
   invalidateBalanceQueries,
   children,
   onSuccess,
@@ -184,8 +187,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
           debouncedInputAmountValue.length > 0 &&
           Number(debouncedInputAmountValue) !== 0 &&
           fromToken !== undefined &&
-          toToken !== undefined &&
-          !defaultQuote
+          toToken !== undefined
       ),
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
@@ -209,11 +211,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
     }
   )
 
-  const quote = defaultQuote
-    ? defaultQuote
-    : isFetchingQuote || isRefetching
-      ? undefined
-      : quoteData
+  const quote = isFetchingQuote || isRefetching ? undefined : quoteData
 
   const requestId = useMemo(
     () => extractDepositRequestId(quote?.steps as Execute['steps']),
@@ -361,6 +359,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const transaction = transactions[0]
 
   const { fillTime, seconds } = calculateFillTime(transaction)
+  const timeEstimate = calculatePriceTimeEstimate(quote?.details)
   const toChain = toToken?.chainId
     ? relayClient?.chains.find((chain) => chain.id === toToken?.chainId)
     : null
@@ -383,7 +382,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
         depositAddress,
         executionStatus,
         isLoadingTransaction,
-        toChain
+        toChain,
+        timeEstimate
       })}
     </>
   )

@@ -77,13 +77,15 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
 
   const isSupportedSelectedWallet = useMemo(
     () =>
-      isValidAddress(
-        chain?.vmType,
-        selectedWalletAddress,
-        chain?.id,
-        selectedWallet?.connector,
-        connectorKeyOverrides
-      ),
+      chain
+        ? isValidAddress(
+            chain?.vmType,
+            selectedWalletAddress,
+            chain?.id,
+            selectedWallet?.connector,
+            connectorKeyOverrides
+          )
+        : true,
     [
       selectedWalletAddress,
       selectedWallet,
@@ -108,7 +110,10 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
           onAnalyticEvent?.(
             open
               ? EventNames.WALLET_SELECTOR_OPEN
-              : EventNames.WALLET_SELECTOR_CLOSE
+              : EventNames.WALLET_SELECTOR_CLOSE,
+            {
+              context
+            }
           )
         }
       }}
@@ -155,7 +160,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
                     : 'anchor-color'
               }}
             >
-              {isSupportedSelectedWallet
+              {isSupportedSelectedWallet &&
+              selectedWalletAddress &&
+              selectedWalletAddress != ''
                 ? displayName && chain?.vmType === 'evm'
                   ? displayName
                   : truncateAddress(selectedWalletAddress)

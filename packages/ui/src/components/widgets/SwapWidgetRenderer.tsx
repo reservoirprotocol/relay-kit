@@ -153,6 +153,8 @@ export type ChildrenProps = {
   gasTopUpRequired: boolean
   gasTopUpAmount?: bigint
   gasTopUpAmountUsd?: string
+  quoteInProgress: null | Execute
+  setQuoteInProgress: Dispatch<React.SetStateAction<null | Execute>>
   linkedWallet?: LinkedWallet
   quoteParameters?: Parameters<typeof useQuote>['2']
   invalidateBalanceQueries: () => void
@@ -215,6 +217,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
   const queryClient = useQueryClient()
   const [steps, setSteps] = useState<null | Execute['steps']>(null)
+  const [quoteInProgress, setQuoteInProgress] = useState<null | Execute>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
   const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
@@ -809,10 +812,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         : EventNames.DEPOSIT_ERROR
 
       //Filter out receipt/deposit transaction errors, those are approval/deposit errors
+      const isTransactionConfirmationError =
+        (error &&
+          typeof error.message === 'string' &&
+          error.message.includes('TransactionConfirmationError')) ||
+        (error.name && error.name.includes('TransactionConfirmationError'))
       if (
         stepItem?.receipt &&
         stepItem.check &&
-        !errorMessage.includes('TransactionConfirmationError') &&
+        !isTransactionConfirmationError &&
         (typeof stepItem.receipt === 'object' && 'status' in stepItem.receipt
           ? stepItem.receipt.status !== 'reverted'
           : true) &&
@@ -836,11 +844,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         }
       } else if (
         !stepItem?.receipt ||
-        !(
-          typeof stepItem.receipt === 'object' &&
+        (typeof stepItem.receipt === 'object' &&
           'status' in stepItem.receipt &&
-          stepItem.receipt.status === 'reverted'
-        )
+          stepItem.receipt.status === 'reverted')
       ) {
         onAnalyticEvent?.(errorEvent, swapEventData)
       } else {
@@ -870,6 +876,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       }
 
       setSteps(quote?.steps as Execute['steps'])
+      setQuoteInProgress(quote as Execute)
       setTransactionModalOpen(true)
 
       const _wallet =
@@ -1009,6 +1016,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     waitingForSteps,
     executeSwap,
     setSteps,
+    setQuoteInProgress,
     invalidateBalanceQueries,
     linkedWallet
   ])
@@ -1085,6 +1093,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         setUseExternalLiquidity,
         setDetails,
         setSwapError,
+        quoteInProgress,
+        setQuoteInProgress,
         linkedWallet,
         quoteParameters
       })}
