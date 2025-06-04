@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.11.1
+
+### Patch Changes
+
+- f073269: Fix solana address regex
+
 ## 2.11.0
 
 ### Minor Changes
