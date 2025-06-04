@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.10.0
+
+### Minor Changes
+
+- bb63fc9: Deduplicate request IDs
+
+### Patch Changes
+
+- Updated dependencies [bb63fc9]
+- Updated dependencies [758f8a7]
+  - @reservoir0x/relay-sdk@2.1.0
+
 ## 1.9.13
 
 ### Patch Changes
