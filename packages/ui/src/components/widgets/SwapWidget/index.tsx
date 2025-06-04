@@ -620,7 +620,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             <WidgetContainer
               steps={steps}
               setSteps={setSteps}
-              quote={quote}
+              quoteInProgress={quoteInProgress}
+              setQuoteInProgress={setQuoteInProgress}
               transactionModalOpen={transactionModalOpen}
               setTransactionModalOpen={setTransactionModalOpen}
               depositAddressModalOpen={depositAddressModalOpen}
