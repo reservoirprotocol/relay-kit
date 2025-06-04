@@ -26,6 +26,7 @@ type SwapButtonProps = {
   | 'isValidToAddress'
   | 'fromChainWalletVMSupported'
   | 'recipientWalletSupportsChain'
+  | 'isFetchingQuote'
 >
 
 const SwapButton: FC<SwapButtonProps> = ({
@@ -47,7 +48,8 @@ const SwapButton: FC<SwapButtonProps> = ({
   recipientWalletSupportsChain,
   onClick,
   ctaCopy,
-  onAnalyticEvent
+  onAnalyticEvent,
+  isFetchingQuote
 }) => {
   const isMounted = useMounted()
 
@@ -63,15 +65,16 @@ const SwapButton: FC<SwapButtonProps> = ({
         color={showHighPriceImpactWarning ? 'error' : 'primary'}
         aria-label={context}
         disabled={
-          isValidToAddress &&
-          (isValidFromAddress || !fromChainWalletVMSupported) &&
-          (invalidAmount ||
-            hasInsufficientBalance ||
-            isInsufficientLiquidityError ||
-            transactionModalOpen ||
-            depositAddressModalOpen ||
-            isSameCurrencySameRecipientSwap ||
-            !recipientWalletSupportsChain)
+          isFetchingQuote ||
+          (isValidToAddress &&
+            (isValidFromAddress || !fromChainWalletVMSupported) &&
+            (invalidAmount ||
+              hasInsufficientBalance ||
+              isInsufficientLiquidityError ||
+              transactionModalOpen ||
+              depositAddressModalOpen ||
+              isSameCurrencySameRecipientSwap ||
+              !recipientWalletSupportsChain))
         }
         onClick={() => {
           onClick()

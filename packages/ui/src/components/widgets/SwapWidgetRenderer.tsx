@@ -162,6 +162,7 @@ export type ChildrenProps = {
   setUseExternalLiquidity: Dispatch<React.SetStateAction<boolean>>
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
+  abortController: AbortController | null
 }
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
@@ -221,6 +222,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
   const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null)
 
   const {
     value: amountInputValue,
@@ -576,7 +579,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const {
     data: _quoteData,
     error: quoteError,
-    isLoading: isFetchingQuote,
+    isFetching: isFetchingQuote,
     executeQuote: executeSwap,
     queryKey: quoteQueryKey
   } = useQuote(
@@ -893,7 +896,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
       let _currentSteps: Execute['steps'] | undefined = undefined
 
-      executeSwap(({ steps: currentSteps }) => {
+      const execPromise = executeSwap(({ steps: currentSteps }) => {
         setSteps(currentSteps)
         _currentSteps = currentSteps
 
@@ -987,11 +990,23 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           submittedEvents.push(EventNames.FILL_SUCCESS)
         }
       })
+
+      // Store the AbortController for potential cancellation immediately
+      if (
+        execPromise &&
+        typeof execPromise === 'object' &&
+        'abortController' in execPromise
+      ) {
+        setAbortController((execPromise as any).abortController)
+      }
+
+      execPromise
         ?.catch((error: any) => {
           swapErrorHandler(error, _currentSteps)
         })
         .finally(() => {
           setWaitingForSteps(false)
+          setAbortController(null)
           invalidateBalanceQueries()
         })
     } catch (error: any) {
@@ -1018,7 +1033,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setSteps,
     setQuoteInProgress,
     invalidateBalanceQueries,
-    linkedWallet
+    linkedWallet,
+    abortController
   ])
 
   return (
@@ -1096,7 +1112,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         quoteInProgress,
         setQuoteInProgress,
         linkedWallet,
-        quoteParameters
+        quoteParameters,
+        abortController
       })}
     </>
   )
