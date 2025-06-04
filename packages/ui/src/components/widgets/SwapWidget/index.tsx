@@ -1321,6 +1321,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Button>
                     ) : (
                       <SwapButton
+                        isFetchingQuote={isFetchingQuote}
                         transactionModalOpen={transactionModalOpen}
                         depositAddressModalOpen={depositAddressModalOpen}
                         isValidFromAddress={isValidFromAddress}

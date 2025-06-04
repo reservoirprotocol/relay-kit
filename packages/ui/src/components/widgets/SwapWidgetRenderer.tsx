@@ -579,7 +579,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const {
     data: _quoteData,
     error: quoteError,
-    isLoading: isFetchingQuote,
+    isFetching: isFetchingQuote,
     executeQuote: executeSwap,
     queryKey: quoteQueryKey
   } = useQuote(
