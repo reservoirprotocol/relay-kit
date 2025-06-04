@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { RelayClient, createClient } from '../client'
 import { http, zeroAddress } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -27,17 +27,17 @@ let executeStepsSpy = vi
       request: any,
       wallet: any,
       progress: any,
-      quote: Execute
+      clonedQuote: Execute,
+      options?: any
     ) => {
-      return new Promise(() => {
-        delete quote.details?.currencyIn
-      })
+      delete clonedQuote.details?.currencyIn
+      return Promise.resolve(clonedQuote)
     }
   )
 vi.mock('../utils/executeSteps.js', () => {
   return {
-    executeSteps: (...args: any) => {
-      executeStepsSpy(args)
+    executeSteps: (...args: any[]) => {
+      return executeStepsSpy(...args)
     }
   }
 })
@@ -46,111 +46,132 @@ describe('Should test the execute action.', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.resetAllMocks()
+    executeStepsSpy.mockImplementation(
+      (
+        chainId: any,
+        request: any,
+        wallet: any,
+        progress: any,
+        clonedQuote: Execute,
+        options?: any
+      ) => {
+        delete clonedQuote.details?.currencyIn
+        return Promise.resolve(clonedQuote)
+      }
+    )
     quote = JSON.parse(JSON.stringify(executeBridge))
   })
 
-  it("Should throw 'RelayClient missing api url configuration'.", async () => {
+  it("Should throw 'RelayClient missing api url configuration'.", () => {
     client = createClient({
       baseApiUrl: ''
     })
 
-    await expect(
+    expect(() =>
       client?.actions?.execute({
         wallet,
         quote
       })
-    ).rejects.toThrow('RelayClient missing api url configuration')
+    ).toThrow('RelayClient missing api url configuration')
   })
 
-  it('Should require passing in a wallet', async () => {
+  it('Should require passing in a wallet', () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
 
-    await expect(
+    expect(() =>
       //@ts-ignore
       client?.actions?.execute({
         quote
       })
-    ).rejects.toThrow('AdaptedWallet is required to execute steps')
+    ).toThrow('AdaptedWallet is required to execute steps')
   })
 
-  it('Should allow passing in additional txs', async () => {
+  it('Should allow passing in additional txs', () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
 
     delete quote.details?.currencyIn?.currency?.chainId
 
-    await expect(
+    expect(() =>
       //@ts-ignore
       client?.actions?.execute({
         wallet,
         quote
       })
-    ).rejects.toThrow('Missing chainId from quote')
+    ).toThrow('Missing chainId from quote')
   })
 
   it('Should clone the quote', async () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
-    await expect(
-      client?.actions?.execute({
-        wallet,
-        quote
-      })
+    const originalCurrencyInDetails = JSON.parse(
+      JSON.stringify(quote.details?.currencyIn)
     )
-    expect(quote.details?.currencyIn).toBeDefined()
+
+    await client?.actions?.execute({
+      wallet,
+      quote
+    })
+    expect(quote.details?.currencyIn).toEqual(originalCurrencyInDetails)
+    expect(executeStepsSpy).toHaveBeenCalled()
   })
 
   it('Should pass the correct values to the executeSteps function', async () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
-    await expect(
-      client?.actions?.execute({
-        wallet,
-        quote
-      })
-    )
-    const lastCall = executeStepsSpy.mock.lastCall[0]
-    expect(lastCall[0]).toBe(1)
-    expect(lastCall[2]).toBe(wallet)
-    expect(typeof lastCall[3]).toBe('function')
-    expect(lastCall[4].details?.currencyIn?.currency?.chainId).toBe(
-      quote.details?.currencyIn?.currency?.chainId
-    )
-    expect(lastCall[5]).toBeUndefined()
+
+    await client?.actions?.execute({
+      wallet,
+      quote
+    })
+
+    const lastCallArgs = executeStepsSpy.mock.lastCall
+    expect(lastCallArgs).toBeDefined()
+
+    expect(lastCallArgs[0]).toBe(quote.details?.currencyIn?.currency?.chainId)
+    expect(lastCallArgs[1]).toBe(quote.request)
+    expect(lastCallArgs[2]).toBe(wallet)
+    expect(typeof lastCallArgs[3]).toBe('function')
+
+    const clonedQuoteInSpy = lastCallArgs[4] as Execute
+    expect(clonedQuoteInSpy.details?.currencyIn).toBeUndefined()
+    expect(clonedQuoteInSpy.details?.recipient).toBe(quote.details?.recipient)
+
+    expect(lastCallArgs[5]).toBeUndefined()
   })
 
-  it('Should throw an error when sender is dead address', async () => {
+  it('Should throw an error when sender is dead address', () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
     if (quote.details?.sender) {
       quote.details.sender = evmDeadAddress
     }
-    await expect(
+    expect(() =>
       client?.actions?.execute({
         wallet,
         quote
       })
-    ).rejects.toThrow('Sender should never be burn address')
+    ).toThrow('Sender should never be burn address')
   })
 
-  it('Should throw an error when recipient is dead address', async () => {
+  it('Should throw an error when recipient is dead address', () => {
     client = createClient({
       baseApiUrl: MAINNET_RELAY_API
     })
     if (quote.details?.sender) {
       quote.details.recipient = evmDeadAddress
     }
-    await expect(
+    expect(() =>
       client?.actions?.execute({
         wallet,
         quote
       })
-    ).rejects.toThrow('Recipient should never be burn address')
+    ).toThrow('Recipient should never be burn address')
   })
 })
