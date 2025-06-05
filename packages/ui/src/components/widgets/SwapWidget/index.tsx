@@ -306,8 +306,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
               enabled: !!(
                 toToken?.address &&
                 toToken.chainId &&
-                amountOutputValue &&
-                Number(amountOutputValue) > 0
+                ((amountOutputValue && Number(amountOutputValue) > 0) ||
+                  (isUsdInputMode &&
+                    tradeType === 'EXPECTED_OUTPUT' &&
+                    usdOutputValue &&
+                    Number(usdOutputValue) > 0))
               ),
               ...tokenPriceQueryOptions
             }
@@ -487,38 +490,73 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         // toggle between token and usd input mode
         const toggleInputMode = () => {
           if (!isUsdInputMode) {
-            let newUsdValue = ''
+            // Switching TO USD mode
+            let newUsdInputValue = ''
+            let newUsdOutputValue = ''
+
+            // Calculate USD input value
             if (
               quote?.details?.currencyIn?.amountUsd &&
               Number(quote.details.currencyIn.amountUsd) > 0
             ) {
-              newUsdValue = String(Number(quote.details.currencyIn.amountUsd))
+              newUsdInputValue = String(
+                Number(quote.details.currencyIn.amountUsd)
+              )
             } else if (inputAmountUsd && inputAmountUsd > 0) {
-              newUsdValue = inputAmountUsd.toFixed(2)
+              newUsdInputValue = inputAmountUsd.toFixed(2)
             } else if (
               amountInputValue &&
               Number(amountInputValue) > 0 &&
               conversionRate &&
               conversionRate > 0
             ) {
-              newUsdValue = (Number(amountInputValue) * conversionRate).toFixed(
-                2
+              newUsdInputValue = (
+                Number(amountInputValue) * conversionRate
+              ).toFixed(2)
+            }
+
+            // Calculate USD output value
+            if (
+              quote?.details?.currencyOut?.amountUsd &&
+              Number(quote.details.currencyOut.amountUsd) > 0
+            ) {
+              newUsdOutputValue = String(
+                Number(quote.details.currencyOut.amountUsd)
               )
+            } else if (outputAmountUsd && outputAmountUsd > 0) {
+              newUsdOutputValue = outputAmountUsd.toFixed(2)
+            } else if (
+              amountOutputValue &&
+              Number(amountOutputValue) > 0 &&
+              toTokenPriceData?.price &&
+              toTokenPriceData.price > 0
+            ) {
+              newUsdOutputValue = (
+                Number(amountOutputValue) * toTokenPriceData.price
+              ).toFixed(2)
             }
 
             setTokenInputCache(amountInputValue)
-
-            setUsdInputValue(newUsdValue)
+            setUsdInputValue(newUsdInputValue)
+            setUsdOutputValue(newUsdOutputValue)
             setIsUsdInputMode(true)
-            setTradeType('EXACT_INPUT')
+
+            // If we're in EXPECTED_OUTPUT mode and have an output value, maintain it
+            if (tradeType === 'EXPECTED_OUTPUT' && newUsdOutputValue) {
+              // Keep EXPECTED_OUTPUT mode
+            } else {
+              // Default to EXACT_INPUT
+              setTradeType('EXACT_INPUT')
+            }
           } else {
+            // Switching FROM USD mode
             if (!usdInputValue && tokenInputCache) {
               setAmountInputValue(tokenInputCache)
             }
             setUsdInputValue('')
             setUsdOutputValue('')
             setIsUsdInputMode(false)
-            setTradeType('EXACT_INPUT')
+            // Maintain current trade type when switching back to token mode
           }
         }
 
@@ -582,9 +620,49 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           amountInputValue
         ])
 
+        //Update token output value when USD output changes in USD mode
+        useEffect(() => {
+          if (isUsdInputMode && tradeType === 'EXPECTED_OUTPUT') {
+            if (
+              toTokenPriceData?.price &&
+              toTokenPriceData.price > 0 &&
+              usdOutputValue
+            ) {
+              const usdValue = Number(usdOutputValue)
+              if (!isNaN(usdValue) && usdValue >= 0) {
+                const tokenEquivalent = (
+                  usdValue / toTokenPriceData.price
+                ).toFixed(toToken?.decimals ?? 8)
+                if (amountOutputValue !== tokenEquivalent) {
+                  setAmountOutputValue(tokenEquivalent)
+                }
+              }
+            } else if (usdOutputValue === '') {
+              if (amountOutputValue !== '') {
+                setAmountOutputValue('')
+              }
+            }
+          }
+        }, [
+          isUsdInputMode,
+          tradeType,
+          usdOutputValue,
+          toTokenPriceData?.price,
+          setAmountOutputValue,
+          toToken?.decimals,
+          amountOutputValue
+        ])
+
         //Update USD output value when in USD mode
         useEffect(() => {
           if (isUsdInputMode) {
+            // For EXPECTED_OUTPUT, don't override user's typed value
+            if (tradeType === 'EXPECTED_OUTPUT') {
+              // User is controlling the output value directly
+              return
+            }
+
+            // For EXACT_INPUT, update based on quote or calculations
             if (quote?.details?.currencyOut?.amountUsd && !isFetchingQuote) {
               // Use quote USD value when available
               const quoteUsdValue = Number(quote.details.currencyOut.amountUsd)
@@ -609,10 +687,32 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           }
         }, [
           isUsdInputMode,
+          tradeType,
           quote?.details?.currencyOut?.amountUsd,
           isFetchingQuote,
           toTokenPriceData?.price,
           amountOutputValue
+        ])
+
+        //Update USD input value when in EXPECTED_OUTPUT mode
+        useEffect(() => {
+          if (isUsdInputMode && tradeType === 'EXPECTED_OUTPUT') {
+            if (quote?.details?.currencyIn?.amountUsd && !isFetchingQuote) {
+              // Use quote USD value when available
+              const quoteUsdValue = Number(quote.details.currencyIn.amountUsd)
+              if (!isNaN(quoteUsdValue) && quoteUsdValue >= 0) {
+                setUsdInputValue(quoteUsdValue.toFixed(2))
+              }
+            } else if (!amountInputValue || Number(amountInputValue) === 0) {
+              setUsdInputValue('')
+            }
+          }
+        }, [
+          isUsdInputMode,
+          tradeType,
+          quote?.details?.currencyIn?.amountUsd,
+          isFetchingQuote,
+          amountInputValue
         ])
 
         return (
@@ -761,6 +861,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           setValue={(e) => {
                             if (isUsdInputMode) {
                               setUsdInputValue(e)
+                              setTradeType('EXACT_INPUT')
+                              setTokenInputCache('')
+                              if (Number(e) === 0) {
+                                setAmountOutputValue('')
+                                setUsdOutputValue('')
+                                debouncedAmountInputControls.flush()
+                              }
                             } else {
                               setAmountInputValue(e)
                               setTradeType('EXACT_INPUT')
@@ -1122,21 +1229,38 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }}
                           onClick={() => {
                             if (fromToken || toToken) {
-                              if (tradeType === 'EXACT_INPUT') {
-                                setTradeType('EXPECTED_OUTPUT')
-                                setAmountInputValue('')
-                                setAmountOutputValue(amountInputValue)
-                              } else {
-                                setTradeType('EXACT_INPUT')
-                                setAmountOutputValue('')
-                                setAmountInputValue(amountOutputValue)
-                              }
+                              if (isUsdInputMode) {
+                                // In USD mode, switch the tokens and values
+                                handleSetFromToken(toToken)
+                                handleSetToToken(fromToken)
 
-                              handleSetFromToken(toToken)
-                              handleSetToToken(fromToken)
-                              debouncedAmountInputControls.flush()
-                              debouncedAmountOutputControls.flush()
-                              toggleInputMode()
+                                // Switch USD values
+                                const tempUsdInput = usdInputValue
+                                setUsdInputValue(usdOutputValue)
+                                setUsdOutputValue(tempUsdInput)
+
+                                // Always use EXACT_INPUT after switching
+                                setTradeType('EXACT_INPUT')
+
+                                debouncedAmountInputControls.flush()
+                                debouncedAmountOutputControls.flush()
+                              } else {
+                                // Token mode - existing logic
+                                if (tradeType === 'EXACT_INPUT') {
+                                  setTradeType('EXPECTED_OUTPUT')
+                                  setAmountInputValue('')
+                                  setAmountOutputValue(amountInputValue)
+                                } else {
+                                  setTradeType('EXACT_INPUT')
+                                  setAmountOutputValue('')
+                                  setAmountInputValue(amountOutputValue)
+                                }
+
+                                handleSetFromToken(toToken)
+                                handleSetToToken(fromToken)
+                                debouncedAmountInputControls.flush()
+                                debouncedAmountOutputControls.flush()
+                              }
                             }
                           }}
                         >
@@ -1266,7 +1390,15 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                   : amountOutputValue
                           }
                           setValue={(e) => {
-                            if (!isUsdInputMode) {
+                            if (isUsdInputMode) {
+                              setUsdOutputValue(e)
+                              setTradeType('EXPECTED_OUTPUT')
+                              if (Number(e) === 0) {
+                                setAmountInputValue('')
+                                setUsdInputValue('')
+                                debouncedAmountOutputControls.flush()
+                              }
+                            } else {
                               setAmountOutputValue(e)
                               setTradeType('EXPECTED_OUTPUT')
                               if (Number(e) === 0) {
@@ -1275,11 +1407,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               }
                             }
                           }}
-                          disabled={
-                            isUsdInputMode ||
-                            !toToken ||
-                            !fromChainWalletVMSupported
-                          }
+                          disabled={!toToken || !fromChainWalletVMSupported}
                           onFocus={() => {
                             onAnalyticEvent?.(EventNames.SWAP_OUTPUT_FOCUSED)
                           }}
