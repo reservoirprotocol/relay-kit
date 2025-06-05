@@ -115,12 +115,17 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     ) => {
       const client = getClient()
       const chain = client.chains.find((chain) => chain.id === chainId)
-
+      const rpcUrl = chain?.httpRpcUrl
       const viemClient = createPublicClient({
         chain: chain?.viemChain,
         transport: wallet.transport
-          ? fallback([custom(wallet.transport), http()])
-          : http()
+          ? fallback(
+              rpcUrl
+                ? [http(rpcUrl), custom(wallet.transport), http()]
+                : [custom(wallet.transport), http()]
+            )
+          : fallback([http(rpcUrl), http()]),
+        pollingInterval: client.confirmationPollingInterval
       })
 
       const receipt = await viemClient.waitForTransactionReceipt({
