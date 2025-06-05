@@ -1038,8 +1038,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               fromTokenPriceData.price > 0 ? (
                               formatDollar(inputAmountUsd)
                             ) : (
-                              // Default to $0.00 if no other value available in token input mode
-                              formatDollar(0)
+                              '$0.00'
                             )}
                           </Text>
                           <Button
@@ -1573,7 +1572,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               toTokenPriceData.price > 0 ? (
                               formatDollar(outputAmountUsd)
                             ) : (
-                              formatDollar(0)
+                              '$0.00'
                             )}
                           </Text>
                           {!isUsdInputMode &&
