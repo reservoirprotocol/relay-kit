@@ -1,5 +1,12 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies [8b4754a]
+  - @reservoir0x/relay-sdk@2.1.1
+
 ## 8.0.0
 
 ### Patch Changes

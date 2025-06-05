@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.11.2
+
+### Patch Changes
+
+- 8b4754a: Allow changing the polling interval for confirmation and improve RPC configuration
+- Updated dependencies [8b4754a]
+  - @reservoir0x/relay-sdk@2.1.1
+  - @reservoir0x/relay-kit-hooks@1.10.1
+
 ## 2.11.1
 
 ### Patch Changes
