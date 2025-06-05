@@ -145,6 +145,29 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
+  // Helper function to format USD value with commas
+  const formatUsdValue = (value: string): string => {
+    // Remove all non-digit and non-decimal characters
+    const cleanValue = value.replace(/[^\d.]/g, '')
+
+    // Handle empty or invalid input
+    if (!cleanValue || cleanValue === '.') return cleanValue
+
+    // Split into integer and decimal parts
+    const parts = cleanValue.split('.')
+
+    // Format integer part with commas
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    // Reconstruct with decimal if present
+    return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart
+  }
+
+  // Helper function to parse formatted USD value back to plain number string
+  const parseUsdValue = (value: string): string => {
+    return value.replace(/[^\d.]/g, '')
+  }
+
   //Handle external unverified tokens
   useEffect(() => {
     if (fromToken && 'verified' in fromToken && !fromToken.verified) {
@@ -851,7 +874,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? usdInputValue
+                              ? formatUsdValue(usdInputValue)
                               : tradeType === 'EXACT_INPUT'
                                 ? amountInputValue
                                 : amountInputValue
@@ -860,10 +883,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                           setValue={(e) => {
                             if (isUsdInputMode) {
-                              setUsdInputValue(e)
+                              const parsedValue = parseUsdValue(e)
+                              setUsdInputValue(parsedValue)
                               setTradeType('EXACT_INPUT')
                               setTokenInputCache('')
-                              if (Number(e) === 0) {
+                              if (Number(parsedValue) === 0) {
                                 setAmountOutputValue('')
                                 setUsdOutputValue('')
                                 debouncedAmountInputControls.flush()
@@ -1382,7 +1406,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? usdOutputValue
+                              ? formatUsdValue(usdOutputValue)
                               : tradeType === 'EXPECTED_OUTPUT'
                                 ? amountOutputValue
                                 : amountOutputValue
@@ -1391,9 +1415,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           }
                           setValue={(e) => {
                             if (isUsdInputMode) {
-                              setUsdOutputValue(e)
+                              const parsedValue = parseUsdValue(e)
+                              setUsdOutputValue(parsedValue)
                               setTradeType('EXPECTED_OUTPUT')
-                              if (Number(e) === 0) {
+                              if (Number(parsedValue) === 0) {
                                 setAmountInputValue('')
                                 setUsdInputValue('')
                                 debouncedAmountOutputControls.flush()
