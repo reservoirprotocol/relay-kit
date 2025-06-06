@@ -36,11 +36,23 @@ function formatNumber(
   if (!amount) {
     return '-'
   }
-  if (Number(amount) >= 1000000000) {
+
+  const numAmount = Number(amount)
+
+  if (numAmount >= 1000000000) {
     return '>1B'
   }
 
-  return format(+amount).replace(/\.?0+$/, '') // remove trailing zeros
+  // Handle very small positive values
+  if (numAmount > 0) {
+    const threshold = Math.pow(10, -maximumFractionDigits)
+    if (numAmount < threshold) {
+      const thresholdStr = threshold.toFixed(maximumFractionDigits)
+      return `< ${thresholdStr}`
+    }
+  }
+
+  return format(numAmount).replace(/\.?0+$/, '')
 }
 
 const truncateFractionAndFormat = (
