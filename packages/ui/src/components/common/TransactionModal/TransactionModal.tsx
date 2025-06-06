@@ -187,7 +187,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   fromChain,
   toChain,
   isLoadingTransaction,
-  setQuote
+  setQuote,
+  requestId
 }) => {
   useEffect(() => {
     if (!open) {
@@ -279,6 +280,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
             isCanonical={isCanonical}
             details={details}
             isLoadingTransaction={isLoadingTransaction}
+            requestId={requestId}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

@@ -23,8 +23,14 @@ export type ExecuteActionParameters = {
  * @param data.depositGasLimit A gas limit to use in base units (wei, etc)
  * @param data.wallet Wallet object that adheres to the AdaptedWakket interface or a viem WalletClient
  * @param data.onProgress Callback to update UI state as execution progresses
+ * @param abortController Optional AbortController to cancel the execution
  */
-export async function execute(data: ExecuteActionParameters) {
+export function execute(data: ExecuteActionParameters): Promise<{
+  data: Execute
+  abortController: AbortController
+}> & {
+  abortController: AbortController
+} {
   const { quote, wallet, depositGasLimit, onProgress } = data
   const client = getClient()
 
@@ -44,6 +50,9 @@ export async function execute(data: ExecuteActionParameters) {
       throw new Error('AdaptedWallet is required to execute steps')
     }
 
+    // Instantiate a new abort controller
+    const abortController = new AbortController()
+
     const chainId = quote.details?.currencyIn?.currency?.chainId
 
     if (chainId === undefined) {
@@ -61,36 +70,59 @@ export async function execute(data: ExecuteActionParameters) {
     const { request, ...restOfQuote } = quote
     const _quote = safeStructuredClone(restOfQuote)
 
-    const data = await executeSteps(
-      chainId,
-      request,
-      adaptedWallet,
-      ({ steps, fees, breakdown, details, refunded, error }) => {
-        const { currentStep, currentStepItem, txHashes } =
-          getCurrentStepData(steps)
-
-        onProgress?.({
-          steps,
-          fees,
-          breakdown,
-          details,
-          currentStep,
-          currentStepItem,
-          txHashes,
-          refunded,
-          error
-        })
-      },
-      _quote,
-      depositGasLimit
-        ? {
-            deposit: {
-              gasLimit: depositGasLimit
-            }
+    // Build the promise that carries out the execution
+    const executionPromise: Promise<{
+      data: Execute
+      abortController: AbortController
+    }> = new Promise((resolve, reject) => {
+      executeSteps(
+        chainId,
+        request,
+        adaptedWallet,
+        ({ steps, fees, breakdown, details, refunded, error }) => {
+          if (abortController.signal.aborted) {
+            console.log(
+              'Relay SDK: Execution aborted, skipping progress callback'
+            )
+            return
           }
-        : undefined
-    )
-    return data
+
+          const { currentStep, currentStepItem, txHashes } =
+            getCurrentStepData(steps)
+
+          onProgress?.({
+            steps,
+            fees,
+            breakdown,
+            details,
+            currentStep,
+            currentStepItem,
+            txHashes,
+            refunded,
+            error
+          })
+        },
+        _quote,
+        depositGasLimit
+          ? {
+              deposit: {
+                gasLimit: depositGasLimit
+              }
+            }
+          : undefined
+      )
+        .then((data) => {
+          resolve({ data, abortController })
+        })
+        .catch(reject)
+    })
+
+    // Attach the AbortController to the promise itself so callers can access it immediately
+    ;(executionPromise as any).abortController = abortController
+
+    return executionPromise as typeof executionPromise & {
+      abortController: AbortController
+    }
   } catch (err: any) {
     console.error(err)
     throw err

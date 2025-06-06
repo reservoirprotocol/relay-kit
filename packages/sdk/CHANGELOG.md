@@ -1,5 +1,21 @@
 # @reservoir0x/relay-sdk
 
+## 2.1.1
+
+### Patch Changes
+
+- 8b4754a: Allow changing the polling interval for confirmation and improve RPC configuration
+
+## 2.1.0
+
+### Minor Changes
+
+- bb63fc9: Deduplicate request IDs
+
+### Patch Changes
+
+- 758f8a7: Optimize same chain swapping to skip intent status if slower than receipt
+
 ## 2.0.3
 
 ### Patch Changes

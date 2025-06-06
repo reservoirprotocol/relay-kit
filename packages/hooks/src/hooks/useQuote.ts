@@ -131,7 +131,11 @@ export default function (
       }) as Omit<ReturnType<QueryType>, 'data'> & {
         data?: QuoteResponse
         queryKey: QueryKey
-        executeQuote: (onProgress: onProgress) => Promise<Execute> | undefined
+        executeQuote: (
+          onProgress: onProgress
+        ) =>
+          | Promise<{ data: Execute; abortController?: AbortController }>
+          | undefined
       },
     [
       response.data,

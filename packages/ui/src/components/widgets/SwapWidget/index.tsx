@@ -275,7 +275,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateBalanceQueries,
         invalidateQuoteQuery,
         quoteInProgress,
-        setQuoteInProgress
+        setQuoteInProgress,
+        abortController
       }) => {
         // helper to calculate the USD value of a token
         const calculateUsdValue = (
@@ -769,8 +770,13 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                   } else if (steps) {
                     invalidateQuoteQuery()
                   }
+                  // Abort ongoing execution
+                  if (abortController) {
+                    abortController.abort()
+                  }
                   setSwapError(null)
                   setSteps(null)
+                  setQuoteInProgress(null)
                 } else if (pendingSuccessFlush) {
                   setPendingSuccessFlush(false)
                 }
@@ -1703,6 +1709,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       </Button>
                     ) : (
                       <SwapButton
+                        isFetchingQuote={isFetchingQuote}
                         transactionModalOpen={transactionModalOpen}
                         depositAddressModalOpen={depositAddressModalOpen}
                         isValidFromAddress={isValidFromAddress}

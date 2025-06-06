@@ -34,6 +34,7 @@ import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { MoonPayProvider } from 'context/MoonpayProvider'
+import { queryRelayChains } from '@reservoir0x/relay-kit-hooks'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -104,7 +105,9 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
           chains: dynamicChains,
           privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
           appName: 'Relay Demo',
-          useGasFeeEstimations: true
+          useGasFeeEstimations: true,
+          pollingInterval: 1000,
+          confirmationPollingInterval: 1000
         }}
       >
         <DynamicContextProvider
@@ -198,16 +201,21 @@ const getInitialProps = async ({
       )
     }
 
-    const chainsResponse = await fetch(url.href)
+    const chainsResponse = await queryRelayChains(baseApiUrl, {})
 
-    if (!chainsResponse?.ok) {
-      throw new Error(`Chains API failed with status ${chainsResponse?.status}`)
+    if (!chainsResponse?.chains) {
+      throw new Error(`Chains API failed to return chains`)
     }
 
-    const response = await chainsResponse.json()
-    const relayChains = response?.chains?.map((chain: any) =>
-      configureViemChain(chain)
-    )
+    const relayChains = chainsResponse?.chains
+      ?.filter((chain) => chain.id !== undefined)
+      ?.map((chain) => {
+        const network = chainIdToAlchemyNetworkMap[chain.id as number]
+        if (network && ALCHEMY_API_KEY) {
+          chain.httpRpcUrl = `https://${network}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+        }
+        return configureViemChain(chain as any)
+      })
 
     // Set cache headers
     ctx.res.setHeader(

@@ -1,5 +1,39 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.11.2
+
+### Patch Changes
+
+- 8b4754a: Allow changing the polling interval for confirmation and improve RPC configuration
+- Updated dependencies [8b4754a]
+  - @reservoir0x/relay-sdk@2.1.1
+  - @reservoir0x/relay-kit-hooks@1.10.1
+
+## 2.11.1
+
+### Patch Changes
+
+- f073269: Fix solana address regex
+
+## 2.11.0
+
+### Minor Changes
+
+- bb63fc9: Deduplicate request IDs
+
+### Patch Changes
+
+- 73334f9: Add copy for new refund reason
+- d0971ec: Add better handling for eclipse rpc balance errors
+- b30f584: Allow selecting wallet before selecting chain
+- 42aa03d: Add context to wallet_selector events
+- dc9da43: Fix distorted token images
+- 4d75f3a: Capture quote to be used in TransactionModal
+- Updated dependencies [bb63fc9]
+- Updated dependencies [758f8a7]
+  - @reservoir0x/relay-kit-hooks@1.10.0
+  - @reservoir0x/relay-sdk@2.1.0
+
 ## 2.10.12
 
 ### Patch Changes

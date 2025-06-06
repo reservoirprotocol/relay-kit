@@ -31,6 +31,7 @@ export type RelayClientOptions = {
   useGasFeeEstimations?: boolean
   uiVersion?: string
   logger?: (message: Parameters<typeof logUtil>['0'], level: LogLevel) => void
+  confirmationPollingInterval?: number
 }
 
 let _client: RelayClient
@@ -53,6 +54,7 @@ export class RelayClient {
   source?: string
   logLevel: LogLevel
   pollingInterval?: number
+  confirmationPollingInterval?: number
   maxPollingAttemptsBeforeTimeout?: number
   useGasFeeEstimations: boolean
   chains: RelayChain[]
@@ -108,6 +110,9 @@ export class RelayClient {
     this.pollingInterval = options.pollingInterval
       ? options.pollingInterval
       : this.pollingInterval
+    this.confirmationPollingInterval = options.confirmationPollingInterval
+      ? options.confirmationPollingInterval
+      : this.confirmationPollingInterval
     this.maxPollingAttemptsBeforeTimeout =
       options.maxPollingAttemptsBeforeTimeout
         ? options.maxPollingAttemptsBeforeTimeout
