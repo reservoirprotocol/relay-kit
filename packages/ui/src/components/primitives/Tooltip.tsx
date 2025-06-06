@@ -22,6 +22,7 @@ const Tooltip = ({
   open,
   defaultOpen,
   onOpenChange,
+  asChild = false,
   ...props
 }: any) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
@@ -33,7 +34,7 @@ const Tooltip = ({
         defaultOpen={defaultOpen}
         onOpenChange={onOpenChange}
       >
-        <Popover.Trigger>{children}</Popover.Trigger>
+        <Popover.Trigger asChild={asChild}>{children}</Popover.Trigger>
         <Popover.Content
           sideOffset={2}
           side="bottom"
@@ -71,7 +72,9 @@ const Tooltip = ({
         onOpenChange={onOpenChange}
         delayDuration={250}
       >
-        <TooltipPrimitive.Trigger>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Trigger asChild={asChild}>
+          {children}
+        </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Content
           sideOffset={2}
           side="bottom"
