@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.1.1
+
+### Patch Changes
+
+- 8b4754a: Allow changing the polling interval for confirmation and improve RPC configuration
+
 ## 2.1.0
 
 ### Minor Changes
