@@ -125,6 +125,12 @@ const OnrampPage: NextPage = () => {
           onTokenChange={(token) => {
             console.log('onTokenChange', token)
           }}
+          onSuccess={(data, moonpayRequestId) => {
+            console.log('onSuccess', data, moonpayRequestId)
+          }}
+          onError={(error, data, moonpayRequestId) => {
+            console.log('onError', error, data, moonpayRequestId)
+          }}
         />
       </div>
     </Layout>
