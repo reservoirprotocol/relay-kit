@@ -289,23 +289,23 @@ const FeeBreakdown: FC<Props> = ({
           }}
         >
           <span
-            style={{ cursor: 'pointer' }}
+            style={{
+              cursor: 'pointer',
+              flexShrink: 1,
+              overflow: 'hidden',
+              height: 21
+            }}
             onClick={(e) => {
               setRateMode(rateMode === 'input' ? 'output' : 'input')
               e.preventDefault()
             }}
           >
-            {rateMode === 'input' ? (
-              <Text style="subtitle2">
-                1 {fromToken?.symbol} = {formatSwapRate(Number(swapRate))}{' '}
-                {toToken?.symbol}
-              </Text>
-            ) : (
-              <Text style="subtitle2">
-                1 {toToken?.symbol} = {formatSwapRate(1 / Number(swapRate))}{' '}
-                {fromToken?.symbol}
-              </Text>
-            )}
+            <ConversionRate
+              fromToken={fromToken}
+              toToken={toToken}
+              rate={Number(swapRate)}
+              isInputMode={rateMode === 'input'}
+            />
           </span>
 
           <Flex
@@ -314,14 +314,17 @@ const FeeBreakdown: FC<Props> = ({
               color:
                 timeEstimate && timeEstimate.time <= 30
                   ? '{colors.green.9}'
-                  : '{colors.amber.9}'
+                  : '{colors.amber.9}',
+              flexShrink: 0
             }}
             align="center"
           >
             {!isOpen && timeEstimate && timeEstimate?.time !== 0 ? (
               <>
                 <FontAwesomeIcon icon={faClock} width={16} />
-                <Text style="subtitle2">~ {timeEstimate?.formattedTime}</Text>
+                <Text style="subtitle2" css={{ flexShrink: 0 }}>
+                  ~ {timeEstimate?.formattedTime}
+                </Text>
                 <Flex
                   justify="center"
                   align="center"
@@ -338,7 +341,9 @@ const FeeBreakdown: FC<Props> = ({
                   width={16}
                   style={{ color: '#C1C8CD' }}
                 />
-                <Text style="subtitle2">{originGasFee?.usd}</Text>
+                <Text style="subtitle2" css={{ flexShrink: 0 }}>
+                  {originGasFee?.usd}
+                </Text>
               </>
             )}
             <Box
@@ -423,3 +428,38 @@ const FeeBreakdown: FC<Props> = ({
 }
 
 export default FeeBreakdown
+
+type ConversionRateProps = {
+  fromToken?: { symbol: string }
+  toToken?: { symbol: string }
+  rate: number
+  isInputMode: boolean
+}
+
+const ConversionRate: FC<ConversionRateProps> = ({
+  fromToken,
+  toToken,
+  rate,
+  isInputMode
+}) => {
+  const displayRate = isInputMode ? rate : 1 / rate
+  const fromSymbol = isInputMode ? fromToken?.symbol : toToken?.symbol
+  const toSymbol = isInputMode ? toToken?.symbol : fromToken?.symbol
+
+  return (
+    <Tooltip
+      content={
+        <Text style="subtitle2">
+          1 {fromSymbol} = {formatSwapRate(displayRate)} {toSymbol}
+        </Text>
+      }
+      asChild={true}
+    >
+      <div style={{ width: '100%', minWidth: 0 }}>
+        <Text style="subtitle2" ellipsify>
+          1 {fromSymbol} = {formatSwapRate(displayRate)} {toSymbol}
+        </Text>
+      </div>
+    </Tooltip>
+  )
+}
