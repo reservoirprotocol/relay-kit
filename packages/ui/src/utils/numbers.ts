@@ -7,10 +7,17 @@ const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
 })
 
 function formatDollar(price?: number | null) {
-  const formatted =
-    price !== undefined && price !== null && price !== 0
-      ? formatUsdCurrency(price)
-      : '-'
+  if (price === undefined || price === null || price === 0) {
+    return '-'
+  }
+
+  // For values >= $1B, show ">$1B"
+  if (Math.abs(price) >= 1000000000) {
+    return '>$1B'
+  }
+
+  const formatted = formatUsdCurrency(price)
+
   if (formatted === '$0.00' && price && price > 0) {
     return '< $0.01'
   }
