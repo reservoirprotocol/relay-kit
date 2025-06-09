@@ -122,7 +122,7 @@ const FeeBreakdown: FC<Props> = ({
             width={16}
             style={{ color: '#C1C8CD' }}
           />
-          <Text style="subtitle2">{originGasFee?.usd}</Text>
+          <Text style="subtitle2">{originGasFee?.usd.formatted}</Text>
         </Flex>
       )
     },
@@ -338,7 +338,7 @@ const FeeBreakdown: FC<Props> = ({
                   width={16}
                   style={{ color: '#C1C8CD' }}
                 />
-                <Text style="subtitle2">{originGasFee?.usd}</Text>
+                <Text style="subtitle2">{originGasFee?.usd.formatted}</Text>
               </>
             )}
             <Box

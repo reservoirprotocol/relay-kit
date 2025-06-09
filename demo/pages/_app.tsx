@@ -104,7 +104,14 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
           chains: dynamicChains,
           privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
           appName: 'Relay Demo',
-          useGasFeeEstimations: true
+          useGasFeeEstimations: true,
+          // TODO: remove this
+          appFees: [
+            {
+              recipient: '0x03508bB71268BBA25ECaCC8F620e01866650532c',
+              fee: '100'
+            }
+          ]
         }}
       >
         <DynamicContextProvider

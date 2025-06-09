@@ -1,9 +1,4 @@
-import type {
-  Execute,
-  GetQuoteParameters,
-  paths,
-  RelayChain
-} from '@reservoir0x/relay-sdk'
+import type { Execute, paths, RelayChain } from '@reservoir0x/relay-sdk'
 import { formatBN, formatDollar } from './numbers.js'
 import type { BridgeFee } from '../types/index.js'
 import { formatSeconds, get15MinuteInterval } from './time.js'
@@ -13,6 +8,26 @@ import type Text from '../components/primitives/Text.js'
 import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
 import { sha256 } from './hashing.js'
+
+// Fees from the backend are negative, so we flip the sign to make them positive
+// This is for internal value handling only
+const formatUsdFee = (amountUsd: string | undefined) => {
+  const value = Number(amountUsd ?? 0)
+  const flippedValue = -value
+  return {
+    value: flippedValue,
+    formatted: formatDollar(Math.abs(value))
+  }
+}
+
+// For values that already have the correct sign (like swap impact)
+const formatUsdValue = (amountUsd: string | undefined) => {
+  const value = Number(amountUsd ?? 0)
+  return {
+    value,
+    formatted: formatDollar(Math.abs(value))
+  }
+}
 
 export const parseFees = (
   selectedTo: RelayChain,
@@ -25,7 +40,10 @@ export const parseFees = (
     priceImpactPercentage?: string
     priceImpact?: string
     priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
-    swapImpact?: string
+    swapImpact?: {
+      value: number
+      formatted: string
+    }
   }
 } => {
   const fees = quote?.fees
@@ -62,9 +80,7 @@ export const parseFees = (
     {
       raw: gasFee,
       formatted: `${formattedGasFee}`,
-      usd: fees?.gas?.amountUsd
-        ? formatDollar(Number(fees.gas.amountUsd))
-        : '0',
+      usd: formatUsdFee(fees?.gas?.amountUsd),
       name: `Deposit Gas (${selectedFrom.displayName})`,
       tooltip: null,
       type: 'gas',
@@ -73,10 +89,8 @@ export const parseFees = (
     },
     {
       raw: relayerGasFee,
-      formatted: `${formattedRelayerGas}`,
-      usd: fees?.gas?.amountUsd
-        ? formatDollar(Number(fees.relayerGas?.amountUsd))
-        : '0',
+      formatted: `-${formattedRelayerGas}`,
+      usd: formatUsdFee(fees?.relayerGas?.amountUsd),
       name: `Fill Gas (${selectedTo.displayName})`,
       tooltip: null,
       type: 'gas',
@@ -85,11 +99,8 @@ export const parseFees = (
     },
     {
       raw: relayerFee,
-      formatted: `${relayerFeeIsReward ? '+' : ''}${formattedRelayer}`,
-      usd:
-        `${relayerFeeIsReward ? '+' : ''}` + fees?.relayerService?.amountUsd
-          ? formatDollar(Number(fees?.relayerService?.amountUsd))
-          : '0',
+      formatted: `${relayerFeeIsReward ? '+' : '-'}${formattedRelayer}`,
+      usd: formatUsdFee(fees?.relayerService?.amountUsd),
       name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
       tooltip: null,
       type: 'relayer',
@@ -106,9 +117,7 @@ export const parseFees = (
     breakdown.push({
       raw: appFee,
       formatted: `${formattedAppFee}`,
-      usd: fees?.app?.amountUsd
-        ? formatDollar(Number(fees.app.amountUsd))
-        : '0',
+      usd: formatUsdFee(fees?.app?.amountUsd),
       name: 'App Fee',
       tooltip: null,
       type: 'relayer',
@@ -140,16 +149,10 @@ export const parseFees = (
         ? `${quote?.details?.totalImpact?.percent}%`
         : undefined,
       priceImpact: quote?.details?.totalImpact?.usd
-        ? formatDollar(
-            Math.abs(parseFloat(quote?.details?.totalImpact?.usd ?? 0))
-          )
+        ? formatDollar(parseFloat(quote?.details?.totalImpact?.usd ?? 0))
         : undefined,
       priceImpactColor,
-      swapImpact: quote?.details?.swapImpact?.usd
-        ? formatDollar(
-            Math.abs(parseFloat(quote?.details?.swapImpact?.usd ?? 0))
-          )
-        : undefined
+      swapImpact: formatUsdValue(quote?.details?.swapImpact?.usd)
     }
   }
 }
