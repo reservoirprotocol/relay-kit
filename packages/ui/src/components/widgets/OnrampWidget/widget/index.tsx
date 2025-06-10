@@ -25,7 +25,7 @@ import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.j
 
 type BaseOnrampWidgetProps = {
   defaultWalletAddress?: string
-  supportedWalletVMs: ChainVM[]
+  supportedWalletVMs: Omit<ChainVM, 'hypevm'>[]
   moonPayApiKey: string
   moonPayThemeId?: string
   moonPayThemeMode?: 'dark' | 'light'

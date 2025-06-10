@@ -201,7 +201,9 @@ const getInitialProps = async ({
       )
     }
 
-    const chainsResponse = await queryRelayChains(baseApiUrl, {})
+    const chainsResponse = await queryRelayChains(baseApiUrl, {
+      includeChains: process.env.NEXT_PUBLIC_INCLUDE_CHAINS
+    })
 
     if (!chainsResponse?.chains) {
       throw new Error(`Chains API failed to return chains`)

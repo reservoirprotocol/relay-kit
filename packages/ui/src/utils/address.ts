@@ -31,7 +31,7 @@ export const isValidAddress = (
   }
 
   if (address) {
-    if (vmType === 'evm' || !vmType) {
+    if (vmType === 'evm' || vmType === 'hypevm' || !vmType) {
       return isAddress(address)
     } else if (vmType === 'svm') {
       if (chainId && connector) {
