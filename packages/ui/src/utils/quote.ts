@@ -193,7 +193,7 @@ export const isHighRelayerServiceFeeUsd = (quote?: QuoteResponse) => {
     return false
   }
 
-  const feeThresholdPercentage = (usdIn * 2.5) / 100
+  const feeThresholdPercentage = (usdIn * 1.5) / 100
   const feeThresholdUsd = 25
   return (
     relayerServiceFeeUsd > feeThresholdPercentage &&
