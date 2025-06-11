@@ -9,7 +9,6 @@ import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
 import { sha256 } from './hashing.js'
 
-// Fees from the backend are positive, so we flip the sign to make them negative in the ui
 const formatUsdFee = (
   amountUsd: string | undefined,
   shouldFlipSign: boolean = false
