@@ -61,7 +61,7 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
         <Flex
           direction="column"
           align="start"
-          css={{ gap: '2px', maxWidth: 100, minWidth: 60 }}
+          css={{ maxWidth: 100, minWidth: 60 }}
         >
           <Text style="h6" ellipsify css={{ maxWidth: '100%' }}>
             {token.symbol}
@@ -70,7 +70,7 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
             style="subtitle3"
             ellipsify
             color="subtle"
-            css={{ lineHeight: '100%', maxWidth: '100%' }}
+            css={{ lineHeight: '15px', maxWidth: '100%' }}
           >
             {chain?.displayName}
           </Text>
