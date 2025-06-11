@@ -9,23 +9,16 @@ import { bitcoin } from '../utils/bitcoin.js'
 import axios from 'axios'
 import { sha256 } from './hashing.js'
 
-// Fees from the backend are negative, so we flip the sign to make them positive
-// This is for internal value handling only
-const formatUsdFee = (amountUsd: string | undefined) => {
+// Fees from the backend are positive, so we flip the sign to make them negative in the ui
+const formatUsdFee = (
+  amountUsd: string | undefined,
+  shouldFlipSign: boolean = false
+) => {
   const value = Number(amountUsd ?? 0)
-  const flippedValue = -value
+  const finalValue = shouldFlipSign ? -value : value
   return {
-    value: flippedValue,
-    formatted: formatDollar(Math.abs(value))
-  }
-}
-
-// For values that already have the correct sign (like swap impact)
-const formatUsdValue = (amountUsd: string | undefined) => {
-  const value = Number(amountUsd ?? 0)
-  return {
-    value,
-    formatted: formatDollar(Math.abs(value))
+    value: finalValue,
+    formatted: formatDollar(finalValue)
   }
 }
 
@@ -80,7 +73,7 @@ export const parseFees = (
     {
       raw: gasFee,
       formatted: `${formattedGasFee}`,
-      usd: formatUsdFee(fees?.gas?.amountUsd),
+      usd: formatUsdFee(fees?.gas?.amountUsd, true),
       name: `Deposit Gas (${selectedFrom.displayName})`,
       tooltip: null,
       type: 'gas',
@@ -90,7 +83,7 @@ export const parseFees = (
     {
       raw: relayerGasFee,
       formatted: `-${formattedRelayerGas}`,
-      usd: formatUsdFee(fees?.relayerGas?.amountUsd),
+      usd: formatUsdFee(fees?.relayerGas?.amountUsd, true),
       name: `Fill Gas (${selectedTo.displayName})`,
       tooltip: null,
       type: 'gas',
@@ -100,7 +93,7 @@ export const parseFees = (
     {
       raw: relayerFee,
       formatted: `${relayerFeeIsReward ? '+' : '-'}${formattedRelayer}`,
-      usd: formatUsdFee(fees?.relayerService?.amountUsd),
+      usd: formatUsdFee(fees?.relayerService?.amountUsd, true),
       name: relayerFeeIsReward ? 'Reward' : 'Relay Fee',
       tooltip: null,
       type: 'relayer',
@@ -117,7 +110,7 @@ export const parseFees = (
     breakdown.push({
       raw: appFee,
       formatted: `${formattedAppFee}`,
-      usd: formatUsdFee(fees?.app?.amountUsd),
+      usd: formatUsdFee(fees?.app?.amountUsd, true),
       name: 'App Fee',
       tooltip: null,
       type: 'relayer',
@@ -152,7 +145,7 @@ export const parseFees = (
         ? formatDollar(parseFloat(quote?.details?.totalImpact?.usd ?? 0))
         : undefined,
       priceImpactColor,
-      swapImpact: formatUsdValue(quote?.details?.swapImpact?.usd)
+      swapImpact: formatUsdFee(quote?.details?.swapImpact?.usd, false)
     }
   }
 }
