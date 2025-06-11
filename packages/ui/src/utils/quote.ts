@@ -81,7 +81,7 @@ export const parseFees = (
     },
     {
       raw: relayerGasFee,
-      formatted: `-${formattedRelayerGas}`,
+      formatted: `${formattedRelayerGas}`,
       usd: formatUsdFee(fees?.relayerGas?.amountUsd, true),
       name: `Fill Gas (${selectedTo.displayName})`,
       tooltip: null,
