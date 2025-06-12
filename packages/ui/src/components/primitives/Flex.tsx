@@ -3,7 +3,12 @@ import {
   css as designCss,
   type Styles
 } from '@reservoir0x/relay-design-system/css'
-import type { FC, PropsWithChildren, CSSProperties } from 'react'
+import type {
+  FC,
+  PropsWithChildren,
+  CSSProperties,
+  HTMLAttributes
+} from 'react'
 
 export const FlexCss = cva({
   base: {
@@ -76,13 +81,28 @@ type FlexCssProps = Parameters<typeof FlexCss>['0']
 
 const Flex: FC<
   { css?: Styles; style?: CSSProperties; id?: string } & FlexCssProps &
-    PropsWithChildren
-> = ({ css, style, children, id, ...props }) => {
+    PropsWithChildren &
+    Omit<HTMLAttributes<HTMLDivElement>, 'className'>
+> = ({
+  css,
+  style,
+  children,
+  id,
+  align,
+  justify,
+  direction,
+  wrap,
+  ...htmlProps
+}) => {
   return (
     <div
-      className={designCss(FlexCss.raw(props), designCss.raw(css))}
+      className={designCss(
+        FlexCss.raw({ align, justify, direction, wrap }),
+        designCss.raw(css)
+      )}
       style={style}
       id={id}
+      {...htmlProps}
     >
       {children}
     </div>

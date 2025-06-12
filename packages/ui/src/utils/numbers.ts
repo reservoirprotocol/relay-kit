@@ -7,10 +7,17 @@ const { format: formatUsdCurrency } = new Intl.NumberFormat('en-US', {
 })
 
 function formatDollar(price?: number | null) {
-  const formatted =
-    price !== undefined && price !== null && price !== 0
-      ? formatUsdCurrency(price)
-      : '-'
+  if (price === undefined || price === null || price === 0) {
+    return '-'
+  }
+
+  // For values >= $1B, show ">$1B"
+  if (Math.abs(price) >= 1000000000) {
+    return '>$1B'
+  }
+
+  const formatted = formatUsdCurrency(price)
+
   if (formatted === '$0.00' && price && price > 0) {
     return '< $0.01'
   }
@@ -29,11 +36,23 @@ function formatNumber(
   if (!amount) {
     return '-'
   }
-  if (Number(amount) >= 1000000000) {
+
+  const numAmount = Number(amount)
+
+  if (numAmount >= 1000000000) {
     return '>1B'
   }
 
-  return format(+amount).replace(/\.?0+$/, '') // remove trailing zeros
+  // Handle very small positive values
+  if (numAmount > 0) {
+    const threshold = Math.pow(10, -maximumFractionDigits)
+    if (numAmount < threshold) {
+      const thresholdStr = threshold.toFixed(maximumFractionDigits)
+      return `< ${thresholdStr}`
+    }
+  }
+
+  return format(numAmount).replace(/\.?0+$/, '')
 }
 
 const truncateFractionAndFormat = (

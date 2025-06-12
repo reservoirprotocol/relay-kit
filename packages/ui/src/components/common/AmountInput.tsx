@@ -4,9 +4,15 @@ import { Input } from '../primitives/index.js'
 type Props = {
   value: string
   setValue: (value: string) => void
+  prefixSymbol?: string
 } & ComponentPropsWithoutRef<typeof Input>
 
-const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
+const AmountInput: FC<Props> = ({
+  value,
+  setValue,
+  prefixSymbol,
+  ...inputProps
+}) => {
   return (
     <Input
       {...inputProps}
@@ -36,17 +42,32 @@ const AmountInput: FC<Props> = ({ value, setValue, ...inputProps }) => {
         ...inputProps.css
       }}
       placeholder={inputProps.placeholder ?? '0'}
-      value={value}
+      value={prefixSymbol ? `${prefixSymbol}${value}` : value}
       onChange={
         inputProps.onChange
           ? inputProps.onChange
           : (e) => {
-              const inputValue = (e.target as HTMLInputElement).value
+              let newNumericValue = (e.target as HTMLInputElement).value
+
+              if (prefixSymbol) {
+                if (newNumericValue.startsWith(prefixSymbol)) {
+                  newNumericValue = newNumericValue.substring(
+                    prefixSymbol.length
+                  )
+                }
+                // If input is empty or doesn't start with prefix, treat as new numeric value
+                // The prefix will be re-applied by the `value` prop on re-render
+              }
+
+              // Validate and set the numeric part
               const regex = /^[0-9]+(\.[0-9]*)?$/
-              if (inputValue === '.' || inputValue.includes(',')) {
+              if (newNumericValue === '.' || newNumericValue.includes(',')) {
                 setValue('0.')
-              } else if (regex.test(inputValue) || inputValue === '') {
-                setValue(inputValue)
+              } else if (
+                regex.test(newNumericValue) ||
+                newNumericValue === ''
+              ) {
+                setValue(newNumericValue)
               }
             }
       }
