@@ -258,8 +258,7 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     step === OnrampStep.Success && fillTxHash
       ? {
           user: recipient,
-          hash: fillTxHash,
-          referrer: client?.source
+          hash: fillTxHash
         }
       : undefined,
     client?.baseApiUrl,

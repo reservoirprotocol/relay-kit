@@ -15,7 +15,6 @@ import fetcher from '../fetcher.js'
 export type UserTransactionQuery =
   paths['/requests/v2']['get']['parameters']['query'] & {
     id?: string
-    referrer?: string
   }
 
 export type UserTransactionsResponse =

@@ -339,8 +339,7 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       allTxHashes[0]
       ? {
           user: address,
-          hash: allTxHashes[0]?.txHash,
-          referrer: relayClient?.source
+          hash: allTxHashes[0]?.txHash
         }
       : undefined,
     relayClient?.baseApiUrl,
