@@ -141,7 +141,10 @@ export class RelayClient {
 
 export async function configureDynamicChains() {
   try {
-    const chains = await utils.fetchChainConfigs(_client.baseApiUrl)
+    const chains = await utils.fetchChainConfigs(
+      _client.baseApiUrl,
+      _client.source
+    )
     _client.chains = chains
     return chains
   } catch (e) {

@@ -280,7 +280,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             relayClient?.baseApiUrl,
             {
               address: fromToken?.address ?? '',
-              chainId: fromToken?.chainId ?? 0
+              chainId: fromToken?.chainId ?? 0,
+              referrer: relayClient?.source
             },
             {
               enabled: !!(
@@ -301,7 +302,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             relayClient?.baseApiUrl,
             {
               address: toToken?.address ?? '',
-              chainId: toToken?.chainId ?? 0
+              chainId: toToken?.chainId ?? 0,
+              referrer: relayClient?.source
             },
             {
               enabled: !!(

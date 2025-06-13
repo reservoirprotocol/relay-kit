@@ -110,7 +110,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     client?.baseApiUrl,
     {
       address: zeroAddress,
-      chainId: mainnet.id
+      chainId: mainnet.id,
+      referrer: client?.source
     },
     {
       refetchInterval: 60000 * 5, //5 minutes
@@ -226,7 +227,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
   const { data: executionStatus } = useExecutionStatus(
     client ? client : undefined,
     {
-      requestId: requestId ?? undefined
+      requestId: requestId ?? undefined,
+      referrer: client?.source
     },
     undefined,
     undefined,
@@ -256,7 +258,8 @@ export const OnrampModal: FC<OnrampModalProps> = ({
     step === OnrampStep.Success && fillTxHash
       ? {
           user: recipient,
-          hash: fillTxHash
+          hash: fillTxHash,
+          referrer: client?.source
         }
       : undefined,
     client?.baseApiUrl,
@@ -339,9 +342,14 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       !moonPayIdAppended
     ) {
       setMoonPayIdAppended(true)
-      appendMetadataToRequest(client?.baseApiUrl, `${requestId}`, {
-        moonPayId: moonPayRequestId
-      })
+      appendMetadataToRequest(
+        client?.baseApiUrl,
+        `${requestId}`,
+        {
+          moonPayId: moonPayRequestId
+        },
+        client?.source
+      )
         ?.then(() => {
           client?.log(
             ['Posting MoonPay request id', moonPayRequestId, requestId],

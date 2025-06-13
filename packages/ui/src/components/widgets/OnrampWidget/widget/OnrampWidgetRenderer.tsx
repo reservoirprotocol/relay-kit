@@ -124,7 +124,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     client?.baseApiUrl,
     {
       address: token.address,
-      chainId: token.chainId
+      chainId: token.chainId,
+      referrer: client?.source
     },
     {
       refetchInterval: 60000 * 5, //5 minutes
