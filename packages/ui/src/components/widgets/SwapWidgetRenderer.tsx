@@ -91,7 +91,10 @@ export type ChildrenProps = {
       priceImpactPercentage?: string
       priceImpact?: string
       priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
-      swapImpact?: string
+      swapImpact?: {
+        value: number
+        formatted: string
+      }
     }
   } | null
   fromToken?: Token

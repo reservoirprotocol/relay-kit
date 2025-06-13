@@ -19,10 +19,10 @@ import {
   calculateFillTime,
   extractDepositRequestId
 } from '../../../utils/relayTransaction.js'
-import type { BridgeFee, Token } from '../../../types/index.js'
-import { useQuote, useRequests } from '@reservoir0x/relay-kit-hooks'
+import type { Token } from '../../../types/index.js'
+import { useRequests } from '@reservoir0x/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
-import { calculatePriceTimeEstimate, parseFees } from '../../../utils/quote.js'
+import { calculatePriceTimeEstimate } from '../../../utils/quote.js'
 export enum TransactionProgressStep {
   Confirmation,
   Success,
@@ -60,15 +60,6 @@ export type ChildrenProps = {
   startTimestamp: number
   setStartTimestamp: Dispatch<SetStateAction<number>>
   requestId: string | null
-  feeBreakdown: {
-    breakdown: BridgeFee[]
-    totalFees: {
-      usd?: string
-      priceImpactPercentage?: string
-      priceImpact?: string
-      swapImpact?: string
-    }
-  } | null
   isLoadingTransaction: boolean
   isAutoSlippage: boolean
   timeEstimate?: { time: number; formattedTime: string }
@@ -231,15 +222,6 @@ export const TransactionModalRenderer: FC<Props> = ({
   const { fillTime: executionTime, seconds: executionTimeSeconds } =
     calculateExecutionTime(Math.floor(startTimestamp / 1000), transaction)
 
-  const feeBreakdown = useMemo(() => {
-    const chains = relayClient?.chains
-    const fromChain = chains?.find((chain) => chain.id === fromToken?.chainId)
-    const toChain = chains?.find((chain) => chain.id === toToken?.chainId)
-    return fromToken && toToken && fromChain && toChain && quote
-      ? parseFees(toChain, fromChain, quote)
-      : null
-  }, [quote, fromToken, toToken, relayClient])
-
   const isAutoSlippage = slippageTolerance === undefined
   const timeEstimate = calculatePriceTimeEstimate(quote?.details)
 
@@ -268,7 +250,6 @@ export const TransactionModalRenderer: FC<Props> = ({
         startTimestamp,
         setStartTimestamp,
         requestId,
-        feeBreakdown,
         isLoadingTransaction,
         isAutoSlippage,
         timeEstimate
