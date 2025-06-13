@@ -446,22 +446,18 @@ const postSameChainTransactionToSolver = async ({
       LogLevel.Verbose
     )
     try {
-      const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] =
-        {
-          tx: calldata,
-          chainId: chainId.toString(),
-          requestId: step.requestId
-        }
-      let requestParamsString = ''
-      if (source) {
-        const requestParams = new URLSearchParams()
-        requestParams.append('source', source)
-        requestParamsString = `?${requestParams.toString()}`
+      const triggerData: paths['/transactions/single']['post']['requestBody']['content']['application/json'] & {
+        referrer?: string
+      } = {
+        tx: calldata,
+        chainId: chainId.toString(),
+        requestId: step.requestId,
+        referrer: source
       }
 
       axios
         .request({
-          url: `${request.baseURL}/transactions/single${requestParamsString}`,
+          url: `${request.baseURL}/transactions/single`,
           method: 'POST',
           headers: headers,
           data: triggerData
