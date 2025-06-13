@@ -29,11 +29,12 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryTokenPrice = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: TokenPriceQuery
+  options?: TokenPriceQuery,
+  headers?: HeadersInit
 ): Promise<TokenPriceResponse> {
   const url = new URL(`${baseApiUrl}/currencies/token/price`)
   setParams(url, options ?? {})
-  return fetcher(url.href)
+  return fetcher(url.href, headers)
 }
 
 export default function (
