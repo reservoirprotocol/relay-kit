@@ -115,7 +115,8 @@ export async function sendTransactionSafely(
     chainId,
     step,
     request,
-    headers
+    headers,
+    source: client.source
   })
 
   if (
@@ -129,7 +130,8 @@ export async function sendTransactionSafely(
       chainId,
       step,
       request,
-      headers
+      headers,
+      source: client.source
     })
   }
 
@@ -201,9 +203,19 @@ export async function sendTransactionSafely(
     ) {
       let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
+        let endpoint = check?.endpoint
+        if (
+          client.source &&
+          !endpoint.includes('referrer') &&
+          check?.method === 'GET'
+        ) {
+          endpoint = endpoint.includes('?')
+            ? `${endpoint}&referrer=${client.source}`
+            : `${endpoint}?referrer=${client.source}`
+        }
         try {
           res = await axios.request({
-            url: `${request.baseURL}${check?.endpoint}`,
+            url: `${request.baseURL}${endpoint}`,
             method: check?.method,
             headers: headers
           })
@@ -283,7 +295,8 @@ export async function sendTransactionSafely(
               chainId,
               step,
               request,
-              headers
+              headers,
+              source: client.source
             })
 
             if (
@@ -296,7 +309,8 @@ export async function sendTransactionSafely(
                 chainId,
                 step,
                 request,
-                headers
+                headers,
+                source: client.source
               })
             }
           },
@@ -416,13 +430,15 @@ const postSameChainTransactionToSolver = async ({
   chainId,
   request,
   headers,
-  step
+  step,
+  source
 }: {
   calldata: string
   chainId: number
   step: Execute['steps'][0]
   request: AxiosRequestConfig
   headers?: AxiosRequestHeaders
+  source?: string
 }) => {
   if (calldata && step.requestId && chainId) {
     getClient()?.log(
@@ -436,10 +452,16 @@ const postSameChainTransactionToSolver = async ({
           chainId: chainId.toString(),
           requestId: step.requestId
         }
+      let requestParamsString = ''
+      if (source) {
+        const requestParams = new URLSearchParams()
+        requestParams.append('source', source)
+        requestParamsString = `?${requestParams.toString()}`
+      }
 
       axios
         .request({
-          url: `${request.baseURL}/transactions/single`,
+          url: `${request.baseURL}/transactions/single${requestParamsString}`,
           method: 'POST',
           headers: headers,
           data: triggerData
@@ -464,13 +486,15 @@ const postTransactionToSolver = async ({
   chainId,
   request,
   headers,
-  step
+  step,
+  source
 }: {
   txHash: string | undefined
   chainId: number
   step: Execute['steps'][0]
   request: AxiosRequestConfig
   headers?: AxiosRequestHeaders
+  source?: string
 }) => {
   if (step.id === 'deposit' && txHash) {
     getClient()?.log(
@@ -480,9 +504,10 @@ const postTransactionToSolver = async ({
     try {
       const triggerData: NonNullable<
         paths['/transactions/index']['post']['requestBody']
-      >['content']['application/json'] = {
+      >['content']['application/json'] & { referrer?: string } = {
         txHash,
-        chainId: chainId.toString()
+        chainId: chainId.toString(),
+        referrer: source
       }
 
       axios

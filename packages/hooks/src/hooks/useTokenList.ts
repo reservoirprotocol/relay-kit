@@ -9,7 +9,7 @@ import {
 
 export type GetCurrenciesBody = NonNullable<
   paths['/currencies/v2']['post']['requestBody']
->['content']['application/json']
+>['content']['application/json'] & { referrer?: string }
 export type GetCurrenciesResponse =
   paths['/currencies/v2']['post']['responses']['200']['content']['application/json']
 export type CurrencyList = GetCurrenciesResponse

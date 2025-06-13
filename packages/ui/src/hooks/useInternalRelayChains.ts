@@ -17,7 +17,8 @@ export const useInternalRelayChains = () => {
   return useRelayChains(
     relayClient?.baseApiUrl,
     {
-      includeChains: providerOptions.privateChainIds?.join(',')
+      includeChains: providerOptions.privateChainIds?.join(','),
+      referrer: relayClient?.source
     },
     DEFAULT_CACHE_OPTIONS
   )

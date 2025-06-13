@@ -361,6 +361,10 @@ export async function executeSteps(
                     'Content-Type': 'application/json'
                   }
 
+                  if (postData.body && !postData.body.referrer) {
+                    postData.body.referrer = client.source
+                  }
+
                   try {
                     const getData = async function () {
                       let response = await axios.request({

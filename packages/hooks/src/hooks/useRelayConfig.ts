@@ -11,7 +11,9 @@ import {
 } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-type ConfigQuery = paths['/config/v2']['get']['parameters']['query']
+type ConfigQuery = paths['/config/v2']['get']['parameters']['query'] & {
+  referrer?: string
+}
 
 export type ConfigResponse =
   paths['/config/v2']['get']['responses']['200']['content']['application/json']

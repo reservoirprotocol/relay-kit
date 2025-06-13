@@ -16,7 +16,9 @@ import { useMemo } from 'react'
 import type { AxiosRequestConfig } from 'axios'
 
 type ExecutionStatusParams =
-  paths['/intents/status/v2']['get']['parameters']['query']
+  paths['/intents/status/v2']['get']['parameters']['query'] & {
+    referrer?: string
+  }
 
 export type ExecutionStatusResponse =
   paths['/intents/status/v2']['get']['responses']['200']['content']['application/json']

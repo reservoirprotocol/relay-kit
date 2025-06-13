@@ -232,14 +232,17 @@ export const calculatePriceTimeEstimate = (
 export const appendMetadataToRequest = (
   baseUrl?: string,
   requestId?: string,
-  additionalMetadata?: paths['/requests/metadata']['post']['requestBody']['content']['application/json']['additionalMetadata']
+  additionalMetadata?: paths['/requests/metadata']['post']['requestBody']['content']['application/json']['additionalMetadata'],
+  referrer?: string
 ) => {
   if (requestId && additionalMetadata) {
-    const triggerData: paths['/requests/metadata']['post']['requestBody']['content']['application/json'] =
-      {
-        requestId,
-        additionalMetadata
-      }
+    const triggerData: paths['/requests/metadata']['post']['requestBody']['content']['application/json'] & {
+      referrer?: string
+    } = {
+      requestId,
+      additionalMetadata,
+      referrer
+    }
 
     return axios.request({
       url: `${baseUrl}/requests/metadata`,
