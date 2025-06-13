@@ -31,11 +31,12 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryRelayChains = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: ChainsQuery
+  options?: ChainsQuery,
+  headers?: HeadersInit
 ): Promise<ChainsResponse> {
   const url = new URL(`${baseApiUrl}/chains`)
   setParams(url, options ?? {})
-  return fetcher(url.href)
+  return fetcher(url.href, headers)
 }
 
 export default function (

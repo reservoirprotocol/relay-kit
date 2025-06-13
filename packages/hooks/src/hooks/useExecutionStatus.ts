@@ -33,14 +33,15 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryExecutionStatus = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: ExecutionStatusParams
+  options?: ExecutionStatusParams,
+  headers?: HeadersInit
 ): Promise<ExecutionStatusResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseApiUrl}/intents/status/v2`)
     let query: ExecutionStatusParams = { ...options }
     setParams(url, query)
 
-    fetcher(url.href)
+    fetcher(url.href, headers)
       .then((response) => {
         const request: AxiosRequestConfig = {
           url: url.href,
