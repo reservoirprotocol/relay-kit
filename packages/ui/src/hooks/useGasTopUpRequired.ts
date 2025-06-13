@@ -37,7 +37,8 @@ export default (
     client?.baseApiUrl,
     {
       address: chain?.currency?.address ?? '',
-      chainId: chain?.id ?? 0
+      chainId: chain?.id ?? 0,
+      referrer: client?.source
     },
     {
       refetchInterval: 60000 * 5, //5 minutes

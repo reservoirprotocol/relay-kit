@@ -12,7 +12,9 @@ import {
 import { useMemo } from 'react'
 
 type TokenPriceQuery =
-  paths['/currencies/token/price']['get']['parameters']['query']
+  paths['/currencies/token/price']['get']['parameters']['query'] & {
+    referrer?: string
+  }
 
 export type TokenPriceResponse =
   paths['/currencies/token/price']['get']['responses']['200']['content']['application/json']

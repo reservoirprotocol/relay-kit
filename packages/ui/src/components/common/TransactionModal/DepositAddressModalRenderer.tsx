@@ -240,7 +240,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
   const { data: executionStatus } = useExecutionStatus(
     relayClient ? relayClient : undefined,
     {
-      requestId: requestId ?? undefined
+      requestId: requestId ?? undefined,
+      referrer: relayClient?.source
     },
     undefined,
     undefined,
@@ -338,7 +339,8 @@ export const DepositAddressModalRenderer: FC<Props> = ({
       allTxHashes[0]
       ? {
           user: address,
-          hash: allTxHashes[0]?.txHash
+          hash: allTxHashes[0]?.txHash,
+          referrer: relayClient?.source
         }
       : undefined,
     relayClient?.baseApiUrl,

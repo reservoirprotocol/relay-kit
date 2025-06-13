@@ -13,7 +13,7 @@ export type GetConfigQueryParams = Required<
   Omit<
     NonNullable<paths['/config/v2']['get']['parameters']['query']>,
     'originChainId' | 'destinationChainId'
-  >
+  > & { referrer?: string }
 
 export type GetConfigResponse =
   paths['/config/v2']['get']['responses']['200']['content']['application/json']
