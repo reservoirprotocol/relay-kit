@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.10.2
+
+### Patch Changes
+
+- 1d8da8a: Update endpoints
+- Updated dependencies [1d8da8a]
+- Updated dependencies [6049aa6]
+  - @reservoir0x/relay-sdk@2.1.2
+
 ## 1.10.1
 
 ### Patch Changes

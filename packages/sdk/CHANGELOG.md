@@ -1,5 +1,12 @@
 # @reservoir0x/relay-sdk
 
+## 2.1.2
+
+### Patch Changes
+
+- 1d8da8a: Update endpoints
+- 6049aa6: Add hypevm to vmtypes for destination
+
 ## 2.1.1
 
 ### Patch Changes
