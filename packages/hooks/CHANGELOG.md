@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.10.3
+
+### Patch Changes
+
+- 1da754c: Allow headers to be configured from query functions
+
 ## 1.10.2
 
 ### Patch Changes
