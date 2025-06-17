@@ -100,7 +100,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
           logLevel: LogLevel.Verbose,
           duneConfig: {
             apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-            apiBaseUrl: 'https://api.dune.com'
+            apiBaseUrl: 'https://api.sim.dune.com'
           },
           chains: dynamicChains,
           privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),

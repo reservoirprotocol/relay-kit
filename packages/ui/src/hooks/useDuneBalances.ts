@@ -51,12 +51,12 @@ export default (
     queryKey: ['useDuneBalances', address],
     queryFn: () => {
       let url = `${
-        providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
-      }/api/echo/v1/balances/evm/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
+        providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.sim.dune.com'
+      }/v1/evm/balances/${address?.toLowerCase()}?chain_ids=${evmChainIds}&exclude_spam_tokens=true`
       if (isSvmAddress) {
         url = `${
-          providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.dune.com'
-        }/api/echo/beta2/balances/svm/${address}?chain_ids=all&exclude_spam_tokens=true`
+          providerOptions.duneConfig?.apiBaseUrl ?? 'https://api.sim.dune.com'
+        }/beta/svm/balances/${address}?chain_ids=all&exclude_spam_tokens=true`
       }
 
       if (!isSvmAddress && !isEvmAddress) {
@@ -66,7 +66,7 @@ export default (
       return fetch(url, {
         headers: providerOptions.duneConfig?.apiKey
           ? {
-              'X-DUNE-API-KEY': providerOptions.duneConfig?.apiKey
+              'X-Sim-Api-Key': providerOptions.duneConfig?.apiKey
             }
           : ({} as HeadersInit)
       })
