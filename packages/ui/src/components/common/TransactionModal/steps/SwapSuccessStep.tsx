@@ -119,6 +119,9 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
       )
     : undefined
 
+  const showDetails =
+    !allTxHashes.every((tx) => tx.isBatchTx) || formattedGasTopUpAmount
+
   return isDelayedTx ? (
     <>
       <Flex direction="column" align="center" justify="between">
@@ -384,33 +387,35 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             <Text style="subtitle1">?</Text>
           )}
         </Flex>
-        <Flex
-          direction="column"
-          css={{
-            p: '3',
-            '--borderColor': 'colors.subtle-border-color',
-            border: '1px solid var(--borderColor)',
-            gap: '3',
-            width: '100%',
-            borderRadius: 12
-          }}
-        >
-          {formattedGasTopUpAmount ? (
-            <Flex justify="between">
-              <Text style="subtitle2" color="subtle">
-                Additional Gas
-              </Text>
-              <Text style="subtitle2">
-                {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
-              </Text>
-            </Flex>
-          ) : null}
-          <TransactionsByChain
-            allTxHashes={allTxHashes}
-            fromChain={fromChain}
-            toChain={toChain}
-          />
-        </Flex>
+        {showDetails && (
+          <Flex
+            direction="column"
+            css={{
+              p: '3',
+              '--borderColor': 'colors.subtle-border-color',
+              border: '1px solid var(--borderColor)',
+              gap: '3',
+              width: '100%',
+              borderRadius: 12
+            }}
+          >
+            {formattedGasTopUpAmount ? (
+              <Flex justify="between">
+                <Text style="subtitle2" color="subtle">
+                  Additional Gas
+                </Text>
+                <Text style="subtitle2">
+                  {formattedGasTopUpAmount} {gasTopUpAmountCurrency?.symbol}
+                </Text>
+              </Flex>
+            ) : null}
+            <TransactionsByChain
+              allTxHashes={allTxHashes}
+              fromChain={fromChain}
+              toChain={toChain}
+            />
+          </Flex>
+        )}
       </Flex>
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>

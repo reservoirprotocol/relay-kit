@@ -67,8 +67,14 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
         )
       : null
 
-  return (isSameChain ? [fromChain] : [fromChain, toChain]).map(
-    (chain, idx) => {
+  return (isSameChain ? [fromChain] : [fromChain, toChain])
+    .filter((chain) => {
+      if (!chain?.id) return false
+      const chainTxs = txHashesByChain[chain.id] || []
+      // Only show chain if it has non-batch transactions
+      return chainTxs.some((tx) => !tx.isBatchTx)
+    })
+    .map((chain, idx) => {
       const isRefundChain = refundData && refundChain?.id === chain?.id
       return (
         <Flex justify="between" key={idx}>
@@ -165,6 +171,5 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
           ) : null}
         </Flex>
       )
-    }
-  )
+    })
 }
