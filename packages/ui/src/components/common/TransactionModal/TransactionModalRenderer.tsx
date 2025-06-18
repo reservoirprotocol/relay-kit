@@ -205,7 +205,7 @@ export const TransactionModalRenderer: FC<Props> = ({
       (progressStep === TransactionProgressStep.Success ||
         progressStep === TransactionProgressStep.Error) &&
         requestId
-        ? { id: requestId, referrer: relayClient?.source }
+        ? { id: requestId }
         : undefined,
       relayClient?.baseApiUrl,
       {
