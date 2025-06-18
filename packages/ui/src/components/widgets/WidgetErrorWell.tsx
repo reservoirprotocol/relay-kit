@@ -1,4 +1,9 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
+import {
+  evmDeadAddress,
+  solDeadAddress,
+  bitcoinDeadAddress
+} from '@reservoir0x/relay-sdk'
 import { type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -21,6 +26,7 @@ type Props = {
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
   recipientWalletSupportsChain?: boolean | null
+  recipient?: string
 }
 
 export const WidgetErrorWell: FC<Props> = ({
@@ -34,7 +40,8 @@ export const WidgetErrorWell: FC<Props> = ({
   isCouldNotExecuteError,
   supportsExternalLiquidity,
   containerCss,
-  recipientWalletSupportsChain
+  recipientWalletSupportsChain,
+  recipient
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
@@ -55,7 +62,13 @@ export const WidgetErrorWell: FC<Props> = ({
     return null
   }
 
-  if (recipientWalletSupportsChain === false) {
+  if (
+    !recipientWalletSupportsChain &&
+    recipient &&
+    recipient !== evmDeadAddress &&
+    recipient !== solDeadAddress &&
+    recipient !== bitcoinDeadAddress
+  ) {
     return (
       <Flex
         align="center"
