@@ -141,7 +141,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   const [usdInputValue, setUsdInputValue] = useState('')
   const [usdOutputValue, setUsdOutputValue] = useState('')
   const [tokenInputCache, setTokenInputCache] = useState('')
-  const [conversionRate, setConversionRate] = useState<number | null>(null)
   const hasLockedToken = lockFromToken || lockToToken
   const isSingleChainLocked = singleChainMode && lockChainId !== undefined
 
@@ -341,7 +340,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             debouncedAmountOutputControls.cancel()
             debouncedAmountInputControls.flush()
             onAnalyticEvent?.(EventNames.MAX_AMOUNT_CLICKED, {
-              percent: percent
+              percent: percent,
+              bufferAmount: bufferAmount ? bufferAmount.toString() : '0',
+              chainType: fromChain?.vmType
             })
 
             if (isUsdInputMode && conversionRate) {
@@ -490,6 +491,43 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
         )
 
+        // Calculate conversion rate
+        const conversionRate = useMemo(() => {
+          if (isUsdInputMode) {
+            // When in USD input mode, the conversion rate is the price of the fromToken.
+            if (fromTokenPriceData?.price && fromTokenPriceData.price > 0) {
+              return fromTokenPriceData.price
+            } else {
+              // If no price data, or price is 0, return null to avoid stale calculations.
+              return null
+            }
+          } else {
+            // When in token input mode, calculate rate from quote if available.
+            if (
+              amountInputValue &&
+              Number(amountInputValue) > 0 &&
+              quote?.details?.currencyIn?.amountUsd
+            ) {
+              const tokenVal = Number(amountInputValue)
+              const usdVal = Number(quote.details.currencyIn.amountUsd)
+              if (tokenVal > 0 && usdVal > 0) {
+                const rate = usdVal / tokenVal
+                return rate
+              } else {
+                return null
+              }
+            } else {
+              // If in token mode and token input is cleared or zero, return null
+              return null
+            }
+          }
+        }, [
+          isUsdInputMode,
+          fromTokenPriceData?.price,
+          quote?.details?.currencyIn?.amountUsd,
+          amountInputValue
+        ])
+
         // toggle between token and usd input mode
         const toggleInputMode = () => {
           if (!isUsdInputMode) {
@@ -544,11 +582,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setUsdOutputValue(newUsdOutputValue)
             setIsUsdInputMode(true)
 
-            // If we're in EXPECTED_OUTPUT mode and have an output value, maintain it
-            if (tradeType === 'EXPECTED_OUTPUT' && newUsdOutputValue) {
-              // Keep EXPECTED_OUTPUT mode
-            } else {
-              // Default to EXACT_INPUT
+            // Default to EXACT_INPUT unless we're currently in EXPECTED_OUTPUT mode with a valid USD output value
+            if (tradeType !== 'EXPECTED_OUTPUT' || !newUsdOutputValue) {
               setTradeType('EXACT_INPUT')
             }
           } else {
@@ -562,43 +597,6 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             // Maintain current trade type when switching back to token mode
           }
         }
-
-        // update conversion rate
-        useEffect(() => {
-          if (isUsdInputMode) {
-            // When in USD input mode, the conversion rate is the price of the fromToken.
-            if (fromTokenPriceData?.price && fromTokenPriceData.price > 0) {
-              setConversionRate(fromTokenPriceData.price)
-            } else {
-              // If no price data, or price is 0, clear the rate to avoid stale calculations.
-              setConversionRate(null)
-            }
-          } else {
-            // When in token input mode, calculate rate from quote if available.
-            if (
-              amountInputValue &&
-              Number(amountInputValue) > 0 &&
-              quote?.details?.currencyIn?.amountUsd
-            ) {
-              const tokenVal = Number(amountInputValue)
-              const usdVal = Number(quote.details.currencyIn.amountUsd)
-              if (tokenVal > 0 && usdVal > 0) {
-                const rate = usdVal / tokenVal
-                setConversionRate(rate)
-              } else {
-                setConversionRate(null)
-              }
-            } else if (!amountInputValue || Number(amountInputValue) === 0) {
-              // If in token mode and token input is cleared or zero, clear the rate
-              setConversionRate(null)
-            }
-          }
-        }, [
-          isUsdInputMode,
-          fromTokenPriceData?.price,
-          quote?.details?.currencyIn?.amountUsd,
-          amountInputValue
-        ])
 
         //Update token input value when USD input changes in USD mode
         useEffect(() => {
@@ -1252,7 +1250,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                                 debouncedAmountInputControls.flush()
                                 debouncedAmountOutputControls.flush()
                               } else {
-                                // Token mode - existing logic
+                                // Token-denominated mode: maintain current behaviour when swapping token order
                                 if (tradeType === 'EXACT_INPUT') {
                                   setTradeType('EXPECTED_OUTPUT')
                                   setAmountInputValue('')

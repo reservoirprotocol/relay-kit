@@ -54,16 +54,9 @@ const AmountInput: FC<Props> = ({
                   newNumericValue = newNumericValue.substring(
                     prefixSymbol.length
                   )
-                } else if (newNumericValue === '') {
-                  // Input field completely cleared. Numeric value is empty.
-                  // Prefix will be visually maintained by the `value` prop.
-                  // newNumericValue is already correctly ''.
-                } else {
-                  // Input doesn't start with prefix, but isn't empty.
-                  // (e.g., user selected all and typed a new number, or somehow deleted only prefix)
-                  // Treat the current input as the new numeric value.
-                  // The prefix will be re-applied by the `value` prop on re-render if not typed.
                 }
+                // If input is empty or doesn't start with prefix, treat as new numeric value
+                // The prefix will be re-applied by the `value` prop on re-render
               }
 
               // Validate and set the numeric part
