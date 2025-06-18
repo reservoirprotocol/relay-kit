@@ -13,6 +13,7 @@ import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
 import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
+import type { LinkedWallet } from '../../types/index.js'
 
 type Props = {
   error: any
@@ -27,6 +28,9 @@ type Props = {
   containerCss?: Styles
   recipientWalletSupportsChain?: boolean | null
   recipient?: string
+  toChainWalletVMSupported?: boolean
+  recipientLinkedWallet?: LinkedWallet
+  toChainVmType?: string
 }
 
 export const WidgetErrorWell: FC<Props> = ({
@@ -41,7 +45,10 @@ export const WidgetErrorWell: FC<Props> = ({
   supportsExternalLiquidity,
   containerCss,
   recipientWalletSupportsChain,
-  recipient
+  recipient,
+  toChainWalletVMSupported,
+  recipientLinkedWallet,
+  toChainVmType
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
@@ -62,12 +69,21 @@ export const WidgetErrorWell: FC<Props> = ({
     return null
   }
 
+  /*
+   * Show wallet incompatibility warning when:
+   * • Wallet doesn't support destination chain
+   * • Valid recipient address (not dead/burn address)
+   * • Destination chain supports wallet's VM type
+   * • Wallet VM type matches destination chain VM
+   */
   if (
     !recipientWalletSupportsChain &&
     recipient &&
     recipient !== evmDeadAddress &&
     recipient !== solDeadAddress &&
-    recipient !== bitcoinDeadAddress
+    recipient !== bitcoinDeadAddress &&
+    toChainWalletVMSupported &&
+    (!recipientLinkedWallet || recipientLinkedWallet.vmType === toChainVmType)
   ) {
     return (
       <Flex

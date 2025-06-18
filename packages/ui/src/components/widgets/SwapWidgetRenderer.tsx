@@ -403,6 +403,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           ? linkedWallet.address.toLowerCase()
           : linkedWallet.address) || linkedWallet.address === address
   )
+
   const isRecipientLinked =
     (recipient
       ? linkedWallets?.find((wallet) => wallet.address === recipient)
