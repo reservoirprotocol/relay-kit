@@ -467,6 +467,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
         )
 
+        const recipientLinkedWallet = linkedWallets?.find(
+          (wallet) => wallet.address === recipient
+        )
+
         return (
           <WidgetContainer
             steps={steps}
@@ -1306,6 +1310,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         recipientWalletSupportsChain
                       }
                       recipient={recipient}
+                      toChainWalletVMSupported={toChainWalletVMSupported}
+                      recipientLinkedWallet={recipientLinkedWallet}
+                      toChainVmType={toChain?.vmType}
                     />
                     {promptSwitchRoute ? (
                       <Button
