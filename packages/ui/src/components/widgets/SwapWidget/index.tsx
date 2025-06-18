@@ -1670,8 +1670,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                         mb: 'widget-card-section-gutter'
                       }}
                       recipientWalletSupportsChain={
-                        customToAddress ? recipientWalletSupportsChain : null
+                        recipientWalletSupportsChain
                       }
+                      recipient={recipient}
                     />
                     {promptSwitchRoute ? (
                       <Button
