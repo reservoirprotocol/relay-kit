@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.10.4
+
+### Patch Changes
+
+- 3471571: Remove referrer from requests api calls
+
 ## 1.10.3
 
 ### Patch Changes
