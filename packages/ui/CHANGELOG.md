@@ -1,5 +1,20 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.12.0
+
+### Minor Changes
+
+- e3e114e: Switch to Dune's Sim api for token balances
+
+### Patch Changes
+
+- 9c81150: Hide display of batch txs on success step
+- b6e92a9: Improve usd fee display
+- 37479c3: Adds toggle to switch between token amount and usd input
+- 3471571: Remove referrer from requests api calls
+- Updated dependencies [3471571]
+  - @reservoir0x/relay-kit-hooks@1.10.4
+
 ## 2.11.4
 
 ### Patch Changes
