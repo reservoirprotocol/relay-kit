@@ -70,10 +70,11 @@ export const WidgetErrorWell: FC<Props> = ({
   }
 
   /*
-   * Show warning when wallet doesn't support destination chain but:
-   * - Has valid recipient (not dead address)
-   * - Chain supports the wallet VM type
-   * - Wallet VM type matches destination chain
+   * Show wallet incompatibility warning when:
+   * • Wallet doesn't support destination chain
+   * • Valid recipient address (not dead/burn address)
+   * • Destination chain supports wallet's VM type
+   * • Wallet VM type matches destination chain VM
    */
   if (
     !recipientWalletSupportsChain &&
