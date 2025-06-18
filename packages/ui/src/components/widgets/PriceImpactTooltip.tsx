@@ -9,6 +9,11 @@ type PriceImpactTooltipProps = {
   tooltipProps?: any
 }
 
+const getFeeColor = (value: number | undefined) => {
+  if (value === 0 || value === undefined) return undefined
+  return value > 0 ? 'success' : undefined
+}
+
 export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
   feeBreakdown,
   children,
@@ -22,7 +27,11 @@ export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
             <Text style="subtitle3" css={{ mr: 'auto' }}>
               Total Price Impact{' '}
             </Text>
-            <Text style="subtitle3" css={{ mr: '1', ml: '2' }}>
+            <Text
+              style="subtitle3"
+              css={{ mr: '1', ml: '2' }}
+              color={feeBreakdown?.totalFees?.priceImpactColor}
+            >
               {feeBreakdown?.totalFees.priceImpact}
             </Text>
             <Text
@@ -45,7 +54,12 @@ export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
             <Text style="subtitle3" color="subtle" css={{ mr: 'auto' }}>
               Swap Impact
             </Text>
-            <Text style="subtitle3">{feeBreakdown?.totalFees.swapImpact}</Text>
+            <Text
+              style="subtitle3"
+              color={getFeeColor(feeBreakdown?.totalFees?.swapImpact?.value)}
+            >
+              {feeBreakdown?.totalFees?.swapImpact?.formatted}
+            </Text>
           </Flex>
           {feeBreakdown?.breakdown.map((fee) => {
             if (fee.id === 'origin-gas') {
@@ -56,7 +70,9 @@ export const PriceImpactTooltip: FC<PriceImpactTooltipProps> = ({
                 <Text style="subtitle3" color="subtle" css={{ mr: 'auto' }}>
                   {fee.name}
                 </Text>
-                <Text style="subtitle3">{fee.usd}</Text>
+                <Text style="subtitle3" color={getFeeColor(fee.usd.value)}>
+                  {fee.usd.formatted}
+                </Text>
               </Flex>
             )
           })}

@@ -1,5 +1,26 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.11.4
+
+### Patch Changes
+
+- Updated dependencies [1da754c]
+  - @reservoir0x/relay-kit-hooks@1.10.3
+
+## 2.11.3
+
+### Patch Changes
+
+- 1d8da8a: Update endpoints
+- 8d5e07c: Ellipsify conversion rate + add tooltip to prevent overflow
+- c3a562f: Fix cropped token selector text
+- 6049aa6: Add hypevm to vmtypes for destination
+- 3aabf44: Decrease high fee warning threshold to 1.5%
+- Updated dependencies [1d8da8a]
+- Updated dependencies [6049aa6]
+  - @reservoir0x/relay-kit-hooks@1.10.2
+  - @reservoir0x/relay-sdk@2.1.2
+
 ## 2.11.2
 
 ### Patch Changes

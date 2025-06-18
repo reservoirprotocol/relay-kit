@@ -16,7 +16,9 @@ import { useMemo } from 'react'
 import type { AxiosRequestConfig } from 'axios'
 
 type ExecutionStatusParams =
-  paths['/intents/status/v2']['get']['parameters']['query']
+  paths['/intents/status/v2']['get']['parameters']['query'] & {
+    referrer?: string
+  }
 
 export type ExecutionStatusResponse =
   paths['/intents/status/v2']['get']['responses']['200']['content']['application/json']
@@ -31,14 +33,15 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryExecutionStatus = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: ExecutionStatusParams
+  options?: ExecutionStatusParams,
+  headers?: HeadersInit
 ): Promise<ExecutionStatusResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseApiUrl}/intents/status/v2`)
     let query: ExecutionStatusParams = { ...options }
     setParams(url, query)
 
-    fetcher(url.href)
+    fetcher(url.href, headers)
       .then((response) => {
         const request: AxiosRequestConfig = {
           url: url.href,

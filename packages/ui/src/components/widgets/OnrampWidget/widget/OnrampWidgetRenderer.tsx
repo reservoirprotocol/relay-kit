@@ -65,7 +65,7 @@ export type ChildrenProps = {
 
 type OnrampWidgetRendererProps = {
   defaultWalletAddress?: string
-  supportedWalletVMs: ChainVM[]
+  supportedWalletVMs: Omit<ChainVM, 'hypevm'>[]
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   moonPayApiKey: string
@@ -124,7 +124,8 @@ const OnrampWidgetRenderer: FC<OnrampWidgetRendererProps> = ({
     client?.baseApiUrl,
     {
       address: token.address,
-      chainId: token.chainId
+      chainId: token.chainId,
+      referrer: client?.source
     },
     {
       refetchInterval: 60000 * 5, //5 minutes

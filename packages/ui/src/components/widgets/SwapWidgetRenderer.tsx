@@ -71,7 +71,7 @@ type SwapWidgetRendererProps = {
   wallet?: AdaptedWallet
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
-  supportedWalletVMs: ChainVM[]
+  supportedWalletVMs: Omit<ChainVM, 'hypevm'>[]
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -91,7 +91,10 @@ export type ChildrenProps = {
       priceImpactPercentage?: string
       priceImpact?: string
       priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
-      swapImpact?: string
+      swapImpact?: {
+        value: number
+        formatted: string
+      }
     }
   } | null
   fromToken?: Token
@@ -143,7 +146,7 @@ export type ChildrenProps = {
   isBvmSwap: boolean
   isValidFromAddress: boolean
   isValidToAddress: boolean
-  supportedWalletVMs: ChainVM[]
+  supportedWalletVMs: Omit<ChainVM, 'hypevm'>[]
   fromChainWalletVMSupported: boolean
   toChainWalletVMSupported: boolean
   isRecipientLinked?: boolean

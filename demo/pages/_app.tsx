@@ -100,7 +100,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
           logLevel: LogLevel.Verbose,
           duneConfig: {
             apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-            apiBaseUrl: 'https://api.dune.com'
+            apiBaseUrl: 'https://api.sim.dune.com'
           },
           chains: dynamicChains,
           privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
@@ -201,7 +201,9 @@ const getInitialProps = async ({
       )
     }
 
-    const chainsResponse = await queryRelayChains(baseApiUrl, {})
+    const chainsResponse = await queryRelayChains(baseApiUrl, {
+      includeChains: process.env.NEXT_PUBLIC_INCLUDE_CHAINS
+    })
 
     if (!chainsResponse?.chains) {
       throw new Error(`Chains API failed to return chains`)

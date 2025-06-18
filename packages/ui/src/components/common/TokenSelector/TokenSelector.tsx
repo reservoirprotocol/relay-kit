@@ -62,7 +62,7 @@ export type TokenSelectorProps = {
   isValidAddress?: boolean
   multiWalletSupportEnabled?: boolean
   fromChainWalletVMSupported?: boolean
-  supportedWalletVMs?: ChainVM[]
+  supportedWalletVMs?: Omit<ChainVM, 'hypevm'>[]
   popularChainIds?: number[]
   setToken: (token: Token) => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
@@ -223,7 +223,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       ? {
           tokens: userTokensQuery,
           limit: 100,
-          depositAddressOnly
+          depositAddressOnly,
+          referrer: relayClient?.source
         }
       : undefined,
     {
@@ -248,7 +249,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
       term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
       defaultList: useDefaultTokenList && !depositAddressOnly,
       limit: 12,
-      depositAddressOnly
+      depositAddressOnly,
+      referrer: relayClient?.source
     }
   )
 
@@ -266,7 +268,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
         term: !isSearchTermValidAddress ? debouncedTokenSearchValue : undefined,
         defaultList: false,
         limit: 12,
-        useExternalSearch: true
+        useExternalSearch: true,
+        referrer: relayClient?.source
       },
       {
         enabled: !!debouncedTokenSearchValue && !depositAddressOnly

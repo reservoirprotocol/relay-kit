@@ -1,23 +1,13 @@
 import { type FC } from 'react'
-import {
-  Anchor,
-  Box,
-  Button,
-  Flex,
-  Pill,
-  Skeleton,
-  Text
-} from '../../../primitives/index.js'
+import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation'
 import ErrorWell from '../../ErrorWell.js'
-import { truncateAddress } from '../../../../utils/truncate.js'
 import { type Address } from 'viem'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { useRelayClient } from '../../../../hooks/index.js'
 import {
-  faArrowUpRightFromSquare,
   faCircleXmark,
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons/index.js'
