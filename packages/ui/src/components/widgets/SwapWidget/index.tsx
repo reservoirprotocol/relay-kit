@@ -28,11 +28,7 @@ import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.j
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/address.js'
-import {
-  evmDeadAddress,
-  solDeadAddress,
-  bitcoinDeadAddress
-} from '@reservoir0x/relay-sdk'
+import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
@@ -711,6 +707,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
           amountInputValue
         ])
 
+        const recipientLinkedWallet = linkedWallets?.find(
+          (wallet) => wallet.address === recipient
+        )
+
         return (
           <>
             <WidgetContainer
@@ -1055,9 +1055,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               hasInsufficientBalance={hasInsufficientBalance}
                               displaySymbol={false}
                               isConnected={
-                                address !== evmDeadAddress &&
-                                address !== solDeadAddress &&
-                                address !== bitcoinDeadAddress &&
+                                !isDeadAddress(address) &&
+                                address !== tronDeadAddress &&
                                 address !== undefined
                               }
                               pending={fromBalancePending}
@@ -1578,8 +1577,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               symbol={toToken?.symbol}
                               displaySymbol={false}
                               isConnected={
-                                address !== evmDeadAddress &&
-                                address !== solDeadAddress &&
+                                !isDeadAddress(address) &&
+                                address !== tronDeadAddress &&
                                 address !== undefined
                               }
                               pending={toBalancePending}
@@ -1670,6 +1669,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       recipientWalletSupportsChain={
                         recipientWalletSupportsChain
                       }
+                      recipient={recipient}
+                      toChainWalletVMSupported={toChainWalletVMSupported}
+                      recipientLinkedWallet={recipientLinkedWallet}
+                      toChainVmType={toChain?.vmType}
                     />
                     {promptSwitchRoute ? (
                       <Button
