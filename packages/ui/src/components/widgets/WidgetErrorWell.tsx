@@ -1,9 +1,5 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
-import {
-  evmDeadAddress,
-  solDeadAddress,
-  bitcoinDeadAddress
-} from '@reservoir0x/relay-sdk'
+import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
 import { type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -79,9 +75,8 @@ export const WidgetErrorWell: FC<Props> = ({
   if (
     !recipientWalletSupportsChain &&
     recipient &&
-    recipient !== evmDeadAddress &&
-    recipient !== solDeadAddress &&
-    recipient !== bitcoinDeadAddress &&
+    !isDeadAddress(recipient) &&
+    recipient !== tronDeadAddress &&
     toChainWalletVMSupported &&
     (!recipientLinkedWallet || recipientLinkedWallet.vmType === toChainVmType)
   ) {
