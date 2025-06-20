@@ -1,5 +1,5 @@
 import { LogLevel, RelayChain } from '@reservoir0x/relay-sdk'
-import { RelayKitProvider } from 'node_modules/@reservoir0x/relay-kit-ui'
+import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useTheme } from 'next-themes'
 import { FC, ReactNode } from 'react'
 
