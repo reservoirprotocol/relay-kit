@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.1.3
+
+### Patch Changes
+
+- 9e35bcd: Add getAppFees and claimAppFees sdk actions
+
 ## 2.1.2
 
 ### Patch Changes
