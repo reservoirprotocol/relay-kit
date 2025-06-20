@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.13.0
+
+### Minor Changes
+
+- 57c625b: Fix destination wallet alert showing without wallet selection
+
+### Patch Changes
+
+- 862ee79: Add themeScheme to the provider to improve SSR hydration
+
 ## 2.12.0
 
 ### Minor Changes
