@@ -107,14 +107,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
           appName: 'Relay Demo',
           useGasFeeEstimations: true,
           pollingInterval: 1000,
-          confirmationPollingInterval: 1000,
-          // @TODO: Remove
-          appFees: [
-            {
-              fee: '1000', // 10%
-              recipient: '0x03508bB71268BBA25ECaCC8F620e01866650532c'
-            }
-          ]
+          confirmationPollingInterval: 1000
         }}
       >
         <DynamicContextProvider

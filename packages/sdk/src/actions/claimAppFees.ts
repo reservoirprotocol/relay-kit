@@ -71,14 +71,13 @@ export async function claimAppFees(
       throw new APIError(res?.data?.message, res.status, res.data)
     }
     const steps = res.data.steps || []
-    // Wrap steps in Execute type for executeSteps
     const executeJson: Execute = safeStructuredClone({
       steps
     })
 
     const result = await executeSteps(
       chainId,
-      request, // @TDOD: verify
+      request,
       adaptedWallet,
       (data) => {
         if (abortController.signal.aborted) {
