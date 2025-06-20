@@ -32,6 +32,7 @@ const Index: NextPage = () => {
           <Link href="/sdk/actions/call">Call</Link>
           <Link href="/sdk/actions/bridge">Bridge</Link>
           <Link href="/sdk/actions/swap">Swap</Link>
+          <Link href="/sdk/actions/claimAppFees">Claim App Fees</Link>
         </nav>
         <h2>
           <b>SDK Read Actions</b>
@@ -41,6 +42,7 @@ const Index: NextPage = () => {
           <Link href="/sdk/actions/getCallQuote">getCallQuote</Link>
           <Link href="/sdk/actions/getBridgeQuote">getBridgeQuote</Link>
           <Link href="/sdk/actions/getSwapQuote">getSwapQuote</Link>
+          <Link href="/sdk/actions/getAppFees">getAppFees</Link>
         </nav>
         <h2>
           <b>Hooks</b>
