@@ -43,28 +43,3 @@ export const generateCssVars = (
   processTheme(theme)
   return cssString
 }
-
-export const isDarkMode = (): boolean => {
-  try {
-    if (typeof window === 'undefined') return false
-
-    // Check localStorage (next-themes)
-    try {
-      const storedTheme = localStorage.getItem('theme')
-      if (storedTheme) return storedTheme === 'dark'
-    } catch (e) {
-      // localStorage might be unavailable
-      console.warn('Failed to access localStorage:', e)
-    }
-
-    // Check data-theme attribute
-    const dataTheme = document?.documentElement?.getAttribute('data-theme')
-    if (dataTheme) return dataTheme === 'dark'
-
-    // Check class
-    return document?.documentElement?.classList?.contains('dark') ?? false
-  } catch (e) {
-    console.warn('Failed to detect dark mode:', e)
-    return false // Fallback to light mode
-  }
-}

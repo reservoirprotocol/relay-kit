@@ -44,6 +44,10 @@ type RelayKitProviderOptions = {
    * An array of private chain ids to be used when querying the chains api within relay kit.
    */
   privateChainIds?: string[]
+  /**
+   * The icon theme to use for the chain icons. Defaults to light.
+   */
+  themeScheme?: 'dark' | 'light'
 }
 
 export interface RelayKitProviderProps {
