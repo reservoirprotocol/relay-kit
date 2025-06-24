@@ -25,7 +25,15 @@ export const RelayKitProviderWrapper: FC<{
         useGasFeeEstimations: true,
         pollingInterval: 1000,
         confirmationPollingInterval: 1000,
-        themeScheme: theme === 'dark' ? 'dark' : 'light'
+        themeScheme: theme === 'dark' ? 'dark' : 'light',
+        appFees: [
+          {
+            fee: '4000',
+            recipient:
+              process.env.NEXT_PUBLIC_FEE_RECIPIENT ??
+              '0x03508bB71268BBA25ECaCC8F620e01866650532c'
+          }
+        ]
       }}
     >
       {children}
