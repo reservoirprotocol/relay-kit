@@ -125,25 +125,27 @@ export const TokenList: FC<TokenListProps> = ({
                     >
                       {token.symbol}
                     </Text>
-                    {token.isGasCurrency && chainFilterId && (
-                      <Text
-                        style="subtitle3"
-                        css={{
-                          px: '6px',
-                          py: '4px',
-                          borderRadius: '100px',
-                          backgroundColor: 'gray3',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
-                          lineHeight: '12px',
-                          'button:hover &': {
-                            backgroundColor: 'gray5'
-                          }
-                        }}
-                      >
-                        Gas Token
-                      </Text>
-                    )}
+                    {token.isGasCurrency &&
+                      token.chainId !== 1337 &&
+                      chainFilterId && (
+                        <Text
+                          style="subtitle3"
+                          css={{
+                            px: '6px',
+                            py: '4px',
+                            borderRadius: '100px',
+                            backgroundColor: 'gray3',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
+                            lineHeight: '12px',
+                            'button:hover &': {
+                              backgroundColor: 'gray5'
+                            }
+                          }}
+                        >
+                          Gas Token
+                        </Text>
+                      )}
                   </Flex>
                   <Flex align="center" css={{ gap: '1', maxWidth: '100%' }}>
                     <Text
