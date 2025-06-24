@@ -174,7 +174,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       duneConfig: options.duneConfig,
       disablePoweredByReservoir: options.disablePoweredByReservoir,
       vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
-      privateChainIds: options.privateChainIds
+      privateChainIds: options.privateChainIds,
+      themeScheme: options.themeScheme
     }),
     [options]
   )
