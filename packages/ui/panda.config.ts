@@ -37,6 +37,7 @@ export const Colors = {
   // Red
   red2: { value: '{colors.red.2}' },
   red3: { value: '{colors.red.3}' },
+  red4: { value: '{colors.red.4}' },
   red5: { value: '{colors.red.5}' },
   red6: { value: '{colors.red.6}' },
   red9: { value: '{colors.red.9}' },
