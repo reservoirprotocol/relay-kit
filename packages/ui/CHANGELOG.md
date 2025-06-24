@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.13.2
+
+### Patch Changes
+
+- ac027bb: Hide gas token badge for hyperliquid usdc
+
 ## 2.13.1
 
 ### Patch Changes
