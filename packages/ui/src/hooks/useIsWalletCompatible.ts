@@ -7,7 +7,7 @@ import {
 import type { LinkedWallet } from '../types/index.js'
 import { isAddress } from 'viem'
 import useIsAGW from './useIsAGW.js'
-import { CEX_ADDRESSES } from '../constants/cexAddresses.js'
+import useCexAddresses from './useCexAddresses.js'
 
 export default (
   chainId?: number,
@@ -23,7 +23,10 @@ export default (
         : wallet.address) === normalizedAddress
   )
   const isRecipientAGW = useIsAGW(address, !linkedWallet)
-  const isRecipientCEX = CEX_ADDRESSES.includes(normalizedAddress ?? '')
+  const { data: cexAddresses } = useCexAddresses()
+  const isRecipientCEX = cexAddresses?.addresses.includes(
+    normalizedAddress ?? ''
+  )
 
   return useMemo(() => {
     if (!chainId || !address) {

@@ -3,7 +3,6 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { setParams } from '@reservoir0x/relay-sdk'
 
 export type CEXAddressesResponse = {
   addresses: string[]
@@ -15,7 +14,6 @@ type QueryType = typeof useQuery<
   CEXAddressesResponse,
   QueryKey
 >
-type QueryOptions = Parameters<QueryType>['0']
 
 export default () => {
   const queryKey = ['useCexAddresses']
@@ -23,7 +21,9 @@ export default () => {
   const response = (useQuery as QueryType)({
     queryKey: queryKey,
     queryFn: () => {
-      const url = new URL(``)
+      const url = new URL(
+        `https://raw.githubusercontent.com/reservoirprotocol/relay-kit/refs/heads/main/assets/cexAddresses.json`
+      )
 
       return fetch(url.href)
         .then((response) => response.json())
