@@ -91,7 +91,10 @@ export type ChildrenProps = {
       priceImpactPercentage?: string
       priceImpact?: string
       priceImpactColor?: ComponentPropsWithoutRef<typeof Text>['color']
-      swapImpact?: string
+      swapImpact?: {
+        value: number
+        formatted: string
+      }
     }
   } | null
   fromToken?: Token
@@ -400,6 +403,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           ? linkedWallet.address.toLowerCase()
           : linkedWallet.address) || linkedWallet.address === address
   )
+
   const isRecipientLinked =
     (recipient
       ? linkedWallets?.find((wallet) => wallet.address === recipient)

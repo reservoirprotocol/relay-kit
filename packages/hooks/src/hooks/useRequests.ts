@@ -15,7 +15,6 @@ import fetcher from '../fetcher.js'
 export type UserTransactionQuery =
   paths['/requests/v2']['get']['parameters']['query'] & {
     id?: string
-    referrer?: string
   }
 
 export type UserTransactionsResponse =
@@ -33,7 +32,8 @@ type QueryOptions = Parameters<InfiniteQueryType>['0']
 export const queryRequests = function (
   baseApiUrl: string = MAINNET_RELAY_API,
   options?: UserTransactionQuery | false,
-  pageParam?: string | null
+  pageParam?: string | null,
+  headers?: HeadersInit
 ): Promise<UserTransactionsResponse> {
   const baseUrl =
     typeof window !== 'undefined' ? window.location.origin : undefined
@@ -46,7 +46,7 @@ export const queryRequests = function (
   }
 
   setParams(url, query)
-  return fetcher(url.href)
+  return fetcher(url.href, headers)
 }
 
 export default function (

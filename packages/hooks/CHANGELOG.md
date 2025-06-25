@@ -1,5 +1,24 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.10.5
+
+### Patch Changes
+
+- Updated dependencies [9e35bcd]
+  - @reservoir0x/relay-sdk@2.1.3
+
+## 1.10.4
+
+### Patch Changes
+
+- 3471571: Remove referrer from requests api calls
+
+## 1.10.3
+
+### Patch Changes
+
+- 1da754c: Allow headers to be configured from query functions
+
 ## 1.10.2
 
 ### Patch Changes

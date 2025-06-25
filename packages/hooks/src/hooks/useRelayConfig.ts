@@ -28,11 +28,12 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryRelayConfig = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: ConfigQuery
+  options?: ConfigQuery,
+  headers?: HeadersInit
 ): Promise<ConfigResponse> {
   const url = new URL(`${baseApiUrl}/config/v2`)
   setParams(url, options ?? {})
-  return fetcher(url.href)
+  return fetcher(url.href, headers)
 }
 
 export default function (

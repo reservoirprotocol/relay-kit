@@ -9,7 +9,6 @@ import { createConfig, http, WagmiProvider } from 'wagmi'
 import { Chain, mainnet, optimism, base, zora } from 'wagmi/chains'
 import {
   convertViemChainToRelayChain,
-  LogLevel,
   MAINNET_RELAY_API,
   TESTNET_RELAY_API,
   configureViemChain,
@@ -32,9 +31,9 @@ import { chainIdToAlchemyNetworkMap } from 'utils/chainIdToAlchemyNetworkMap'
 import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
-import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { MoonPayProvider } from 'context/MoonpayProvider'
 import { queryRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { RelayKitProviderWrapper } from 'components/providers/RelayKitProviderWrapper'
 
 type AppWrapperProps = {
   children: ReactNode
@@ -93,22 +92,9 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
       enableSystem
       disableTransitionOnChange
     >
-      <RelayKitProvider
-        options={{
-          baseApiUrl: relayApi,
-          source: 'relay-demo',
-          logLevel: LogLevel.Verbose,
-          duneConfig: {
-            apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-            apiBaseUrl: 'https://api.dune.com'
-          },
-          chains: dynamicChains,
-          privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
-          appName: 'Relay Demo',
-          useGasFeeEstimations: true,
-          pollingInterval: 1000,
-          confirmationPollingInterval: 1000
-        }}
+      <RelayKitProviderWrapper
+        relayApi={relayApi}
+        dynamicChains={dynamicChains}
       >
         <DynamicContextProvider
           settings={{
@@ -151,7 +137,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
             </MoonPayProvider>
           </WagmiProvider>
         </DynamicContextProvider>
-      </RelayKitProvider>
+      </RelayKitProviderWrapper>
     </ThemeProvider>
   )
 }

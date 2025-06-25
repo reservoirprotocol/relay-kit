@@ -1,7 +1,7 @@
 import { useState, type FC } from 'react'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import { formatBN } from '../../utils/numbers.js'
+import { formatBN, formatDollar } from '../../utils/numbers.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
@@ -67,6 +67,9 @@ const FeeBreakdown: FC<Props> = ({
   const originGasFee = feeBreakdown?.breakdown?.find(
     (fee) => fee.id === 'origin-gas'
   )
+  const originGasFeeFormatted = formatDollar(
+    Math.abs(originGasFee?.usd.value ?? 0)
+  )
 
   const [rateMode, setRateMode] = useState<'input' | 'output'>('input')
   const isHighPriceImpact = Number(quote?.details?.totalImpact?.percent) < -3.5
@@ -122,7 +125,7 @@ const FeeBreakdown: FC<Props> = ({
             width={16}
             style={{ color: '#C1C8CD' }}
           />
-          <Text style="subtitle2">{originGasFee?.usd}</Text>
+          <Text style="subtitle2">{originGasFeeFormatted}</Text>
         </Flex>
       )
     },
@@ -342,7 +345,7 @@ const FeeBreakdown: FC<Props> = ({
                   style={{ color: '#C1C8CD' }}
                 />
                 <Text style="subtitle2" css={{ flexShrink: 0 }}>
-                  {originGasFee?.usd}
+                  {originGasFeeFormatted}
                 </Text>
               </>
             )}

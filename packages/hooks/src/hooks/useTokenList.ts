@@ -24,10 +24,11 @@ type QueryOptions = Parameters<QueryType>['0']
 
 export const queryTokenList = function (
   baseApiUrl: string = MAINNET_RELAY_API,
-  options?: GetCurrenciesBody
+  options?: GetCurrenciesBody,
+  headers?: Record<string, string>
 ): Promise<GetCurrenciesResponse> {
   const url = new URL(`${baseApiUrl}/currencies/v2`)
-  return axiosPostFetcher(url.href, options)
+  return axiosPostFetcher(url.href, options, headers)
 }
 
 export default function (

@@ -44,6 +44,10 @@ type RelayKitProviderOptions = {
    * An array of private chain ids to be used when querying the chains api within relay kit.
    */
   privateChainIds?: string[]
+  /**
+   * The icon theme to use for the chain icons. Defaults to light.
+   */
+  themeScheme?: 'dark' | 'light'
 }
 
 export interface RelayKitProviderProps {
@@ -170,7 +174,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       duneConfig: options.duneConfig,
       disablePoweredByReservoir: options.disablePoweredByReservoir,
       vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
-      privateChainIds: options.privateChainIds
+      privateChainIds: options.privateChainIds,
+      themeScheme: options.themeScheme
     }),
     [options]
   )

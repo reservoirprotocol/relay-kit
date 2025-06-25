@@ -1,5 +1,6 @@
 import { type Execute } from '@reservoir0x/relay-sdk'
-import { useEffect, type FC } from 'react'
+import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
+import { type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle'
@@ -8,6 +9,7 @@ import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
 import type { Styles } from '@reservoir0x/relay-design-system/css'
 import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
+import type { LinkedWallet } from '../../types/index.js'
 
 type Props = {
   error: any
@@ -21,6 +23,10 @@ type Props = {
   supportsExternalLiquidity?: boolean
   containerCss?: Styles
   recipientWalletSupportsChain?: boolean | null
+  recipient?: string
+  toChainWalletVMSupported?: boolean
+  recipientLinkedWallet?: LinkedWallet
+  toChainVmType?: string
 }
 
 export const WidgetErrorWell: FC<Props> = ({
@@ -34,7 +40,11 @@ export const WidgetErrorWell: FC<Props> = ({
   isCouldNotExecuteError,
   supportsExternalLiquidity,
   containerCss,
-  recipientWalletSupportsChain
+  recipientWalletSupportsChain,
+  recipient,
+  toChainWalletVMSupported,
+  recipientLinkedWallet,
+  toChainVmType
 }) => {
   const isSmallDevice = useMediaQuery('(max-width: 600px)')
   const fetchQuoteErrorMessage = error
@@ -55,7 +65,21 @@ export const WidgetErrorWell: FC<Props> = ({
     return null
   }
 
-  if (!recipientWalletSupportsChain) {
+  /*
+   * Show wallet incompatibility warning when:
+   * • Wallet doesn't support destination chain
+   * • Valid recipient address (not dead/burn address)
+   * • Destination chain supports wallet's VM type
+   * • Wallet VM type matches destination chain VM
+   */
+  if (
+    !recipientWalletSupportsChain &&
+    recipient &&
+    !isDeadAddress(recipient) &&
+    recipient !== tronDeadAddress &&
+    toChainWalletVMSupported &&
+    (!recipientLinkedWallet || recipientLinkedWallet.vmType === toChainVmType)
+  ) {
     return (
       <Flex
         align="center"
