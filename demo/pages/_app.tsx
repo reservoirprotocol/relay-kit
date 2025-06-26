@@ -93,7 +93,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
       disableTransitionOnChange
     >
       <RelayKitProviderWrapper
-        relayApi={relayApi}
+        relayApi={'https://api.dev.relay.link'}
         dynamicChains={dynamicChains}
       >
         <DynamicContextProvider
