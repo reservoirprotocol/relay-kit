@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.13.3
+
+### Patch Changes
+
+- 1b67ee5: Add warning for missing token price detection + add stroke to all alerts
+
 ## 2.13.2
 
 ### Patch Changes
