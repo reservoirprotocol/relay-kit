@@ -1558,8 +1558,9 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           {!isUsdInputMode &&
                           toToken &&
                           quote?.details?.currencyOut?.amountUsd &&
+                          quote?.details?.currencyOut?.amountUsd !== '0' &&
                           !isFetchingQuote &&
-                          quote.details.totalImpact?.percent ? (
+                          quote?.details?.totalImpact?.percent ? (
                             <Text
                               style="subtitle3"
                               color={feeBreakdown?.totalFees.priceImpactColor}
