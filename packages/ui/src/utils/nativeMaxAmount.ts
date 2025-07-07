@@ -102,8 +102,8 @@ export const calculateSvmNativeFeeBuffer = async (
 
   try {
     const queryOptions = {
-      limit: '20',
-      originChainId: chainId.toString()
+      limit: 20,
+      originChainId: chainId
     } as const
 
     const resp = await queryRequests(MAINNET_RELAY_API, queryOptions)

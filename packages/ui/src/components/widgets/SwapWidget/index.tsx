@@ -37,15 +37,7 @@ import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
-import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
-import { getSwapEventData } from '../../../utils/quote.js'
-
-// shared query options for useTokenPrice
-const tokenPriceQueryOptions = {
-  staleTime: 60 * 1000, // 1 minute
-  refetchInterval: 30 * 1000, // 30 seconds
-  refetchOnWindowFocus: false
-}
+import { calculateUsdValue, getSwapEventData } from '../../../utils/quote.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -248,72 +240,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateQuoteQuery,
         quoteInProgress,
         setQuoteInProgress,
-        abortController
+        abortController,
+        fromTokenPriceData,
+        toTokenPriceData,
+        isLoadingFromTokenPrice,
+        isLoadingToTokenPrice
       }) => {
-        // helper to calculate the USD value of a token
-        const calculateUsdValue = (
-          price?: number,
-          amountString?: string
-        ): number | undefined => {
-          if (price && price > 0 && amountString && Number(amountString) > 0) {
-            try {
-              return parseFloat(amountString) * price
-            } catch (e) {
-              console.error(
-                'Failed to parse amount string for USD calculation',
-                amountString,
-                e
-              )
-            }
-          }
-          return undefined
-        }
-
-        //  Retrieve the price of the `from` token
-        const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
-          useTokenPrice(
-            relayClient?.baseApiUrl,
-            {
-              address: fromToken?.address ?? '',
-              chainId: fromToken?.chainId ?? 0,
-              referrer: relayClient?.source
-            },
-            {
-              enabled: !!(
-                fromToken?.address &&
-                fromToken.chainId &&
-                ((amountInputValue && Number(amountInputValue) > 0) ||
-                  (isUsdInputMode &&
-                    usdInputValue &&
-                    Number(usdInputValue) > 0))
-              ),
-              ...tokenPriceQueryOptions
-            }
-          )
-
-        // Retrieve the price of the `to` token
-        const { data: toTokenPriceData, isLoading: isLoadingToTokenPrice } =
-          useTokenPrice(
-            relayClient?.baseApiUrl,
-            {
-              address: toToken?.address ?? '',
-              chainId: toToken?.chainId ?? 0,
-              referrer: relayClient?.source
-            },
-            {
-              enabled: !!(
-                toToken?.address &&
-                toToken.chainId &&
-                ((amountOutputValue && Number(amountOutputValue) > 0) ||
-                  (isUsdInputMode &&
-                    tradeType === 'EXPECTED_OUTPUT' &&
-                    usdOutputValue &&
-                    Number(usdOutputValue) > 0))
-              ),
-              ...tokenPriceQueryOptions
-            }
-          )
-
         // Calculate the USD value of the input amount
         const inputAmountUsd = useMemo(() => {
           return calculateUsdValue(fromTokenPriceData?.price, amountInputValue)
