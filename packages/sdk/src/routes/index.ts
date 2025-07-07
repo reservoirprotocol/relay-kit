@@ -2,9 +2,6 @@ export const routes = [
   "/app-fees/{wallet}/balances",
   "/app-fees/{wallet}/claim",
   "/chains",
-  "/chains/add",
-  "/chains/update",
-  "/chains/status",
   "/chains/health",
   "/config",
   "/config/v2",
@@ -29,7 +26,6 @@ export const routes = [
   "/requests/metadata",
   "/transactions/index",
   "/transactions/single",
-  "/block/index",
   "/transactions/status",
   "/loadforge.txt",
   "/conduit/install",
@@ -37,10 +33,9 @@ export const routes = [
   "/currencies/v1",
   "/currencies/v2",
   "/currencies/token/price",
-  "/currencies/add",
-  "/currencies/update",
   "/currencies/trending",
   "/chains/{chainId}/currencies/{address}",
   "/chains/{chainId}/currencies/{address}/chart",
-  "/provision/chain"
+  "/provision/chain",
+  "/sanctioned/{address}"
 ];
