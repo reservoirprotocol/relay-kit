@@ -8,4 +8,4 @@
 '@reservoir0x/relay-kit-ui': minor
 ---
 
-Upgrade viem to 2.29.x
+Upgrade viem to >=2.26.0
