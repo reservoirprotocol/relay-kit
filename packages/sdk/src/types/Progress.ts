@@ -7,7 +7,7 @@ export type ProgressData = {
   details?: Execute['details']
   currentStep?: ExecuteStep | null
   currentStepItem?: ExecuteStepItem
-  txHashes?: { txHash: string; chainId: number }[]
+  txHashes?: { txHash: string; chainId: number; isBatchTx?: boolean }[]
   error?: Execute['error']
   refunded?: Execute['refunded']
 }
