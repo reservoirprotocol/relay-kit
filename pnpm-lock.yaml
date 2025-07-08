@@ -120,7 +120,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1(react@18.3.1)
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
       wagmi:
         specifier: ~2.14.3
@@ -165,7 +165,7 @@ importers:
         specifier: ^18.0
         version: 18.3.1(react@18.3.1)
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       '@eslint/js':
@@ -217,7 +217,7 @@ importers:
         specifier: 7.0.0-rc.0
         version: 7.0.0-rc.0(typescript@5.4.5)
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       rimraf:
@@ -239,7 +239,7 @@ importers:
         specifier: ^5.6.1
         version: 5.7.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       rimraf:
@@ -261,7 +261,7 @@ importers:
         specifier: ^1.6.5
         version: 1.7.9
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       rimraf:
@@ -283,7 +283,7 @@ importers:
         specifier: ^1.6.5
         version: 1.7.9
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       rimraf:
@@ -296,7 +296,7 @@ importers:
         specifier: ^1.6.5
         version: 1.7.9
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
     devDependencies:
       '@vitest/ui':
@@ -405,7 +405,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1(react@18.3.1)
       viem:
-        specifier: ~2.29.4
+        specifier: '>=2.29.4'
         version: 2.29.4(bufferutil@4.0.9)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.22.4)
       wagmi:
         specifier: ~2.14.3
