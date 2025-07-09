@@ -17,7 +17,7 @@ export const RelayKitProviderWrapper: FC<{
         logLevel: LogLevel.Verbose,
         duneConfig: {
           apiKey: process.env.NEXT_PUBLIC_DUNE_TOKEN,
-          apiBaseUrl: 'https://api.sim.dune.com'
+          apiBaseUrl: process.env.NEXT_PUBLIC_DUNE_API_URL
         },
         chains: dynamicChains,
         privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
