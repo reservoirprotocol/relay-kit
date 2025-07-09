@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-kit-hooks@1.11.0
+  - @reservoir0x/relay-sdk@2.3.0
+
 ## 2.14.0
 
 ### Minor Changes

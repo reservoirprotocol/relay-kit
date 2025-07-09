@@ -1,5 +1,16 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 10.0.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-sdk@2.3.0
+
 ## 9.0.0
 
 ### Patch Changes
