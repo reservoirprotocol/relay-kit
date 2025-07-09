@@ -1,5 +1,16 @@
 # @reservoir0x/relay-bitcoin-wallet-adapter
 
+## 9.0.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-sdk@2.3.0
+
 ## 8.0.0
 
 ### Patch Changes

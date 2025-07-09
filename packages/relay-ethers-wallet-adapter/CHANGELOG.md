@@ -1,5 +1,16 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 21.0.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-sdk@2.3.0
+
 ## 20.0.0
 
 ### Patch Changes
