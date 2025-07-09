@@ -28,13 +28,14 @@ import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
+  calculateUsdValue,
   extractQuoteId,
   getCurrentStep,
   getSwapEventData,
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { useQuote } from '@reservoir0x/relay-kit-hooks'
+import { useQuote, useTokenPrice } from '@reservoir0x/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
@@ -166,6 +167,17 @@ export type ChildrenProps = {
   setDetails: Dispatch<React.SetStateAction<Execute['details'] | null>>
   setSwapError: Dispatch<React.SetStateAction<Error | null>>
   abortController: AbortController | null
+  fromTokenPriceData: ReturnType<typeof useTokenPrice>['data']
+  isLoadingFromTokenPrice: boolean
+  toTokenPriceData: ReturnType<typeof useTokenPrice>['data']
+  isLoadingToTokenPrice: boolean
+}
+
+// shared query options for useTokenPrice
+const tokenPriceQueryOptions = {
+  staleTime: 60 * 1000, // 1 minute
+  refetchInterval: 30 * 1000, // 30 seconds
+  refetchOnWindowFocus: false
 }
 
 const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
@@ -492,6 +504,84 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     amountUsd: _gasTopUpAmountUsd
   } = useGasTopUpRequired(toChain, fromChain, toToken, recipient)
 
+  //  Retrieve the price of the `from` token
+  const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
+    useTokenPrice(
+      relayClient?.baseApiUrl,
+      {
+        address: fromToken?.address ?? '',
+        chainId: fromToken?.chainId ?? 0,
+        referrer: relayClient?.source
+      },
+      {
+        enabled: !!(fromToken?.address && fromToken.chainId),
+        ...tokenPriceQueryOptions
+      }
+    )
+
+  // Retrieve the price of the `to` token
+  const { data: toTokenPriceData, isLoading: isLoadingToTokenPrice } =
+    useTokenPrice(
+      relayClient?.baseApiUrl,
+      {
+        address: toToken?.address ?? '',
+        chainId: toToken?.chainId ?? 0,
+        referrer: relayClient?.source
+      },
+      {
+        enabled: !!(toToken?.address && toToken.chainId),
+        ...tokenPriceQueryOptions
+      }
+    )
+
+  const quoteProtocol = useMemo(() => {
+    //Enabled only on Blast
+    if (fromChain?.id != 81457 && toChain?.id != 81457) {
+      return undefined
+    }
+
+    if (!fromToken && !toToken && !fromTokenPriceData && !toTokenPriceData) {
+      return undefined
+    }
+
+    const relevantPriceData =
+      tradeType === 'EXACT_INPUT' ? fromTokenPriceData : toTokenPriceData
+    const isLoadingRelevantPriceData =
+      tradeType === 'EXACT_INPUT'
+        ? isLoadingFromTokenPrice
+        : isLoadingToTokenPrice
+    const relevantPrice =
+      relevantPriceData?.price && !isLoadingRelevantPriceData
+        ? relevantPriceData.price
+        : undefined
+    const amount =
+      tradeType === 'EXACT_INPUT'
+        ? debouncedInputAmountValue
+        : debouncedOutputAmountValue
+
+    if (!amount) {
+      return undefined
+    }
+
+    const usdAmount = relevantPrice
+      ? calculateUsdValue(relevantPrice, amount)
+      : undefined
+
+    return usdAmount !== undefined && usdAmount <= 10 ? 'preferV2' : undefined
+  }, [
+    fromTokenPriceData,
+    toTokenPriceData,
+    isLoadingFromTokenPrice,
+    isLoadingToTokenPrice,
+    debouncedInputAmountValue,
+    tradeType
+  ])
+
+  const loadingProtocolVersion =
+    fromChain?.id != 81457 &&
+    toChain?.id != 81457 &&
+    (isLoadingFromTokenPrice || isLoadingToTokenPrice)
+
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
       ? {
@@ -517,7 +607,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
           slippageTolerance: slippageTolerance,
-          topupGas: gasTopUpEnabled && gasTopUpRequired
+          topupGas: gasTopUpEnabled && gasTopUpRequired,
+          protocolVersion: quoteProtocol
         }
       : undefined
 
@@ -577,7 +668,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       fromToken !== undefined &&
       toToken !== undefined &&
       !transactionModalOpen &&
-      !depositAddressModalOpen
+      !depositAddressModalOpen &&
+      !loadingProtocolVersion
   )
 
   const {
@@ -1117,7 +1209,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         setQuoteInProgress,
         linkedWallet,
         quoteParameters,
-        abortController
+        abortController,
+        fromTokenPriceData,
+        toTokenPriceData,
+        isLoadingFromTokenPrice,
+        isLoadingToTokenPrice
       })}
     </>
   )

@@ -331,3 +331,21 @@ export const getSwapEventData = (
       .flat()
   }
 }
+
+export const calculateUsdValue = (
+  price?: number,
+  amountString?: string
+): number | undefined => {
+  if (price && price > 0 && amountString && Number(amountString) > 0) {
+    try {
+      return parseFloat(amountString) * price
+    } catch (e) {
+      console.error(
+        'Failed to parse amount string for USD calculation',
+        amountString,
+        e
+      )
+    }
+  }
+  return undefined
+}
