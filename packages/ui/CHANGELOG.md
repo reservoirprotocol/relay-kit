@@ -1,5 +1,18 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.14.0
+
+### Minor Changes
+
+- 3dbf1be: Upgrade sdk types and add custom logic for blast protocol v2 configuration
+
+### Patch Changes
+
+- dad85e2: Check custom address against CEX address list
+- Updated dependencies [3dbf1be]
+  - @reservoir0x/relay-sdk@2.2.0
+  - @reservoir0x/relay-kit-hooks@1.10.6
+
 ## 2.13.3
 
 ### Patch Changes
