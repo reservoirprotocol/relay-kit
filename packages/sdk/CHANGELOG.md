@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.3.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
 ## 2.2.0
 
 ### Minor Changes
