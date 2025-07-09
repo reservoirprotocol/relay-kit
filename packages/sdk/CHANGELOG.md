@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.2.0
+
+### Minor Changes
+
+- 3dbf1be: Upgrade sdk types and add custom logic for blast protocol v2 configuration
+
 ## 2.1.3
 
 ### Patch Changes
