@@ -236,7 +236,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [quoteInProgress, setQuoteInProgress] = useState<null | Execute>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
-  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
+  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(false)
   const [abortController, setAbortController] =
     useState<AbortController | null>(null)
 
