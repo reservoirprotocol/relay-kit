@@ -55,6 +55,8 @@ import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
+const PROTOCOL_V2_ENABLED_CHAINS = [81457, 100, 130, 43114]
+
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -535,39 +537,42 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     )
 
   const quoteProtocol = useMemo(() => {
-    //Enabled only on Blast
-    if (fromChain?.id != 81457 && toChain?.id != 81457) {
-      return undefined
-    }
+    //Enabled only on certain chains
+    if (
+      (fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
+      (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))
+    ) {
+      if (!fromToken && !toToken && !fromTokenPriceData && !toTokenPriceData) {
+        return undefined
+      }
 
-    if (!fromToken && !toToken && !fromTokenPriceData && !toTokenPriceData) {
-      return undefined
-    }
+      const relevantPriceData =
+        tradeType === 'EXACT_INPUT' ? fromTokenPriceData : toTokenPriceData
+      const isLoadingRelevantPriceData =
+        tradeType === 'EXACT_INPUT'
+          ? isLoadingFromTokenPrice
+          : isLoadingToTokenPrice
+      const relevantPrice =
+        relevantPriceData?.price && !isLoadingRelevantPriceData
+          ? relevantPriceData.price
+          : undefined
+      const amount =
+        tradeType === 'EXACT_INPUT'
+          ? debouncedInputAmountValue
+          : debouncedOutputAmountValue
 
-    const relevantPriceData =
-      tradeType === 'EXACT_INPUT' ? fromTokenPriceData : toTokenPriceData
-    const isLoadingRelevantPriceData =
-      tradeType === 'EXACT_INPUT'
-        ? isLoadingFromTokenPrice
-        : isLoadingToTokenPrice
-    const relevantPrice =
-      relevantPriceData?.price && !isLoadingRelevantPriceData
-        ? relevantPriceData.price
+      if (!amount) {
+        return undefined
+      }
+
+      const usdAmount = relevantPrice
+        ? calculateUsdValue(relevantPrice, amount)
         : undefined
-    const amount =
-      tradeType === 'EXACT_INPUT'
-        ? debouncedInputAmountValue
-        : debouncedOutputAmountValue
 
-    if (!amount) {
+      return usdAmount !== undefined && usdAmount <= 10 ? 'preferV2' : undefined
+    } else {
       return undefined
     }
-
-    const usdAmount = relevantPrice
-      ? calculateUsdValue(relevantPrice, amount)
-      : undefined
-
-    return usdAmount !== undefined && usdAmount <= 10 ? 'preferV2' : undefined
   }, [
     fromTokenPriceData,
     toTokenPriceData,
@@ -578,8 +583,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   ])
 
   const loadingProtocolVersion =
-    fromChain?.id != 81457 &&
-    toChain?.id != 81457 &&
+    ((fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
+      (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))) &&
     (isLoadingFromTokenPrice || isLoadingToTokenPrice)
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
