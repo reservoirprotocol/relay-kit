@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.1
+
+### Patch Changes
+
+- c8ef9b5: Disable gas top up by default
+
 ## 2.15.0
 
 ### Minor Changes
