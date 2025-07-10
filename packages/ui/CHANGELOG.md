@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.2
+
+### Patch Changes
+
+- be1ec2c: Enable prefersV2 for Avalanche, unichain and Gnosis
+
 ## 2.15.1
 
 ### Patch Changes
