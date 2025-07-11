@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.3
+
+### Patch Changes
+
+- 4334b2f: Disable protocolv2 usage
+
 ## 2.15.2
 
 ### Patch Changes
