@@ -582,10 +582,11 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     tradeType
   ])
 
-  const loadingProtocolVersion =
-    ((fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
-      (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))) &&
-    (isLoadingFromTokenPrice || isLoadingToTokenPrice)
+  // const loadingProtocolVersion =
+  //   ((fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
+  //     (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))) &&
+  //   (isLoadingFromTokenPrice || isLoadingToTokenPrice)
+  const loadingProtocolVersion = false
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
@@ -612,8 +613,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
           slippageTolerance: slippageTolerance,
-          topupGas: gasTopUpEnabled && gasTopUpRequired,
-          protocolVersion: quoteProtocol
+          topupGas: gasTopUpEnabled && gasTopUpRequired
+          // protocolVersion: quoteProtocol
         }
       : undefined
 
