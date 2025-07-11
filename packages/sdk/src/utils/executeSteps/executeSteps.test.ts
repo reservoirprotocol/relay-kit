@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { axios } from './axios'
-import { createClient } from '../client'
-import { executeBridge } from '../../tests/data/executeBridge'
-import { executeSteps } from './executeSteps'
-import { MAINNET_RELAY_API } from '../constants/servers'
+import { axios } from '../axios'
+import { createClient } from '../../client'
+import { executeBridge } from '../../../tests/data/executeBridge'
+import { executeSteps } from '.'
+import { MAINNET_RELAY_API } from '../../constants/servers'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { executeBridgeAuthorize } from '../../tests/data/executeBridgeAuthorize'
-import type { ChainVM, Execute } from '../types'
-import { postSignatureExtraSteps } from '../../tests/data/postSignatureExtraSteps'
-import { swapWithApproval } from '../../tests/data/swapWithApproval'
-import { adaptViemWallet } from './viemWallet'
+import { executeBridgeAuthorize } from '../../../tests/data/executeBridgeAuthorize'
+import type { ChainVM, Execute } from '../../types'
+import { postSignatureExtraSteps } from '../../../tests/data/postSignatureExtraSteps'
+import { swapWithApproval } from '../../../tests/data/swapWithApproval'
+import { adaptViemWallet } from '../viemWallet'
 
 const waitForTransactionReceiptMock = vi.fn().mockResolvedValue({
   blobGasPrice: 100n,
@@ -165,9 +165,9 @@ describe('Should test the executeSteps method.', () => {
   })
 
   it('Should throw: Unable to find chain error.', async () => {
-    await expect(executeSteps(12345, {}, wallet, () => {})).rejects.toThrow(
-      'Unable to find chain'
-    )
+    await expect(
+      executeSteps(12345, {}, wallet, () => {}, {} as Execute)
+    ).rejects.toThrow('Unable to find chain')
   })
 
   it('Should throw: Current chain id does not match expected', async () => {
@@ -1002,46 +1002,7 @@ describe('Base tests', () => {
     })
     expect(errorMessage).toBe('Unable to find chain: Chain id 1337')
   })
-  it('Should fetch json if missing and fail if error returned', async () => {
-    let fetchedJson = false
-    let errorMessage: string | undefined
-    vi.spyOn(axios, 'request').mockImplementation((config) => {
-      if (config.url === 'https://api.relay.link/get/quote') {
-        fetchedJson = true
-        return Promise.resolve({
-          data: { status: 'failure', details: 'Failed to check' },
-          status: 400
-        })
-      }
 
-      return Promise.resolve({
-        data: { status: 'success' },
-        status: 200
-      })
-    })
-    executeSteps(
-      1,
-      {
-        method: 'GET',
-        url: 'https://api.relay.link/get/quote'
-      },
-      wallet,
-      () => {},
-      undefined,
-      undefined
-    ).catch((e) => {
-      errorMessage = e
-    })
-
-    await vi.waitFor(() => {
-      if (!errorMessage) {
-        throw 'Waiting for error message'
-      }
-    })
-
-    expect(errorMessage).toBeDefined()
-    expect(fetchedJson).toBeTruthy()
-  })
   it('Should throw an error when steps are missing', async () => {
     let errorMessage: string | undefined
     executeSteps(1, {}, wallet, () => {}, {} as any, undefined).catch((e) => {
