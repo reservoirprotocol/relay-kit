@@ -12,7 +12,7 @@ import type { RelayChain } from './types/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
 import * as actions from './actions/index.js'
 import * as utils from './utils/index.js'
-import { MAINNET_RELAY_API } from './constants/servers.js'
+import { MAINNET_RELAY_API, MAINNET_RELAY_WS } from './constants/servers.js'
 import { SDK_VERSION } from './version.js'
 
 /**
@@ -32,6 +32,10 @@ export type RelayClientOptions = {
   uiVersion?: string
   logger?: (message: Parameters<typeof logUtil>['0'], level: LogLevel) => void
   confirmationPollingInterval?: number
+  websocket?: {
+    enabled?: boolean
+    url?: string // Optional, falls back to default
+  }
 }
 
 let _client: RelayClient
@@ -58,6 +62,8 @@ export class RelayClient {
   maxPollingAttemptsBeforeTimeout?: number
   useGasFeeEstimations: boolean
   chains: RelayChain[]
+  websocketEnabled: boolean
+  websocketUrl: string
   log(
     message: Parameters<typeof logUtil>['0'],
     level: LogLevel = LogLevel.Info
@@ -78,6 +84,8 @@ export class RelayClient {
     this.maxPollingAttemptsBeforeTimeout =
       options.maxPollingAttemptsBeforeTimeout
     this.useGasFeeEstimations = options.useGasFeeEstimations ?? true
+    this.websocketEnabled = options.websocket?.enabled ?? false
+    this.websocketUrl = options.websocket?.url ?? MAINNET_RELAY_WS
     if (options.chains) {
       this.chains = options.chains
     } else if (options.baseApiUrl?.includes('testnets')) {
@@ -121,6 +129,11 @@ export class RelayClient {
       options.useGasFeeEstimations !== undefined
         ? options.useGasFeeEstimations
         : this.useGasFeeEstimations
+    this.websocketEnabled =
+      options.websocket?.enabled !== undefined
+        ? options.websocket.enabled
+        : this.websocketEnabled
+    this.websocketUrl = options.websocket?.url || this.websocketUrl
 
     if (options.logger) {
       this.log = options.logger

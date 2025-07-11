@@ -1,4 +1,4 @@
-import { LogLevel, RelayChain } from '@reservoir0x/relay-sdk'
+import { LogLevel, MAINNET_RELAY_WS, RelayChain } from '@reservoir0x/relay-sdk'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useTheme } from 'next-themes'
 import { FC, ReactNode } from 'react'
@@ -25,7 +25,11 @@ export const RelayKitProviderWrapper: FC<{
         useGasFeeEstimations: true,
         pollingInterval: 1000,
         confirmationPollingInterval: 1000,
-        themeScheme: theme === 'dark' ? 'dark' : 'light'
+        themeScheme: theme === 'dark' ? 'dark' : 'light',
+        websocket: {
+          enabled: true,
+          url: MAINNET_RELAY_WS
+        }
       }}
     >
       {children}

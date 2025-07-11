@@ -12,6 +12,7 @@ import {
 } from '../prepareBatchTransaction.js'
 import { handleSignatureStepItem } from './signatureStep.js'
 import { handleTransactionStepItem } from './transactionStep.js'
+import { trackRequestStatus, extractDepositRequestId } from '../websocket.js'
 
 export type SetStateData = Pick<
   Execute,
@@ -43,7 +44,7 @@ export async function executeSteps(
       gasLimit?: string
     }
   }
-) {
+): Promise<Execute> {
   // ============================================================================
   // CONFIGURATION
   // ============================================================================
@@ -64,13 +65,72 @@ export async function executeSteps(
     throw `Unable to find chain: Chain id ${chainId}`
   }
 
-  // @TODO: check for websocket
-
   let json = newJson
   let isAtomicBatchSupported = false
+  let wsCleanup: { close: () => void } | undefined
+
   try {
     // Handle errors
     if (json.error || !json.steps) throw json
+
+    // Initialize WebSocket for real-time status updates (only on first call)
+    const requestId = extractDepositRequestId(json.steps)
+    // let pollingDisabled = false
+
+    // Only create WebSocket if this is the initial call (not a recursive call)
+    // We can detect this by checking if there are any complete steps
+    const hasCompleteSteps = json.steps?.some((step) =>
+      step.items?.some((item) => item.status === 'complete')
+    )
+    const isInitialCall = !hasCompleteSteps
+
+    client.log(
+      [
+        'WebSocket check:',
+        {
+          requestId,
+          hasCompleteSteps,
+          isInitialCall,
+          stepsCount: json.steps?.length
+        }
+      ],
+      LogLevel.Verbose
+    )
+
+    if (
+      client.websocketEnabled &&
+      client.websocketUrl &&
+      requestId &&
+      isInitialCall
+    ) {
+      wsCleanup = trackRequestStatus({
+        event: 'request.status.updated',
+        requestId: requestId,
+        enabled: client.websocketEnabled,
+        url: client.websocketUrl,
+        onOpen: () => {
+          client.log(['websocket open'], LogLevel.Verbose)
+        },
+        onUpdate: (data) => {
+          client.log(['websocket data', data], LogLevel.Verbose)
+
+          // Handle terminal states
+          if (
+            data.status === 'success' ||
+            data.status === 'failure' ||
+            data.status === 'refund'
+          ) {
+            wsCleanup?.close()
+          }
+        },
+        onError: (err) => {
+          client.log(['websocket error', err], LogLevel.Error)
+        },
+        onClose: () => {
+          client.log(['websocket closed'], LogLevel.Verbose)
+        }
+      })
+    }
 
     // Check if step's transactions can be batched and if wallet supports atomic batch (EIP-5792)
     // If so, manipulate steps to batch transactions
@@ -235,7 +295,7 @@ export async function executeSteps(
     await Promise.all(promises)
 
     // Recursively call executeSteps()
-    return await executeSteps(
+    const result = await executeSteps(
       chainId,
       request,
       wallet,
@@ -243,8 +303,17 @@ export async function executeSteps(
       json,
       stepOptions
     )
+
+    // Clean up WebSocket if execution completes
+    wsCleanup?.close()
+
+    return result
   } catch (err: any) {
     client.log(['Execute Steps: An error occurred', err], LogLevel.Error)
+
+    // Clean up WebSocket on error
+    wsCleanup?.close()
+
     const error = err && err?.response?.data ? err.response.data : err
     let refunded = false
     if (error && error.message) {
