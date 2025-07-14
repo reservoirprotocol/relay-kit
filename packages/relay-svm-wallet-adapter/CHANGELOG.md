@@ -1,5 +1,11 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 10.0.1
+
+### Patch Changes
+
+- e251ccd: Add an optional payerKey to customize gas payer
+
 ## 10.0.0
 
 ### Minor Changes

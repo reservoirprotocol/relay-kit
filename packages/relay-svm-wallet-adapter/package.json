@@ -1,6 +1,6 @@
 {
     "name": "@reservoir0x/relay-svm-wallet-adapter",
-    "version": "10.0.0",
+    "version": "10.0.1",
     "description": "An SVM (Solana Virtual Machine) adapter for use in @reservoir0x/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
