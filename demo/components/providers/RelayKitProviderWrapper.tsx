@@ -34,8 +34,7 @@ export const RelayKitProviderWrapper: FC<{
         themeScheme: theme === 'dark' ? 'dark' : 'light',
         websocket: {
           enabled: true,
-          url: 'test'
-          // url: MAINNET_RELAY_WS
+          url: MAINNET_RELAY_WS
         }
       }}
     >
