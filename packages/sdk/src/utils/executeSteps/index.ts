@@ -67,70 +67,21 @@ export async function executeSteps(
 
   let json = newJson
   let isAtomicBatchSupported = false
-  let wsCleanup: { close: () => void } | undefined
+
+  const statusControl = {
+    websocketActive: false,
+    websocketConnected: false,
+    pollingActive: true,
+    closeWebSocket: undefined as undefined | (() => void)
+  }
+
+  const shouldPoll = () => statusControl.pollingActive
+
+  console.log('statusControl: ', statusControl)
 
   try {
     // Handle errors
     if (json.error || !json.steps) throw json
-
-    // Initialize WebSocket for real-time status updates (only on first call)
-    const requestId = extractDepositRequestId(json.steps)
-    // let pollingDisabled = false
-
-    // Only create WebSocket if this is the initial call (not a recursive call)
-    // We can detect this by checking if there are any complete steps
-    const hasCompleteSteps = json.steps?.some((step) =>
-      step.items?.some((item) => item.status === 'complete')
-    )
-    const isInitialCall = !hasCompleteSteps
-
-    client.log(
-      [
-        'WebSocket check:',
-        {
-          requestId,
-          hasCompleteSteps,
-          isInitialCall,
-          stepsCount: json.steps?.length
-        }
-      ],
-      LogLevel.Verbose
-    )
-
-    if (
-      client.websocketEnabled &&
-      client.websocketUrl &&
-      requestId &&
-      isInitialCall
-    ) {
-      wsCleanup = trackRequestStatus({
-        event: 'request.status.updated',
-        requestId: requestId,
-        enabled: client.websocketEnabled,
-        url: client.websocketUrl,
-        onOpen: () => {
-          client.log(['websocket open'], LogLevel.Verbose)
-        },
-        onUpdate: (data) => {
-          client.log(['websocket data', data], LogLevel.Verbose)
-
-          // Handle terminal states
-          if (
-            data.status === 'success' ||
-            data.status === 'failure' ||
-            data.status === 'refund'
-          ) {
-            wsCleanup?.close()
-          }
-        },
-        onError: (err) => {
-          client.log(['websocket error', err], LogLevel.Error)
-        },
-        onClose: () => {
-          client.log(['websocket closed'], LogLevel.Verbose)
-        }
-      })
-    }
 
     // Check if step's transactions can be batched and if wallet supports atomic batch (EIP-5792)
     // If so, manipulate steps to batch transactions
@@ -230,7 +181,8 @@ export async function executeSteps(
                   chainId,
                   isAtomicBatchSupported,
                   incompleteStepItemIndex,
-                  stepItems
+                  stepItems,
+                  shouldPoll
                 })
                 break
               }
@@ -247,7 +199,8 @@ export async function executeSteps(
                   json,
                   maximumAttempts,
                   pollingInterval,
-                  chain
+                  chain,
+                  shouldPoll
                 })
                 break
               }
@@ -292,6 +245,162 @@ export async function executeSteps(
         })
       })
 
+    const isLastStep = incompleteStepIndex === json.steps.length - 1
+    const isStepIncomplete = stepItems.some(
+      (item) => item.status === 'incomplete'
+    )
+    const requestId = extractDepositRequestId(json.steps)
+    // Only open WebSocket if:
+    // - Websocket is enabled
+    // - There is a requestId
+    // - It's the last step
+    // - The step is incomplete
+    // - We haven't already opened the WebSocket
+    if (
+      client.websocketEnabled &&
+      requestId &&
+      isLastStep &&
+      isStepIncomplete &&
+      !statusControl.websocketActive
+    ) {
+      statusControl.websocketActive = true
+      statusControl.closeWebSocket = trackRequestStatus({
+        event: 'request.status.updated',
+        requestId: requestId,
+        enabled: true,
+        url: client.websocketUrl,
+        onOpen: () => {
+          client.log(['Websocket open'], LogLevel.Verbose)
+          statusControl.websocketConnected = true
+          statusControl.pollingActive = false // Only disable polling after successful connection
+        },
+        onUpdate: (data) => {
+          client.log(['websocket data', data], LogLevel.Verbose)
+          // Handle terminal states
+          if (
+            data.status === 'success' ||
+            data.status === 'failure' ||
+            data.status === 'refund'
+          ) {
+            statusControl.closeWebSocket?.()
+            statusControl.pollingActive = false
+
+            // Update step data with WebSocket response
+            if (data.status === 'success') {
+              // Update txHashes if provided
+              if (data.txHashes && data.txHashes.length > 0) {
+                const txHashes = data.txHashes.map((hash: string) => ({
+                  txHash: hash,
+                  chainId: data.destinationChainId ?? chainId
+                }))
+                stepItems.forEach((item) => {
+                  if (item.status === 'incomplete') {
+                    item.txHashes = txHashes
+                  }
+                })
+              }
+
+              // Update internalTxHashes if provided
+              if (data.inTxHashes && data.inTxHashes.length > 0) {
+                const internalTxHashes = data.inTxHashes.map(
+                  (hash: string) => ({
+                    txHash: hash,
+                    chainId: data.originChainId ?? chainId
+                  })
+                )
+                stepItems.forEach((item) => {
+                  if (item.status === 'incomplete') {
+                    item.internalTxHashes = internalTxHashes
+                  }
+                })
+              }
+
+              // Mark step items as complete
+              stepItems.forEach((item) => {
+                if (item.status === 'incomplete') {
+                  item.status = 'complete'
+                  item.progressState = 'complete'
+                  item.checkStatus = data.status as
+                    | 'success'
+                    | 'refund'
+                    | 'delayed'
+                    | 'waiting'
+                    | 'failure'
+                    | 'pending'
+                    | 'unknown'
+                }
+              })
+
+              // Update state with completed steps
+              setState({
+                steps: [...json.steps],
+                fees: { ...json?.fees },
+                breakdown: json?.breakdown,
+                details: json?.details
+              })
+
+              client.log(
+                ['WebSocket: Step completed successfully', data],
+                LogLevel.Verbose
+              )
+            } else if (data.status === 'failure') {
+              // Handle failure
+              stepItems.forEach((item) => {
+                if (item.status === 'incomplete') {
+                  item.status = 'complete'
+                  item.progressState = 'complete'
+                  item.checkStatus = 'failure'
+                  item.error = 'Transaction failed'
+                }
+              })
+
+              setState({
+                steps: [...json.steps],
+                fees: { ...json?.fees },
+                breakdown: json?.breakdown,
+                details: json?.details
+              })
+
+              client.log(['WebSocket: Step failed', data], LogLevel.Error)
+            } else if (data.status === 'refund') {
+              // Handle refund
+              stepItems.forEach((item) => {
+                if (item.status === 'incomplete') {
+                  item.status = 'complete'
+                  item.progressState = 'complete'
+                  item.checkStatus = 'refund'
+                }
+              })
+
+              setState({
+                steps: [...json.steps],
+                fees: { ...json?.fees },
+                breakdown: json?.breakdown,
+                details: json?.details
+              })
+
+              client.log(['WebSocket: Step refunded', data], LogLevel.Verbose)
+            }
+          }
+        },
+        onError: (err) => {
+          client.log(
+            ['Websocket error, re-enabling polling', err],
+            LogLevel.Verbose
+          )
+          // If websocket errors, re-enable polling as a fallback
+          statusControl.pollingActive = true
+        },
+        onClose: () => {
+          client.log(['websocket closed'], LogLevel.Verbose)
+          // Optionally re-enable polling if closed unexpectedly
+          if (!statusControl.websocketConnected) {
+            statusControl.pollingActive = true
+          }
+        }
+      }).close
+    }
+
     await Promise.all(promises)
 
     // Recursively call executeSteps()
@@ -305,14 +414,14 @@ export async function executeSteps(
     )
 
     // Clean up WebSocket if execution completes
-    wsCleanup?.close()
+    statusControl.closeWebSocket?.()
 
     return result
   } catch (err: any) {
     client.log(['Execute Steps: An error occurred', err], LogLevel.Error)
 
     // Clean up WebSocket on error
-    wsCleanup?.close()
+    statusControl.closeWebSocket?.()
 
     const error = err && err?.response?.data ? err.response.data : err
     let refunded = false

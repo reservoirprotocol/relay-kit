@@ -17,9 +17,20 @@ import { SDK_VERSION } from './version.js'
 
 /**
  * RelayClient Configuration Options
- * @param source Used to manually override the source domain used to attribute local orders
- * @param logLevel Log level from 0-4, the higher the more verbose.
- * @param maxPollingAttemptsBeforeTimeout The maximum number of attempts the synced api is polled before timing out. The api is polled every 5 secs (default is 30)
+ *
+ * @property {string} [baseApiUrl] - The base URL for the Relay API. Defaults to the mainnet API if not provided.
+ * @property {string} [source] - The source to associate your onchain activity with, should be a domain.
+ * @property {LogLevel} [logLevel] - Log level from 0-4, the higher the more verbose. Defaults to LogLevel.None.
+ * @property {number} [pollingInterval] - Interval (in ms) for polling the API for status updates.
+ * @property {number} [maxPollingAttemptsBeforeTimeout] - The maximum number of polling attempts before timing out. The API is polled every 5 seconds by default (default is 30 attempts).
+ * @property {RelayChain[]} [chains] - List of supported chains. If not provided, defaults to all mainnet/testnet chains based on the API URL.
+ * @property {boolean} [useGasFeeEstimations] - Whether to use gas fee estimations. Defaults to true.
+ * @property {string} [uiVersion] - Optional UI version string for analytics/debugging.
+ * @property {(message: Parameters<typeof logUtil>[0], level: LogLevel) => void} [logger] - Custom logger function. If not provided, uses the default logger.
+ * @property {number} [confirmationPollingInterval] - Interval (in ms) for polling transaction confirmations.
+ * @property {Object} [websocket] - Websocket configuration options.
+ * @property {boolean} [websocket.enabled] - Whether to enable websocket support. Defaults to false.
+ * @property {string} [websocket.url] - Custom websocket URL. If not provided, falls back to the default.
  */
 export type RelayClientOptions = {
   baseApiUrl?: string
@@ -34,7 +45,7 @@ export type RelayClientOptions = {
   confirmationPollingInterval?: number
   websocket?: {
     enabled?: boolean
-    url?: string // Optional, falls back to default
+    url?: string
   }
 }
 

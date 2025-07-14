@@ -42,6 +42,7 @@ export async function sendTransactionSafely(
   setInternalTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
+  shouldPoll: () => boolean,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
@@ -195,11 +196,22 @@ export async function sendTransactionSafely(
   // Poll the confirmation url to confirm the transaction went through
   const pollForConfirmation = async (receiptController?: AbortController) => {
     isValidating?.()
+
+    // Wait until shouldPoll() is true, or until aborted
+    while (!shouldPoll()) {
+      if (receiptController?.signal.aborted) {
+        client.log(['Polling aborted before start'], LogLevel.Verbose)
+        throw new Error('Polling aborted before start')
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500)) // check every 500ms
+    }
+
     while (
       waitingForConfirmation &&
       attemptCount < maximumAttempts &&
       !transactionCancelled &&
-      !confirmationError
+      !confirmationError &&
+      shouldPoll()
     ) {
       let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
@@ -267,6 +279,8 @@ export async function sendTransactionSafely(
     if (transactionCancelled) {
       throw Error('Transaction was cancelled')
     }
+
+    client.log(['Transaction: returning true'], LogLevel.Verbose)
     return true
   }
 

@@ -45,7 +45,12 @@ export function trackRequestStatus<E extends WebSocketEvent>({
   url,
   enabled = false
 }: TrackRequestStatusOptions<E> & { url?: string }) {
-  if (!enabled) return { close: () => {} }
+  if (
+    !enabled ||
+    typeof window === 'undefined' ||
+    typeof window.WebSocket === 'undefined'
+  )
+    return { close: () => {} }
 
   const socketUrl = url || MAINNET_RELAY_WS
   const socket = new WebSocket(socketUrl)

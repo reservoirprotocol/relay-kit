@@ -24,7 +24,8 @@ export async function handleSignatureStepItem({
   json,
   maximumAttempts,
   pollingInterval,
-  chain
+  chain,
+  shouldPoll
 }: {
   stepItem: SignatureStepItem
   step: Execute['steps'][0]
@@ -36,6 +37,7 @@ export async function handleSignatureStepItem({
   maximumAttempts: number
   pollingInterval: number
   chain: RelayChain
+  shouldPoll: () => boolean
 }): Promise<void> {
   if (!stepItem.data) {
     throw `Step item is missing data`
@@ -118,7 +120,7 @@ export async function handleSignatureStepItem({
       }
 
       // If check, poll check until validated
-      if (stepItem?.check) {
+      if (stepItem?.check && shouldPoll()) {
         stepItem.progressState = 'validating'
         setState({
           steps: [...json.steps],

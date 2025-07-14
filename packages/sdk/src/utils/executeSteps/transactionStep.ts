@@ -23,7 +23,8 @@ export async function handleTransactionStepItem({
   chainId,
   isAtomicBatchSupported,
   incompleteStepItemIndex,
-  stepItems
+  stepItems,
+  shouldPoll
 }: {
   stepItem: TransactionStepItem
   step: Execute['steps'][0]
@@ -36,6 +37,7 @@ export async function handleTransactionStepItem({
   isAtomicBatchSupported: boolean
   incompleteStepItemIndex: number
   stepItems: Execute['steps'][0]['items']
+  shouldPoll: () => boolean
 }): Promise<void> {
   if (!stepItem.data) {
     throw `Step item is missing data`
@@ -92,6 +94,7 @@ export async function handleTransactionStepItem({
         details: json?.details
       })
     },
+    shouldPoll,
     request,
     undefined,
     crossChainIntentChainId,
