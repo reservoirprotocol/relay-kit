@@ -4,7 +4,6 @@ import type {
   AdaptedWallet,
   RelayChain
 } from '../../types/index.js'
-import { pollUntilOk } from '../pollApi.js'
 import { axios } from '../index.js'
 import type { AxiosRequestConfig } from 'axios'
 import { LogLevel } from '../logger.js'
@@ -120,14 +119,24 @@ export async function handleSignatureStepItem({
       }
 
       // If check, poll check until validated
-      if (stepItem?.check && shouldPoll()) {
+      if (stepItem?.check) {
+        // Only start polling if shouldPoll is true
+        if (!shouldPoll()) {
+          client.log(
+            ['Skipping signature validation polling - WebSocket active'],
+            LogLevel.Verbose
+          )
+          return
+        }
+
         stepItem.progressState = 'validating'
         setState({
           steps: [...json.steps],
           fees: { ...json?.fees },
           breakdown: json?.breakdown,
           details: json?.details
-        })(stepItem).isValidatingSignature = true
+        })
+        stepItem.isValidatingSignature = true
         setState({
           steps: [...json?.steps],
           fees: { ...json?.fees },
@@ -135,57 +144,88 @@ export async function handleSignatureStepItem({
           details: json?.details
         })
 
-        await pollUntilOk(
-          {
-            url: `${request.baseURL}${stepItem?.check?.endpoint}`,
-            method: stepItem?.check?.method,
-            headers
-          },
-          (res) => {
-            client.log(
-              [
-                `Execute Steps: Polling execute status to check if indexed`,
-                res
-              ],
-              LogLevel.Verbose
-            )
+        // Create a custom polling function that checks shouldPoll
+        const pollWithCancellation = async () => {
+          let attemptCount = 0
+          while (attemptCount < maximumAttempts) {
+            // Check if we should stop polling
+            if (!shouldPoll()) {
+              client.log(
+                [
+                  'Signature validation polling cancelled - WebSocket took over'
+                ],
+                LogLevel.Verbose
+              )
+              return
+            }
 
-            //set status
-            if (res?.data?.status === 'success' && res?.data?.txHashes) {
-              const chainTxHashes: NonNullable<
-                Execute['steps'][0]['items']
-              >[0]['txHashes'] = res.data?.txHashes?.map((hash: string) => {
-                return {
-                  txHash: hash,
-                  chainId: res.data.destinationChainId ?? chain?.id
-                }
+            try {
+              const res = await axios.request({
+                url: `${request.baseURL}${stepItem?.check?.endpoint}`,
+                method: stepItem?.check?.method,
+                headers
               })
 
-              if (res?.data?.inTxHashes) {
-                const chainInTxHashes: NonNullable<
+              client.log(
+                [
+                  `Execute Steps: Polling execute status to check if indexed`,
+                  res
+                ],
+                LogLevel.Verbose
+              )
+
+              // Check status
+              if (res?.data?.status === 'success' && res?.data?.txHashes) {
+                const chainTxHashes: NonNullable<
                   Execute['steps'][0]['items']
-                >[0]['txHashes'] = res.data.inTxHashes.map((hash: string) => {
+                >[0]['txHashes'] = res.data?.txHashes?.map((hash: string) => {
                   return {
                     txHash: hash,
-                    chainId: chain?.id ?? res.data.originChainId
+                    chainId: res.data.destinationChainId ?? chain?.id
                   }
                 })
-                stepItem.internalTxHashes = chainInTxHashes
-              }
-              stepItem.txHashes = chainTxHashes
 
-              return true
-            } else if (res?.data?.status === 'failure') {
-              throw Error(res?.data?.details || 'Transaction failed')
-            } else if (res?.data?.status === 'delayed') {
-              stepItem.progressState = 'validating_delayed'
+                if (res?.data?.inTxHashes) {
+                  const chainInTxHashes: NonNullable<
+                    Execute['steps'][0]['items']
+                  >[0]['txHashes'] = res.data.inTxHashes.map((hash: string) => {
+                    return {
+                      txHash: hash,
+                      chainId: chain?.id ?? res.data.originChainId
+                    }
+                  })
+                  stepItem.internalTxHashes = chainInTxHashes
+                }
+                stepItem.txHashes = chainTxHashes
+                return // Success - exit polling
+              } else if (res?.data?.status === 'failure') {
+                throw Error(res?.data?.details || 'Transaction failed')
+              } else if (res?.data?.status === 'delayed') {
+                stepItem.progressState = 'validating_delayed'
+                setState({
+                  steps: [...json?.steps],
+                  fees: { ...json?.fees },
+                  breakdown: json?.breakdown,
+                  details: json?.details
+                })
+              }
+
+              attemptCount++
+              await new Promise((resolve) =>
+                setTimeout(resolve, pollingInterval)
+              )
+            } catch (error) {
+              throw error
             }
-            return false
-          },
-          maximumAttempts,
-          0,
-          pollingInterval
-        )
+          }
+
+          // Max attempts reached
+          throw new Error(
+            `Failed to get an ok response after ${attemptCount} attempt(s), aborting`
+          )
+        }
+
+        await pollWithCancellation()
       }
 
       if (res.status > 299 || res.status < 200) throw res.data

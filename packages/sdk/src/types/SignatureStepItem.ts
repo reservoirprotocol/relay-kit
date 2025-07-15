@@ -10,6 +10,7 @@ export type SignatureStepItem = Pick<
   | 'txHashes'
   | 'internalTxHashes'
   | 'check'
+  | 'isValidatingSignature'
 > & {
   data?: {
     sign?: {

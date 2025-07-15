@@ -27,7 +27,7 @@ export interface TrackRequestStatusOptions<E extends WebSocketEvent> {
   enabled?: boolean
 }
 
-// @TODO: remove once requestId gets added to top level of Execute object
+// @TODO: remove once requestId gets added to top level of quote response
 export const extractDepositRequestId = (steps?: Execute['steps'] | null) => {
   if (!steps?.length) return null
 
@@ -49,14 +49,14 @@ export function trackRequestStatus<E extends WebSocketEvent>({
     !enabled ||
     typeof window === 'undefined' ||
     typeof window.WebSocket === 'undefined'
-  )
+  ) {
     return { close: () => {} }
+  }
 
   const socketUrl = url || MAINNET_RELAY_WS
   const socket = new WebSocket(socketUrl)
 
   socket.onopen = () => {
-    console.log('WebSocket opening, subscribing to:', { event, requestId })
     if (onOpen) onOpen()
     socket.send(
       JSON.stringify({
@@ -77,42 +77,19 @@ export function trackRequestStatus<E extends WebSocketEvent>({
         data = eventMsg.data
       }
 
-      console.log('WebSocket raw message:', data)
-
       const msg = JSON.parse(data)
-      console.log('WebSocket parsed message:', msg)
 
       // Handle different message types
       if (msg.type === 'connection') {
-        console.log('WebSocket connection established')
+        // Connection established
       } else if (msg.type === 'subscribe') {
-        console.log('WebSocket subscription confirmed:', msg.status)
+        // Subscription confirmed
       } else if (msg.event === event && msg.data) {
-        console.log('WebSocket matched event, calling onUpdate')
         onUpdate(msg.data)
       } else if (msg.data?.event === event && msg.data?.data) {
-        console.log('WebSocket matched event in data object, calling onUpdate')
         onUpdate(msg.data.data)
-      } else if (msg.event && msg.data) {
-        console.log('WebSocket received different event:', {
-          receivedEvent: msg.event,
-          expectedEvent: event,
-          hasData: !!msg.data
-        })
-      } else if (msg.data?.event && msg.data?.data) {
-        console.log('WebSocket received different event in data object:', {
-          receivedEvent: msg.data.event,
-          expectedEvent: event,
-          hasData: !!msg.data.data
-        })
-      } else {
-        console.log(
-          'WebSocket received unknown message type:',
-          msg.type || 'no type'
-        )
       }
     } catch (err) {
-      console.log('WebSocket message parsing error:', err)
       onError?.(err)
     }
   }

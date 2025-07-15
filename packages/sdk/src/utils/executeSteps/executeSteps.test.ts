@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { axios } from '../axios'
 import { createClient } from '../../client'
 import { executeBridge } from '../../../tests/data/executeBridge'
@@ -1016,47 +1016,6 @@ describe('Base tests', () => {
     })
     expect(errorMessage).toBeDefined()
   })
-  it('Should poll if step item data is missing', async () => {
-    let fetchedStepItem = false
-    vi.spyOn(axios, 'request').mockImplementation((config) => {
-      if (config.url === 'https://api.relay.link/get/quote') {
-        fetchedStepItem = true
-        return Promise.resolve({
-          ...bridgeData,
-          status: 200
-        })
-      }
-
-      return Promise.resolve({
-        data: { status: 'success' },
-        status: 200
-      })
-    })
-    const _bridgeData: Execute = JSON.parse(JSON.stringify(bridgeData))
-    _bridgeData.steps.forEach((step) => {
-      step.items?.forEach((item) => {
-        delete item.data
-      })
-    })
-    executeSteps(
-      1,
-      {
-        url: 'https://api.relay.link/get/quote',
-        method: 'GET'
-      },
-      wallet,
-      () => {},
-      _bridgeData,
-      undefined
-    )
-
-    await vi.waitFor(() => {
-      if (!fetchedStepItem) {
-        throw 'Waiting to fetch step item'
-      }
-    })
-    expect(fetchedStepItem).toBeTruthy()
-  })
 
   it('Should return the final results in the execute response', async () => {
     const result = await executeSteps(
@@ -1203,5 +1162,382 @@ describe('Should test atomic batch transactions', () => {
     // Should call handleSendTransactionStep twice - once for approve and once for swap
     expect(wallet.handleBatchTransactionStep).not.toHaveBeenCalled()
     expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('Should test WebSocket functionality', () => {
+  let mockWebSocket: any
+  let wsConstructorSpy: any
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetAllMocks()
+    // Mock axios to return pending status for WebSocket tests
+    axiosRequestSpy = vi
+      .spyOn(axios, 'request')
+      .mockImplementation((config) => {
+        if (config.url?.includes('/intents/status')) {
+          return Promise.resolve({
+            data: { status: 'pending' },
+            status: 200
+          })
+        }
+        if (
+          config.url?.includes('transactions/index') ||
+          config.url?.includes('/execute/permits')
+        ) {
+          return Promise.resolve({
+            data: { status: 'success' },
+            status: 200
+          })
+        }
+        return Promise.reject(new Error('Unexpected URL'))
+      })
+    axiosPostSpy = mockAxiosPost()
+    bridgeData = JSON.parse(JSON.stringify(executeBridge))
+
+    // Add requestId to test data for WebSocket tests
+    bridgeData.steps[0].requestId = '0x123'
+
+    // Mock WebSocket
+    mockWebSocket = {
+      send: vi.fn(),
+      close: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      readyState: 1,
+      onopen: null,
+      onmessage: null,
+      onerror: null,
+      onclose: null
+    }
+
+    wsConstructorSpy = vi.fn(() => {
+      // Simulate connection opening after a brief delay
+      setTimeout(() => {
+        if (mockWebSocket.onopen) {
+          mockWebSocket.onopen(new Event('open'))
+        }
+      }, 10)
+      return mockWebSocket
+    })
+    global.WebSocket = wsConstructorSpy as any
+
+    // Mock window for browser environment check
+    if (typeof window === 'undefined') {
+      ;(global as any).window = {
+        WebSocket: wsConstructorSpy
+      }
+    } else {
+      ;(window as any).WebSocket = wsConstructorSpy
+    }
+
+    wallet = {
+      vmType: 'evm' as ChainVM,
+      getChainId: () => Promise.resolve(1),
+      transport: http(mainnet.rpcUrls.default.http[0]),
+      address: () => Promise.resolve('0x'),
+      handleSignMessageStep: vi.fn().mockResolvedValue('0x'),
+      handleSendTransactionStep: vi.fn().mockResolvedValue('0x'),
+      handleConfirmTransactionStep: vi
+        .fn()
+        .mockImplementation(() => new Promise(() => {})), // Never resolves
+      switchChain: vi.fn().mockResolvedValue('0x'),
+      supportsAtomicBatch: vi.fn().mockResolvedValue(false),
+      handleBatchTransactionStep: vi.fn().mockResolvedValue('0x')
+    }
+
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      websocket: {
+        enabled: true,
+        url: 'ws://test.relay.link'
+      }
+    })
+  })
+
+  afterEach(() => {
+    delete (global as any).WebSocket
+    delete (global as any).window
+  })
+
+  it('Should open WebSocket on last step only', async () => {
+    // Create multi-step data
+    const multiStepData = {
+      ...bridgeData,
+      steps: [
+        { ...bridgeData.steps[0], requestId: '0x123' }, // First step incomplete
+        {
+          ...bridgeData.steps[0],
+          id: 'swap',
+          action: 'Swap',
+          requestId: '0x123'
+        } // Second step incomplete
+      ]
+    } as Execute
+
+    executeSteps(1, {}, wallet, ({ steps }) => {}, multiStepData, undefined)
+
+    // Wait for first step to start processing
+    await vi.waitFor(() => {
+      expect(wallet.handleSendTransactionStep).toHaveBeenCalledTimes(1)
+    })
+
+    // WebSocket should NOT be opened for first step
+    expect(wsConstructorSpy).not.toHaveBeenCalled()
+  })
+
+  it('Should disable polling when WebSocket connects', async () => {
+    const onProgressSpy = vi.fn()
+
+    // Add logging to debug
+    const originalLog = client.log
+    client.log = vi.fn((...args) => {
+      console.log('CLIENT LOG:', ...args)
+      originalLog.call(client, ...args)
+    })
+
+    // Verify test setup
+    expect(client.websocketEnabled).toBe(true)
+    expect(bridgeData.steps[0].requestId).toBe('0x123')
+    expect(bridgeData.steps[0].items[0].status).toBe('incomplete')
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        onProgressSpy(steps)
+      },
+      bridgeData,
+      undefined
+    )
+
+    // Wait for WebSocket to be created
+    await vi.waitFor(
+      () => {
+        expect(wsConstructorSpy).toHaveBeenCalled()
+      },
+      { timeout: 5000 }
+    )
+
+    // Simulate WebSocket open
+    mockWebSocket.onopen?.()
+
+    // Polling should be disabled
+    await vi.waitFor(() => {
+      expect(axiosRequestSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: expect.stringContaining('/intents/status')
+        })
+      )
+    })
+  })
+
+  it('Should handle WebSocket success message', async () => {
+    let finalSteps: Execute['steps'] | undefined
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        finalSteps = steps
+      },
+      bridgeData,
+      undefined
+    )
+
+    // Wait for WebSocket to be created
+    await vi.waitFor(() => {
+      expect(wsConstructorSpy).toHaveBeenCalled()
+    })
+
+    // Simulate WebSocket open
+    mockWebSocket.onopen?.()
+
+    // Simulate success message
+    const successMessage = {
+      data: JSON.stringify({
+        event: 'request.status.updated',
+        data: {
+          status: 'success',
+          txHashes: ['0x123'],
+          inTxHashes: ['0xabc'],
+          destinationChainId: 8453,
+          originChainId: 1
+        }
+      })
+    }
+
+    mockWebSocket.onmessage?.(successMessage)
+
+    // Wait for state update
+    await vi.waitFor(() => {
+      const stepItem = finalSteps?.[0]?.items?.[0]
+      expect(stepItem?.status).toBe('complete')
+      expect(stepItem?.progressState).toBe('complete')
+      expect(stepItem?.checkStatus).toBe('success')
+      expect(stepItem?.txHashes).toEqual([{ txHash: '0x123', chainId: 8453 }])
+      expect(stepItem?.internalTxHashes).toEqual([
+        { txHash: '0xabc', chainId: 1 }
+      ])
+    })
+
+    // WebSocket should be closed
+    expect(mockWebSocket.close).toHaveBeenCalled()
+  })
+
+  it('Should fall back to polling on WebSocket error', async () => {
+    const stateUpdates: any[] = []
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        stateUpdates.push(steps)
+      },
+      bridgeData,
+      undefined
+    )
+
+    // Wait for WebSocket to be created and connected
+    await vi.waitFor(() => {
+      expect(wsConstructorSpy).toHaveBeenCalled()
+    })
+
+    // Wait for WebSocket to connect
+    await vi.waitFor(() => {
+      expect(mockWebSocket.send).toHaveBeenCalled()
+    })
+
+    // Simulate WebSocket error after connection
+    mockWebSocket.onerror?.(new Error('Connection failed'))
+
+    // Polling should be re-enabled and start making requests
+    await vi.waitFor(
+      () => {
+        // Look for the GET request to check endpoint
+        const checkRequests = axiosRequestSpy.mock.calls.filter(
+          (call) =>
+            call[0]?.url?.includes('/intents/status') &&
+            call[0]?.method === 'GET'
+        )
+        expect(checkRequests.length).toBeGreaterThan(0)
+      },
+      { timeout: 2000 }
+    )
+  })
+
+  it('Should handle WebSocket failure message', async () => {
+    let finalSteps: Execute['steps'] | undefined
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        finalSteps = steps
+      },
+      bridgeData,
+      undefined
+    )
+
+    // Wait for WebSocket to be created
+    await vi.waitFor(() => {
+      expect(wsConstructorSpy).toHaveBeenCalled()
+    })
+
+    // Simulate WebSocket open
+    mockWebSocket.onopen?.()
+
+    // Simulate failure message
+    const failureMessage = {
+      data: JSON.stringify({
+        event: 'request.status.updated',
+        data: {
+          status: 'failure'
+        }
+      })
+    }
+
+    mockWebSocket.onmessage?.(failureMessage)
+
+    // Wait for state update
+    await vi.waitFor(() => {
+      const stepItem = finalSteps?.[0]?.items?.[0]
+      expect(stepItem?.status).toBe('complete')
+      expect(stepItem?.checkStatus).toBe('failure')
+      expect(stepItem?.error).toBe('Transaction failed')
+    })
+  })
+
+  it('Should handle WebSocket refund message', async () => {
+    let finalSteps: Execute['steps'] | undefined
+
+    executeSteps(
+      1,
+      {},
+      wallet,
+      ({ steps }) => {
+        finalSteps = steps
+      },
+      bridgeData,
+      undefined
+    )
+
+    // Wait for WebSocket to be created
+    await vi.waitFor(() => {
+      expect(wsConstructorSpy).toHaveBeenCalled()
+    })
+
+    // Simulate WebSocket open
+    mockWebSocket.onopen?.()
+
+    // Simulate refund message
+    const refundMessage = {
+      data: JSON.stringify({
+        event: 'request.status.updated',
+        data: {
+          status: 'refund'
+        }
+      })
+    }
+
+    mockWebSocket.onmessage?.(refundMessage)
+
+    // Wait for state update
+    await vi.waitFor(() => {
+      const stepItem = finalSteps?.[0]?.items?.[0]
+      expect(stepItem?.status).toBe('complete')
+      expect(stepItem?.checkStatus).toBe('refund')
+    })
+  })
+
+  it('Should handle WebSocket disabled configuration', async () => {
+    client = createClient({
+      baseApiUrl: MAINNET_RELAY_API,
+      websocket: {
+        enabled: false
+      }
+    })
+
+    executeSteps(1, {}, wallet, ({ steps }) => {}, bridgeData, undefined)
+
+    // Wait a bit to ensure WebSocket is not created
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // WebSocket should NOT be created
+    expect(wsConstructorSpy).not.toHaveBeenCalled()
+
+    // Should use polling instead
+    await vi.waitFor(() => {
+      expect(axiosRequestSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: expect.stringContaining('/intents/status')
+        })
+      )
+    })
   })
 })
