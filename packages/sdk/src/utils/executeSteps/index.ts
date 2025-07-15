@@ -21,6 +21,18 @@ export type SetStateData = Pick<
 >
 
 /**
+ * Controls the coordination between WebSocket and polling mechanisms
+ * to prevent duplicate status monitoring for a single execution flow
+ */
+export type ExecutionStatusControl = {
+  websocketActive: boolean
+  websocketConnected: boolean
+  pollingActive: boolean
+  closeWebSocket: undefined | (() => void)
+  lastKnownStatus: undefined | string
+}
+
+/**
  * This function orchestrates the execution of multi-step operations returned from the Relay Quote API,
  * such as bridging, swapping tokens, or performing cross-chain calls. It handles transaction
  * signing, submission, and validation while providing real-time progress updates through the setState callback.
@@ -31,6 +43,7 @@ export type SetStateData = Pick<
  * @param setState - Callback function to update UI state during execution progress
  * @param newJson - Execute object containing the steps, fees, and details from Relay Quote API
  * @param stepOptions - Optional configuration for specific steps (e.g., gas limits)
+ * @param sharedStatusControl - Optional shared status control object for coordinating WebSocket/polling across recursive calls
  * @returns Promise<Execute> - The final execution result with updated status
  */
 
@@ -44,7 +57,8 @@ export async function executeSteps(
     [stepId: string]: {
       gasLimit?: string
     }
-  }
+  },
+  sharedStatusControl?: ExecutionStatusControl
 ): Promise<Execute> {
   const client = getClient()
 
@@ -66,14 +80,13 @@ export async function executeSteps(
   let json = newJson
   let isAtomicBatchSupported = false
 
-  // Control object to manage WebSocket and polling coordination
-  // This ensures we don't have duplicate status checks running simultaneously
-  const statusControl = {
+  // Manage WebSocket and polling coordination
+  const statusControl: ExecutionStatusControl = sharedStatusControl || {
     websocketActive: false,
     websocketConnected: false,
     pollingActive: true,
-    closeWebSocket: undefined as undefined | (() => void),
-    lastKnownStatus: undefined as string | undefined
+    closeWebSocket: undefined,
+    lastKnownStatus: undefined
   }
 
   const shouldPoll = () => statusControl.pollingActive
@@ -122,6 +135,8 @@ export async function executeSteps(
     // There are no more incomplete steps
     if (incompleteStepIndex === -1) {
       client.log(['Execute Steps: all steps complete'], LogLevel.Verbose)
+      // Clean up WebSocket if execution is complete
+      statusControl.closeWebSocket?.()
       return json
     }
 
@@ -153,7 +168,6 @@ export async function executeSteps(
       LogLevel.Verbose
     )
 
-    // NOW create and execute the promises
     const promises = stepItems
       .filter((stepItem) => stepItem.status === 'incomplete')
       .map((stepItem) => {
@@ -238,8 +252,9 @@ export async function executeSteps(
         })
       })
 
+    // =============================================
     // WebSocket Setup for Real-Time Status Updates
-    // =========================================
+    // =============================================
     // We initialize the WebSocket connection before awaiting the step execution promises.
     //
     // The WebSocket is only used when all of these conditions are met:
@@ -289,9 +304,11 @@ export async function executeSteps(
             LogLevel.Verbose
           )
           statusControl.pollingActive = true
+          statusControl.websocketActive = false
+          statusControl.websocketConnected = false
         },
         onClose: () => {
-          client.log(['websocket closed'], LogLevel.Verbose)
+          client.log(['Websocket closed'], LogLevel.Verbose)
 
           // Only re-enable polling if we haven't reached a terminal state
           if (
@@ -318,7 +335,8 @@ export async function executeSteps(
       wallet,
       setState,
       json,
-      stepOptions
+      stepOptions,
+      statusControl
     )
 
     // Clean up WebSocket if execution completes

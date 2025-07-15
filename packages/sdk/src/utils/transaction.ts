@@ -280,7 +280,6 @@ export async function sendTransactionSafely(
       throw Error('Transaction was cancelled')
     }
 
-    client.log(['Transaction: returning true'], LogLevel.Verbose)
     return true
   }
 
