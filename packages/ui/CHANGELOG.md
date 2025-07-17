@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.4
+
+### Patch Changes
+
+- 1aae32c: Reenable prefers protocolv2 for a subset of chains
+
 ## 2.15.3
 
 ### Patch Changes
