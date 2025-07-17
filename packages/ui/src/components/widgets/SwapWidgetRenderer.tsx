@@ -538,23 +538,14 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
 
   const quoteProtocol = useMemo(() => {
     //Enabled only on certain chains
-    if (
-      (fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
-      (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))
-    ) {
-      if (!fromToken && !toToken && !fromTokenPriceData && !toTokenPriceData) {
+    if (fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) {
+      if (!fromToken && !fromTokenPriceData) {
         return undefined
       }
 
-      const relevantPriceData =
-        tradeType === 'EXACT_INPUT' ? fromTokenPriceData : toTokenPriceData
-      const isLoadingRelevantPriceData =
-        tradeType === 'EXACT_INPUT'
-          ? isLoadingFromTokenPrice
-          : isLoadingToTokenPrice
       const relevantPrice =
-        relevantPriceData?.price && !isLoadingRelevantPriceData
-          ? relevantPriceData.price
+        fromTokenPriceData?.price && !isLoadingFromTokenPrice
+          ? fromTokenPriceData.price
           : undefined
       const amount =
         tradeType === 'EXACT_INPUT'
@@ -575,18 +566,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     }
   }, [
     fromTokenPriceData,
-    toTokenPriceData,
     isLoadingFromTokenPrice,
-    isLoadingToTokenPrice,
     debouncedInputAmountValue,
     tradeType
   ])
 
-  // const loadingProtocolVersion =
-  //   ((fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) ||
-  //     (toChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(toChain?.id))) &&
-  //   (isLoadingFromTokenPrice || isLoadingToTokenPrice)
-  const loadingProtocolVersion = false
+  const loadingProtocolVersion =
+    fromChain?.id &&
+    PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id) &&
+    isLoadingFromTokenPrice
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
@@ -613,8 +601,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity,
           useDepositAddress: !fromChainWalletVMSupported,
           slippageTolerance: slippageTolerance,
-          topupGas: gasTopUpEnabled && gasTopUpRequired
-          // protocolVersion: quoteProtocol
+          topupGas: gasTopUpEnabled && gasTopUpRequired,
+          protocolVersion: quoteProtocol
         }
       : undefined
 
