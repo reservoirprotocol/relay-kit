@@ -187,6 +187,14 @@ export interface paths {
                       /** @description If the chain has surge pricing enabled */
                       surgeEnabled?: boolean;
                     }[];
+                  /** @description An array of currencies that the solver accepts directly as input */
+                  solverCurrencies?: {
+                      id?: string;
+                      symbol?: string;
+                      name?: string;
+                      address?: string;
+                      decimals?: number;
+                    }[];
                   /** @description The URL to the chain icon */
                   iconUrl?: string | null;
                   /** @description The URL to the chain logo */
@@ -455,7 +463,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype" | "mcade";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -967,7 +975,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype" | "mcade";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
