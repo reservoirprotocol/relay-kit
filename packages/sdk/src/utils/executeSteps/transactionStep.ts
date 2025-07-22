@@ -24,7 +24,7 @@ export async function handleTransactionStepItem({
   isAtomicBatchSupported,
   incompleteStepItemIndex,
   stepItems,
-  shouldPoll
+  onWebsocketFailed
 }: {
   stepItem: TransactionStepItem
   step: Execute['steps'][0]
@@ -37,7 +37,7 @@ export async function handleTransactionStepItem({
   isAtomicBatchSupported: boolean
   incompleteStepItemIndex: number
   stepItems: Execute['steps'][0]['items']
-  shouldPoll: () => boolean
+  onWebsocketFailed: (() => Promise<void>) | null
 }): Promise<void> {
   if (!stepItem.data) {
     throw `Step item is missing data`
@@ -94,7 +94,7 @@ export async function handleTransactionStepItem({
         details: json?.details
       })
     },
-    shouldPoll,
+    onWebsocketFailed,
     request,
     undefined,
     crossChainIntentChainId,

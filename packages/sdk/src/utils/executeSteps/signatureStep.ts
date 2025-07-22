@@ -24,7 +24,7 @@ export async function handleSignatureStepItem({
   maximumAttempts,
   pollingInterval,
   chain,
-  shouldPoll
+  onWebsocketFailed
 }: {
   stepItem: SignatureStepItem
   step: Execute['steps'][0]
@@ -36,7 +36,7 @@ export async function handleSignatureStepItem({
   maximumAttempts: number
   pollingInterval: number
   chain: RelayChain
-  shouldPoll: () => boolean
+  onWebsocketFailed: (() => Promise<void>) | null
 }): Promise<void> {
   if (!stepItem.data) {
     throw `Step item is missing data`
@@ -120,15 +120,6 @@ export async function handleSignatureStepItem({
 
       // If check, poll check until validated
       if (stepItem?.check) {
-        // Only start polling if shouldPoll is true
-        if (!shouldPoll()) {
-          client.log(
-            ['Skipping signature validation polling - WebSocket active'],
-            LogLevel.Verbose
-          )
-          return
-        }
-
         stepItem.progressState = 'validating'
         setState({
           steps: [...json.steps],
@@ -144,21 +135,33 @@ export async function handleSignatureStepItem({
           details: json?.details
         })
 
-        // Create a custom polling function that checks shouldPoll
+        // If websocket is enabled, wait for it to fail before falling back to polling
+        if (onWebsocketFailed) {
+          client.log(
+            [
+              'Waiting for WebSocket to fail before starting signature validation polling'
+            ],
+            LogLevel.Verbose
+          )
+          try {
+            await onWebsocketFailed()
+            client.log(
+              ['WebSocket failed, starting signature polling'],
+              LogLevel.Verbose
+            )
+          } catch (e) {
+            client.log(
+              ['WebSocket failed promise rejected, skipping signature polling'],
+              LogLevel.Verbose
+            )
+            return
+          }
+        }
+
+        // Start polling for signature validation
         const pollWithCancellation = async () => {
           let attemptCount = 0
           while (attemptCount < maximumAttempts) {
-            // Check if we should stop polling
-            if (!shouldPoll()) {
-              client.log(
-                [
-                  'Signature validation polling cancelled - WebSocket took over'
-                ],
-                LogLevel.Verbose
-              )
-              return
-            }
-
             try {
               const res = await axios.request({
                 url: `${request.baseURL}${stepItem?.check?.endpoint}`,

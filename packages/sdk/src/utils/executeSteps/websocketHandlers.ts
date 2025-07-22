@@ -13,7 +13,6 @@ interface WebSocketUpdateHandlerParams {
   client: RelayClient
   statusControl: {
     closeWebSocket?: () => void
-    pollingActive: boolean
     lastKnownStatus?: string
   }
 }
@@ -36,7 +35,6 @@ export function handleWebSocketUpdate({
       LogLevel.Verbose
     )
     statusControl.closeWebSocket?.()
-    statusControl.pollingActive = false
 
     switch (data.status) {
       case 'success':

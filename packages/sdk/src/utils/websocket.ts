@@ -56,7 +56,16 @@ export function trackRequestStatus<E extends WebSocketEvent>({
   const socketUrl = url || MAINNET_RELAY_WS
   const socket = new WebSocket(socketUrl)
 
+  // Set up a connection timeout
+  const connectionTimeout = setTimeout(() => {
+    if (socket.readyState === WebSocket.CONNECTING) {
+      socket.close()
+      onError?.(new Error('WebSocket connection timeout'))
+    }
+  }, 2000) // 2 second timeout
+
   socket.onopen = () => {
+    clearTimeout(connectionTimeout)
     if (onOpen) onOpen()
     socket.send(
       JSON.stringify({
@@ -95,14 +104,19 @@ export function trackRequestStatus<E extends WebSocketEvent>({
   }
 
   socket.onerror = (err) => {
+    clearTimeout(connectionTimeout)
     onError?.(err)
   }
 
   socket.onclose = () => {
+    clearTimeout(connectionTimeout)
     onClose?.()
   }
 
   return {
-    close: () => socket.close()
+    close: () => {
+      clearTimeout(connectionTimeout)
+      socket.close()
+    }
   }
 }

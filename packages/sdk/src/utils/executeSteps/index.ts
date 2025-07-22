@@ -27,7 +27,6 @@ export type SetStateData = Pick<
 export type ExecutionStatusControl = {
   websocketActive: boolean
   websocketConnected: boolean
-  pollingActive: boolean
   closeWebSocket: undefined | (() => void)
   lastKnownStatus: undefined | string
 }
@@ -84,12 +83,22 @@ export async function executeSteps(
   const statusControl: ExecutionStatusControl = sharedStatusControl || {
     websocketActive: false,
     websocketConnected: false,
-    pollingActive: true,
     closeWebSocket: undefined,
     lastKnownStatus: undefined
   }
 
-  const shouldPoll = () => statusControl.pollingActive
+  // Promise-based approach for WebSocket failure handling
+  let websocketFailedPromise: Promise<void> | null = null
+  let resolveWebsocketFailed: (() => void) | null = null
+
+  const onWebsocketFailed = (): Promise<void> => {
+    if (!websocketFailedPromise) {
+      websocketFailedPromise = new Promise<void>((resolve) => {
+        resolveWebsocketFailed = resolve
+      })
+    }
+    return websocketFailedPromise
+  }
 
   try {
     // Handle errors
@@ -161,6 +170,87 @@ export async function executeSteps(
       return json
     }
 
+    // =============================================
+    // WebSocket Setup for Real-Time Status Updates
+    // =============================================
+    // We initialize the WebSocket connection before awaiting the step execution promises.
+    //
+    // The WebSocket is only used when all of these conditions are met:
+    // - WebSocket is enabled in the client configuration
+    // - We have a valid requestId
+    // - We're on the last step of execution
+    // - The step has incomplete items
+    // - WebSocket isn't already active
+    const isLastStep = incompleteStepIndex === json.steps.length - 1
+    const isStepIncomplete = stepItems.some(
+      (item) => item.status === 'incomplete'
+    )
+    const requestId = extractDepositRequestId(json.steps)
+
+    if (
+      client.websocketEnabled &&
+      requestId &&
+      isLastStep &&
+      isStepIncomplete &&
+      !statusControl.websocketActive
+    ) {
+      statusControl.websocketActive = true
+
+      // Create the promise immediately so it's available for early failures
+      websocketFailedPromise = new Promise<void>((resolve) => {
+        resolveWebsocketFailed = resolve
+      })
+
+      statusControl.closeWebSocket = trackRequestStatus({
+        event: 'request.status.updated',
+        requestId: requestId,
+        enabled: true,
+        url: client.websocketUrl,
+        onOpen: () => {
+          client.log(['Websocket open'], LogLevel.Verbose)
+          statusControl.websocketConnected = true
+        },
+        onUpdate: (data) => {
+          handleWebSocketUpdate({
+            data,
+            stepItems,
+            chainId,
+            setState,
+            json,
+            client,
+            statusControl
+          })
+        },
+        onError: (err) => {
+          client.log(
+            ['Websocket error, re-enabling polling', err],
+            LogLevel.Verbose
+          )
+          statusControl.websocketActive = false
+          statusControl.websocketConnected = false
+          // Trigger the websocket failed promise to start polling
+          resolveWebsocketFailed?.()
+        },
+        onClose: () => {
+          client.log(['Websocket closed'], LogLevel.Verbose)
+
+          // Only re-enable polling if we haven't reached a terminal state
+          if (
+            !['success', 'failure', 'refund'].includes(
+              statusControl.lastKnownStatus || ''
+            )
+          ) {
+            client.log(
+              ['Re-enabling polling due to unexpected WebSocket closure'],
+              LogLevel.Verbose
+            )
+            // Trigger the websocket failed promise to start polling
+            resolveWebsocketFailed?.()
+          }
+        }
+      }).close
+    }
+
     let { kind } = step
 
     client.log(
@@ -189,7 +279,9 @@ export async function executeSteps(
                   isAtomicBatchSupported,
                   incompleteStepItemIndex,
                   stepItems,
-                  shouldPoll
+                  onWebsocketFailed: statusControl.websocketActive
+                    ? onWebsocketFailed
+                    : null
                 })
                 break
               }
@@ -207,7 +299,9 @@ export async function executeSteps(
                   maximumAttempts,
                   pollingInterval,
                   chain,
-                  shouldPoll
+                  onWebsocketFailed: statusControl.websocketActive
+                    ? onWebsocketFailed
+                    : null
                 })
                 break
               }
@@ -251,80 +345,6 @@ export async function executeSteps(
           }
         })
       })
-
-    // =============================================
-    // WebSocket Setup for Real-Time Status Updates
-    // =============================================
-    // We initialize the WebSocket connection before awaiting the step execution promises.
-    //
-    // The WebSocket is only used when all of these conditions are met:
-    // - WebSocket is enabled in the client configuration
-    // - We have a valid requestId
-    // - We're on the last step of execution
-    // - The step has incomplete items
-    // - WebSocket isn't already active
-    const isLastStep = incompleteStepIndex === json.steps.length - 1
-    const isStepIncomplete = stepItems.some(
-      (item) => item.status === 'incomplete'
-    )
-    const requestId = extractDepositRequestId(json.steps)
-
-    if (
-      client.websocketEnabled &&
-      requestId &&
-      isLastStep &&
-      isStepIncomplete &&
-      !statusControl.websocketActive
-    ) {
-      statusControl.websocketActive = true
-      statusControl.closeWebSocket = trackRequestStatus({
-        event: 'request.status.updated',
-        requestId: requestId,
-        enabled: true,
-        url: client.websocketUrl,
-        onOpen: () => {
-          client.log(['Websocket open'], LogLevel.Verbose)
-          statusControl.websocketConnected = true
-          statusControl.pollingActive = false // Only disable polling after successful connection
-        },
-        onUpdate: (data) => {
-          handleWebSocketUpdate({
-            data,
-            stepItems,
-            chainId,
-            setState,
-            json,
-            client,
-            statusControl
-          })
-        },
-        onError: (err) => {
-          client.log(
-            ['Websocket error, re-enabling polling', err],
-            LogLevel.Verbose
-          )
-          statusControl.pollingActive = true
-          statusControl.websocketActive = false
-          statusControl.websocketConnected = false
-        },
-        onClose: () => {
-          client.log(['Websocket closed'], LogLevel.Verbose)
-
-          // Only re-enable polling if we haven't reached a terminal state
-          if (
-            !['success', 'failure', 'refund'].includes(
-              statusControl.lastKnownStatus || ''
-            )
-          ) {
-            client.log(
-              ['Re-enabling polling due to unexpected WebSocket closure'],
-              LogLevel.Verbose
-            )
-            statusControl.pollingActive = true
-          }
-        }
-      }).close
-    }
 
     await Promise.all(promises)
 
