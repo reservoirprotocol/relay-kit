@@ -34,7 +34,7 @@ let executeStepsSpy = vi
       return Promise.resolve(clonedQuote)
     }
   )
-vi.mock('../utils/executeSteps.js', () => {
+vi.mock('../utils/executeSteps/index.js', () => {
   return {
     executeSteps: (...args: any[]) => {
       return executeStepsSpy(...args)
