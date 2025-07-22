@@ -55,7 +55,7 @@ import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
-const PROTOCOL_V2_ENABLED_CHAINS = [81457, 100, 130, 43114]
+const PROTOCOL_V2_ENABLED_CHAINS = [81457, 100, 130, 43114, 10, 1, 56, 137, 324]
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
