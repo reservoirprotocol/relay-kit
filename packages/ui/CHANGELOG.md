@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.5
+
+### Patch Changes
+
+- 7e4273d: Enable preferv2 protocol for more chains (Ethereum, Polygon, BNB, OP, Zksync)
+
 ## 2.15.4
 
 ### Patch Changes
