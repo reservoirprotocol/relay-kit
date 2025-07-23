@@ -957,6 +957,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             )}
                           </Text>
                           <Button
+                            aria-label="Switch Input Mode"
                             size="none"
                             color="ghost"
                             css={{
@@ -1145,6 +1146,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       ((isSvmSwap || isBvmSwap) &&
                         !multiWalletSupportEnabled) ? null : (
                         <Button
+                          aria-label="Swap Tokens Direction"
                           size="none"
                           color="white"
                           css={{
