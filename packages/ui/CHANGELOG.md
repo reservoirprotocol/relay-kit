@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.6
+
+### Patch Changes
+
+- 506f105: Address accessibility issues
+- ff38840: Add protocol v2 enabled chains
+
 ## 2.15.5
 
 ### Patch Changes
