@@ -55,7 +55,27 @@ import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
-const PROTOCOL_V2_ENABLED_CHAINS = [81457, 100, 130, 43114, 10, 1, 56, 137, 324]
+const PROTOCOL_V2_ENABLED_CHAINS = [
+  81457, // Blast
+  100, // Gnosis
+  130, // Unichain
+  43114, // Avalanche
+  10, // Optimism
+  1, // Ethereum
+  56, // BNB
+  137, // Polygon
+  324, // zkSync Era
+  25, // Cronos
+  146, // Sonic
+  169, // Manta
+  185, // Mint
+  288, // Boba
+  360, // Shape
+  466, // Appchain
+  480, // Worldchain
+  690, // Redstone
+  747 // Flow
+]
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
