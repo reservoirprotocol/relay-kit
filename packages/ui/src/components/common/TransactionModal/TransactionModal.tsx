@@ -117,6 +117,8 @@ export const TransactionModal: FC<TransactionModalProps> = (
           currency_in: fromToken?.symbol,
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
+          currency_in_usd: details?.currencyIn?.amountUsd,
+          currency_out_usd: details?.currencyOut?.amountUsd,
           is_canonical: useExternalLiquidity,
           quote_id: quoteId,
           txHashes: steps
