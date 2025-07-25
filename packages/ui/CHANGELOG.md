@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.7
+
+### Patch Changes
+
+- 96351f0: Add more protocol v2 chains
+
 ## 2.15.6
 
 ### Patch Changes
