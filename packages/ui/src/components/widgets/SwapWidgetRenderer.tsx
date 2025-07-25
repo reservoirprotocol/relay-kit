@@ -74,7 +74,21 @@ const PROTOCOL_V2_ENABLED_CHAINS = [
   466, // Appchain
   480, // Worldchain
   690, // Redstone
-  747 // Flow
+  747, // Flow
+  999, // Hyperevm
+  1088, // Metis
+  1101, // Polygon-zkevm
+  1135, // Lisk
+  1329, // Sei
+  1424, // Perennial
+  1514, // Story
+  1625, // Gravity
+  1868, // Soneium
+  1923, // Swell
+  1996, // Sanko
+  2020, // Ronin
+  2187, // Game7
+  2741 // Abstract
 ]
 
 type SwapWidgetRendererProps = {
