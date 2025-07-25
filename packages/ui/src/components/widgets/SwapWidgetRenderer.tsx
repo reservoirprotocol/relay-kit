@@ -844,7 +844,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const recipientWalletSupportsChain = useIsWalletCompatible(
     toChain?.id,
     recipient,
-    linkedWallets
+    linkedWallets,
+    onAnalyticEvent
   )
 
   const isFromNative = fromToken?.address === fromChain?.currency?.address

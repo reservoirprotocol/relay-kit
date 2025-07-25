@@ -12,7 +12,8 @@ import useCexAddresses from './useCexAddresses.js'
 export default (
   chainId?: number,
   address?: string,
-  wallets?: LinkedWallet[]
+  wallets?: LinkedWallet[],
+  onAnalyticEvent?: (event: string, data: Record<string, any>) => void
 ) => {
   const normalizedAddress =
     address && isAddress(address) ? address.toLowerCase() : address
@@ -22,7 +23,7 @@ export default (
         ? wallet.address.toLowerCase()
         : wallet.address) === normalizedAddress
   )
-  const isRecipientAGW = useIsAGW(address, !linkedWallet)
+  const isRecipientAGW = useIsAGW(address, !linkedWallet, onAnalyticEvent)
   const { data: cexAddresses } = useCexAddresses()
   const isRecipientCEX = cexAddresses?.addresses.includes(
     normalizedAddress ?? ''
