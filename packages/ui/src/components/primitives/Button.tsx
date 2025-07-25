@@ -93,6 +93,13 @@ const ButtonCss = cva({
           backgroundColor: 'amber4',
           color: 'amber11'
         }
+      },
+      grey: {
+        backgroundColor: 'gray3',
+        color: 'gray11',
+        '&:hover': {
+          backgroundColor: 'gray4'
+        }
       }
     },
     corners: {
