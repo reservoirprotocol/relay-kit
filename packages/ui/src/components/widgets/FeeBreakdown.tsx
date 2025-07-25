@@ -40,6 +40,7 @@ type Props = Pick<
   isSingleChainLocked?: boolean
   fromChainWalletVMSupported?: boolean
   isAutoSlippage: boolean
+  slippageInputBps?: string
 }
 
 const formatSwapRate = (rate: number) => {
@@ -60,7 +61,8 @@ const FeeBreakdown: FC<Props> = ({
   canonicalTimeEstimate,
   isSingleChainLocked,
   fromChainWalletVMSupported,
-  isAutoSlippage
+  isAutoSlippage,
+  slippageInputBps
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const swapRate = quote?.details?.rate
@@ -79,12 +81,16 @@ const FeeBreakdown: FC<Props> = ({
     quote?.details?.slippageTolerance?.origin?.percent
   const destinationSlippageTolerance =
     quote?.details?.slippageTolerance?.destination?.percent
-  const slippage =
+  const quoteSlippage =
     (isSameChain
       ? destinationSlippageTolerance === '0'
         ? originSlippageTolerance
         : destinationSlippageTolerance
       : destinationSlippageTolerance) ?? '0'
+  const slippageInputNumber = Number(
+    (Number(slippageInputBps ?? '0') / 100).toFixed(2)
+  )
+  const slippage = `${Math.max(Number(quoteSlippage), slippageInputNumber)}`
 
   const slippageRating = getSlippageRating(slippage)
   const slippageRatingColor = ratingToColor[slippageRating]
