@@ -1577,6 +1577,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       supportsExternalLiquidity={supportsExternalLiquidity}
                       useExternalLiquidity={useExternalLiquidity}
                       isAutoSlippage={isAutoSlippage}
+                      slippageInputBps={slippageTolerance}
                       toChain={toChain}
                       setUseExternalLiquidity={(enabled) => {
                         setUseExternalLiquidity(enabled)
