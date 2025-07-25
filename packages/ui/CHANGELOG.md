@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.8
+
+### Patch Changes
+
+- 54e4628: Use max slippage between user input and quote for display
+
 ## 2.15.7
 
 ### Patch Changes
