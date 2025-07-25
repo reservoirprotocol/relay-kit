@@ -1,4 +1,4 @@
-import { type FC } from 'react'
+import { useState, type FC } from 'react'
 import {
   Flex,
   Text,
@@ -9,7 +9,11 @@ import {
   Button
 } from '../../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faChevronDown,
+  faChevronUp,
+  faExclamationTriangle
+} from '@fortawesome/free-solid-svg-icons'
 import { formatBN, formatDollar } from '../../../utils/numbers.js'
 import { truncateAddress } from '../../../utils/truncate.js'
 import type { EnhancedToken } from '../../../hooks/useEnhancedTokensList.js'
@@ -20,15 +24,23 @@ type TokenListProps = {
   isLoading: boolean
   isLoadingBalances?: boolean
   chainFilterId?: number
+  showMoreButton?: boolean
 }
 
 export const TokenList: FC<TokenListProps> = ({
   title,
-  tokens,
+  tokens: rawTokens,
   isLoading,
   isLoadingBalances,
-  chainFilterId
+  chainFilterId,
+  showMoreButton
 }) => {
+  const [tokensExpanded, setTokensExpanded] = useState(false)
+  const tokens =
+    showMoreButton && rawTokens && rawTokens.length > 4 && !tokensExpanded
+      ? rawTokens.slice(0, 4)
+      : rawTokens
+
   if (isLoading) {
     return (
       <>
@@ -213,6 +225,30 @@ export const TokenList: FC<TokenListProps> = ({
             </AccessibleListItem>
           )
         })}
+        {showMoreButton && (
+          <Button
+            color="grey"
+            size="small"
+            corners="pill"
+            css={{ ml: 'auto', minHeight: 24, px: '2', py: '1' }}
+            onClick={() => setTokensExpanded(!tokensExpanded)}
+          >
+            <Text style="subtitle3" color="subtle">
+              {tokensExpanded ? 'Less' : 'More'}
+            </Text>
+            <Text
+              style="body1"
+              css={{
+                color: 'gray9',
+                marginLeft: 'auto',
+                transform: tokensExpanded ? 'rotate(180deg)' : 'rotate(0)',
+                width: 12
+              }}
+            >
+              <FontAwesomeIcon icon={faChevronDown} />
+            </Text>
+          </Button>
+        )}
       </Flex>
     )
 }

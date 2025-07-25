@@ -21,6 +21,10 @@ export {
   default as useTokenPrice,
   queryTokenPrice
 } from './hooks/useTokenPrice.js'
+export {
+  default as useTrendingCurrencies,
+  queryTrendingCurrencies
+} from './hooks/useTrendingCurrencies.js'
 
 //types
 export type { CurrencyList, Currency } from './hooks/useTokenList.js'
