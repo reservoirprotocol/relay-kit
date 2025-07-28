@@ -1,7 +1,7 @@
 import { useReadContract } from 'wagmi'
 import { AGWRegistryABI } from '../constants/agwRegistryAbi.js'
 import { isAddress } from 'viem'
-import { EventNames } from '~sdk/constants/events.js'
+import { EventNames } from '../constants/events.js'
 import { useEffect } from 'react'
 
 const AGW_REGISTRY_ADDRESS = '0xd5E3efDA6bB5aB545cc2358796E96D9033496Dda'
