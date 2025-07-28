@@ -110,7 +110,8 @@ const PROTOCOL_V2_ENABLED_CHAINS = [
   55244, // Superposition
   57073, // Ink
   59144, // Linea
-  60808 // Bob
+  60808, // Bob,
+  8453 //Base
 ]
 
 type SwapWidgetRendererProps = {
