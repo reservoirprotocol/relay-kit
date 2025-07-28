@@ -42,6 +42,7 @@ export async function sendTransactionSafely(
   setInternalTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
+  onWebsocketFailed: (() => Promise<void>) | null,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
@@ -195,12 +196,37 @@ export async function sendTransactionSafely(
   // Poll the confirmation url to confirm the transaction went through
   const pollForConfirmation = async (receiptController?: AbortController) => {
     isValidating?.()
+
+    console.log('onWebsocketFailed', onWebsocketFailed)
+
+    // If websocket is enabled, wait for it to fail before falling back to polling
+    if (onWebsocketFailed) {
+      console.log('waiting for websocket to fail')
+      try {
+        await onWebsocketFailed()
+        client.log(['WebSocket failed, starting polling'], LogLevel.Verbose)
+      } catch (e) {
+        client.log(
+          ['WebSocket failed promise rejected, skipping polling'],
+          LogLevel.Verbose
+        )
+        return
+      }
+    }
+
+    client.log(['Polling for confirmation'], LogLevel.Verbose)
+
+    // Start polling
     while (
       waitingForConfirmation &&
       attemptCount < maximumAttempts &&
       !transactionCancelled &&
       !confirmationError
     ) {
+      if (receiptController?.signal.aborted) {
+        return
+      }
+
       let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
         let endpoint = check?.endpoint
@@ -267,6 +293,7 @@ export async function sendTransactionSafely(
     if (transactionCancelled) {
       throw Error('Transaction was cancelled')
     }
+
     return true
   }
 

@@ -2,7 +2,15 @@ import type { Execute } from './Execute.js'
 
 export type SignatureStepItem = Pick<
   NonNullable<Execute['steps'][0]['items']>[0],
-  'status' | 'orderIds' | 'orderIndexes' | 'orderData'
+  | 'status'
+  | 'orderIds'
+  | 'orderIndexes'
+  | 'orderData'
+  | 'progressState'
+  | 'txHashes'
+  | 'internalTxHashes'
+  | 'check'
+  | 'isValidatingSignature'
 > & {
   data?: {
     sign?: {

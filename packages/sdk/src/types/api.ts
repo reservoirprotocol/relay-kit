@@ -187,6 +187,14 @@ export interface paths {
                       /** @description If the chain has surge pricing enabled */
                       surgeEnabled?: boolean;
                     }[];
+                  /** @description An array of currencies that the solver accepts directly as input */
+                  solverCurrencies?: {
+                      id?: string;
+                      symbol?: string;
+                      name?: string;
+                      address?: string;
+                      decimals?: number;
+                    }[];
                   /** @description The URL to the chain icon */
                   iconUrl?: string | null;
                   /** @description The URL to the chain logo */
@@ -455,7 +463,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype" | "mcade";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -967,7 +975,7 @@ export interface paths {
                  * @description Origin chain gas currency
                  * @enum {string}
                  */
-                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype";
+                gasCurrency?: "anime" | "btc" | "cgt" | "degen" | "eth" | "omi" | "pop" | "power" | "sipher" | "tg7" | "tia" | "topia" | "usdc" | "usdc.e" | "usdt" | "xai" | "weth" | "apeeth" | "ape" | "g" | "dmt" | "g7" | "god" | "pengu" | "plume" | "wbtc" | "pusd" | "gun" | "avax" | "bnb" | "dai" | "matic" | "sol" | "sei" | "mnt" | "trx" | "bera" | "ip" | "s" | "lrds" | "celo" | "flow" | "ron" | "metis" | "btcn" | "core" | "sui" | "ton" | "cronos" | "hype" | "mcade";
                 /** @description Combination of the relayerGas and relayerService to give you the full relayer fee in wei */
                 relayer?: string;
                 /** @description Destination chain gas fee in wei */
@@ -2428,6 +2436,11 @@ export interface paths {
              * @enum {string}
              */
             protocolVersion?: "v1" | "v2" | "preferV2";
+            /**
+             * @description Enable this to avoid direct transfers to the depository (only relevant for EVM and v2 protocol flow)
+             * @default true
+             */
+            explicitDeposit?: boolean;
             /** @description Enable this to use canonical+ bridging, trading speed for more liquidity */
             useExternalLiquidity?: boolean;
             /** @description Enable this for specific fallback routes */
@@ -2448,6 +2461,10 @@ export interface paths {
             gasLimitForDepositSpecifiedTxs?: number;
             /** @description Force executing swap requests via the solver (by default, same-chain swap requests are self-executed) */
             forceSolverExecution?: boolean;
+            /** @description If the sponsor should pay for the fees associated with the request. Includes gas topup amounts. */
+            subsidizeFees?: boolean;
+            /** @description The max subsidization amount in USD decimal format, e.g 100000 = $1. subsidizeFees must be enabled. This amount is the threshhold where if its surpassed the entire request will not be subsidized at all. */
+            maxSubsidizationAmount?: string;
             /** @description Swap sources to include for swap routing. */
             includedSwapSources?: string[];
             /** @description Swap sources to exclude for swap routing. */
@@ -3388,6 +3405,36 @@ export interface paths {
       };
     };
   };
+  "/intents/status/v3": {
+    get: {
+      parameters: {
+        query?: {
+          /** @description A unique id representing the execution in the Relay system. You can obtain this id from the requests api or the check object within the step items. */
+          requestId?: string;
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          content: {
+            "application/json": {
+              /** @enum {string} */
+              status?: "refund" | "delayed" | "waiting" | "failure" | "pending" | "submitted" | "success";
+              details?: string;
+              /** @description Incoming transaction hashes */
+              inTxHashes?: string[];
+              /** @description Outgoing transaction hashes */
+              txHashes?: string[];
+              /** @description The last timestamp the data was updated */
+              updatedAt?: number;
+              originChainId?: number;
+              destinationChainId?: number;
+            };
+          };
+        };
+      };
+    };
+  };
   "/intents/quote": {
     post: {
       requestBody: {
@@ -4030,6 +4077,7 @@ export interface paths {
                     appFees?: {
                         recipient?: string;
                         amount?: string;
+                        amountUsd?: string;
                       }[];
                     metadata?: {
                       sender?: string;

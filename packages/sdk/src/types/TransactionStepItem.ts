@@ -2,9 +2,19 @@ import type { Execute } from './Execute.js'
 
 export type TransactionStepItem = Pick<
   NonNullable<Execute['steps'][0]['items']>[0],
-  'status' | 'orderIds' | 'orderIndexes' | 'orderData' | 'check'
+  | 'status'
+  | 'orderIds'
+  | 'orderIndexes'
+  | 'orderData'
+  | 'check'
+  | 'progressState'
+  | 'txHashes'
+  | 'internalTxHashes'
+  | 'receipt'
+  | 'checkStatus'
 > & {
   data: {
+    chainId?: number
     data: any
     from: `0x${string}`
     to: `0x${string}`
