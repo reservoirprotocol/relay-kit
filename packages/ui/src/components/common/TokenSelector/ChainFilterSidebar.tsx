@@ -28,6 +28,7 @@ type ChainFilterSidebarProps = {
   onInputRef?: (element: HTMLInputElement | null) => void
   tokenSearchInputRef?: HTMLInputElement | null
   popularChainIds?: number[]
+  context: 'from' | 'to'
 }
 
 const fuseSearchOptions = {
@@ -45,7 +46,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
   onAnalyticEvent,
   onInputRef,
   tokenSearchInputRef,
-  popularChainIds
+  popularChainIds,
+  context
 }) => {
   const [chainSearchInput, setChainSearchInput] = useState('')
   const chainFuse = new Fuse(options, fuseSearchOptions)
@@ -113,7 +115,8 @@ export const ChainFilterSidebar: FC<ChainFilterSidebarProps> = ({
               onAnalyticEvent?.(EventNames.CURRENCY_STEP_CHAIN_FILTER, {
                 chain: chain.name,
                 chain_id: chain.id,
-                search_term: chainSearchInput
+                search_term: chainSearchInput,
+                context
               })
             }
           }

@@ -527,6 +527,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   onInputRef={setChainSearchInputElement}
                   tokenSearchInputRef={tokenSearchInputElement}
                   popularChainIds={popularChainIds}
+                  context={context}
                 />
               ) : null}
 
