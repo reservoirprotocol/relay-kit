@@ -31,7 +31,7 @@ export function handleWebSocketUpdate({
   // Handle terminal states
   if (isTerminalStatus(data.status)) {
     client.log(
-      ['WebSocket received terminal status', data.status],
+      ['WebSocket received terminal status: ', data.status],
       LogLevel.Verbose
     )
     statusControl.closeWebSocket?.()

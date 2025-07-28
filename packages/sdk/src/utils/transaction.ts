@@ -51,7 +51,8 @@ export async function sendTransactionSafely(
   setReceipt?: (receipt: TransactionReceipt | SvmReceipt | SuiReceipt) => void,
   setCheckStatus?: (
     checkStatus: NonNullable<Execute['steps'][0]['items']>[0]['checkStatus']
-  ) => void
+  ) => void,
+  statusControl?: { lastKnownStatus?: string }
 ) {
   const client = getClient()
   try {
@@ -197,11 +198,8 @@ export async function sendTransactionSafely(
   const pollForConfirmation = async (receiptController?: AbortController) => {
     isValidating?.()
 
-    console.log('onWebsocketFailed', onWebsocketFailed)
-
     // If websocket is enabled, wait for it to fail before falling back to polling
     if (onWebsocketFailed) {
-      console.log('waiting for websocket to fail')
       try {
         await onWebsocketFailed()
         client.log(['WebSocket failed, starting polling'], LogLevel.Verbose)
@@ -214,8 +212,6 @@ export async function sendTransactionSafely(
       }
     }
 
-    client.log(['Polling for confirmation'], LogLevel.Verbose)
-
     // Start polling
     while (
       waitingForConfirmation &&
@@ -226,6 +222,8 @@ export async function sendTransactionSafely(
       if (receiptController?.signal.aborted) {
         return
       }
+
+      client.log(['Polling for confirmation'], LogLevel.Verbose)
 
       let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
@@ -437,6 +435,10 @@ export async function sendTransactionSafely(
         await confirmationPromise
       } else {
         waitingForConfirmation = false
+        // For same chain transactions, mark as complete to prevent WebSocket polling fallback
+        if (statusControl) {
+          statusControl.lastKnownStatus = 'success'
+        }
       }
     }
 

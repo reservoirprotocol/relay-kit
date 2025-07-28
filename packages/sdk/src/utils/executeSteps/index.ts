@@ -281,7 +281,8 @@ export async function executeSteps(
                   stepItems,
                   onWebsocketFailed: statusControl.websocketActive
                     ? onWebsocketFailed
-                    : null
+                    : null,
+                  statusControl
                 })
                 break
               }
