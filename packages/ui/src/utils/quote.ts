@@ -299,6 +299,8 @@ export const getSwapEventData = (
     amount_out: details?.currencyOut?.amount,
     currency_out: details?.currencyOut?.currency?.symbol,
     chain_id_out: details?.currencyOut?.currency?.chainId,
+    currency_in_usd: details?.currencyIn?.amountUsd,
+    currency_out_usd: details?.currencyOut?.amountUsd,
     deposit_address: steps?.find((step) => step.depositAddress)?.depositAddress,
     txHashes: steps
       ?.map((step) => {
