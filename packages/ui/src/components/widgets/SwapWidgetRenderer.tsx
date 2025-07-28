@@ -88,6 +88,19 @@ const PROTOCOL_V2_ENABLED_CHAINS = [
   1996, // Sanko
   2020, // Ronin
   2187, // Game7
+  2741, // Abstract
+  9999, // HyperEVM
+  1088, // Metis
+  1101, // Polygon-zkevm
+  1135, // Lisk
+  1424, // Perennial
+  1514, // Story
+  1625, // Gravity
+  1868, // Soneium
+  1923, // Swell
+  1996, // Sanko
+  2020, // Ronin
+  2187, // Game7
   2741 // Abstract
 ]
 
