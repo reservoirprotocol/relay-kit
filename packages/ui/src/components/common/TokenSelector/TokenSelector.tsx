@@ -677,7 +677,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                           title: 'Relay 24H Volume',
                           tokens: sortedTrendingTokens,
                           isLoading: isLoadingTrendingTokens,
-                          show: context === 'to',
+                          show:
+                            context === 'to' && chainFilter.id === undefined,
                           showMoreButton: true
                         }
                       ]
