@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.8
+
+### Patch Changes
+
+- fbb50ac: Add log to AGW check error
+- 1627058: Add usd values to swap events
+- 54e4628: Use max slippage between user input and quote for display
+- 7985e6b: Add relay trending tokens to token selector
+- a95050e: Enable more v2 protocol chains
+- Updated dependencies [7985e6b]
+  - @reservoir0x/relay-kit-hooks@1.11.1
+
 ## 2.15.7
 
 ### Patch Changes

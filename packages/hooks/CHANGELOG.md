@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.11.1
+
+### Patch Changes
+
+- 7985e6b: Add relay trending tokens to token selector
+
 ## 1.11.0
 
 ### Minor Changes

@@ -88,7 +88,30 @@ const PROTOCOL_V2_ENABLED_CHAINS = [
   1996, // Sanko
   2020, // Ronin
   2187, // Game7
-  2741 // Abstract
+  2741, // Abstract
+  2818, // Morph
+  2911, // Hychain
+  5000, // Mantle
+  5330, // Superseed
+  7560, // Cyber
+  7869, // Powerloom-v2
+  7897, // Arena-z
+  8333, // B3
+  17071, // Onchain-points
+  33139, // Ape
+  33979, // Funky
+  34443, // Mode
+  42161, // Arbitrum
+  42170, // Arbitrum Nova
+  42220, // Celo
+  43111, // Hemi
+  43419, // Gunz
+  48900, // Zircuit
+  55244, // Superposition
+  57073, // Ink
+  59144, // Linea
+  60808, // Bob,
+  8453 //Base
 ]
 
 type SwapWidgetRendererProps = {
@@ -844,7 +867,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const recipientWalletSupportsChain = useIsWalletCompatible(
     toChain?.id,
     recipient,
-    linkedWallets
+    linkedWallets,
+    onAnalyticEvent
   )
 
   const isFromNative = fromToken?.address === fromChain?.currency?.address
