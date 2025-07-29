@@ -52,6 +52,7 @@ import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
 import { sha256 } from '../../utils/hashing.js'
 import { get15MinuteInterval } from '../../utils/time.js'
+import type { QuoteQueryOptions } from '@reservoir0x/relay-kit-hooks'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
@@ -73,6 +74,7 @@ type SwapWidgetRendererProps = {
   linkedWallets?: LinkedWallet[]
   multiWalletSupportEnabled?: boolean
   supportedWalletVMs: Omit<ChainVM, 'hypevm'>[]
+  quoteQueryOptions?: QuoteQueryOptions
   onConnectWallet?: () => void
   onAnalyticEvent?: (eventName: string, data?: any) => void
   onSwapError?: (error: string, data?: Execute) => void
@@ -197,6 +199,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   multiWalletSupportEnabled = false,
   linkedWallets,
   supportedWalletVMs,
+  quoteQueryOptions = {},
   children,
   onAnalyticEvent,
   onSwapError
@@ -469,6 +472,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     undefined,
     undefined,
     {
+      ...quoteQueryOptions,
       refetchOnWindowFocus: false,
       enabled:
         fromToken !== undefined &&

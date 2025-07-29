@@ -38,6 +38,7 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { calculateUsdValue, getSwapEventData } from '../../../utils/quote.js'
+import type { QuoteQueryOptions } from '@reservoir0x/relay-kit-hooks'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -57,6 +58,7 @@ type BaseSwapWidgetProps = {
   disableInputAutoFocus?: boolean
   popularChainIds?: number[]
   disablePasteWalletAddressOption?: boolean
+  quoteQueryOptions?: QuoteQueryOptions
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -105,6 +107,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   disableInputAutoFocus = false,
   popularChainIds,
   disablePasteWalletAddressOption,
+  quoteQueryOptions,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
@@ -167,6 +170,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       wallet={wallet}
       linkedWallets={linkedWallets}
       multiWalletSupportEnabled={multiWalletSupportEnabled}
+      quoteQueryOptions={quoteQueryOptions}
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       supportedWalletVMs={supportedWalletVMs}
