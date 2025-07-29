@@ -41,6 +41,7 @@ type Props = Pick<
   fromChainWalletVMSupported?: boolean
   isAutoSlippage: boolean
   slippageInputBps?: string
+  error?: any
 }
 
 const formatSwapRate = (rate: number) => {
@@ -62,7 +63,8 @@ const FeeBreakdown: FC<Props> = ({
   isSingleChainLocked,
   fromChainWalletVMSupported,
   isAutoSlippage,
-  slippageInputBps
+  slippageInputBps,
+  error
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const swapRate = quote?.details?.rate
@@ -218,6 +220,7 @@ const FeeBreakdown: FC<Props> = ({
             setUseExternalLiquidity(selected)
           }}
           canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
+          error={error}
           trigger={
             <Button color="ghost" size="none">
               <Flex css={{ gap: '2', alignItems: 'center' }}>

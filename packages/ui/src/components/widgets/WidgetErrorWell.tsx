@@ -64,8 +64,11 @@ export const WidgetErrorWell: FC<Props> = ({
     quote?.details?.currencyOut &&
     (quote?.details?.currencyOut?.amountUsd === undefined ||
       quote?.details?.currencyOut?.amountUsd === '0')
+  const isNoAvailableRoutesError =
+    error?.response?.data?.errorCode === 'NO_SWAP_ROUTES_FOUND' ||
+    error?.response?.data?.errorCode === 'UNSUPPORTED_ROUTE'
 
-  if (isInsufficientLiquidityError) {
+  if (isInsufficientLiquidityError || isNoAvailableRoutesError) {
     return null
   }
 
