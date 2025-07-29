@@ -26,7 +26,7 @@ const SwapRouteSelector: FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(false)
 
-  const isNoRoutesAvailableError =
+  const isNoAvailableRoutesError =
     error?.response?.data?.errorCode === 'NO_SWAP_ROUTES_FOUND' ||
     error?.response?.data?.errorCode === 'UNSUPPORTED_ROUTE'
 
@@ -79,7 +79,7 @@ const SwapRouteSelector: FC<Props> = ({
           >
             <Text style="subtitle2">Route</Text>
             <Flex css={{ gap: '2', alignItems: 'center' }}>
-              {isNoRoutesAvailableError ? (
+              {isNoAvailableRoutesError ? (
                 <>
                   <Text style="subtitle2">No available routes</Text>
                   <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
