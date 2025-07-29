@@ -976,12 +976,15 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
       const activeWalletChainId = await _wallet?.getChainId()
-      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
+      //Special case for Hyperliquid, to sign txs on the parent chain
+      const targetChainId =
+        fromToken?.chainId === 1337 ? 42161 : fromToken?.chainId
+      if (fromToken && targetChainId && targetChainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
           ...swapEventData
         })
-        await _wallet?.switchChain(fromToken.chainId)
+        await _wallet?.switchChain(targetChainId)
       }
 
       let _currentSteps: Execute['steps'] | undefined = undefined

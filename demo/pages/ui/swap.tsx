@@ -31,7 +31,7 @@ import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
 import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
 import Head from 'next/head'
 
-const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
+const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm', 'hypevm'] as const
 
 const SwapWidgetPage: NextPage = () => {
   useDynamicEvents('walletAdded', (newWallet) => {
