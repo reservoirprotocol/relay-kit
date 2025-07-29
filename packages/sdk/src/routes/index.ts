@@ -17,6 +17,7 @@ export const routes = [
   "/lives",
   "/intents/status",
   "/intents/status/v2",
+  "/intents/status/v3",
   "/intents/quote",
   "/intents/quote/v2",
   "/requests/{requestId}/signature",
