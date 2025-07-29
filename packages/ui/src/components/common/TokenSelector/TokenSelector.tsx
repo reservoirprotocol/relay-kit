@@ -538,7 +538,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   const address = addressParts.join(':')
                   const allTokens = [
                     ...sortedUserTokens,
-                    ...sortedCombinedTokens
+                    ...sortedCombinedTokens,
+                    ...sortedTrendingTokens
                   ]
 
                   const selectedToken = allTokens.find(
