@@ -26,7 +26,6 @@ const SwapRouteSelector: FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(false)
 
-  // Check if no routes are available
   const isNoRoutesAvailableError =
     error?.response?.data?.errorCode === 'NO_SWAP_ROUTES_FOUND' ||
     error?.response?.data?.errorCode === 'UNSUPPORTED_ROUTE'
