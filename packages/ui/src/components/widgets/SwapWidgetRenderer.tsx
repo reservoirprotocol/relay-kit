@@ -55,65 +55,6 @@ import { get15MinuteInterval } from '../../utils/time.js'
 
 export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
 
-const PROTOCOL_V2_ENABLED_CHAINS = [
-  81457, // Blast
-  100, // Gnosis
-  130, // Unichain
-  43114, // Avalanche
-  10, // Optimism
-  1, // Ethereum
-  56, // BNB
-  137, // Polygon
-  324, // zkSync Era
-  25, // Cronos
-  146, // Sonic
-  169, // Manta
-  185, // Mint
-  288, // Boba
-  360, // Shape
-  466, // Appchain
-  480, // Worldchain
-  690, // Redstone
-  747, // Flow
-  999, // Hyperevm
-  1088, // Metis
-  1101, // Polygon-zkevm
-  1135, // Lisk
-  1329, // Sei
-  1424, // Perennial
-  1514, // Story
-  1625, // Gravity
-  1868, // Soneium
-  1923, // Swell
-  1996, // Sanko
-  2020, // Ronin
-  2187, // Game7
-  2741, // Abstract
-  2818, // Morph
-  2911, // Hychain
-  5000, // Mantle
-  5330, // Superseed
-  7560, // Cyber
-  7869, // Powerloom-v2
-  7897, // Arena-z
-  8333, // B3
-  17071, // Onchain-points
-  33139, // Ape
-  33979, // Funky
-  34443, // Mode
-  42161, // Arbitrum
-  42170, // Arbitrum Nova
-  42220, // Celo
-  43111, // Hemi
-  43419, // Gunz
-  48900, // Zircuit
-  55244, // Superposition
-  57073, // Ink
-  59144, // Linea
-  60808, // Bob,
-  8453 //Base
-]
-
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
   setTransactionModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -592,10 +533,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ...tokenPriceQueryOptions
       }
     )
+  const originChainSupportsProtocolv2 =
+    fromChain?.protocol?.v2?.depository !== undefined
 
   const quoteProtocol = useMemo(() => {
     //Enabled only on certain chains
-    if (fromChain?.id && PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id)) {
+    if (fromChain?.id && originChainSupportsProtocolv2) {
       if (!fromToken && !fromTokenPriceData) {
         return undefined
       }
@@ -625,13 +568,12 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     fromTokenPriceData,
     isLoadingFromTokenPrice,
     debouncedInputAmountValue,
-    tradeType
+    tradeType,
+    originChainSupportsProtocolv2
   ])
 
   const loadingProtocolVersion =
-    fromChain?.id &&
-    PROTOCOL_V2_ENABLED_CHAINS.includes(fromChain?.id) &&
-    isLoadingFromTokenPrice
+    fromChain?.id && originChainSupportsProtocolv2 && isLoadingFromTokenPrice
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken

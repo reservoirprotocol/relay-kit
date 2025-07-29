@@ -225,6 +225,12 @@ export interface paths {
                   /** @description An array of solver addresses in use on the chain. (Note that there is currently only one address in use per chain) */
                   solverAddresses?: string[];
                   tags?: string[];
+                  protocol?: {
+                    v2?: {
+                      chainId?: string | null;
+                      depository?: string | null;
+                    };
+                  };
                 })[];
             };
           };
@@ -2889,6 +2895,24 @@ export interface paths {
                 /** @description The type of fallback route the request uses, if any */
                 fallbackType?: string;
               };
+              /** @description Protocol information for the quote */
+              protocol?: {
+                v2?: {
+                  /** @description The underlying protocol order id */
+                  orderId?: string;
+                  /** @description The details for the depository payment */
+                  paymentDetails?: {
+                    /** @description The protocol chain id for the payment */
+                    chainId?: string;
+                    /** @description The depository address */
+                    depository?: string;
+                    /** @description The currency of the payment */
+                    currency?: string;
+                    /** @description The amount of the payment */
+                    amount?: string;
+                  };
+                };
+              };
             };
           };
         };
@@ -4025,6 +4049,18 @@ export interface paths {
                     };
                     feeCurrency?: string;
                     feeCurrencyObject?: {
+                      chainId?: number;
+                      address?: string;
+                      symbol?: string;
+                      name?: string;
+                      decimals?: number;
+                      metadata?: {
+                        logoURI?: string;
+                        verified?: boolean;
+                        isNative?: boolean;
+                      };
+                    };
+                    appFeeCurrencyObject?: {
                       chainId?: number;
                       address?: string;
                       symbol?: string;

@@ -46,4 +46,5 @@ export type RelayChain = {
   viemChain?: Chain
   baseChainId?: number | null
   tokenSupport?: 'All' | 'Limited'
+  protocol?: RelayAPIChain['protocol']
 }
