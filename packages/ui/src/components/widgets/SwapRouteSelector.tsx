@@ -3,7 +3,7 @@ import { Box, Button, Flex, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faRoute } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
   supportsExternalLiquidity: boolean
@@ -12,6 +12,7 @@ type Props = {
   chain?: RelayChain
   canonicalTimeEstimate?: string
   trigger?: ReactNode
+  error?: any
 }
 
 const SwapRouteSelector: FC<Props> = ({
@@ -20,9 +21,16 @@ const SwapRouteSelector: FC<Props> = ({
   onExternalLiquidityChange,
   chain,
   canonicalTimeEstimate,
-  trigger
+  trigger,
+  error
 }) => {
   const [open, setOpen] = useState(false)
+
+  // Check if no routes are available
+  const isNoRoutesAvailableError =
+    error?.response?.data?.errorCode === 'NO_SWAP_ROUTES_FOUND' ||
+    error?.response?.data?.errorCode === 'UNSUPPORTED_ROUTE'
+
   return (
     <Dropdown
       open={open}
@@ -72,14 +80,25 @@ const SwapRouteSelector: FC<Props> = ({
           >
             <Text style="subtitle2">Route</Text>
             <Flex css={{ gap: '2', alignItems: 'center' }}>
-              <Text style="subtitle2">
-                {externalLiquidtySelected ? 'Native' : 'Relay'}
-              </Text>
-              {supportsExternalLiquidity || externalLiquidtySelected ? (
-                <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
-                  <FontAwesomeIcon icon={faChevronRight} width={14} />
-                </Box>
-              ) : null}
+              {isNoRoutesAvailableError ? (
+                <>
+                  <Text style="subtitle2">No available routes</Text>
+                  <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
+                    <FontAwesomeIcon icon={faRoute} width={14} />
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Text style="subtitle2">
+                    {externalLiquidtySelected ? 'Native' : 'Relay'}
+                  </Text>
+                  {supportsExternalLiquidity || externalLiquidtySelected ? (
+                    <Box css={{ color: 'gray11', width: 14, flexShrink: 0 }}>
+                      <FontAwesomeIcon icon={faChevronRight} width={14} />
+                    </Box>
+                  ) : null}
+                </>
+              )}
             </Flex>
           </Button>
         )
