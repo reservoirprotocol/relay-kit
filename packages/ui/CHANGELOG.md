@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.9
+
+### Patch Changes
+
+- cfad35b: Fix bug with selecting token from trending tokens list
+- d1aeceb: Enable protocol v2 for chains programatically
+- 2bc1938: Add context to CURRENCY_STEP_CHAIN_FILTER event
+- Updated dependencies [d1aeceb]
+  - @reservoir0x/relay-sdk@2.3.1
+  - @reservoir0x/relay-kit-hooks@1.11.2
+
 ## 2.15.8
 
 ### Patch Changes
