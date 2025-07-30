@@ -2,7 +2,7 @@ import type { Dispatch, FC } from 'react'
 import OnrampWidgetRenderer from './OnrampWidgetRenderer.js'
 import { Box, Button, Flex, Text } from '../../../primitives/index.js'
 import AmountInput from '../../../common/AmountInput.js'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDownLong,
@@ -77,9 +77,19 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
   onConnectWallet,
   onLinkNewWallet,
   onSetPrimaryWallet,
-  onAnalyticEvent,
+  onAnalyticEvent: _onAnalyticEvent,
   onSuccess
 }): JSX.Element => {
+  const onAnalyticEvent = useCallback(
+    (eventName: string, data?: any) => {
+      try {
+        _onAnalyticEvent?.(eventName, data)
+      } catch (e) {
+        console.error('Error in onAnalyticEvent', eventName, data, e)
+      }
+    },
+    [_onAnalyticEvent]
+  )
   const [addressModalOpen, setAddressModalOpen] = useState(false)
   const [onrampModalOpen, setOnrampModalOpen] = useState(false)
   const { isConnected } = useAccount()
