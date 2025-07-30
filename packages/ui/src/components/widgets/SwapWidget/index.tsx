@@ -1,5 +1,12 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useMemo, useState, type FC } from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type FC
+} from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -110,11 +117,21 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
-  onAnalyticEvent,
+  onAnalyticEvent: _onAnalyticEvent,
   onSwapSuccess,
   onSwapValidating,
   onSwapError
 }): JSX.Element => {
+  const onAnalyticEvent = useCallback(
+    (eventName: string, data?: any) => {
+      try {
+        _onAnalyticEvent?.(eventName, data)
+      } catch (e) {
+        console.error('Error in onAnalyticEvent', eventName, data, e)
+      }
+    },
+    [_onAnalyticEvent]
+  )
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
