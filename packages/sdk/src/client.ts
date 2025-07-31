@@ -12,14 +12,25 @@ import type { RelayChain } from './types/index.js'
 import { LogLevel, log as logUtil } from './utils/logger.js'
 import * as actions from './actions/index.js'
 import * as utils from './utils/index.js'
-import { MAINNET_RELAY_API } from './constants/servers.js'
+import { MAINNET_RELAY_API, MAINNET_RELAY_WS } from './constants/servers.js'
 import { SDK_VERSION } from './version.js'
 
 /**
  * RelayClient Configuration Options
- * @param source Used to manually override the source domain used to attribute local orders
- * @param logLevel Log level from 0-4, the higher the more verbose.
- * @param maxPollingAttemptsBeforeTimeout The maximum number of attempts the synced api is polled before timing out. The api is polled every 5 secs (default is 30)
+ *
+ * @property {string} [baseApiUrl] - The base URL for the Relay API. Defaults to the mainnet API if not provided.
+ * @property {string} [source] - The source to associate your onchain activity with, should be a domain.
+ * @property {LogLevel} [logLevel] - Log level from 0-4, the higher the more verbose. Defaults to LogLevel.None.
+ * @property {number} [pollingInterval] - Interval (in ms) for polling the API for status updates.
+ * @property {number} [maxPollingAttemptsBeforeTimeout] - The maximum number of polling attempts before timing out. The API is polled every 5 seconds by default (default is 30 attempts).
+ * @property {RelayChain[]} [chains] - List of supported chains. If not provided, defaults to all mainnet/testnet chains based on the API URL.
+ * @property {boolean} [useGasFeeEstimations] - Whether to use gas fee estimations. Defaults to true.
+ * @property {string} [uiVersion] - Optional UI version string for analytics/debugging.
+ * @property {(message: Parameters<typeof logUtil>[0], level: LogLevel) => void} [logger] - Custom logger function. If not provided, uses the default logger.
+ * @property {number} [confirmationPollingInterval] - Interval (in ms) for polling transaction confirmations.
+ * @property {Object} [websocket] - Websocket configuration options.
+ * @property {boolean} [websocket.enabled] - Whether to enable websocket support. Defaults to false.
+ * @property {string} [websocket.url] - Custom websocket URL. If not provided, falls back to the default.
  */
 export type RelayClientOptions = {
   baseApiUrl?: string
@@ -32,6 +43,10 @@ export type RelayClientOptions = {
   uiVersion?: string
   logger?: (message: Parameters<typeof logUtil>['0'], level: LogLevel) => void
   confirmationPollingInterval?: number
+  websocket?: {
+    enabled?: boolean
+    url?: string
+  }
 }
 
 let _client: RelayClient
@@ -58,6 +73,8 @@ export class RelayClient {
   maxPollingAttemptsBeforeTimeout?: number
   useGasFeeEstimations: boolean
   chains: RelayChain[]
+  websocketEnabled: boolean
+  websocketUrl: string
   log(
     message: Parameters<typeof logUtil>['0'],
     level: LogLevel = LogLevel.Info
@@ -78,6 +95,8 @@ export class RelayClient {
     this.maxPollingAttemptsBeforeTimeout =
       options.maxPollingAttemptsBeforeTimeout
     this.useGasFeeEstimations = options.useGasFeeEstimations ?? true
+    this.websocketEnabled = options.websocket?.enabled ?? false
+    this.websocketUrl = options.websocket?.url ?? MAINNET_RELAY_WS
     if (options.chains) {
       this.chains = options.chains
     } else if (options.baseApiUrl?.includes('testnets')) {
@@ -121,6 +140,11 @@ export class RelayClient {
       options.useGasFeeEstimations !== undefined
         ? options.useGasFeeEstimations
         : this.useGasFeeEstimations
+    this.websocketEnabled =
+      options.websocket?.enabled !== undefined
+        ? options.websocket.enabled
+        : this.websocketEnabled
+    this.websocketUrl = options.websocket?.url || this.websocketUrl
 
     if (options.logger) {
       this.log = options.logger

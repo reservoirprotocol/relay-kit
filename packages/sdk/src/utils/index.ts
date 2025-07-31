@@ -1,4 +1,4 @@
-export { executeSteps } from './executeSteps.js'
+export { executeSteps } from './executeSteps/index.js'
 export { setParams } from './params.js'
 export { pollUntilOk, pollUntilHasData } from './pollApi.js'
 export { request, APIError, isAPIError } from './request.js'

@@ -57,6 +57,7 @@ export type Execute = {
         | 'waiting'
         | 'failure'
         | 'pending'
+        | 'submitted'
         | 'success'
         | 'unknown'
       progressState?: TransactionStepState | SignatureStepState
