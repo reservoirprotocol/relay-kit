@@ -275,7 +275,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const fromChainWalletVMSupported =
-    !fromChain?.vmType || supportedWalletVMs.includes(fromChain?.vmType)
+    !fromChain?.vmType ||
+    supportedWalletVMs.includes(fromChain?.vmType) ||
+    fromChain?.id === 1337
   const toChainWalletVMSupported =
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
@@ -598,7 +600,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
-          useDepositAddress: !fromChainWalletVMSupported,
+          useDepositAddress:
+            !fromChainWalletVMSupported || fromToken?.chainId === 1337,
           slippageTolerance: slippageTolerance,
           topupGas: gasTopUpEnabled && gasTopUpRequired,
           protocolVersion: quoteProtocol
@@ -976,9 +979,16 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
       const activeWalletChainId = await _wallet?.getChainId()
-      //Special case for Hyperliquid, to sign txs on the parent chain
-      const targetChainId =
-        fromToken?.chainId === 1337 ? 42161 : fromToken?.chainId
+      const activeWalletChain = relayClient?.chains?.find(
+        (chain) => chain.id === activeWalletChainId
+      )
+      let targetChainId = fromToken?.chainId
+      //Special case for Hyperliquid, to sign txs on an evm chain
+      if (fromToken?.chainId === 1337) {
+        targetChainId =
+          activeWalletChain?.vmType !== 'evm' ? 1 : activeWalletChainId
+      }
+
       if (fromToken && targetChainId && targetChainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
