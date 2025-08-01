@@ -292,9 +292,6 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@nktkas/hyperliquid':
-        specifier: ^0.24.0
-        version: 0.24.0
       axios:
         specifier: ^1.6.5
         version: 1.7.9
@@ -2339,10 +2336,6 @@ packages:
     resolution: {integrity: sha512-z10PF9JV6SbjFq+/rYabM+8CVlMokgl8RFGvieSGNTmrkQanfHn+15XBrhG3BgUfvmTeSeyShfOHpG0i9zEdcg==}
     deprecated: Motion One for Vue is deprecated. Use Oku Motion instead https://oku-ui.com/motion
 
-  '@msgpack/msgpack@3.1.2':
-    resolution: {integrity: sha512-JEW4DEtBzfe8HvUYecLU9e6+XJnKDlUAIve8FvPzF3Kzs6Xo/KuZkZJsDH0wJXl/qEZbeeE7edxDNY3kMs39hQ==}
-    engines: {node: '>= 18'}
-
   '@mysten/bcs@1.5.0':
     resolution: {integrity: sha512-v39dm5oNfKYMAf2CVI+L0OaJiG9RVXsjqPM4BwTKcHNCZOvr35IIewGtXtWXsI67SQU2TRq8lhQzeibdiC/CNg==}
 
@@ -2404,10 +2397,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nktkas/hyperliquid@0.24.0':
-    resolution: {integrity: sha512-ETp0uITYny2X6hHb5J8VgpdgOpaNIEVQiy2/G+hmHGQhfo1KaKKrOC+WFwhO1yxzj2bahTvPGNAQmxo9820pTQ==}
-    engines: {node: '>=24.0.0'}
-
   '@noble/ciphers@0.5.3':
     resolution: {integrity: sha512-B0+6IIHiqEs3BPMT0hcRmHvEj2QHOLu+uwt+tqDDeVd0oyVzh7BPrDcPjRnV1PV/5LaknXJJQvOuRGR0zQJz+w==}
 
@@ -2459,9 +2448,6 @@ packages:
 
   '@noble/secp256k1@1.7.1':
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
-
-  '@noble/secp256k1@2.3.0':
-    resolution: {integrity: sha512-0TQed2gcBbIrh7Ccyw+y/uZQvbJwm7Ao4scBUxqpBCcsOlZG0O4KGfjtNAy/li4W8n1xt3dxrwJ0beZ2h2G6Kw==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -10732,8 +10718,6 @@ snapshots:
       '@motionone/dom': 10.18.0
       tslib: 2.8.1
 
-  '@msgpack/msgpack@3.1.2': {}
-
   '@mysten/bcs@1.5.0':
     dependencies:
       '@scure/base': 1.2.4
@@ -10791,12 +10775,6 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.4.5':
     optional: true
 
-  '@nktkas/hyperliquid@0.24.0':
-    dependencies:
-      '@msgpack/msgpack': 3.1.2
-      '@noble/hashes': 1.8.0
-      '@noble/secp256k1': 2.3.0
-
   '@noble/ciphers@0.5.3': {}
 
   '@noble/ciphers@1.2.1': {}
@@ -10834,8 +10812,6 @@ snapshots:
   '@noble/hashes@1.8.0': {}
 
   '@noble/secp256k1@1.7.1': {}
-
-  '@noble/secp256k1@2.3.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
