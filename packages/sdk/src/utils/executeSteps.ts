@@ -14,7 +14,7 @@ import {
   canBatchTransactions,
   prepareBatchTransaction
 } from './prepareBatchTransaction.js'
-import { parseSignature, recoverTypedDataAddress } from 'viem'
+import { sendUsd } from './hyperliquid.js'
 
 export type SetStateData = Pick<
   Execute,
@@ -93,7 +93,11 @@ export async function executeSteps(
     }
 
     //Check if Hyperliquid and if so, rewrite steps to become a signature step
-    if (chainId === 1337) {
+    if (
+      chainId === 1337 &&
+      json.steps[0] &&
+      (json.steps[0].id as any) !== 'sign'
+    ) {
       const activeWalletChainId = await wallet?.getChainId()
       const signatureStep = prepareHyperliquidSignatureStep(
         json.steps,
@@ -200,56 +204,6 @@ export async function executeSteps(
       [`Execute Steps: Begin processing step items for: ${step.action}`],
       LogLevel.Verbose
     )
-
-    //TEST Code:
-    const checkSignature = (
-      chainid: number,
-      destination: string,
-      amount: string,
-      time: number,
-      signature: string
-    ) => {
-      async function main(chainId: number, signature: string) {
-        const address = await recoverTypedDataAddress({
-          domain: {
-            name: 'HyperliquidSignTransaction',
-            version: '1',
-            chainId: chainId as any,
-            verifyingContract:
-              '0x0000000000000000000000000000000000000000' as `0x${string}`
-          },
-          types: {
-            'HyperliquidTransaction:UsdSend': [
-              { name: 'type', type: 'string' },
-              { name: 'signatureChainId', type: 'string' },
-              { name: 'hyperliquidChain', type: 'string' },
-              { name: 'destination', type: 'string' },
-              { name: 'amount', type: 'string' },
-              { name: 'time', type: 'uint64' }
-            ],
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' }
-            ]
-          },
-          primaryType: 'HyperliquidTransaction:UsdSend',
-          message: {
-            type: 'usdSend',
-            signatureChainId: `0x${chainid.toString(16)}`,
-            hyperliquidChain: 'Mainnet',
-            destination: destination,
-            amount: amount,
-            time: time as any
-          },
-          signature: signature as `0x${string}`
-        })
-        console.log('Recovered address:', address)
-      }
-
-      main(chainid, signature)
-    }
 
     const promises = stepItems
       .filter((stepItem) => stepItem.status === 'incomplete')
@@ -408,56 +362,7 @@ export async function executeSteps(
 
                 //Special Logic for Hyperliquid to send signature
                 if (chainId === 1337 && signature) {
-                  checkSignature(
-                    stepItem?.data?.sign?.domain?.chainId,
-                    stepItem?.data?.sign?.value?.destination?.toLowerCase(),
-                    stepItem?.data?.sign?.value?.amount,
-                    stepItem?.data?.sign?.value?.time ?? new Date().getTime(),
-                    signature
-                  )
-
-                  client.log(
-                    [
-                      'Execute Steps: Sending signature to Hyperliquid',
-                      signature
-                    ],
-                    LogLevel.Verbose
-                  )
-                  const { r, s, v } = parseSignature(signature as `0x${string}`)
-                  const currentTime =
-                    stepItem?.data?.sign?.value?.time ?? new Date().getTime()
-                  const res = await axios.post(
-                    'https://api.hyperliquid.xyz/exchange',
-                    {
-                      signature: {
-                        r,
-                        s,
-                        v: Number(v ?? 0n)
-                      },
-                      nonce: currentTime,
-                      action: {
-                        type: stepItem?.data?.sign?.value?.type,
-                        signatureChainId: `0x${stepItem?.data?.sign?.domain?.chainId?.toString(16)}`,
-                        hyperliquidChain: 'Mainnet',
-                        destination:
-                          stepItem?.data?.sign?.value?.destination?.toLowerCase(),
-                        amount: stepItem?.data?.sign?.value?.amount,
-                        time: currentTime
-                      }
-                    }
-                  )
-                  if (
-                    !res ||
-                    !res.data ||
-                    (res && res.status !== 200) ||
-                    res.data.status != 'ok'
-                  ) {
-                    throw 'Failed to send signature to HyperLiquid'
-                  }
-                  client.log(
-                    ['Execute Steps: Signature sent to Hyperliquid', res.data],
-                    LogLevel.Verbose
-                  )
+                  await sendUsd(client, signature, stepItem)
                 }
 
                 if (postData) {
