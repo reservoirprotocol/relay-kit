@@ -5,7 +5,7 @@ import type {
   SignatureStepItem
 } from '../types/index.js'
 import { pollUntilHasData, pollUntilOk } from './pollApi.js'
-import { axios } from '../utils/index.js'
+import { axios, prepareHyperliquidSignatureStep } from '../utils/index.js'
 import type { AxiosRequestConfig } from 'axios'
 import { getClient } from '../client.js'
 import { LogLevel } from '../utils/logger.js'
@@ -14,6 +14,7 @@ import {
   canBatchTransactions,
   prepareBatchTransaction
 } from './prepareBatchTransaction.js'
+import { sendUsd } from './hyperliquid.js'
 
 export type SetStateData = Pick<
   Execute,
@@ -89,6 +90,20 @@ export async function executeSteps(
         const batchedStep = prepareBatchTransaction(json.steps)
         json.steps = [batchedStep]
       }
+    }
+
+    //Check if Hyperliquid and if so, rewrite steps to become a signature step
+    if (
+      chainId === 1337 &&
+      json.steps[0] &&
+      (json.steps[0].id as any) !== 'sign'
+    ) {
+      const activeWalletChainId = await wallet?.getChainId()
+      const signatureStep = prepareHyperliquidSignatureStep(
+        json.steps,
+        activeWalletChainId
+      )
+      json.steps = [signatureStep]
     }
 
     // Update state on first call or recursion
@@ -345,6 +360,11 @@ export async function executeSteps(
                   }
                 }
 
+                //Special Logic for Hyperliquid to send signature
+                if (chainId === 1337 && signature) {
+                  await sendUsd(client, signature, stepItem)
+                }
+
                 if (postData) {
                   client.log(['Execute Steps: Posting order'], LogLevel.Verbose)
                   stepItem.progressState = 'posting'
@@ -405,86 +425,6 @@ export async function executeSteps(
                       break
                     }
 
-                    // If check, poll check until validated
-                    if (stepItem?.check) {
-                      stepItem.progressState = 'validating'
-                      setState({
-                        steps: [...json.steps],
-                        fees: { ...json?.fees },
-                        breakdown: json?.breakdown,
-                        details: json?.details
-                      })
-                      stepItem.isValidatingSignature = true
-                      setState({
-                        steps: [...json?.steps],
-                        fees: { ...json?.fees },
-                        breakdown: json?.breakdown,
-                        details: json?.details
-                      })
-
-                      await pollUntilOk(
-                        {
-                          url: `${request.baseURL}${stepItem?.check.endpoint}`,
-                          method: stepItem?.check.method,
-                          headers
-                        },
-                        (res) => {
-                          client.log(
-                            [
-                              `Execute Steps: Polling execute status to check if indexed`,
-                              res
-                            ],
-                            LogLevel.Verbose
-                          )
-
-                          //set status
-                          if (
-                            res?.data?.status === 'success' &&
-                            res?.data?.txHashes
-                          ) {
-                            const chainTxHashes: NonNullable<
-                              Execute['steps'][0]['items']
-                            >[0]['txHashes'] = res.data?.txHashes?.map(
-                              (hash: string) => {
-                                return {
-                                  txHash: hash,
-                                  chainId:
-                                    res.data.destinationChainId ?? chain?.id
-                                }
-                              }
-                            )
-
-                            if (res?.data?.inTxHashes) {
-                              const chainInTxHashes: NonNullable<
-                                Execute['steps'][0]['items']
-                              >[0]['txHashes'] = res.data?.inTxHashes?.map(
-                                (hash: string) => {
-                                  return {
-                                    txHash: hash,
-                                    chainId: chain?.id ?? res.data.originChainId
-                                  }
-                                }
-                              )
-                              stepItem.internalTxHashes = chainInTxHashes
-                            }
-                            stepItem.txHashes = chainTxHashes
-
-                            return true
-                          } else if (res?.data?.status === 'failure') {
-                            throw Error(
-                              res?.data?.details || 'Transaction failed'
-                            )
-                          } else if (res?.data?.status === 'delayed') {
-                            stepItem.progressState = 'validating_delayed'
-                          }
-                          return false
-                        },
-                        maximumAttempts,
-                        0,
-                        pollingInterval
-                      )
-                    }
-
                     if (res.status > 299 || res.status < 200) throw res.data
 
                     if (res.data.results) {
@@ -507,6 +447,87 @@ export async function executeSteps(
                   } catch (err) {
                     throw err
                   }
+                }
+
+                // If check, poll check until validated
+                if (stepItem?.check) {
+                  stepItem.progressState = 'validating'
+                  setState({
+                    steps: [...json.steps],
+                    fees: { ...json?.fees },
+                    breakdown: json?.breakdown,
+                    details: json?.details
+                  })
+                  stepItem.isValidatingSignature = true
+                  setState({
+                    steps: [...json?.steps],
+                    fees: { ...json?.fees },
+                    breakdown: json?.breakdown,
+                    details: json?.details
+                  })
+
+                  const headers = {
+                    'Content-Type': 'application/json'
+                  }
+
+                  await pollUntilOk(
+                    {
+                      url: `${request.baseURL}${stepItem?.check.endpoint}`,
+                      method: stepItem?.check.method,
+                      headers
+                    },
+                    (res) => {
+                      client.log(
+                        [
+                          `Execute Steps: Polling execute status to check if indexed`,
+                          res
+                        ],
+                        LogLevel.Verbose
+                      )
+
+                      //set status
+                      if (
+                        res?.data?.status === 'success' &&
+                        res?.data?.txHashes
+                      ) {
+                        const chainTxHashes: NonNullable<
+                          Execute['steps'][0]['items']
+                        >[0]['txHashes'] = res.data?.txHashes?.map(
+                          (hash: string) => {
+                            return {
+                              txHash: hash,
+                              chainId: res.data.destinationChainId ?? chain?.id
+                            }
+                          }
+                        )
+
+                        if (res?.data?.inTxHashes) {
+                          const chainInTxHashes: NonNullable<
+                            Execute['steps'][0]['items']
+                          >[0]['txHashes'] = res.data?.inTxHashes?.map(
+                            (hash: string) => {
+                              return {
+                                txHash: hash,
+                                chainId: chain?.id ?? res.data.originChainId
+                              }
+                            }
+                          )
+                          stepItem.internalTxHashes = chainInTxHashes
+                        }
+                        stepItem.txHashes = chainTxHashes
+
+                        return true
+                      } else if (res?.data?.status === 'failure') {
+                        throw Error(res?.data?.details || 'Transaction failed')
+                      } else if (res?.data?.status === 'delayed') {
+                        stepItem.progressState = 'validating_delayed'
+                      }
+                      return false
+                    },
+                    maximumAttempts,
+                    0,
+                    pollingInterval
+                  )
                 }
 
                 break

@@ -17,6 +17,7 @@ import { isValidAddress } from '../utils/address.js'
 import useRelayClient from './useRelayClient.js'
 import useEclipseBalance from '../hooks/useEclipseBalance.js'
 import { eclipse } from '../utils/solana.js'
+import useHyperliquidUsdcBalance from './useHyperliquidUsdcBalance.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -166,6 +167,19 @@ const useCurrencyBalance = ({
     )
   })
 
+  const hyperliquidUsdcBalance = useHyperliquidUsdcBalance(address, {
+    enabled: Boolean(
+      !adaptedWalletBalanceIsEnabled &&
+        chain &&
+        chain.vmType === 'hypevm' &&
+        address &&
+        _isValidAddress &&
+        enabled
+    ),
+    gcTime: refreshInterval,
+    staleTime: refreshInterval
+  })
+
   if (adaptedWalletBalanceIsEnabled) {
     return {
       value: adaptedWalletBalance.data,
@@ -265,6 +279,15 @@ const useCurrencyBalance = ({
       isLoading: suiBalances.isLoading,
       isError: suiBalances.isError,
       error: suiBalances.error,
+      isDuneBalance: false
+    }
+  } else if (chain?.vmType === 'hypevm') {
+    return {
+      value: hyperliquidUsdcBalance.balance,
+      queryKey: hyperliquidUsdcBalance.queryKey,
+      isLoading: hyperliquidUsdcBalance.isLoading,
+      isError: hyperliquidUsdcBalance.isError,
+      error: hyperliquidUsdcBalance.error,
       isDuneBalance: false
     }
   } else {
