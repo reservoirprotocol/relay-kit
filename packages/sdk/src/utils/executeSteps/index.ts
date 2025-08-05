@@ -6,6 +6,7 @@ import type {
 import type { AxiosRequestConfig } from 'axios'
 import { getClient } from '../../client.js'
 import { LogLevel } from '../logger.js'
+import { prepareHyperliquidSignatureStep } from '../../utils/index.js'
 import {
   canBatchTransactions,
   prepareBatchTransaction
@@ -117,6 +118,20 @@ export async function executeSteps(
       }
     }
 
+    // Check if Hyperliquid and if so, rewrite steps to become a signature step
+    if (
+      chainId === 1337 &&
+      json.steps[0] &&
+      (json.steps[0].id as any) !== 'sign'
+    ) {
+      const activeWalletChainId = await wallet?.getChainId()
+      const signatureStep = prepareHyperliquidSignatureStep(
+        json.steps,
+        activeWalletChainId
+      )
+      json.steps = [signatureStep]
+    }
+
     // Update state on first call or recursion
     setState({
       steps: [...json?.steps],
@@ -181,6 +196,7 @@ export async function executeSteps(
     // - We're on the last step of execution
     // - The step has incomplete items
     // - WebSocket isn't already active
+    // - The origin and destination chain is not bitcoin
     const isLastStep = incompleteStepIndex === json.steps.length - 1
     const isStepIncomplete = stepItems.some(
       (item) => item.status === 'incomplete'
@@ -192,7 +208,9 @@ export async function executeSteps(
       requestId &&
       isLastStep &&
       isStepIncomplete &&
-      !statusControl.websocketActive
+      !statusControl.websocketActive &&
+      chainId !== 8253038 &&
+      json?.details?.currencyOut?.currency?.chainId !== 8253038
     ) {
       statusControl.websocketActive = true
 

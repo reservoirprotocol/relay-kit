@@ -1,5 +1,15 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.10
+
+### Patch Changes
+
+- dce6e56: Prevent onAnalyticEvent from throwing errors internally
+- 1a88de0: Add hyperliquid usd send functionality
+- Updated dependencies [1a88de0]
+  - @reservoir0x/relay-sdk@2.3.2
+  - @reservoir0x/relay-kit-hooks@1.11.3
+
 ## 2.15.9
 
 ### Patch Changes
