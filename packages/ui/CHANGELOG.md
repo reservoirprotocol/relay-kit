@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.11
+
+### Patch Changes
+
+- 762dc3c: Add refundTo for HL withdrawals
+
 ## 2.15.10
 
 ### Patch Changes
