@@ -602,6 +602,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
           useExternalLiquidity,
           useDepositAddress:
             !fromChainWalletVMSupported || fromToken?.chainId === 1337,
+          refundTo: fromToken?.chainId === 1337 ? address : undefined,
           slippageTolerance: slippageTolerance,
           topupGas: gasTopUpEnabled && gasTopUpRequired,
           protocolVersion: quoteProtocol
