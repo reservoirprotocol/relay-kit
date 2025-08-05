@@ -181,6 +181,7 @@ export async function executeSteps(
     // - We're on the last step of execution
     // - The step has incomplete items
     // - WebSocket isn't already active
+    // - The origin and destination chain is not bitcoin
     const isLastStep = incompleteStepIndex === json.steps.length - 1
     const isStepIncomplete = stepItems.some(
       (item) => item.status === 'incomplete'
@@ -192,7 +193,9 @@ export async function executeSteps(
       requestId &&
       isLastStep &&
       isStepIncomplete &&
-      !statusControl.websocketActive
+      !statusControl.websocketActive &&
+      chainId !== 8253038 &&
+      json?.details?.currencyOut?.currency?.chainId !== 8253038
     ) {
       statusControl.websocketActive = true
 
