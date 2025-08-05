@@ -1,5 +1,17 @@
 # @reservoir0x/relay-sdk
 
+## 2.3.2
+
+### Patch Changes
+
+- 1a88de0: Add hyperliquid usd send functionality
+
+## 2.3.1
+
+### Patch Changes
+
+- d1aeceb: Enable protocol v2 for chains programatically
+
 ## 2.3.0
 
 ### Minor Changes

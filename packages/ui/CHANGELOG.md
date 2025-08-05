@@ -1,5 +1,81 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.15.10
+
+### Patch Changes
+
+- dce6e56: Prevent onAnalyticEvent from throwing errors internally
+- 1a88de0: Add hyperliquid usd send functionality
+- Updated dependencies [1a88de0]
+  - @reservoir0x/relay-sdk@2.3.2
+  - @reservoir0x/relay-kit-hooks@1.11.3
+
+## 2.15.9
+
+### Patch Changes
+
+- cfad35b: Fix bug with selecting token from trending tokens list
+- d1aeceb: Enable protocol v2 for chains programatically
+- 2bc1938: Add context to CURRENCY_STEP_CHAIN_FILTER event
+- Updated dependencies [d1aeceb]
+  - @reservoir0x/relay-sdk@2.3.1
+  - @reservoir0x/relay-kit-hooks@1.11.2
+
+## 2.15.8
+
+### Patch Changes
+
+- fbb50ac: Add log to AGW check error
+- 1627058: Add usd values to swap events
+- 54e4628: Use max slippage between user input and quote for display
+- 7985e6b: Add relay trending tokens to token selector
+- a95050e: Enable more v2 protocol chains
+- Updated dependencies [7985e6b]
+  - @reservoir0x/relay-kit-hooks@1.11.1
+
+## 2.15.7
+
+### Patch Changes
+
+- 96351f0: Add more protocol v2 chains
+
+## 2.15.6
+
+### Patch Changes
+
+- 506f105: Address accessibility issues
+- ff38840: Add protocol v2 enabled chains
+
+## 2.15.5
+
+### Patch Changes
+
+- 7e4273d: Enable preferv2 protocol for more chains (Ethereum, Polygon, BNB, OP, Zksync)
+
+## 2.15.4
+
+### Patch Changes
+
+- 1aae32c: Reenable prefers protocolv2 for a subset of chains
+
+## 2.15.3
+
+### Patch Changes
+
+- 4334b2f: Disable protocolv2 usage
+
+## 2.15.2
+
+### Patch Changes
+
+- be1ec2c: Enable prefersV2 for Avalanche, unichain and Gnosis
+
+## 2.15.1
+
+### Patch Changes
+
+- c8ef9b5: Disable gas top up by default
+
 ## 2.15.0
 
 ### Minor Changes

@@ -51,6 +51,7 @@ import {
   sortChains
 } from '../../../utils/tokenSelector.js'
 import { useInternalRelayChains } from '../../../hooks/index.js'
+import { useTrendingCurrencies } from '@reservoir0x/relay-kit-hooks'
 
 export type TokenSelectorProps = {
   token?: Token
@@ -162,6 +163,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
             (chain.vmType === 'evm' ||
               chain.vmType === 'suivm' ||
               chain.vmType === 'tvm' ||
+              chain.vmType === 'hypevm' ||
               chain.id === solana.id ||
               chain.id === eclipse.id ||
               chain.id === bitcoin.id) &&
@@ -238,6 +240,17 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     chainFilter.id
   )
 
+  const { data: trendingTokens, isLoading: isLoadingTrendingTokens } =
+    useTrendingCurrencies(
+      relayClient?.baseApiUrl,
+      {
+        referrer: relayClient?.source
+      },
+      {
+        enabled: context === 'to'
+      }
+    )
+
   // Get main token list
   const { data: tokenList, isLoading: isLoadingTokenList } = useTokenList(
     relayClient?.baseApiUrl,
@@ -291,6 +304,14 @@ const TokenSelector: FC<TokenSelectorProps> = ({
     true
   )
 
+  const sortedTrendingTokens = useEnhancedTokensList(
+    trendingTokens,
+    tokenBalances,
+    'to',
+    multiWalletSupportEnabled,
+    undefined,
+    false
+  )
   const sortedCombinedTokens = useEnhancedTokensList(
     combinedTokenList,
     tokenBalances,
@@ -507,6 +528,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   onInputRef={setChainSearchInputElement}
                   tokenSearchInputRef={tokenSearchInputElement}
                   popularChainIds={popularChainIds}
+                  context={context}
                 />
               ) : null}
 
@@ -518,7 +540,8 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                   const address = addressParts.join(':')
                   const allTokens = [
                     ...sortedUserTokens,
-                    ...sortedCombinedTokens
+                    ...sortedCombinedTokens,
+                    ...sortedTrendingTokens
                   ]
 
                   const selectedToken = allTokens.find(
@@ -648,15 +671,29 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                           show: sortedUserTokens.length > 0
                         },
                         {
-                          title: 'Tokens by 24H volume',
+                          title: 'Global 24H Volume',
                           tokens: sortedCombinedTokens,
                           isLoading: isLoadingTokenList,
                           show: true
+                        },
+                        {
+                          title: 'Relay 24H Volume',
+                          tokens: sortedTrendingTokens,
+                          isLoading: isLoadingTrendingTokens,
+                          show:
+                            context === 'to' && chainFilter.id === undefined,
+                          showMoreButton: true
                         }
                       ]
                         .sort((a, b) => (context === 'to' ? -1 : 1)) // Reverse order depending on context
                         .map(
-                          ({ title, tokens, isLoading, show }) =>
+                          ({
+                            title,
+                            tokens,
+                            isLoading,
+                            show,
+                            showMoreButton
+                          }) =>
                             show && (
                               <TokenList
                                 key={title}
@@ -665,6 +702,7 @@ const TokenSelector: FC<TokenSelectorProps> = ({
                                 isLoading={isLoading}
                                 isLoadingBalances={isLoadingBalances}
                                 chainFilterId={chainFilter.id}
+                                showMoreButton={showMoreButton}
                               />
                             )
                         )}

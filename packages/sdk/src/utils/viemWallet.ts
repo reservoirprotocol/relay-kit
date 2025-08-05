@@ -56,14 +56,18 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
             })
           }
         } else if (signData.signatureKind === 'eip712') {
-          client.log(['Execute Steps: Signing with eip712'], LogLevel.Verbose)
-          signature = await wallet.signTypedData({
+          const signatureData = {
             account: wallet.account as Account,
             domain: signData.domain as any,
             types: signData.types as any,
             primaryType: signData.primaryType,
             message: signData.value
-          })
+          }
+          client.log(
+            ['Execute Steps: Signing with eip712', signatureData],
+            LogLevel.Verbose
+          )
+          signature = await wallet.signTypedData(signatureData)
         }
       }
       return signature

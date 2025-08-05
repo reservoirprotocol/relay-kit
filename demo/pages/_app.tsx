@@ -61,6 +61,7 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
     Chain,
     ...Chain[]
   ]
+
   const wagmiConfig = createConfig({
     chains: viemChains,
     multiInjectedProviderDiscovery: false,

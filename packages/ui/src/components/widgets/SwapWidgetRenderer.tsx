@@ -236,7 +236,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const [quoteInProgress, setQuoteInProgress] = useState<null | Execute>(null)
   const [waitingForSteps, setWaitingForSteps] = useState(false)
   const [details, setDetails] = useState<null | Execute['details']>(null)
-  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(true)
+  const [gasTopUpEnabled, setGasTopUpEnabled] = useState(false)
   const [abortController, setAbortController] =
     useState<AbortController | null>(null)
 
@@ -275,7 +275,9 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const fromChainWalletVMSupported =
-    !fromChain?.vmType || supportedWalletVMs.includes(fromChain?.vmType)
+    !fromChain?.vmType ||
+    supportedWalletVMs.includes(fromChain?.vmType) ||
+    fromChain?.id === 1337
   const toChainWalletVMSupported =
     !toChain?.vmType || supportedWalletVMs.includes(toChain?.vmType)
 
@@ -533,54 +535,47 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         ...tokenPriceQueryOptions
       }
     )
+  const originChainSupportsProtocolv2 =
+    fromChain?.protocol?.v2?.depository !== undefined
 
   const quoteProtocol = useMemo(() => {
-    //Enabled only on Blast
-    if (fromChain?.id != 81457 && toChain?.id != 81457) {
-      return undefined
-    }
+    //Enabled only on certain chains
+    if (fromChain?.id && originChainSupportsProtocolv2) {
+      if (!fromToken && !fromTokenPriceData) {
+        return undefined
+      }
 
-    if (!fromToken && !toToken && !fromTokenPriceData && !toTokenPriceData) {
-      return undefined
-    }
+      const relevantPrice =
+        fromTokenPriceData?.price && !isLoadingFromTokenPrice
+          ? fromTokenPriceData.price
+          : undefined
+      const amount =
+        tradeType === 'EXACT_INPUT'
+          ? debouncedInputAmountValue
+          : debouncedOutputAmountValue
 
-    const relevantPriceData =
-      tradeType === 'EXACT_INPUT' ? fromTokenPriceData : toTokenPriceData
-    const isLoadingRelevantPriceData =
-      tradeType === 'EXACT_INPUT'
-        ? isLoadingFromTokenPrice
-        : isLoadingToTokenPrice
-    const relevantPrice =
-      relevantPriceData?.price && !isLoadingRelevantPriceData
-        ? relevantPriceData.price
+      if (!amount) {
+        return undefined
+      }
+
+      const usdAmount = relevantPrice
+        ? calculateUsdValue(relevantPrice, amount)
         : undefined
-    const amount =
-      tradeType === 'EXACT_INPUT'
-        ? debouncedInputAmountValue
-        : debouncedOutputAmountValue
 
-    if (!amount) {
+      return usdAmount !== undefined && usdAmount <= 10 ? 'preferV2' : undefined
+    } else {
       return undefined
     }
-
-    const usdAmount = relevantPrice
-      ? calculateUsdValue(relevantPrice, amount)
-      : undefined
-
-    return usdAmount !== undefined && usdAmount <= 10 ? 'preferV2' : undefined
   }, [
     fromTokenPriceData,
-    toTokenPriceData,
     isLoadingFromTokenPrice,
-    isLoadingToTokenPrice,
     debouncedInputAmountValue,
-    tradeType
+    tradeType,
+    originChainSupportsProtocolv2
   ])
 
   const loadingProtocolVersion =
-    fromChain?.id != 81457 &&
-    toChain?.id != 81457 &&
-    (isLoadingFromTokenPrice || isLoadingToTokenPrice)
+    fromChain?.id && originChainSupportsProtocolv2 && isLoadingFromTokenPrice
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
     fromToken && toToken
@@ -605,7 +600,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
                 ).toString(),
           referrer: relayClient?.source ?? undefined,
           useExternalLiquidity,
-          useDepositAddress: !fromChainWalletVMSupported,
+          useDepositAddress:
+            !fromChainWalletVMSupported || fromToken?.chainId === 1337,
           slippageTolerance: slippageTolerance,
           topupGas: gasTopUpEnabled && gasTopUpRequired,
           protocolVersion: quoteProtocol
@@ -816,7 +812,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   const recipientWalletSupportsChain = useIsWalletCompatible(
     toChain?.id,
     recipient,
-    linkedWallets
+    linkedWallets,
+    onAnalyticEvent
   )
 
   const isFromNative = fromToken?.address === fromChain?.currency?.address
@@ -982,12 +979,22 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         wallet ?? adaptViemWallet(walletClient.data as WalletClient)
 
       const activeWalletChainId = await _wallet?.getChainId()
-      if (fromToken && fromToken?.chainId !== activeWalletChainId) {
+      const activeWalletChain = relayClient?.chains?.find(
+        (chain) => chain.id === activeWalletChainId
+      )
+      let targetChainId = fromToken?.chainId
+      //Special case for Hyperliquid, to sign txs on an evm chain
+      if (fromToken?.chainId === 1337) {
+        targetChainId =
+          activeWalletChain?.vmType !== 'evm' ? 1 : activeWalletChainId
+      }
+
+      if (fromToken && targetChainId && targetChainId !== activeWalletChainId) {
         onAnalyticEvent?.(EventNames.SWAP_SWITCH_NETWORK, {
           activeWalletChainId,
           ...swapEventData
         })
-        await _wallet?.switchChain(fromToken.chainId)
+        await _wallet?.switchChain(targetChainId)
       }
 
       let _currentSteps: Execute['steps'] | undefined = undefined

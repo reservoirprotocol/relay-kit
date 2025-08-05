@@ -136,6 +136,7 @@ export const SlippageToleranceConfig: FC<SlippageToleranceConfigProps> = ({
         }}
         trigger={
           <Button
+            aria-label="Slippage Tolerance Configuration"
             color="ghost"
             size="none"
             css={{
