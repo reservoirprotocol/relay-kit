@@ -34,6 +34,11 @@ export default (
       return true
     }
 
+    //Hyperliquid operates as a CEX, so there's no need to check for wallet compatibility
+    if (chainId === 1337) {
+      return true
+    }
+
     if (!linkedWallet) {
       if (isRecipientCEX) {
         return false
