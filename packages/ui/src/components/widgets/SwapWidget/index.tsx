@@ -1557,6 +1557,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onExternalLiquidityChange={(selected) => {
                             setUseExternalLiquidity(selected)
                           }}
+                          error={error}
                         />
                       </Box>
                     ) : null}
@@ -1597,6 +1598,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       canonicalTimeEstimate={canonicalTimeEstimate}
                       isSingleChainLocked={isSingleChainLocked}
                       fromChainWalletVMSupported={fromChainWalletVMSupported}
+                      error={error}
                     />
                     <WidgetErrorWell
                       hasInsufficientBalance={hasInsufficientBalance}
