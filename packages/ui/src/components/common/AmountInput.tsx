@@ -59,15 +59,17 @@ const AmountInput: FC<Props> = ({
                 // The prefix will be re-applied by the `value` prop on re-render
               }
 
+              const cleanValue = newNumericValue.replace(/,/g, '')
+
               // Validate and set the numeric part
               const regex = /^[0-9]+(\.[0-9]*)?$/
-              if (newNumericValue === '.' || newNumericValue.includes(',')) {
-                setValue('0.')
-              } else if (
-                regex.test(newNumericValue) ||
-                newNumericValue === ''
+              if (
+                cleanValue === '.' ||
+                (newNumericValue.includes(',') && cleanValue === '')
               ) {
-                setValue(newNumericValue)
+                setValue('0.')
+              } else if (regex.test(cleanValue) || cleanValue === '') {
+                setValue(cleanValue)
               }
             }
       }
