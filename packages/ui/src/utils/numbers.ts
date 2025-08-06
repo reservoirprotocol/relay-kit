@@ -240,10 +240,53 @@ function formatFixedLength(amount: string, maxLength: number) {
   return result
 }
 
+/**
+ * Formats a numeric string for display with comma separators while preserving decimal precision
+ * @param value The input value as string
+ * @returns Formatted string with commas, or original value if invalid
+ */
+function formatNumberInput(value: string): string {
+  if (!value || value === '') return value
+
+  if (value === '0' || value === '0.' || value.startsWith('0.')) return value
+
+  // Handle decimal input case (e.g., "123.", etc.)
+  if (value.endsWith('.')) {
+    const integerPart = value.slice(0, -1)
+    if (integerPart === '0' || integerPart === '') return value
+
+    const formatted = new Intl.NumberFormat('en-US', {
+      useGrouping: true
+    }).format(Number(integerPart))
+    return formatted + '.'
+  }
+
+  const numValue = Number(value)
+  if (isNaN(numValue)) return value
+
+  if (numValue === 0) return value
+
+  if (numValue >= 1000000000) return '>1B'
+
+  const parts = value.split('.')
+  const integerPart = parts[0]
+  const decimalPart = parts[1]
+
+  const formattedInteger = new Intl.NumberFormat('en-US', {
+    useGrouping: true
+  }).format(Number(integerPart))
+
+  // Reconstruct with decimal if present, preserving trailing zeros in decimal part
+  return decimalPart !== undefined
+    ? `${formattedInteger}.${decimalPart}`
+    : formattedInteger
+}
+
 export {
   formatDollar,
   formatBN,
   formatFixedLength,
   formatNumber,
+  formatNumberInput,
   truncateBalance
 }
