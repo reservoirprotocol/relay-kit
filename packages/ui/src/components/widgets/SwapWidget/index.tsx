@@ -12,12 +12,7 @@ import type { Address } from 'viem'
 import { formatUnits } from 'viem'
 import { usePublicClient } from 'wagmi'
 import type { LinkedWallet, Token } from '../../../types/index.js'
-import {
-  formatFixedLength,
-  formatDollar,
-  formatNumber,
-  formatNumberInput
-} from '../../../utils/numbers.js'
+import { formatDollar, formatNumber } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SwitchIcon } from '../../../icons/index.js'
@@ -802,12 +797,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? formatNumberInput(usdInputValue)
+                              ? usdInputValue
                               : tradeType === 'EXACT_INPUT'
-                                ? formatNumberInput(amountInputValue)
+                                ? amountInputValue
                                 : amountInputValue
-                                  ? formatNumberInput(amountInputValue)
-                                  : amountInputValue
                           }
                           setValue={(e) => {
                             if (isUsdInputMode) {
@@ -1338,12 +1331,10 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? formatNumberInput(usdOutputValue)
+                              ? usdOutputValue
                               : tradeType === 'EXPECTED_OUTPUT'
-                                ? formatNumberInput(amountOutputValue)
+                                ? amountOutputValue
                                 : amountOutputValue
-                                  ? formatNumberInput(amountOutputValue)
-                                  : amountOutputValue
                           }
                           setValue={(e) => {
                             if (isUsdInputMode) {
