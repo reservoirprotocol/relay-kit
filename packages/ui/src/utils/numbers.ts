@@ -241,45 +241,24 @@ function formatFixedLength(amount: string, maxLength: number) {
 }
 
 /**
- * Formats a numeric string for display with comma separators while preserving decimal precision
- * @param value The input value as string
- * @returns Formatted string with commas, or original value if invalid
+ * Formats a number to show a specified number of significant digits
+ * @param amount The number to format (string, number, or bigint)
+ * @param significantDigits The number of significant digits to show (defaults to 6)
+ * @returns A string representation with the specified significant digits
  */
-function formatNumberInput(value: string): string {
-  if (!value || value === '') return value
+function formatToSignificantDigits(
+  amount: string | number | bigint,
+  significantDigits: number = 6
+): string {
+  if (amount === null || amount === undefined) return '-'
 
-  if (value === '0' || value === '0.' || value.startsWith('0.')) return value
+  const num = typeof amount === 'string' ? parseFloat(amount) : Number(amount)
 
-  // Handle decimal input case (e.g., "123.", etc.)
-  if (value.endsWith('.')) {
-    const integerPart = value.slice(0, -1)
-    if (integerPart === '0' || integerPart === '') return value
+  if (num === 0 || isNaN(num)) return '0'
 
-    const formatted = new Intl.NumberFormat('en-US', {
-      useGrouping: true
-    }).format(Number(integerPart))
-    return formatted + '.'
-  }
+  const formatted = num.toPrecision(significantDigits)
 
-  const numValue = Number(value)
-  if (isNaN(numValue)) return value
-
-  if (numValue === 0) return value
-
-  if (numValue >= 1000000000) return '>1B'
-
-  const parts = value.split('.')
-  const integerPart = parts[0]
-  const decimalPart = parts[1]
-
-  const formattedInteger = new Intl.NumberFormat('en-US', {
-    useGrouping: true
-  }).format(Number(integerPart))
-
-  // Reconstruct with decimal if present, preserving trailing zeros in decimal part
-  return decimalPart !== undefined
-    ? `${formattedInteger}.${decimalPart}`
-    : formattedInteger
+  return formatted.replace(/\.?0+$/, '').replace(/\.?0+e/, 'e')
 }
 
 export {
@@ -287,6 +266,6 @@ export {
   formatBN,
   formatFixedLength,
   formatNumber,
-  formatNumberInput,
+  formatToSignificantDigits,
   truncateBalance
 }
