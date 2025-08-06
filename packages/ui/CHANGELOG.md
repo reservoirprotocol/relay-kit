@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.16.0
+
+### Minor Changes
+
+- bb08004: Fix token amount overflow on success screen
+
+### Patch Changes
+
+- 09ccc5c: Fix Hyperliquid wallet compatability
+- 2669722: Bump USD threshold for protocolv2 logic
+- a437ede: Improve ui when no route are available
+
 ## 2.15.11
 
 ### Patch Changes
