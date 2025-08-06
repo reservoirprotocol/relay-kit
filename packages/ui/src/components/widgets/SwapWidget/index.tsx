@@ -15,7 +15,8 @@ import type { LinkedWallet, Token } from '../../../types/index.js'
 import {
   formatFixedLength,
   formatDollar,
-  formatNumber
+  formatNumber,
+  formatNumberInput
 } from '../../../utils/numbers.js'
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -801,11 +802,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? usdInputValue
+                              ? formatNumberInput(usdInputValue)
                               : tradeType === 'EXACT_INPUT'
-                                ? amountInputValue
+                                ? formatNumberInput(amountInputValue)
                                 : amountInputValue
-                                  ? formatFixedLength(amountInputValue, 8)
+                                  ? formatNumberInput(amountInputValue)
                                   : amountInputValue
                           }
                           setValue={(e) => {
@@ -1337,11 +1338,11 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           prefixSymbol={isUsdInputMode ? '$' : undefined}
                           value={
                             isUsdInputMode
-                              ? usdOutputValue
+                              ? formatNumberInput(usdOutputValue)
                               : tradeType === 'EXPECTED_OUTPUT'
-                                ? amountOutputValue
+                                ? formatNumberInput(amountOutputValue)
                                 : amountOutputValue
-                                  ? formatFixedLength(amountOutputValue, 8)
+                                  ? formatNumberInput(amountOutputValue)
                                   : amountOutputValue
                           }
                           setValue={(e) => {
