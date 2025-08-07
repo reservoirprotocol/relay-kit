@@ -15,6 +15,7 @@ interface WebSocketUpdateHandlerParams {
     closeWebSocket?: () => void
     lastKnownStatus?: string
   }
+  onTerminalError?: (error: Error) => void
 }
 
 export function handleWebSocketUpdate({
@@ -24,7 +25,8 @@ export function handleWebSocketUpdate({
   setState,
   json,
   client,
-  statusControl
+  statusControl,
+  onTerminalError
 }: WebSocketUpdateHandlerParams): void {
   statusControl.lastKnownStatus = data.status
 
@@ -41,10 +43,10 @@ export function handleWebSocketUpdate({
         handleSuccessStatus(data, stepItems, chainId, setState, json, client)
         break
       case 'failure':
-        handleFailureStatus(stepItems, setState, json, client)
+        handleFailureStatus(client, onTerminalError)
         break
       case 'refund':
-        handleRefundStatus(stepItems, setState, json, client)
+        handleRefundStatus(client, onTerminalError)
         break
     }
   }
@@ -103,48 +105,21 @@ function handleSuccessStatus(
 }
 
 function handleFailureStatus(
-  stepItems: Execute['steps'][0]['items'],
-  setState: (data: SetStateData) => void,
-  json: Execute,
-  client: RelayClient
+  client: RelayClient,
+  onTerminalError?: (error: Error) => void
 ): void {
-  updateIncompleteItems(stepItems, (item) => {
-    item.status = 'complete'
-    item.progressState = 'complete'
-    item.checkStatus = 'failure'
-    item.error = 'Transaction failed'
-  })
-
-  setState({
-    steps: [...json.steps],
-    fees: { ...json?.fees },
-    breakdown: json?.breakdown,
-    details: json?.details
-  })
-
-  client.log(['WebSocket: Step failed'], LogLevel.Error)
+  client.log(['WebSocket: transaction failed'], LogLevel.Error)
+  const error = new Error('Transaction failed')
+  onTerminalError?.(error)
 }
 
 function handleRefundStatus(
-  stepItems: Execute['steps'][0]['items'],
-  setState: (data: SetStateData) => void,
-  json: Execute,
-  client: RelayClient
+  client: RelayClient,
+  onTerminalError?: (error: Error) => void
 ): void {
-  updateIncompleteItems(stepItems, (item) => {
-    item.status = 'complete'
-    item.progressState = 'complete'
-    item.checkStatus = 'refund'
-  })
-
-  setState({
-    steps: [...json.steps],
-    fees: { ...json?.fees },
-    breakdown: json?.breakdown,
-    details: json?.details
-  })
-
-  client.log(['WebSocket: Step refunded'], LogLevel.Verbose)
+  client.log(['WebSocket: transaction refunded'], LogLevel.Verbose)
+  const error = new Error('Transaction failed: Refunded')
+  onTerminalError?.(error)
 }
 
 function updateIncompleteItems(
