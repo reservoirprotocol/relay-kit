@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.16.1
+
+### Patch Changes
+
+- a284af5: revert overflow fix
+
 ## 2.16.0
 
 ### Minor Changes
