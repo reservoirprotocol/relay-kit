@@ -43,10 +43,10 @@ export function handleWebSocketUpdate({
         handleSuccessStatus(data, stepItems, chainId, setState, json, client)
         break
       case 'failure':
-        handleFailureStatus(client, onTerminalError)
+        handleFailureStatus(client, stepItems, onTerminalError)
         break
       case 'refund':
-        handleRefundStatus(client, onTerminalError)
+        handleRefundStatus(client, stepItems, onTerminalError)
         break
     }
   }
@@ -106,18 +106,26 @@ function handleSuccessStatus(
 
 function handleFailureStatus(
   client: RelayClient,
+  stepItems: Execute['steps'][0]['items'],
   onTerminalError?: (error: Error) => void
 ): void {
   client.log(['WebSocket: transaction failed'], LogLevel.Error)
+  updateIncompleteItems(stepItems, (item) => {
+    item.checkStatus = 'failure'
+  })
   const error = new Error('Transaction failed')
   onTerminalError?.(error)
 }
 
 function handleRefundStatus(
   client: RelayClient,
+  stepItems: Execute['steps'][0]['items'],
   onTerminalError?: (error: Error) => void
 ): void {
   client.log(['WebSocket: transaction refunded'], LogLevel.Verbose)
+  updateIncompleteItems(stepItems, (item) => {
+    item.checkStatus = 'refund'
+  })
   const error = new Error('Transaction failed: Refunded')
   onTerminalError?.(error)
 }

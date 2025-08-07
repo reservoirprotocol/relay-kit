@@ -1467,7 +1467,7 @@ describe('Should test WebSocket functionality', () => {
     // Wait for state update
     await vi.waitFor(() => {
       const stepItem = finalSteps?.[0]?.items?.[0]
-      expect(stepItem?.status).toBe('complete')
+      expect(stepItem?.status).toBe('incomplete')
       expect(stepItem?.checkStatus).toBe('failure')
       expect(stepItem?.error).toBe('Transaction failed')
     })
@@ -1510,7 +1510,7 @@ describe('Should test WebSocket functionality', () => {
     // Wait for state update
     await vi.waitFor(() => {
       const stepItem = finalSteps?.[0]?.items?.[0]
-      expect(stepItem?.status).toBe('complete')
+      expect(stepItem?.status).toBe('incomplete')
       expect(stepItem?.checkStatus).toBe('refund')
     })
   })
