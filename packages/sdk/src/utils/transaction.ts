@@ -219,10 +219,6 @@ export async function sendTransactionSafely(
       !transactionCancelled &&
       !confirmationError
     ) {
-      // if (receiptController?.signal.aborted) {
-      //   return
-      // }
-
       client.log(['Polling for confirmation'], LogLevel.Verbose)
 
       let res: AxiosResponse<any, any> | undefined
