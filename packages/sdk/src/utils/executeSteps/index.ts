@@ -88,6 +88,10 @@ export async function executeSteps(
     lastKnownStatus: undefined
   }
 
+  // WebSocket terminal status promise - rejects when failure/refund status received
+  let terminalStatusPromise: Promise<never> | null = null
+  let rejectTerminalStatus: ((error: Error) => void) | null = null
+
   // Promise-based approach for WebSocket failure handling
   let websocketFailedPromise: Promise<void> | null = null
   let resolveWebsocketFailed: (() => void) | null = null
@@ -214,9 +218,13 @@ export async function executeSteps(
     ) {
       statusControl.websocketActive = true
 
-      // Create the promise immediately so it's available for early failures
+      // Create the promises immediately so they're available for early failures
       websocketFailedPromise = new Promise<void>((resolve) => {
         resolveWebsocketFailed = resolve
+      })
+
+      terminalStatusPromise = new Promise<never>((_, reject) => {
+        rejectTerminalStatus = reject
       })
 
       statusControl.closeWebSocket = trackRequestStatus({
@@ -236,18 +244,29 @@ export async function executeSteps(
             setState,
             json,
             client,
-            statusControl
+            statusControl,
+            onTerminalError: (error: Error) => {
+              // Immediately reject when terminal status received
+              rejectTerminalStatus?.(error)
+            }
           })
         },
         onError: (err) => {
-          client.log(
-            ['Websocket error, re-enabling polling', err],
-            LogLevel.Verbose
-          )
-          statusControl.websocketActive = false
-          statusControl.websocketConnected = false
-          // Trigger the websocket failed promise to start polling
-          resolveWebsocketFailed?.()
+          // Handle WebSocket connection/network errors by falling back to polling
+          if (
+            !['success', 'failure', 'refund'].includes(
+              statusControl.lastKnownStatus || ''
+            )
+          ) {
+            client.log(
+              ['Websocket connection error, falling back to polling', err],
+              LogLevel.Verbose
+            )
+            statusControl.websocketActive = false
+            statusControl.websocketConnected = false
+            // Trigger the websocket failed promise to start polling fallback
+            resolveWebsocketFailed?.()
+          }
         },
         onClose: () => {
           client.log(['Websocket closed'], LogLevel.Verbose)
@@ -256,7 +275,8 @@ export async function executeSteps(
           if (
             !['success', 'failure', 'refund'].includes(
               statusControl.lastKnownStatus || ''
-            )
+            ) &&
+            !stepItems[0].error
           ) {
             client.log(
               ['Re-enabling polling due to unexpected WebSocket closure'],
@@ -281,54 +301,64 @@ export async function executeSteps(
       .map((stepItem) => {
         return new Promise(async (resolve, reject) => {
           try {
-            // Handle each step based on it's kind
-            switch (kind) {
-              // Make an on-chain transaction
-              case 'transaction': {
-                await handleTransactionStepItem({
-                  stepItem: stepItem as TransactionStepItem,
-                  step,
-                  wallet,
-                  setState,
-                  request,
-                  client,
-                  json,
-                  chainId,
-                  isAtomicBatchSupported,
-                  incompleteStepItemIndex,
-                  stepItems,
-                  onWebsocketFailed: statusControl.websocketActive
-                    ? onWebsocketFailed
-                    : null,
-                  statusControl
-                })
-                break
-              }
+            // Create step execution promise
+            const stepExecutionPromise = (async () => {
+              // Handle each step based on it's kind
+              switch (kind) {
+                // Make an on-chain transaction
+                case 'transaction': {
+                  await handleTransactionStepItem({
+                    stepItem: stepItem as TransactionStepItem,
+                    step,
+                    wallet,
+                    setState,
+                    request,
+                    client,
+                    json,
+                    chainId,
+                    isAtomicBatchSupported,
+                    incompleteStepItemIndex,
+                    stepItems,
+                    onWebsocketFailed: statusControl.websocketActive
+                      ? onWebsocketFailed
+                      : null,
+                    statusControl
+                  })
+                  break
+                }
 
-              // Sign a message
-              case 'signature': {
-                await handleSignatureStepItem({
-                  stepItem,
-                  step,
-                  wallet,
-                  setState,
-                  request,
-                  client,
-                  json,
-                  maximumAttempts,
-                  pollingInterval,
-                  chain,
-                  onWebsocketFailed: statusControl.websocketActive
-                    ? onWebsocketFailed
-                    : null
-                })
-                break
-              }
+                // Sign a message
+                case 'signature': {
+                  await handleSignatureStepItem({
+                    stepItem,
+                    step,
+                    wallet,
+                    setState,
+                    request,
+                    client,
+                    json,
+                    maximumAttempts,
+                    pollingInterval,
+                    chain,
+                    onWebsocketFailed: statusControl.websocketActive
+                      ? onWebsocketFailed
+                      : null
+                  })
+                  break
+                }
 
-              default:
-                throw new Error(
-                  `Unknown step kind: ${kind}. Expected 'signature' or 'transaction'`
-                )
+                default:
+                  throw new Error(
+                    `Unknown step kind: ${kind}. Expected 'signature' or 'transaction'`
+                  )
+              }
+            })()
+
+            // Allow WebSocket terminal status (failure/refund) to immediately interrupt and stop step execution
+            if (statusControl.websocketActive && terminalStatusPromise) {
+              await Promise.race([stepExecutionPromise, terminalStatusPromise])
+            } else {
+              await stepExecutionPromise
             }
 
             // Mark step item as complete
