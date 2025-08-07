@@ -219,9 +219,9 @@ export async function sendTransactionSafely(
       !transactionCancelled &&
       !confirmationError
     ) {
-      if (receiptController?.signal.aborted) {
-        return
-      }
+      // if (receiptController?.signal.aborted) {
+      //   return
+      // }
 
       client.log(['Polling for confirmation'], LogLevel.Verbose)
 
