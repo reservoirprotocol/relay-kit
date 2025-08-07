@@ -1433,7 +1433,7 @@ describe('Should test WebSocket functionality', () => {
   it('Should handle WebSocket failure message', async () => {
     let finalSteps: Execute['steps'] | undefined
 
-    executeSteps(
+    const executePromise = executeSteps(
       1,
       {},
       wallet,
@@ -1464,19 +1464,21 @@ describe('Should test WebSocket functionality', () => {
 
     mockWebSocket.onmessage?.(failureMessage)
 
-    // Wait for state update
+    // Wait for state update and expect executeSteps to reject
     await vi.waitFor(() => {
       const stepItem = finalSteps?.[0]?.items?.[0]
       expect(stepItem?.status).toBe('incomplete')
       expect(stepItem?.checkStatus).toBe('failure')
-      expect(stepItem?.error).toBe('Transaction failed')
     })
+
+    // executeSteps should reject with the failure error
+    await expect(executePromise).rejects.toThrow('Transaction failed')
   })
 
   it('Should handle WebSocket refund message', async () => {
     let finalSteps: Execute['steps'] | undefined
 
-    executeSteps(
+    const executePromise = executeSteps(
       1,
       {},
       wallet,
@@ -1507,12 +1509,15 @@ describe('Should test WebSocket functionality', () => {
 
     mockWebSocket.onmessage?.(refundMessage)
 
-    // Wait for state update
+    // Wait for state update and expect executeSteps to reject
     await vi.waitFor(() => {
       const stepItem = finalSteps?.[0]?.items?.[0]
       expect(stepItem?.status).toBe('incomplete')
       expect(stepItem?.checkStatus).toBe('refund')
     })
+
+    // executeSteps should reject with the refund error
+    await expect(executePromise).rejects.toThrow('Transaction failed: Refunded')
   })
 
   it('Should handle WebSocket disabled configuration', async () => {
