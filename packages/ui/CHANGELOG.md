@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.16.2
+
+### Patch Changes
+
+- c309276: Increase prefers v2 threshold to $100
+
 ## 2.16.1
 
 ### Patch Changes
