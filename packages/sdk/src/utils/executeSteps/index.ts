@@ -4,7 +4,7 @@ import type {
   TransactionStepItem
 } from '../../types/index.js'
 import type { AxiosRequestConfig } from 'axios'
-import { getClient } from '../../client.js'
+import { getClient, RelayClient } from '../../client.js'
 import { LogLevel } from '../logger.js'
 import { prepareHyperliquidSignatureStep } from '../../utils/index.js'
 import {
@@ -30,6 +30,7 @@ export type ExecutionStatusControl = {
   websocketConnected: boolean
   closeWebSocket: undefined | (() => void)
   lastKnownStatus: undefined | string
+  websocketFailureTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
 /**
@@ -85,7 +86,8 @@ export async function executeSteps(
     websocketActive: false,
     websocketConnected: false,
     closeWebSocket: undefined,
-    lastKnownStatus: undefined
+    lastKnownStatus: undefined,
+    websocketFailureTimeoutId: null
   }
 
   // WebSocket terminal status promise - rejects when failure/refund status received
@@ -163,8 +165,9 @@ export async function executeSteps(
     // There are no more incomplete steps
     if (incompleteStepIndex === -1) {
       client.log(['Execute Steps: all steps complete'], LogLevel.Verbose)
-      // Clean up WebSocket if execution is complete
+      // Clean up WebSocket and failure timeout if execution is complete
       statusControl.closeWebSocket?.()
+      clearFailureTimeout(statusControl, client)
       return json
     }
 
@@ -254,9 +257,7 @@ export async function executeSteps(
         onError: (err) => {
           // Handle WebSocket connection/network errors by falling back to polling
           if (
-            !['success', 'failure', 'refund'].includes(
-              statusControl.lastKnownStatus || ''
-            )
+            !['success', 'refund'].includes(statusControl.lastKnownStatus || '')
           ) {
             client.log(
               ['Websocket connection error, falling back to polling', err],
@@ -264,6 +265,10 @@ export async function executeSteps(
             )
             statusControl.websocketActive = false
             statusControl.websocketConnected = false
+
+            // Clean up any pending failure timeout when WebSocket errors
+            clearFailureTimeout(statusControl, client)
+
             // Trigger the websocket failed promise to start polling fallback
             resolveWebsocketFailed?.()
           }
@@ -271,9 +276,12 @@ export async function executeSteps(
         onClose: () => {
           client.log(['Websocket closed'], LogLevel.Verbose)
 
+          // Clean up any pending failure timeout when WebSocket closes
+          clearFailureTimeout(statusControl, client)
+
           // Only re-enable polling if we haven't reached a terminal state
           if (
-            !['success', 'failure', 'refund'].includes(
+            !['success', 'refund'].includes(
               statusControl.lastKnownStatus || ''
             ) &&
             !stepItems[0].error
@@ -408,15 +416,17 @@ export async function executeSteps(
       statusControl
     )
 
-    // Clean up WebSocket if execution completes
+    // Clean up WebSocket and failure timeout if execution completes
     statusControl.closeWebSocket?.()
+    clearFailureTimeout(statusControl, client)
 
     return result
   } catch (err: any) {
     client.log(['Execute Steps: An error occurred', err], LogLevel.Error)
 
-    // Clean up WebSocket on error
+    // Clean up WebSocket and failure timeout on error
     statusControl.closeWebSocket?.()
+    clearFailureTimeout(statusControl, client)
 
     const error = err && err?.response?.data ? err.response.data : err
     let refunded = false
@@ -445,5 +455,16 @@ export async function executeSteps(
       setState(json)
     }
     throw err
+  }
+}
+
+function clearFailureTimeout(
+  statusControl: ExecutionStatusControl,
+  client: RelayClient
+): void {
+  if (statusControl.websocketFailureTimeoutId) {
+    clearTimeout(statusControl.websocketFailureTimeoutId)
+    statusControl.websocketFailureTimeoutId = null
+    client.log(['Cleared failure timeout during cleanup'], LogLevel.Verbose)
   }
 }
