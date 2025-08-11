@@ -14,6 +14,7 @@ interface WebSocketUpdateHandlerParams {
   statusControl: {
     closeWebSocket?: () => void
     lastKnownStatus?: string
+    websocketFailureTimeoutId?: ReturnType<typeof setTimeout> | null
   }
   onTerminalError?: (error: Error) => void
 }
@@ -30,7 +31,17 @@ export function handleWebSocketUpdate({
 }: WebSocketUpdateHandlerParams): void {
   statusControl.lastKnownStatus = data.status
 
-  // Handle terminal states
+  // Clear any existing failure timeout if we receive a non-failure status
+  // This handles the case where failure -> pending -> refund flow occurs
+  if (data.status !== 'failure') {
+    clearFailureTimeout(
+      statusControl,
+      client,
+      `status changed to ${data.status}`
+    )
+  }
+
+  // Handle terminal states (success, refund)
   if (isTerminalStatus(data.status)) {
     client.log(
       ['WebSocket received terminal status: ', data.status],
@@ -42,18 +53,30 @@ export function handleWebSocketUpdate({
       case 'success':
         handleSuccessStatus(data, stepItems, chainId, setState, json, client)
         break
-      case 'failure':
-        handleFailureStatus(client, stepItems, onTerminalError)
-        break
       case 'refund':
         handleRefundStatus(client, stepItems, onTerminalError)
         break
     }
   }
+  // Handle failure status with delay (refund flow: pending -> failure -> pending -> refund)
+  else if (data.status === 'failure') {
+    handleFailureStatusWithDelay(
+      stepItems,
+      client,
+      statusControl,
+      onTerminalError
+    )
+  }
+  // Handle pending status - just log it
+  else if (data.status === 'pending') {
+    client.log(['WebSocket received pending status'], LogLevel.Verbose)
+  }
 }
 
 function isTerminalStatus(status: string): boolean {
-  return ['success', 'failure', 'refund'].includes(status)
+  // Note: 'failure' is not immediately terminal due to the refund flow:
+  // pending -> failure -> pending -> refund
+  return ['success', 'refund'].includes(status)
 }
 
 function handleSuccessStatus(
@@ -113,6 +136,7 @@ function handleFailureStatus(
   updateIncompleteItems(stepItems, (item) => {
     item.checkStatus = 'failure'
   })
+
   const error = new Error('Transaction failed')
   onTerminalError?.(error)
 }
@@ -130,6 +154,52 @@ function handleRefundStatus(
   onTerminalError?.(error)
 }
 
+function handleFailureStatusWithDelay(
+  stepItems: Execute['steps'][0]['items'],
+  client: RelayClient,
+  statusControl: {
+    closeWebSocket?: () => void
+    lastKnownStatus?: string
+    websocketFailureTimeoutId?: ReturnType<typeof setTimeout> | null
+  },
+  onTerminalError?: (error: Error) => void
+): void {
+  // Clear any existing failure timeout to handle multiple failure statuses
+  clearFailureTimeout(statusControl, client, 'new failure status received')
+
+  client.log(
+    [
+      'WebSocket received failure status, waiting 2 seconds for potential status change'
+    ],
+    LogLevel.Verbose
+  )
+
+  // Set a 2-second timeout to handle the case where failure is truly terminal
+  statusControl.websocketFailureTimeoutId = setTimeout(() => {
+    // Only proceed with failure handling if timeout still exists and status is still failure
+    if (
+      statusControl.websocketFailureTimeoutId &&
+      statusControl.lastKnownStatus === 'failure'
+    ) {
+      client.log(
+        ['WebSocket: 2-second timeout expired, treating failure as terminal'],
+        LogLevel.Error
+      )
+
+      // Clear the timeout state
+      statusControl.websocketFailureTimeoutId = null
+
+      // Handle as terminal failure
+      handleFailureStatus(client, stepItems, onTerminalError)
+    } else {
+      client.log(
+        ['WebSocket: Failure timeout cancelled due to status change'],
+        LogLevel.Verbose
+      )
+    }
+  }, 2000) // 2 seconds
+}
+
 function updateIncompleteItems(
   stepItems: Execute['steps'][0]['items'],
   updateFn: (item: any) => void
@@ -139,4 +209,18 @@ function updateIncompleteItems(
       updateFn(item)
     }
   })
+}
+
+function clearFailureTimeout(
+  statusControl: {
+    websocketFailureTimeoutId?: ReturnType<typeof setTimeout> | null
+  },
+  client: RelayClient,
+  reason: string
+): void {
+  if (statusControl.websocketFailureTimeoutId) {
+    clearTimeout(statusControl.websocketFailureTimeoutId)
+    statusControl.websocketFailureTimeoutId = null
+    client.log([`Cleared failure timeout: ${reason}`], LogLevel.Verbose)
+  }
 }
