@@ -1168,8 +1168,14 @@ describe('Should test atomic batch transactions', () => {
 describe('Should test WebSocket functionality', () => {
   let mockWebSocket: any
   let wsConstructorSpy: any
+  let originalSetTimeout: typeof setTimeout
+  let originalClearTimeout: typeof clearTimeout
 
   beforeEach(() => {
+    // Save original timer functions
+    originalSetTimeout = global.setTimeout
+    originalClearTimeout = global.clearTimeout
+
     vi.clearAllMocks()
     vi.resetAllMocks()
     // Mock axios to return pending status for WebSocket tests
@@ -1257,6 +1263,13 @@ describe('Should test WebSocket functionality', () => {
   })
 
   afterEach(() => {
+    // Restore original timer functions
+    global.setTimeout = originalSetTimeout
+    global.clearTimeout = originalClearTimeout
+
+    // Ensure fake timers are restored in case a test failed
+    vi.useRealTimers()
+
     delete (global as any).WebSocket
     delete (global as any).window
   })
@@ -1430,49 +1443,60 @@ describe('Should test WebSocket functionality', () => {
     )
   })
 
-  it('Should handle WebSocket failure message', async () => {
-    let finalSteps: Execute['steps'] | undefined
+  it('Should handle WebSocket failure message after timeout', async () => {
+    // Use fake timers to control the timeout behavior
+    vi.useFakeTimers()
 
-    const executePromise = executeSteps(
-      1,
-      {},
-      wallet,
-      ({ steps }) => {
-        finalSteps = steps
-      },
-      bridgeData,
-      undefined
-    )
+    try {
+      let finalSteps: Execute['steps'] | undefined
 
-    // Wait for WebSocket to be created
-    await vi.waitFor(() => {
-      expect(wsConstructorSpy).toHaveBeenCalled()
-    })
+      const executePromise = executeSteps(
+        1,
+        {},
+        wallet,
+        ({ steps }) => {
+          finalSteps = steps
+        },
+        bridgeData,
+        undefined
+      )
 
-    // Simulate WebSocket open
-    mockWebSocket.onopen?.()
-
-    // Simulate failure message
-    const failureMessage = {
-      data: JSON.stringify({
-        event: 'request.status.updated',
-        data: {
-          status: 'failure'
-        }
+      // Wait for WebSocket to be created
+      await vi.waitFor(() => {
+        expect(wsConstructorSpy).toHaveBeenCalled()
       })
+
+      // Simulate WebSocket open
+      mockWebSocket.onopen?.()
+
+      // Simulate failure message
+      const failureMessage = {
+        data: JSON.stringify({
+          event: 'request.status.updated',
+          data: {
+            status: 'failure'
+          }
+        })
+      }
+
+      mockWebSocket.onmessage?.(failureMessage)
+
+      // Fast-forward the timers by 2 seconds to trigger the timeout
+      await vi.advanceTimersByTimeAsync(2000)
+
+      // Wait for state update
+      await vi.waitFor(() => {
+        const stepItem = finalSteps?.[0]?.items?.[0]
+        expect(stepItem?.status).toBe('incomplete')
+        expect(stepItem?.checkStatus).toBe('failure')
+      })
+
+      // executeSteps should reject with the failure error
+      await expect(executePromise).rejects.toThrow('Transaction failed')
+    } finally {
+      // Always restore real timers
+      vi.useRealTimers()
     }
-
-    mockWebSocket.onmessage?.(failureMessage)
-
-    // Wait for state update and expect executeSteps to reject
-    await vi.waitFor(() => {
-      const stepItem = finalSteps?.[0]?.items?.[0]
-      expect(stepItem?.status).toBe('incomplete')
-      expect(stepItem?.checkStatus).toBe('failure')
-    })
-
-    // executeSteps should reject with the failure error
-    await expect(executePromise).rejects.toThrow('Transaction failed')
   })
 
   it('Should handle WebSocket refund message', async () => {
