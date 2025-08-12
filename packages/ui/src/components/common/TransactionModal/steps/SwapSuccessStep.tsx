@@ -20,7 +20,7 @@ import { useRelayClient } from '../../../../hooks/index.js'
 import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
 import type { Execute } from '@reservoir0x/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
-import { formatBN, formatToSignificantDigits } from '../../../../utils/numbers.js'
+import { formatBN } from '../../../../utils/numbers.js'
 import { TransactionsByChain } from './TransactionsByChain.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
@@ -62,13 +62,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   const isUnwrap = details?.operation === 'unwrap'
 
   const _fromAmountFormatted = transaction?.data?.metadata?.currencyIn?.amount
-    ? formatToSignificantDigits(
-        formatBN(
-          transaction?.data?.metadata?.currencyIn?.amount,
-          20,
-          transaction?.data?.metadata?.currencyIn?.currency?.decimals ?? 18,
-          false
-        )
+    ? formatBN(
+        transaction?.data?.metadata?.currencyIn?.amount,
+        5,
+        transaction?.data?.metadata?.currencyIn?.currency?.decimals ?? 18
       )
     : fromAmountFormatted
   const _fromToken =
@@ -77,13 +74,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     transaction?.data?.metadata?.currencyIn?.currency?.metadata?.logoURI ??
     fromToken?.logoURI
   const _toAmountFormatted = transaction?.data?.metadata?.currencyOut?.amount
-    ? formatToSignificantDigits(
-        formatBN(
-          transaction?.data?.metadata?.currencyOut?.amount,
-          20,
-          transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18,
-          false
-        )
+    ? formatBN(
+        transaction?.data?.metadata?.currencyOut?.amount,
+        5,
+        transaction?.data?.metadata?.currencyOut?.currency?.decimals ?? 18
       )
     : toAmountFormatted
   const _toToken = transaction?.data?.metadata?.currencyOut?.currency ?? toToken
@@ -121,13 +115,10 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
     transaction?.data?.metadata?.currencyGasTopup?.currency
   const formattedGasTopUpAmount = transaction?.data?.metadata?.currencyGasTopup
     ?.amount
-    ? formatToSignificantDigits(
-        formatBN(
-          BigInt(transaction?.data?.metadata?.currencyGasTopup?.amount),
-          20,
-          gasTopUpAmountCurrency?.decimals ?? 18,
-          false
-        )
+    ? formatBN(
+        BigInt(transaction?.data?.metadata?.currencyGasTopup?.amount),
+        5,
+        gasTopUpAmountCurrency?.decimals ?? 18
       )
     : undefined
 

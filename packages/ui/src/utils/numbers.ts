@@ -240,32 +240,10 @@ function formatFixedLength(amount: string, maxLength: number) {
   return result
 }
 
-/**
- * Formats a number to show a specified number of significant digits
- * @param amount The number to format (string, number, or bigint)
- * @param significantDigits The number of significant digits to show (defaults to 6)
- * @returns A string representation with the specified significant digits
- */
-function formatToSignificantDigits(
-  amount: string | number | bigint,
-  significantDigits: number = 6
-): string {
-  if (amount === null || amount === undefined) return '-'
-
-  const num = typeof amount === 'string' ? parseFloat(amount) : Number(amount)
-
-  if (num === 0 || isNaN(num)) return '0'
-
-  const formatted = num.toPrecision(significantDigits)
-
-  return formatted.replace(/\.?0+$/, '').replace(/\.?0+e/, 'e')
-}
-
 export {
   formatDollar,
   formatBN,
   formatFixedLength,
   formatNumber,
-  formatToSignificantDigits,
   truncateBalance
 }

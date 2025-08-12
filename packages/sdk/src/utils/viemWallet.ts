@@ -238,6 +238,49 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       })
 
       return id
+    },
+    isEOA: async (chainId) => {
+      if (!wallet.account) return false
+      try {
+        const capabilities = await wallet.getCapabilities({
+          account: wallet.account,
+          chainId
+        })
+
+        if (
+          capabilities &&
+          typeof capabilities === 'object' &&
+          Object.keys(capabilities).length > 0
+        ) {
+          return false
+        }
+
+        const client = getClient()
+        const chain = client.chains.find((chain) => chain.id === chainId)
+        const rpcUrl = chain?.httpRpcUrl
+
+        const viemClient = createPublicClient({
+          chain: chain?.viemChain,
+          transport: wallet.transport
+            ? fallback(
+                rpcUrl
+                  ? [http(rpcUrl), custom(wallet.transport), http()]
+                  : [custom(wallet.transport), http()]
+              )
+            : fallback([http(rpcUrl), http()])
+        })
+
+        const code = await viemClient.getCode({
+          address: wallet.account.address
+        })
+
+        // EOA has no code (returns '0x'), smart contracts have bytecode
+        // EIP-7702 delegated accounts also have code and should be treated as smart wallets
+        return code === '0x'
+      } catch {
+        // If we can't determine, assume it's not an EOA
+        return false
+      }
     }
   }
 }
