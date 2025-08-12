@@ -137,6 +137,25 @@ export async function getQuote(
     throw new Error('Recipient is required')
   }
 
+  // Set explicitDeposit flag based on EOA detection
+  let finalOptions = options
+  if (
+    adaptedWallet?.isEOA &&
+    (options?.protocolVersion === 'v2' ||
+      options?.protocolVersion === 'preferV2')
+  ) {
+    try {
+      const isEOA = await adaptedWallet.isEOA(chainId)
+      finalOptions = {
+        ...options,
+        explicitDeposit: !isEOA
+      }
+    } catch {
+      // If detection fails, keep original options
+      finalOptions = options
+    }
+  }
+
   const query: QuoteBody = {
     user: includeDefaultParameters
       ? (defaultParameters?.user as string)
@@ -152,7 +171,7 @@ export async function getQuote(
     tradeType,
     referrer: client.source || undefined,
     txs: preparedTransactions,
-    ...options
+    ...finalOptions
   }
 
   const request: AxiosRequestConfig = {
