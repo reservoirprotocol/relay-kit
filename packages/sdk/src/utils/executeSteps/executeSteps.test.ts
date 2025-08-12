@@ -1481,18 +1481,20 @@ describe('Should test WebSocket functionality', () => {
 
       mockWebSocket.onmessage?.(failureMessage)
 
-      // Fast-forward the timers by 2 seconds to trigger the timeout
-      await vi.advanceTimersByTimeAsync(2000)
+      // Fast-forward the timers and handle the expected rejection
+      const advancePromise = vi.advanceTimersByTimeAsync(2000)
 
-      // Wait for state update
-      await vi.waitFor(() => {
-        const stepItem = finalSteps?.[0]?.items?.[0]
-        expect(stepItem?.status).toBe('incomplete')
-        expect(stepItem?.checkStatus).toBe('failure')
-      })
+      // Immediately start waiting for the rejection
+      const rejectionPromise =
+        expect(executePromise).rejects.toThrow('Transaction failed')
 
-      // executeSteps should reject with the failure error
-      await expect(executePromise).rejects.toThrow('Transaction failed')
+      // Wait for both the timer advancement and the rejection
+      await Promise.all([advancePromise, rejectionPromise])
+
+      // Verify the state was updated correctly
+      const stepItem = finalSteps?.[0]?.items?.[0]
+      expect(stepItem?.status).toBe('incomplete')
+      expect(stepItem?.checkStatus).toBe('failure')
     } finally {
       // Always restore real timers
       vi.useRealTimers()
