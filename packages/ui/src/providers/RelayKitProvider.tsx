@@ -64,6 +64,7 @@ export type ThemeOverridesMap = {
 
 export const themeOverrides: ThemeOverridesMap = {
   font: '--relay-fonts-body',
+  fontHeading: '--relay-fonts-heading',
   primaryColor: '--relay-colors-primary-color',
   focusColor: '--relay-colors-focus-color',
   subtleBackgroundColor: '--relay-colors-subtle-background-color',
@@ -89,14 +90,6 @@ export const themeOverrides: ThemeOverridesMap = {
       hover: {
         color: '--relay-colors-secondary-button-hover-color',
         background: '--relay-colors-secondary-button-hover-background'
-      }
-    },
-    tertiary: {
-      color: '--relay-colors-tertiary-button-color',
-      background: '--relay-colors-tertiary-button-background',
-      hover: {
-        color: '--relay-colors-tertiary-button-hover-color',
-        background: '--relay-colors-tertiary-button-hover-background'
       }
     },
     white: {

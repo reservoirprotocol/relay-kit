@@ -146,6 +146,7 @@ export const UnverifiedTokenModal: FC<UnverifiedTokenModalProps> = ({
               Cancel
             </Button>
             <Button
+              cta={true}
               onClick={() => {
                 if (data?.token) {
                   const tokenIdentifier = `${data?.token.chainId}:${data?.token.address}`

@@ -246,6 +246,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         <Button
+          cta={true}
           color={'secondary'}
           onClick={() => {
             onOpenChange(false)
@@ -260,6 +261,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         {delayedTxUrl ? (
           <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
             <Button
+              cta={true}
               color={'primary'}
               css={{
                 justifyContent: 'center',
@@ -430,6 +432,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           >
             <Button
               color="secondary"
+              cta={true}
               css={{
                 justifyContent: 'center',
                 width: 'max-content'
@@ -440,6 +443,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           </a>
         ) : null}
         <Button
+          cta={true}
           onClick={() => {
             onOpenChange(false)
           }}

@@ -9,10 +9,12 @@ interface Button {
 
 export interface RelayKitTheme {
   font?: string
+  fontHeading?: string
   primaryColor?: string
   focusColor?: string
   subtleBackgroundColor?: string
   subtleBorderColor?: string
+  loader?: 'relay' | 'spinner'
   text?: {
     default?: string
     subtle?: string
@@ -22,7 +24,6 @@ export interface RelayKitTheme {
   buttons?: {
     primary?: Button
     secondary?: Button
-    tertiary?: Button
     disabled?: {
       color?: string
       background?: string
@@ -76,11 +77,13 @@ export interface RelayKitTheme {
 }
 
 export const defaultTheme: RelayKitTheme = {
-  font: 'Inter, -apple-system, Helvetica, sans-serif',
+  font: 'Barlow, -apple-system, Helvetica, sans-serif',
+  fontHeading: 'Chivo, -apple-system, Helvetica, sans-serif',
   primaryColor: 'primary9',
   focusColor: 'primary7',
   subtleBackgroundColor: 'gray1',
   subtleBorderColor: 'gray5',
+  loader: 'relay',
   text: {
     default: 'gray12',
     subtle: 'gray11',
@@ -101,14 +104,6 @@ export const defaultTheme: RelayKitTheme = {
       color: 'primary11',
       hover: {
         background: 'primary4',
-        color: 'primary11'
-      }
-    },
-    tertiary: {
-      background: 'gray1',
-      color: 'primary11',
-      hover: {
-        background: 'primary2',
         color: 'primary11'
       }
     },

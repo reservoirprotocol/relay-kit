@@ -141,8 +141,8 @@ export const CustomAddressModal: FC<Props> = ({
                 !toChain
                   ? 'Enter address'
                   : toChain.vmType === 'evm'
-                  ? 'Address or ENS'
-                  : `Enter ${toChain.displayName} address`
+                    ? 'Address or ENS'
+                    : `Enter ${toChain.displayName} address`
               }
               value={input}
               onChange={(e) => {
@@ -249,6 +249,7 @@ export const CustomAddressModal: FC<Props> = ({
           ) : null}
         </Flex>
         <Button
+          cta={true}
           disabled={!isValidAddress(toChain?.vmType, address, toChain?.id)}
           css={{ justifyContent: 'center' }}
           onClick={() => {
