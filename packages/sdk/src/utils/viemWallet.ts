@@ -242,6 +242,19 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     isEOA: async (chainId) => {
       if (!wallet.account) return false
       try {
+        const capabilities = await wallet.getCapabilities({
+          account: wallet.account,
+          chainId
+        })
+
+        if (
+          capabilities &&
+          typeof capabilities === 'object' &&
+          Object.keys(capabilities).length > 0
+        ) {
+          return false
+        }
+
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
