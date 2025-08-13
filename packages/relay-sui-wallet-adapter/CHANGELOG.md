@@ -1,5 +1,16 @@
 # @reservoir0x/relay-sui-wallet-adapter
 
+## 6.0.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
+### Patch Changes
+
+- Updated dependencies [6400542]
+  - @reservoir0x/relay-sdk@2.4.0
+
 ## 5.0.2
 
 ### Patch Changes

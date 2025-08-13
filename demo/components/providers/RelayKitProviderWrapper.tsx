@@ -1,8 +1,14 @@
-import { LogLevel, RelayChain } from '@reservoir0x/relay-sdk'
+import {
+  createClient,
+  LogLevel,
+  MAINNET_RELAY_WS,
+  RelayChain
+} from '@reservoir0x/relay-sdk'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useTheme } from 'next-themes'
-import { FC, ReactNode } from 'react'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
+import { useRouter } from 'next/router'
+import { FC, ReactNode, useEffect, useState } from 'react'
 
 export const RelayKitProviderWrapper: FC<{
   relayApi?: string
@@ -10,6 +16,17 @@ export const RelayKitProviderWrapper: FC<{
   children: ReactNode
 }> = ({ relayApi, dynamicChains, children }) => {
   const { theme } = useTheme()
+  const router = useRouter()
+  const [websocketsEnabled, setWebsocketsEnabled] = useState(false)
+
+  // Handle websocket configuration from query params
+  useEffect(() => {
+    const websocketParam = router.query.websockets as string
+    if (websocketParam !== undefined) {
+      setWebsocketsEnabled(websocketParam === 'true')
+    }
+  }, [router.query.websockets])
+
   return (
     <RelayKitProvider
       options={{
@@ -36,6 +53,10 @@ export const RelayKitProviderWrapper: FC<{
               style={{ width: options?.width, height: options?.height }}
             />
           )
+        },
+        websocket: {
+          enabled: websocketsEnabled,
+          url: MAINNET_RELAY_WS
         }
       }}
     >

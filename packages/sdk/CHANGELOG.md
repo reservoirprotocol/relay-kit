@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.4.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
 ## 2.3.2
 
 ### Patch Changes
