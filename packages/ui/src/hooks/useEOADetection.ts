@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
 
 /**
@@ -12,27 +12,31 @@ const useEOADetection = (
 ): boolean | undefined => {
   const [explicitDeposit, setExplicitDeposit] = useState<boolean | undefined>(undefined)
 
+  const shouldDetect = useMemo(() => {
+    return !!(
+      wallet?.isEOA &&
+      protocolVersion === 'preferV2' &&
+      chainId
+    )
+  }, [wallet?.isEOA, protocolVersion, chainId])
+
   useEffect(() => {
+    if (!shouldDetect) {
+      setExplicitDeposit(undefined)
+      return
+    }
+
     const detectEOA = async () => {
-      if (
-        wallet?.isEOA &&
-        protocolVersion === 'preferV2' &&
-        chainId
-      ) {
-        try {
-          const isEOA = await wallet.isEOA(chainId)
-          const explicitDepositValue = !isEOA
-          setExplicitDeposit(explicitDepositValue)
-        } catch (error) {
-          setExplicitDeposit(undefined)
-        }
-      } else {
+      try {
+        const isEOA = await wallet!.isEOA!(chainId!)
+        setExplicitDeposit(!isEOA)
+      } catch (error) {
         setExplicitDeposit(undefined)
       }
     }
     
     detectEOA()
-  }, [wallet, protocolVersion, chainId])
+  }, [wallet, chainId, shouldDetect])
 
   return explicitDeposit
 }
