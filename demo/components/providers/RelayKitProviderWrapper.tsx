@@ -2,6 +2,7 @@ import { LogLevel, RelayChain } from '@reservoir0x/relay-sdk'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useTheme } from 'next-themes'
 import { FC, ReactNode } from 'react'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 
 export const RelayKitProviderWrapper: FC<{
   relayApi?: string
@@ -25,7 +26,17 @@ export const RelayKitProviderWrapper: FC<{
         useGasFeeEstimations: true,
         pollingInterval: 1000,
         confirmationPollingInterval: 1000,
-        themeScheme: theme === 'dark' ? 'dark' : 'light'
+        themeScheme: theme === 'dark' ? 'dark' : 'light',
+        loader: (options) => {
+          return (
+            <DotLottieReact
+              src="/relay-loader.lottie"
+              loop
+              autoplay
+              style={{ width: options?.width, height: options?.height }}
+            />
+          )
+        }
       }}
     >
       {children}

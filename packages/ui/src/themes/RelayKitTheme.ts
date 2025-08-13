@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react'
+
 interface Button {
   color?: string
   background?: string
@@ -14,7 +16,6 @@ export interface RelayKitTheme {
   focusColor?: string
   subtleBackgroundColor?: string
   subtleBorderColor?: string
-  loader?: 'relay' | 'spinner'
   text?: {
     default?: string
     subtle?: string
@@ -83,7 +84,6 @@ export const defaultTheme: RelayKitTheme = {
   focusColor: 'primary7',
   subtleBackgroundColor: 'gray1',
   subtleBorderColor: 'gray5',
-  loader: 'relay',
   text: {
     default: 'gray12',
     subtle: 'gray11',
