@@ -6,7 +6,6 @@ import {
 } from '@reservoir0x/relay-sdk'
 import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
 import { useTheme } from 'next-themes'
-import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { useRouter } from 'next/router'
 import { FC, ReactNode, useEffect, useState } from 'react'
 
@@ -44,16 +43,6 @@ export const RelayKitProviderWrapper: FC<{
         pollingInterval: 1000,
         confirmationPollingInterval: 1000,
         themeScheme: theme === 'dark' ? 'dark' : 'light',
-        loader: (options) => {
-          return (
-            <DotLottieReact
-              src="/relay-loader.lottie"
-              loop
-              autoplay
-              style={{ width: options?.width, height: options?.height }}
-            />
-          )
-        },
         websocket: {
           enabled: websocketsEnabled,
           url: MAINNET_RELAY_WS
