@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20250813132716
+
+### Minor Changes
+
+- ef840d0: Update theme to better match Relay brand
+
 ## 2.4.0
 
 ### Minor Changes

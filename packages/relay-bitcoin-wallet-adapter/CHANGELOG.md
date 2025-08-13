@@ -1,5 +1,12 @@
 # @reservoir0x/relay-bitcoin-wallet-adapter
 
+## 0.0.0-canary-20250813132716
+
+### Patch Changes
+
+- Updated dependencies [ef840d0]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+
 ## 10.0.0
 
 ### Minor Changes
