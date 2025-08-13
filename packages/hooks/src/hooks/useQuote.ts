@@ -28,7 +28,7 @@ type QueryType = typeof useQuery<
   QuoteResponse,
   QueryKey
 >
-type QueryOptions = Parameters<QueryType>['0']
+export type QueryOptions = Parameters<QueryType>['0']
 
 export const queryQuote = function (
   baseApiUrl: string = MAINNET_RELAY_API,
