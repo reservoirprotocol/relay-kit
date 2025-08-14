@@ -1,5 +1,13 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 0.0.0-canary-20250814020954
+
+### Patch Changes
+
+- 1d46491: Rebuild canary build
+- Updated dependencies [1d46491]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250814020954
+
 ## 0.0.0-canary-20250813132716
 
 ### Patch Changes

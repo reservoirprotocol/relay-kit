@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 0.0.0-canary-20250814020954
+
+### Patch Changes
+
+- 1d46491: Rebuild canary build
+- Updated dependencies [1d46491]
+  - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250814020954
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250814020954
+
 ## 0.0.0-canary-20250813132716
 
 ### Minor Changes
