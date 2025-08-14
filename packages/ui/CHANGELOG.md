@@ -1,5 +1,17 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.17.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
+### Patch Changes
+
+- Updated dependencies [6400542]
+  - @reservoir0x/relay-kit-hooks@1.12.0
+  - @reservoir0x/relay-sdk@2.4.0
+
 ## 2.16.2
 
 ### Patch Changes

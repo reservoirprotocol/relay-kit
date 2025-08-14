@@ -1,5 +1,16 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 11.0.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
+### Patch Changes
+
+- Updated dependencies [6400542]
+  - @reservoir0x/relay-sdk@2.4.0
+
 ## 10.0.3
 
 ### Patch Changes
