@@ -44,7 +44,7 @@ const useEOADetection = (
     }
 
     detectEOA()
-  }, [wallet, chainId, shouldDetect])
+  }, [wallet?.address, chainId, shouldDetect])
 
   return explicitDeposit
 }

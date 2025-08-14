@@ -588,7 +588,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
   )
 
   const quoteParameters: Parameters<typeof useQuote>['2'] =
-    fromToken && toToken
+    fromToken && toToken && (quoteProtocol !== 'preferV2' || explicitDeposit !== undefined)
       ? {
           user: fromAddressWithFallback,
           originChainId: fromToken.chainId,
