@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.17.1
+
+### Patch Changes
+
+- a50bea6: Disable protocol v2 on solana
+
 ## 2.17.0
 
 ### Minor Changes
