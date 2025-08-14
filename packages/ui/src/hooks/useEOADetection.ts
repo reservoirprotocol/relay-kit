@@ -10,14 +10,19 @@ const useEOADetection = (
   protocolVersion?: string,
   chainId?: number
 ): boolean | undefined => {
-  const [explicitDeposit, setExplicitDeposit] = useState<boolean | undefined>(undefined)
+  const [explicitDeposit, setExplicitDeposit] = useState<boolean | undefined>(
+    undefined
+  )
 
   const shouldDetect = useMemo(() => {
-    return !!(
-      wallet?.isEOA &&
-      protocolVersion === 'preferV2' &&
-      chainId
-    )
+    const result = !!(wallet?.isEOA && protocolVersion === 'preferV2' && chainId)
+    console.log('EOA Detection shouldDetect:', { 
+      hasWalletIsEOA: !!wallet?.isEOA, 
+      protocolVersion, 
+      chainId, 
+      shouldDetect: result 
+    })
+    return result
   }, [wallet?.isEOA, protocolVersion, chainId])
 
   useEffect(() => {
@@ -29,12 +34,15 @@ const useEOADetection = (
     const detectEOA = async () => {
       try {
         const isEOA = await wallet!.isEOA!(chainId!)
+        console.log('EOA Detection Result:', { isEOA, explicitDeposit: !isEOA })
+        // George's correction: EOA = false, Smart wallet = true
         setExplicitDeposit(!isEOA)
       } catch (error) {
+        console.error('EOA Detection Error:', error)
         setExplicitDeposit(undefined)
       }
     }
-    
+
     detectEOA()
   }, [wallet, chainId, shouldDetect])
 
