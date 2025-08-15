@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.17.2
+
+### Patch Changes
+
+- 8a8d560: Reenable solana for protocolv2
+
 ## 2.17.1
 
 ### Patch Changes
