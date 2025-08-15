@@ -240,11 +240,25 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       return id
     },
     isEOA: async (chainId) => {
-      if (!wallet.account) return false
+      if (!wallet.account) {
+        console.log('EOA Detection: No wallet account')
+        return false
+      }
+      
+      const walletAddress = wallet.account.address
+      console.log('EOA Detection Starting:', { walletAddress, chainId })
+      
       try {
+        // Step 1: Check smart wallet capabilities
+        console.log('EOA Detection: Checking wallet capabilities...')
         const capabilities = await wallet.getCapabilities({
           account: wallet.account,
           chainId
+        })
+        
+        console.log('EOA Detection: Capabilities result:', { 
+          capabilities, 
+          hasCapabilities: !!(capabilities && typeof capabilities === 'object' && Object.keys(capabilities).length > 0)
         })
 
         if (
@@ -252,9 +266,12 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           typeof capabilities === 'object' &&
           Object.keys(capabilities).length > 0
         ) {
+          console.log('EOA Detection: Wallet has capabilities -> Smart Wallet')
           return false
         }
 
+        // Step 2: Check if code is deployed (includes EIP-7702 delegation check)
+        console.log('EOA Detection: Checking deployed code...')
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
@@ -274,10 +291,30 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           address: wallet.account.address
         })
 
+        console.log('EOA Detection: Code check result:', { 
+          code, 
+          codeLength: code?.length,
+          isEOA: code === '0x'
+        })
+
         // EOA has no code (returns '0x'), smart contracts have bytecode
         // EIP-7702 delegated accounts also have code and should be treated as smart wallets
-        return code === '0x'
-      } catch {
+        const isEOA = code === '0x'
+        console.log('EOA Detection Final Result:', { 
+          walletAddress, 
+          chainId, 
+          isEOA,
+          reason: isEOA ? 'No code deployed' : 'Code deployed (contract or delegated)'
+        })
+        
+        return isEOA
+      } catch (error) {
+        console.error('EOA Detection Error:', { 
+          walletAddress, 
+          chainId, 
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        })
         // If we can't determine, assume it's not an EOA
         return false
       }
