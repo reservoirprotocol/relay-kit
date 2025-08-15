@@ -17,7 +17,7 @@ import {
 import { truncateAddress } from '../../../../../utils/truncate.js'
 import type { Token } from '../../../../../types/index.js'
 import { OnrampProcessingStep } from '../OnrampModal.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import { LoadingSpinner } from '../../../../common/LoadingSpinner.js'
 
 type OnrampProcessingStepUIProps = {

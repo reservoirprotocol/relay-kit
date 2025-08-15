@@ -1,4 +1,4 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, RelayChain } from '@relayprotocol/relay-sdk'
 import type { Token } from '../types/index.js'
 
 export type FormattedStep = {

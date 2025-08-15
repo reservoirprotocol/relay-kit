@@ -1,4 +1,4 @@
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 
 export type BridgeFee = {
   raw: bigint

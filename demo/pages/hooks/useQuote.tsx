@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 
-import { useQuote } from '@reservoir0x/relay-kit-hooks'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useQuote } from '@relayprotocol/relay-kit-hooks'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { useWalletClient } from 'wagmi'
 import { useState } from 'react'
 import { zeroAddress } from 'viem'

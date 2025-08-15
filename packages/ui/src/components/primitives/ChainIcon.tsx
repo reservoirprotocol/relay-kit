@@ -1,7 +1,7 @@
 import { useContext, type FC } from 'react'
 import { Flex } from './index.js'
 import useRelayClient from '../../hooks/useRelayClient.js'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
+import type { Styles } from '@relayprotocol/relay-design-system/css'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 type Props = {

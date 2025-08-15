@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react'
 import type { FC, ReactNode } from 'react'
-import { createClient } from '@reservoir0x/relay-sdk'
-import type { RelayClientOptions, RelayClient } from '@reservoir0x/relay-sdk'
+import { createClient } from '@relayprotocol/relay-sdk'
+import type { RelayClientOptions, RelayClient } from '@relayprotocol/relay-sdk'
 import { UI_VERSION } from '../version.js'
 
 export interface RelayClientProviderProps {

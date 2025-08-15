@@ -2,7 +2,7 @@ import {
   getDeadAddress,
   type ChainVM,
   type RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { isAddress } from 'viem'
 import { isBitcoinAddress } from '../utils/bitcoin.js'
 import {

@@ -2,7 +2,7 @@ import { useState, type FC, type ReactNode } from 'react'
 import { Box, Button, Flex, Text } from '../primitives/index.js'
 import { Dropdown, DropdownMenuItem } from '../primitives/Dropdown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ASSETS_RELAY_API, type RelayChain } from '@reservoir0x/relay-sdk'
+import { ASSETS_RELAY_API, type RelayChain } from '@relayprotocol/relay-sdk'
 import { faChevronRight, faRoute } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {

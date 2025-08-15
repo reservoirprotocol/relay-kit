@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
-import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
 
-import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { useRelayChains } from '@relayprotocol/relay-kit-hooks'
 
 const UseRelayChainsPage: NextPage = () => {
   const { data: response } = useRelayChains(MAINNET_RELAY_API)

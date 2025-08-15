@@ -1,4 +1,4 @@
-import { type Execute, RelayClient } from '@reservoir0x/relay-sdk'
+import { type Execute, RelayClient } from '@relayprotocol/relay-sdk'
 import { type RelayTransaction } from '../types/index.js'
 import { relativeTime } from './time.js'
 

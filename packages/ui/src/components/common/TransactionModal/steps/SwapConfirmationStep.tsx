@@ -10,7 +10,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type Token } from '../../../../types/index.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight'
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, RelayChain } from '@relayprotocol/relay-sdk'
 import useRelayClient from '../../../../hooks/useRelayClient.js'
 import { faCheck, faExternalLink } from '@fortawesome/free-solid-svg-icons'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'

@@ -1,6 +1,6 @@
 import type { RelayTransaction } from './RelayTransaction.js'
 import type { BridgeFee } from './BridgeFee.js'
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import type { ChainVM } from '@relayprotocol/relay-sdk'
 import type { FiatCurrency } from './Fiat.js'
 
 type Token = {

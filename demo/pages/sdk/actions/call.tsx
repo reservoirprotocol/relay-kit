@@ -2,7 +2,7 @@ import { NextPage } from 'next'
 import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { zeroAddress } from 'viem'
 import { ConnectButton } from 'components/ConnectButton'
 

@@ -13,7 +13,7 @@ import {
   getClient,
   type AdaptedWallet,
   type TransactionStepItem
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 
 /**
  * Adapts a Solana wallet to work with the Relay SDK

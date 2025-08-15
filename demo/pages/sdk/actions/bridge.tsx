@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
 import { base, zora } from 'viem/chains'
 import { Address, zeroAddress } from 'viem'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { ConnectButton } from 'components/ConnectButton'
 
 const BridgeActionPage: NextPage = () => {

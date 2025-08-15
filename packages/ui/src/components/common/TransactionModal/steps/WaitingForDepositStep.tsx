@@ -12,7 +12,7 @@ import {
 import { LoadingSpinner } from '../../LoadingSpinner.js'
 import { truncateAddress } from '../../../../utils/truncate.js'
 import { type Token } from '../../../../types/index.js'
-import { getDeadAddress, type RelayChain } from '@reservoir0x/relay-sdk'
+import { getDeadAddress, type RelayChain } from '@relayprotocol/relay-sdk'
 import { CopyToClipBoard } from '../../CopyToClipBoard.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faQrcode } from '@fortawesome/free-solid-svg-icons'

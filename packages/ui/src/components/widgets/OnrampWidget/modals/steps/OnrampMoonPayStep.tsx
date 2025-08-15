@@ -7,7 +7,7 @@ import {
 } from '../../../../primitives/index.js'
 import type { FiatCurrency, Token } from '../../../../../types/index.js'
 import { OnrampProcessingStep, OnrampStep } from '../OnrampModal.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import { EventNames } from '../../../../../constants/events.js'
 import { arbitrum } from 'viem/chains'
 import { useMoonPayTransaction } from '../../../../../hooks/index.js'
