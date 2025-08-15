@@ -19,6 +19,7 @@ const useEOADetection = (
     console.log('EOA Detection shouldDetect:', { 
       hasWalletIsEOA: !!wallet?.isEOA, 
       protocolVersion, 
+      protocolVersionCheck: protocolVersion === 'preferV2',
       chainId, 
       shouldDetect: result 
     })
