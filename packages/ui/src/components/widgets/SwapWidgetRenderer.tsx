@@ -693,7 +693,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     onQuoteReceived,
     {
       refetchOnWindowFocus: false,
-      enabled: quoteFetchingEnabled,
+      enabled: quoteFetchingEnabled && quoteParameters !== undefined,
       refetchInterval:
         !transactionModalOpen &&
         !depositAddressModalOpen &&
