@@ -1,7 +1,7 @@
 {
-    "name": "@reservoir0x/relay-svm-wallet-adapter",
+    "name": "@relayprotocol/relay-svm-wallet-adapter",
     "version": "0.0.0-canary-20250814020954",
-    "description": "An SVM (Solana Virtual Machine) adapter for use in @reservoir0x/relay-sdk",
+    "description": "An SVM (Solana Virtual Machine) adapter for use in @relayprotocol/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
     "main": "./_cjs/src/index.js",
@@ -58,7 +58,7 @@
         "axios": "^1.6.5"
     },
     "peerDependencies": {
-        "@reservoir0x/relay-sdk": "workspace:*",
+        "@relayprotocol/relay-sdk": "workspace:*",
         "@solana/web3.js": "~1.98.2",
         "viem": ">=2.26.0"
     }

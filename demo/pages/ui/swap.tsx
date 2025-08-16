@@ -1,5 +1,8 @@
 import { NextPage, GetServerSideProps } from 'next'
-import { SlippageToleranceConfig, SwapWidget } from '@reservoir0x/relay-kit-ui'
+import {
+  SlippageToleranceConfig,
+  SwapWidget
+} from '@relayprotocol/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import {
@@ -13,22 +16,22 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
+import { adaptSolanaWallet } from '@relayprotocol/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
   ChainVM,
   RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
-import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
-import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
+import { LinkedWallet } from '@relayprotocol/relay-kit-ui'
+import { adaptBitcoinWallet } from '@relayprotocol/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
-import { type Token } from '@reservoir0x/relay-kit-ui'
+import { type Token } from '@relayprotocol/relay-kit-ui'
 import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
-import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
+import { adaptSuiWallet } from '@relayprotocol/relay-sui-wallet-adapter'
 import Head from 'next/head'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const

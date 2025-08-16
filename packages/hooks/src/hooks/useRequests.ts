@@ -2,7 +2,7 @@ import {
   MAINNET_RELAY_API,
   type paths,
   setParams
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { useMemo } from 'react'
 import {
   useInfiniteQuery,

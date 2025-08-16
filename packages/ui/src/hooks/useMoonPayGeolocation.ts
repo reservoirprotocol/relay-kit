@@ -3,7 +3,7 @@ import {
   type DefaultError,
   type QueryKey
 } from '@tanstack/react-query'
-import { setParams } from '@reservoir0x/relay-sdk'
+import { setParams } from '@relayprotocol/relay-sdk'
 
 export type MoonPayGeolocationResponse = {
   alpha2: string

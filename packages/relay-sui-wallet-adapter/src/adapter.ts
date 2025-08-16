@@ -1,4 +1,8 @@
-import { type AdaptedWallet, LogLevel, getClient } from '@reservoir0x/relay-sdk'
+import {
+  type AdaptedWallet,
+  LogLevel,
+  getClient
+} from '@relayprotocol/relay-sdk'
 import { SuiClient } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions'
 

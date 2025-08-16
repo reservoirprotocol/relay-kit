@@ -1,5 +1,5 @@
-import { type Execute } from '@reservoir0x/relay-sdk'
-import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
+import { type Execute } from '@relayprotocol/relay-sdk'
+import { isDeadAddress, tronDeadAddress } from '@relayprotocol/relay-sdk'
 import { type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,8 +7,8 @@ import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclama
 import { type Currency } from '../../constants/currencies.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
-import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
+import type { Styles } from '@relayprotocol/relay-design-system/css'
+import type { QuoteResponse } from '@relayprotocol/relay-kit-hooks'
 import type { LinkedWallet } from '../../types/index.js'
 
 type Props = {

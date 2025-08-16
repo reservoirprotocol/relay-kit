@@ -11,8 +11,8 @@ import {
   faCircleXmark,
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons/index.js'
-import type { useRequests } from '@reservoir0x/relay-kit-hooks'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { useRequests } from '@relayprotocol/relay-kit-hooks'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import { getTxBlockExplorerUrl } from '../../../../utils/getTxBlockExplorerUrl.js'
 import { JSONToError } from '../../../../utils/errors.js'
 import { TransactionsByChain } from './TransactionsByChain.js'

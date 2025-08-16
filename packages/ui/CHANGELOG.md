@@ -20,6 +20,17 @@
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
   - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250813132716
+## 2.17.2
+
+### Patch Changes
+
+- 8a8d560: Reenable solana for protocolv2
+
+## 2.17.1
+
+### Patch Changes
+
+- a50bea6: Disable protocol v2 on solana
 
 ## 2.17.0
 

@@ -381,9 +381,9 @@ export default defineConfig({
   // The output directory for your css system
   outdir: '../design-system',
   importMap: {
-    css: '@reservoir0x/relay-design-system/css',
-    recipes: '@reservoir0x/relay-design-system/recipes',
-    patterns: '@reservoir0x/relay-design-system/patterns',
-    jsx: '@reservoir0x/relay-design-system/jsx'
+    css: '@relayprotocol/relay-design-system/css',
+    recipes: '@relayprotocol/relay-design-system/recipes',
+    patterns: '@relayprotocol/relay-design-system/patterns',
+    jsx: '@relayprotocol/relay-design-system/jsx'
   }
 })

@@ -3,7 +3,7 @@ import {
   cva,
   css as designCss,
   type Styles
-} from '@reservoir0x/relay-design-system/css'
+} from '@relayprotocol/relay-design-system/css'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 
 const SpinnerSVG: FC<SVGProps<SVGSVGElement>> = (props) => {

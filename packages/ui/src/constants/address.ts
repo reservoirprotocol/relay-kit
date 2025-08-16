@@ -1,4 +1,4 @@
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import type { ChainVM } from '@relayprotocol/relay-sdk'
 
 export const evmDeadAddress =
   '0x000000000000000000000000000000000000dead' as const

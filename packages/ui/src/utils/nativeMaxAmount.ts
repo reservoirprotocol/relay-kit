@@ -8,9 +8,9 @@ import {
   ECLIPSE_DEFAULT_FEE_WEI,
   EVM_DEFAULT_FEE_WEI
 } from '../constants/maxGasBuffer.js'
-import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
-import { queryRequests } from '@reservoir0x/relay-kit-hooks'
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
+import { queryRequests } from '@relayprotocol/relay-kit-hooks'
+import type { ChainVM } from '@relayprotocol/relay-sdk'
 import { getCacheEntry, setCacheEntry } from './localStorage.js'
 
 // Refs to store ongoing fetch promises

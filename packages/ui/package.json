@@ -1,5 +1,5 @@
 {
-  "name": "@reservoir0x/relay-kit-ui",
+  "name": "@relayprotocol/relay-kit-ui",
   "version": "0.0.0-canary-20250814020954",
   "type": "module",
   "main": "./_cjs/src/index.js",
@@ -86,8 +86,8 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@radix-ui/react-visually-hidden": "^1.1.2",
     "@reservoir0x/relay-design-system": "workspace:^",
-    "@reservoir0x/relay-kit-hooks": "workspace:*",
-    "@reservoir0x/relay-sdk": "workspace:*",
+    "@relayprotocol/relay-kit-hooks": "workspace:*",
+    "@relayprotocol/relay-sdk": "workspace:*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "axios": "^1.7.2",

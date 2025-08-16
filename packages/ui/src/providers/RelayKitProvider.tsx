@@ -1,7 +1,7 @@
 import { createContext, useMemo } from 'react'
 import type { FC, ReactElement, ReactNode } from 'react'
 import { RelayClientProvider } from './RelayClientProvider.js'
-import type { RelayClientOptions, paths } from '@reservoir0x/relay-sdk'
+import type { RelayClientOptions, paths } from '@relayprotocol/relay-sdk'
 import type { RelayKitTheme } from '../themes/index.js'
 import { generateCssVars } from '../utils/theme.js'
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@relayprotocol/relay-sdk'
 import type { Address } from 'viem'
 
 type UseAdaptedWalletBalanceProps = {

@@ -13,7 +13,7 @@ import {
   faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 import { AnchorButton } from '../primitives/Anchor.js'
-import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@relayprotocol/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { isValidAddress } from '../../utils/address.js'

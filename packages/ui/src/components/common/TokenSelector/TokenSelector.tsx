@@ -19,7 +19,7 @@ import useRelayClient from '../../../hooks/useRelayClient.js'
 import { isAddress, type Address } from 'viem'
 import { useDebounceState, useDuneBalances } from '../../../hooks/index.js'
 import { useMediaQuery } from 'usehooks-ts'
-import { useTokenList } from '@reservoir0x/relay-kit-hooks'
+import { useTokenList } from '@relayprotocol/relay-kit-hooks'
 import { EventNames } from '../../../constants/events.js'
 import { UnverifiedTokenModal } from '../UnverifiedTokenModal.js'
 import { useEnhancedTokensList } from '../../../hooks/useEnhancedTokensList.js'
@@ -45,13 +45,13 @@ import {
   evmDeadAddress,
   solDeadAddress,
   type ChainVM
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import {
   getInitialChainFilter,
   sortChains
 } from '../../../utils/tokenSelector.js'
 import { useInternalRelayChains } from '../../../hooks/index.js'
-import { useTrendingCurrencies } from '@reservoir0x/relay-kit-hooks'
+import { useTrendingCurrencies } from '@relayprotocol/relay-kit-hooks'
 
 export type TokenSelectorProps = {
   token?: Token

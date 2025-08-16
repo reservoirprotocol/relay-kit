@@ -13,7 +13,7 @@ import {
   type AdaptedWallet,
   type Execute,
   type RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import {
   calculateFillTime,
   extractDepositRequestId
@@ -23,7 +23,7 @@ import {
   useQuote,
   useRequests,
   useExecutionStatus
-} from '@reservoir0x/relay-kit-hooks'
+} from '@relayprotocol/relay-kit-hooks'
 import { useRelayClient } from '../../../hooks/index.js'
 import { EventNames } from '../../../constants/events.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
@@ -33,7 +33,7 @@ import {
   extractDepositAddress,
   extractQuoteId
 } from '../../../utils/quote.js'
-import { getDeadAddress } from '@reservoir0x/relay-sdk'
+import { getDeadAddress } from '@relayprotocol/relay-sdk'
 import { useQueryClient } from '@tanstack/react-query'
 import { bitcoin } from '../../../utils/bitcoin.js'
 import { errorToJSON } from '../../../utils/errors.js'

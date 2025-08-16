@@ -1,5 +1,5 @@
 {
-  "name": "@reservoir0x/relay-kit-hooks",
+  "name": "@relayprotocol/relay-kit-hooks",
   "version": "0.0.0-canary-20250814020954",
   "type": "module",
   "main": "./_cjs/src/index.js",
@@ -49,7 +49,7 @@
     "@tanstack/react-query": ">=5.0.0"
   },
   "dependencies": {
-    "@reservoir0x/relay-sdk": "workspace:*",
+    "@relayprotocol/relay-sdk": "workspace:*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "axios": "^1.7.2"
