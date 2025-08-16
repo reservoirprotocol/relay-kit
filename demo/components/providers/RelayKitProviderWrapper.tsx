@@ -3,8 +3,8 @@ import {
   LogLevel,
   MAINNET_RELAY_WS,
   RelayChain
-} from '@reservoir0x/relay-sdk'
-import { RelayKitProvider } from '@reservoir0x/relay-kit-ui'
+} from '@relayprotocol/relay-sdk'
+import { RelayKitProvider } from '@relayprotocol/relay-kit-ui'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/router'
 import { FC, ReactNode, useEffect, useState } from 'react'

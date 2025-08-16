@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 import { useState } from 'react'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 
 const GetAppFeesPage: NextPage = () => {
   const [wallet, setWallet] = useState('')

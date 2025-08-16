@@ -1,5 +1,9 @@
 import { type TypedDataSigner } from '@ethersproject/abstract-signer/lib/index.js'
-import { LogLevel, getClient, type AdaptedWallet } from '@reservoir0x/relay-sdk'
+import {
+  LogLevel,
+  getClient,
+  type AdaptedWallet
+} from '@relayprotocol/relay-sdk'
 import { Signer } from 'ethers/lib/ethers.js'
 import { arrayify, hexValue } from 'ethers/lib/utils.js'
 import {

@@ -2,8 +2,8 @@ import { NextPage } from 'next'
 import { Layout } from '../../components/Layout'
 import { useTheme } from 'next-themes'
 import { useMemo, useRef, useState } from 'react'
-import { LinkedWallet, Token } from '@reservoir0x/relay-kit-ui'
-import { OnrampWidget } from '@reservoir0x/relay-kit-ui/OnrampWidget'
+import { LinkedWallet, Token } from '@relayprotocol/relay-kit-ui'
+import { OnrampWidget } from '@relayprotocol/relay-kit-ui/OnrampWidget'
 
 import {
   useDynamicContext,
@@ -14,7 +14,7 @@ import {
 } from '@dynamic-labs/sdk-react-core'
 import { useWalletFilter } from 'context/walletFilter'
 import { convertToLinkedWallet } from 'utils/dynamic'
-import { RelayChain } from '@reservoir0x/relay-sdk'
+import { RelayChain } from '@relayprotocol/relay-sdk'
 import { zeroAddress } from 'viem'
 
 const OnrampPage: NextPage = () => {

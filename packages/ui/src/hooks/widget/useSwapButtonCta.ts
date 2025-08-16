@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { Token } from '../../types'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
-import type { useQuote } from '@reservoir0x/relay-kit-hooks'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
+import type { useQuote } from '@relayprotocol/relay-kit-hooks'
 
 export type UseSwapButtonCtaParams = {
   fromToken?: Token

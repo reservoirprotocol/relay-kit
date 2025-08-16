@@ -25,7 +25,7 @@ import { useAccount, useWalletClient } from 'wagmi'
 import { useCapabilities } from 'wagmi/experimental'
 import type { BridgeFee, Token } from '../../types/index.js'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ChainVM, Execute } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute } from '@relayprotocol/relay-sdk'
 import {
   calculatePriceTimeEstimate,
   calculateRelayerFeeProportionUsd,
@@ -36,19 +36,19 @@ import {
   isHighRelayerServiceFeeUsd,
   parseFees
 } from '../../utils/quote.js'
-import { useQuote, useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { useQuote, useTokenPrice } from '@relayprotocol/relay-kit-hooks'
 import { EventNames } from '../../constants/events.js'
 import { ProviderOptionsContext } from '../../providers/RelayKitProvider.js'
 import type { DebouncedState } from 'usehooks-ts'
 import type Text from '../../components/primitives/Text.js'
-import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet } from '@relayprotocol/relay-sdk'
 import type { LinkedWallet } from '../../types/index.js'
 import {
   addressWithFallback,
   isValidAddress,
   findSupportedWallet
 } from '../../utils/address.js'
-import { adaptViemWallet, getDeadAddress } from '@reservoir0x/relay-sdk'
+import { adaptViemWallet, getDeadAddress } from '@relayprotocol/relay-sdk'
 import { errorToJSON } from '../../utils/errors.js'
 import { useSwapButtonCta } from '../../hooks/widget/useSwapButtonCta.js'
 import { sha256 } from '../../utils/hashing.js'

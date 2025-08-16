@@ -1,10 +1,10 @@
 import { NextPage } from 'next'
-import { GetConfigResponse } from '@reservoir0x/relay-sdk'
+import { GetConfigResponse } from '@relayprotocol/relay-sdk'
 import { useState } from 'react'
 import { base, zora } from 'viem/chains'
 import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { ConnectButton } from 'components/ConnectButton'
 
 const GetSolverCapcityPage: NextPage = () => {

@@ -1,7 +1,7 @@
 import { type FC } from 'react'
 import { Flex, Text } from '../primitives/index.js'
 import { LoadingSpinner } from '../common/LoadingSpinner.js'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
+import type { Styles } from '@relayprotocol/relay-design-system/css'
 
 type Props = {
   isLoading: boolean
