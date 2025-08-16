@@ -1,10 +1,10 @@
 import { NextPage } from 'next'
 import { useState } from 'react'
-import { Execute } from '@reservoir0x/relay-sdk'
+import { Execute } from '@relayprotocol/relay-sdk'
 import { useWalletClient } from 'wagmi'
 import { base, baseGoerli, sepolia, zora } from 'viem/chains'
 import { Address, isAddress, zeroAddress } from 'viem'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { ConnectButton } from 'components/ConnectButton'
 
 const GetBridgeQuotePage: NextPage = () => {

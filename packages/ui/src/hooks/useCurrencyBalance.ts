@@ -8,7 +8,7 @@ import {
 import { useBalance, useReadContract } from 'wagmi'
 import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
-import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@relayprotocol/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import useSuiBalance from './useSuiBalance.js'

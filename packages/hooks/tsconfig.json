@@ -7,9 +7,9 @@
     "baseUrl": ".",
     "paths": {
       "~sdk/*": ["./src/*"],
-      "@reservoir0x/reservoir-sdk": ["./packages/sdk/src"],
-      "@reservoir0x/relay-kit-ui": ["./packages/ui/src"],
-      "@reservoir0x/relay-kit-hooks": ["./packages/ui/src"]
+      "@relayprotocol/relay-sdk": ["./packages/sdk/src"],
+      "@relayprotocol/relay-kit-ui": ["./packages/ui/src"],
+      "@relayprotocol/relay-kit-hooks": ["./packages/ui/src"]
     }
   },
   "watchOptions": {

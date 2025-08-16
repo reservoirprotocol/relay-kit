@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import { SwapWidget, Token } from '@reservoir0x/relay-kit-ui'
+import { SwapWidget, Token } from '@relayprotocol/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core'

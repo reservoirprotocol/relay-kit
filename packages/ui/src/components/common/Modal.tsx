@@ -9,7 +9,7 @@ import {
 import { Button } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark'
-import type { SystemStyleObject } from '@reservoir0x/relay-design-system/types'
+import type { SystemStyleObject } from '@relayprotocol/relay-design-system/types'
 import { AnimatePresence } from 'framer-motion'
 
 type ModalProps = {

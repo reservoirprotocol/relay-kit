@@ -1,4 +1,4 @@
-import type { Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { Execute, RelayChain } from '@relayprotocol/relay-sdk'
 import { type Address } from 'viem'
 import { type FC, useEffect } from 'react'
 import {

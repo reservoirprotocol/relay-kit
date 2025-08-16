@@ -1,7 +1,7 @@
-import type { CurrencyList } from '@reservoir0x/relay-kit-hooks'
+import type { CurrencyList } from '@relayprotocol/relay-kit-hooks'
 import type { Token } from '../types/index.js'
-import { ASSETS_RELAY_API } from '@reservoir0x/relay-sdk'
-import type { paths, RelayChain } from '@reservoir0x/relay-sdk'
+import { ASSETS_RELAY_API } from '@relayprotocol/relay-sdk'
+import type { paths, RelayChain } from '@relayprotocol/relay-sdk'
 
 type ApiCurrency = NonNullable<
   paths['/chains']['get']['responses']['200']['content']['application/json']['chains']

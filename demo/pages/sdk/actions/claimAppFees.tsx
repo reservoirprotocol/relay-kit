@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import { useState } from 'react'
 import { useWalletClient } from 'wagmi'
-import { useRelayClient } from '@reservoir0x/relay-kit-ui'
+import { useRelayClient } from '@relayprotocol/relay-kit-ui'
 import { ConnectButton } from 'components/ConnectButton'
 
 const ClaimAppFeesPage: NextPage = () => {

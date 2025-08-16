@@ -193,7 +193,7 @@ export function getClient() {
  * @returns A Relay Client. {@link RelayClient}
  *
  * @example
- * import { createClient, LogLevel, MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+ * import { createClient, LogLevel, MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
  *
  * const relayClient = createClient({
  *    baseApiUrl: MAINNET_RELAY_API,

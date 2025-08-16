@@ -1,4 +1,4 @@
-import type { paths } from '@reservoir0x/relay-sdk'
+import type { paths } from '@relayprotocol/relay-sdk'
 import Anchor from '../primitives/Anchor.js'
 
 type RefundReasonProps = {

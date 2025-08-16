@@ -2,7 +2,7 @@ import {
   MAINNET_RELAY_API,
   setParams,
   type paths
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import fetcher from '../fetcher.js'
 import {
   useQuery,

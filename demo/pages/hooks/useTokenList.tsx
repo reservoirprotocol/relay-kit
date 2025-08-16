@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
-import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
 
-import { useTokenList } from '@reservoir0x/relay-kit-hooks'
+import { useTokenList } from '@relayprotocol/relay-kit-hooks'
 import { useState } from 'react'
 
 const UseRequests: NextPage = () => {
