@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from 'react'
-import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet } from '@relayprotocol/relay-sdk'
 
 /**
  * Hook to detect if a wallet is an EOA and return the appropriate explicitDeposit flag
@@ -15,7 +15,11 @@ const useEOADetection = (
   )
 
   const shouldDetect = useMemo(() => {
-    const result = !!(wallet?.isEOA && protocolVersion === 'preferV2' && chainId)
+    const result = !!(
+      wallet?.isEOA &&
+      protocolVersion === 'preferV2' &&
+      chainId
+    )
     console.log('🎯 useEOADetection shouldDetect:', {
       hasWalletIsEOA: !!wallet?.isEOA,
       protocolVersion,
@@ -34,19 +38,21 @@ const useEOADetection = (
     }
 
     console.log('🎯 Starting EOA detection for explicitDeposit calculation...')
-    
+
     const detectEOA = async () => {
       try {
         const isEOA = await wallet!.isEOA!(chainId!)
         const explicitDepositValue = !isEOA
-        
+
         console.log('🎯 EOA Detection Hook Result:', {
           isEOA,
           explicitDepositValue,
           logic: 'explicitDeposit = !isEOA',
-          meaning: isEOA ? 'EOA -> explicitDeposit=false (single tx)' : 'Smart Wallet -> explicitDeposit=true (batched tx)'
+          meaning: isEOA
+            ? 'EOA -> explicitDeposit=false (single tx)'
+            : 'Smart Wallet -> explicitDeposit=true (batched tx)'
         })
-        
+
         // George's correction: EOA = false, Smart wallet = true
         setExplicitDeposit(explicitDepositValue)
       } catch (error) {
