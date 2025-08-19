@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.17.3
+
+### Patch Changes
+
+- b2d6c8c: Always show price impact regardless of input mode
+
 ## 2.17.2
 
 ### Patch Changes
