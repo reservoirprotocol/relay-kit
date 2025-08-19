@@ -272,7 +272,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         })
 
         // Step 2: Always check code deployment regardless of capabilities
-        console.log('🏗️ Checking deployed code...')
+        console.log('🏗️ Checking deployed code....')
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
