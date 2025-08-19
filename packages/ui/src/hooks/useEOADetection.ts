@@ -16,30 +16,41 @@ const useEOADetection = (
 
   const shouldDetect = useMemo(() => {
     const result = !!(wallet?.isEOA && protocolVersion === 'preferV2' && chainId)
-    console.log('EOA Detection shouldDetect:', { 
-      hasWalletIsEOA: !!wallet?.isEOA, 
-      protocolVersion, 
-      protocolVersionCheck: protocolVersion === 'preferV2',
-      chainId, 
-      shouldDetect: result 
+    console.log('🎯 useEOADetection shouldDetect:', {
+      hasWalletIsEOA: !!wallet?.isEOA,
+      protocolVersion,
+      isPreferV2: protocolVersion === 'preferV2',
+      chainId,
+      shouldDetect: result
     })
     return result
   }, [wallet?.isEOA, protocolVersion, chainId])
 
   useEffect(() => {
     if (!shouldDetect) {
+      console.log('🎯 EOA detection skipped - shouldDetect is false')
       setExplicitDeposit(undefined)
       return
     }
 
+    console.log('🎯 Starting EOA detection for explicitDeposit calculation...')
+    
     const detectEOA = async () => {
       try {
         const isEOA = await wallet!.isEOA!(chainId!)
-        console.log('EOA Detection Result:', { isEOA, explicitDeposit: !isEOA })
+        const explicitDepositValue = !isEOA
+        
+        console.log('🎯 EOA Detection Hook Result:', {
+          isEOA,
+          explicitDepositValue,
+          logic: 'explicitDeposit = !isEOA',
+          meaning: isEOA ? 'EOA -> explicitDeposit=false (single tx)' : 'Smart Wallet -> explicitDeposit=true (batched tx)'
+        })
+        
         // George's correction: EOA = false, Smart wallet = true
-        setExplicitDeposit(!isEOA)
+        setExplicitDeposit(explicitDepositValue)
       } catch (error) {
-        console.error('EOA Detection Error:', error)
+        console.error('🎯 EOA Detection Hook Error:', error)
         setExplicitDeposit(undefined)
       }
     }
