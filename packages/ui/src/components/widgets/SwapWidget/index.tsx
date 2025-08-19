@@ -1498,8 +1498,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               '$0.00'
                             )}
                           </Text>
-                          {!isUsdInputMode &&
-                          toToken &&
+                          {toToken &&
                           quote?.details?.currencyOut?.amountUsd &&
                           quote?.details?.currencyOut?.amountUsd !== '0' &&
                           !isFetchingQuote &&
