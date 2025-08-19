@@ -241,37 +241,38 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     },
     isEOA: async (chainId) => {
       if (!wallet.account) {
-        console.log('EOA Detection: No wallet account')
+        console.log('🔍 EOA Detection: No wallet account available')
         return false
       }
-      
+
       const walletAddress = wallet.account.address
-      console.log('EOA Detection Starting:', { walletAddress, chainId })
-      
+      console.log('🔍 EOA Detection Started:', {
+        address: walletAddress,
+        chainId
+      })
+
       try {
-        // Step 1: Check smart wallet capabilities
-        console.log('EOA Detection: Checking wallet capabilities...')
+        // Step 1: Check smart wallet capabilities first
+        console.log('📋 Checking capabilities...')
         const capabilities = await wallet.getCapabilities({
           account: wallet.account,
           chainId
         })
-        
-        console.log('EOA Detection: Capabilities result:', { 
-          capabilities, 
-          hasCapabilities: !!(capabilities && typeof capabilities === 'object' && Object.keys(capabilities).length > 0)
-        })
 
-        if (
+        const hasCapabilities = !!(
           capabilities &&
           typeof capabilities === 'object' &&
           Object.keys(capabilities).length > 0
-        ) {
-          console.log('EOA Detection: Wallet has capabilities -> Smart Wallet')
-          return false
-        }
+        )
 
-        // Step 2: Check if code is deployed (includes EIP-7702 delegation check)
-        console.log('EOA Detection: Checking deployed code...')
+        console.log('📋 Capabilities check:', {
+          capabilities,
+          hasCapabilities,
+          capabilityKeys: capabilities ? Object.keys(capabilities) : []
+        })
+
+        // Step 2: Always check code deployment regardless of capabilities
+        console.log('🏗️ Checking deployed code...')
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
@@ -291,31 +292,47 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           address: wallet.account.address
         })
 
-        console.log('EOA Detection: Code check result:', { 
-          code, 
-          codeLength: code?.length,
-          isEOA: code === '0x'
+        const hasCode = code !== '0x'
+        console.log('🏗️ Code check:', {
+          code: code && code.length > 10 ? `${code.slice(0, 10)}...` : code,
+          codeLength: code && code.length,
+          hasCode
         })
 
-        // EOA has no code (returns '0x'), smart contracts have bytecode
-        // EIP-7702 delegated accounts also have code and should be treated as smart wallets
-        const isEOA = code === '0x'
-        console.log('EOA Detection Final Result:', { 
-          walletAddress, 
-          chainId, 
+        // Final determination logic
+        let isEOA = false
+        let reason = ''
+
+        if (hasCapabilities) {
+          isEOA = false
+          reason = 'Has capabilities -> Smart Wallet'
+        } else if (hasCode) {
+          isEOA = false
+          reason =
+            'Has deployed code -> Smart Wallet (possibly EIP-7702 delegated)'
+        } else {
+          isEOA = true
+          reason = 'No capabilities + no code -> EOA'
+        }
+
+        console.log('✅ EOA Detection Complete:', {
+          address: walletAddress,
+          chainId,
+          hasCapabilities,
+          hasCode,
           isEOA,
-          reason: isEOA ? 'No code deployed' : 'Code deployed (contract or delegated)'
+          reason,
+          explicitDepositWillBe: !isEOA
         })
-        
+
         return isEOA
       } catch (error) {
-        console.error('EOA Detection Error:', { 
-          walletAddress, 
-          chainId, 
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
+        console.error('❌ EOA Detection Error:', {
+          address: walletAddress,
+          chainId,
+          error: error instanceof Error ? error.message : String(error)
         })
-        // If we can't determine, assume it's not an EOA
+        // If we can't determine, assume it's not an EOA (safer default)
         return false
       }
     }
