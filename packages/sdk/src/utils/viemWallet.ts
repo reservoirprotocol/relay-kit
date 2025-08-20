@@ -252,27 +252,45 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       })
 
       try {
-        console.log('🏗️ Checking deployed code...')
+        console.log('🏗️ Checking deployed code using eth_getCode...')
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
 
+        if (!chain) {
+          throw new Error(`Chain ${chainId} not found in relay client`)
+        }
+
+        // Create a simple public client for the getCode call
         const viemClient = createPublicClient({
           chain: chain?.viemChain,
-          transport: wallet.transport
-            ? fallback(
-                rpcUrl
-                  ? [http(rpcUrl), custom(wallet.transport), http()]
-                  : [custom(wallet.transport), http()]
-              )
-            : fallback([http(rpcUrl), http()])
+          transport: rpcUrl ? http(rpcUrl) : http()
         })
 
-        const code = await viemClient.getCode({
+        console.log('🌐 Making eth_getCode call to:', {
+          rpcUrl,
+          chainId,
           address: wallet.account.address
         })
 
-        const hasCode = code !== '0x'
+        let code
+        try {
+          code = await viemClient.getCode({
+            address: wallet.account.address
+          })
+          console.log('📡 Raw getCode response:', { code })
+        } catch (getCodeError) {
+          console.error('💥 getCode call failed:', {
+            error: getCodeError instanceof Error ? getCodeError.message : String(getCodeError),
+            rpcUrl,
+            chainId,
+            address: wallet.account.address
+          })
+          // Re-throw to be caught by outer try/catch
+          throw getCodeError
+        }
+
+        const hasCode = code && code !== '0x'
         console.log('🏗️ Code check:', {
           code: code && code.length > 10 ? `${code.slice(0, 10)}...` : code,
           codeLength: code && code.length,
