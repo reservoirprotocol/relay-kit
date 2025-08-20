@@ -52,6 +52,11 @@ type RelayKitProviderOptions = {
     height?: number | string
     fill?: string
   }) => ReactElement
+  /**
+   * The secure base url for the relay api, if omitted the default will be used. Override this config to protect your api key via a proxy.
+   * Currently only relevant for the quote api in the SwapWidget
+   */
+  secureBaseUrl?: string
 }
 
 export interface RelayKitProviderProps {
@@ -172,7 +177,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
       privateChainIds: options.privateChainIds,
       themeScheme: options.themeScheme,
-      loader: options.loader
+      loader: options.loader,
+      secureBaseUrl: options.secureBaseUrl
     }),
     [options]
   )

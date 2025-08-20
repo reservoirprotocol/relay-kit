@@ -11,6 +11,11 @@
 ### Minor Changes
 
 - ef840d0: Update theme to better match Relay brand
+## 2.4.1
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
 
 ## 2.4.0
 

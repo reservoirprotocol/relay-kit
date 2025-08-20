@@ -14,6 +14,13 @@
 
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+## 1.12.1
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-sdk@2.4.1
 
 ## 1.12.0
 

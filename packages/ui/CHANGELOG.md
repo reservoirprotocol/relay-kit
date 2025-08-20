@@ -20,6 +20,21 @@
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
   - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250813132716
+## 2.17.4
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-kit-hooks@1.12.1
+  - @relayprotocol/relay-sdk@2.4.1
+
+## 2.17.3
+
+### Patch Changes
+
+- b2d6c8c: Always show price impact regardless of input mode
+
 ## 2.17.2
 
 ### Patch Changes

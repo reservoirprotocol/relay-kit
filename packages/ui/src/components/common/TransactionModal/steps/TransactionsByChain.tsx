@@ -79,7 +79,11 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
       return (
         <Flex justify="between" key={idx}>
           <Flex css={{ alignItems: 'center', gap: '2' }}>
-            <Text style="subtitle2" color="subtle">
+            <Text
+              style="subtitle2"
+              color="subtle"
+              css={{ alignSelf: 'flex-start' }}
+            >
               View {chain?.displayName} Tx
             </Text>
             {isRefundChain ? (

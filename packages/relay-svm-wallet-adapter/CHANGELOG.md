@@ -14,6 +14,12 @@
 
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-sdk@2.4.1
 
 ## 11.0.0
 
