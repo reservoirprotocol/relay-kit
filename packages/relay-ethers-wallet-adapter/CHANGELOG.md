@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 0.0.0-canary-20250820191315
+
+### Patch Changes
+
+- e3566e9: Sync with the latest main branch
+- Updated dependencies [e3566e9]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191315
+
 ## 0.0.0-canary-20250814020954
 
 ### Patch Changes
@@ -14,6 +22,7 @@
 
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+
 ## 22.0.1
 
 ### Patch Changes

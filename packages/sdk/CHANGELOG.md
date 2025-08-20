@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20250820191315
+
+### Patch Changes
+
+- e3566e9: Sync with the latest main branch
+
 ## 0.0.0-canary-20250814020954
 
 ### Patch Changes
@@ -11,6 +17,7 @@
 ### Minor Changes
 
 - ef840d0: Update theme to better match Relay brand
+
 ## 2.4.1
 
 ### Patch Changes
