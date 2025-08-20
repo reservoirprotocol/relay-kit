@@ -46,7 +46,8 @@ export const RelayKitProviderWrapper: FC<{
         websocket: {
           enabled: websocketsEnabled,
           url: MAINNET_RELAY_WS
-        }
+        },
+        secureBaseUrl: process.env.NEXT_PUBLIC_RELAY_SECURE_API_URL
       }}
     >
       {children}
