@@ -85,7 +85,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@radix-ui/react-visually-hidden": "^1.1.2",
-    "@reservoir0x/relay-design-system": "workspace:^",
+    "@relayprotocol/relay-design-system": "workspace:^",
     "@relayprotocol/relay-kit-hooks": "workspace:*",
     "@relayprotocol/relay-sdk": "workspace:*",
     "@types/react": "^18.0.0",
