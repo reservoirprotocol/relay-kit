@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20250820191554
+
+### Patch Changes
+
+- 7badf0a: Sync with main branch
+
 ## 0.0.0-canary-20250820191315
 
 ### Patch Changes

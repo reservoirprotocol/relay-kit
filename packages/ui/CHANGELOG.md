@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 0.0.0-canary-20250820191554
+
+### Patch Changes
+
+- 7badf0a: Sync with main branch
+- Updated dependencies [7badf0a]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250820191554
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191554
+
 ## 0.0.0-canary-20250820191315
 
 ### Patch Changes

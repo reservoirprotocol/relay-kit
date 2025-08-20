@@ -1,5 +1,13 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 0.0.0-canary-20250820191554
+
+### Patch Changes
+
+- 7badf0a: Sync with main branch
+- Updated dependencies [7badf0a]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191554
+
 ## 0.0.0-canary-20250820191315
 
 ### Patch Changes
