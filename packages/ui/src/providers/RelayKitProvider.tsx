@@ -48,6 +48,11 @@ type RelayKitProviderOptions = {
    * The icon theme to use for the chain icons. Defaults to light.
    */
   themeScheme?: 'dark' | 'light'
+  /**
+   * The secure base url for the relay api, if omitted the default will be used. Override this config to protect your api key via a proxy.
+   * Currently only relevant for the quote api in the SwapWidget
+   */
+  secureBaseUrl?: string
 }
 
 export interface RelayKitProviderProps {
@@ -175,7 +180,8 @@ export const RelayKitProvider: FC<RelayKitProviderProps> = function ({
       disablePoweredByReservoir: options.disablePoweredByReservoir,
       vmConnectorKeyOverrides: options.vmConnectorKeyOverrides,
       privateChainIds: options.privateChainIds,
-      themeScheme: options.themeScheme
+      themeScheme: options.themeScheme,
+      secureBaseUrl: options.secureBaseUrl
     }),
     [options]
   )

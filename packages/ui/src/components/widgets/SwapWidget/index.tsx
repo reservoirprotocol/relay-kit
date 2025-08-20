@@ -45,6 +45,7 @@ import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
 import { calculateUsdValue, getSwapEventData } from '../../../utils/quote.js'
+import { PriceImpact } from './PriceImpact.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -64,6 +65,7 @@ type BaseSwapWidgetProps = {
   disableInputAutoFocus?: boolean
   popularChainIds?: number[]
   disablePasteWalletAddressOption?: boolean
+  sponsoredTokens?: string[]
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -112,6 +114,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   disableInputAutoFocus = false,
   popularChainIds,
   disablePasteWalletAddressOption,
+  sponsoredTokens,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
@@ -187,6 +190,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       supportedWalletVMs={supportedWalletVMs}
+      sponsoredTokens={sponsoredTokens}
     >
       {({
         quote,
@@ -1506,18 +1510,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               '$0.00'
                             )}
                           </Text>
-                          {toToken &&
-                          quote?.details?.currencyOut?.amountUsd &&
-                          quote?.details?.currencyOut?.amountUsd !== '0' &&
-                          !isFetchingQuote &&
-                          quote?.details?.totalImpact?.percent ? (
-                            <Text
-                              style="subtitle3"
-                              color={feeBreakdown?.totalFees.priceImpactColor}
-                            >
-                              ({feeBreakdown?.totalFees.priceImpactPercentage})
-                            </Text>
-                          ) : null}
+                          <PriceImpact
+                            toToken={toToken}
+                            isFetchingQuote={isFetchingQuote}
+                            feeBreakdown={feeBreakdown}
+                            quote={quote}
+                          />
                         </Flex>
                         <Flex css={{ marginLeft: 'auto' }}>
                           {toToken ? (
