@@ -16,6 +16,11 @@ export default async function handler(
     url.searchParams.set(key, value as string)
   }
 
+  // Here you can add any checks you'd like to before fetching the gas subsidized quote
+  // You can do things like:
+  // - Check if the tokens are eligible for gas sponsorship
+  // - Check if the user is likely a bot
+
   const body: paths['/quote']['post']['requestBody']['content']['application/json'] =
     {
       ...req.body,
@@ -32,12 +37,6 @@ export default async function handler(
     },
     body: JSON.stringify(body)
   })
-
-  // TODO: check if the recaptcha token passes
-
-  // TODO: add api key
-
-  // TODO: check if tokens are eligible for gas sponsorship
 
   const responseData = await response.json()
 
