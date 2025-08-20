@@ -1,5 +1,13 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.12.1
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-sdk@2.4.1
+
 ## 1.12.0
 
 ### Minor Changes
