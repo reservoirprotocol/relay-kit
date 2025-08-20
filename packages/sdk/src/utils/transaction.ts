@@ -42,6 +42,7 @@ export async function sendTransactionSafely(
   setInternalTxHashes: (
     tx: NonNullable<Execute['steps'][0]['items']>[0]['internalTxHashes']
   ) => void,
+  onWebsocketFailed: (() => Promise<void>) | null,
   request: AxiosRequestConfig,
   headers?: AxiosRequestHeaders,
   crossChainIntentChainId?: number,
@@ -50,7 +51,8 @@ export async function sendTransactionSafely(
   setReceipt?: (receipt: TransactionReceipt | SvmReceipt | SuiReceipt) => void,
   setCheckStatus?: (
     checkStatus: NonNullable<Execute['steps'][0]['items']>[0]['checkStatus']
-  ) => void
+  ) => void,
+  statusControl?: { lastKnownStatus?: string }
 ) {
   const client = getClient()
   try {
@@ -195,12 +197,30 @@ export async function sendTransactionSafely(
   // Poll the confirmation url to confirm the transaction went through
   const pollForConfirmation = async (receiptController?: AbortController) => {
     isValidating?.()
+
+    // If websocket is enabled, wait for it to fail before falling back to polling
+    if (onWebsocketFailed) {
+      try {
+        await onWebsocketFailed()
+        client.log(['WebSocket failed, starting polling'], LogLevel.Verbose)
+      } catch (e) {
+        client.log(
+          ['WebSocket failed promise rejected, skipping polling'],
+          LogLevel.Verbose
+        )
+        return
+      }
+    }
+
+    // Start polling
     while (
       waitingForConfirmation &&
       attemptCount < maximumAttempts &&
       !transactionCancelled &&
       !confirmationError
     ) {
+      client.log(['Polling for confirmation'], LogLevel.Verbose)
+
       let res: AxiosResponse<any, any> | undefined
       if (check?.endpoint && !request?.data?.useExternalLiquidity) {
         let endpoint = check?.endpoint
@@ -267,6 +287,7 @@ export async function sendTransactionSafely(
     if (transactionCancelled) {
       throw Error('Transaction was cancelled')
     }
+
     return true
   }
 
@@ -410,6 +431,10 @@ export async function sendTransactionSafely(
         await confirmationPromise
       } else {
         waitingForConfirmation = false
+        // For same chain transactions, mark as complete to prevent WebSocket polling fallback
+        if (statusControl) {
+          statusControl.lastKnownStatus = 'success'
+        }
       }
     }
 

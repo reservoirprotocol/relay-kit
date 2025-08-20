@@ -1,4 +1,4 @@
-import type { ChainVM } from '@reservoir0x/relay-sdk'
+import type { ChainVM } from '@relayprotocol/relay-sdk'
 import { solana } from './solana.js'
 
 export const generateQrWalletDeeplink = (

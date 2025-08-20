@@ -1,6 +1,6 @@
 import { Wallet } from '@dynamic-labs/sdk-react-core'
-import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
-import { RelayChain } from '@reservoir0x/relay-sdk'
+import { LinkedWallet } from '@relayprotocol/relay-kit-ui'
+import { RelayChain } from '@relayprotocol/relay-sdk'
 
 export const convertRelayChainToDynamicNetwork = (chain: RelayChain) => {
   return {

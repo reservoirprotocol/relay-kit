@@ -1,8 +1,8 @@
 import { NextPage } from 'next'
 import { useState } from 'react'
-import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
 
-import { useRelayConfig } from '@reservoir0x/relay-kit-hooks'
+import { useRelayConfig } from '@relayprotocol/relay-kit-hooks'
 import { useAccount } from 'wagmi'
 import { ConnectButton } from 'components/ConnectButton'
 

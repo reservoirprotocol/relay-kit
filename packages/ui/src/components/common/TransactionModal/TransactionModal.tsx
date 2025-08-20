@@ -1,4 +1,8 @@
-import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type {
+  AdaptedWallet,
+  Execute,
+  RelayChain
+} from '@relayprotocol/relay-sdk'
 import { type Address } from 'viem'
 import { type Dispatch, type FC, type SetStateAction, useEffect } from 'react'
 import {

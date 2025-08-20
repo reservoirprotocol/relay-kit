@@ -1,7 +1,7 @@
 import type { Token } from '../types/index.js'
 import useCurrencyBalance from '../hooks/useCurrencyBalance.js'
-import { type RelayChain } from '@reservoir0x/relay-sdk'
-import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { type RelayChain } from '@relayprotocol/relay-sdk'
+import { useTokenPrice } from '@relayprotocol/relay-kit-hooks'
 import { useRelayClient } from '../hooks/index.js'
 
 export default (

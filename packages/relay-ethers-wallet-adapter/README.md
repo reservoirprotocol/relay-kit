@@ -3,13 +3,13 @@
 ### Installation
 
 ```
-yarn add @reservoir0x/relay-ethers-wallet-adapter @reservoir0x/relay-sdk
+yarn add @relayprotocol/relay-ethers-wallet-adapter @relayprotocol/relay-sdk
 ```
 
 Also make sure to install the peer dependencies required by the adapter if your application doesn't already include them:
 
 ```
-yarn add ethers viem @reservoir0x/relay-sdk
+yarn add ethers viem @relayprotocol/relay-sdk
 ```
 
 ### Usage
@@ -17,8 +17,8 @@ yarn add ethers viem @reservoir0x/relay-sdk
 To use the adapter simply pass in your ethers signer and receive a normalized AdaptedWallet object:
 
 ```
-import { getClient } from "@reservoir0x/relay-sdk";
-import { adaptEthersSigner } from "@reservoir0x/relay-ethers-wallet-adapter";
+import { getClient } from "@relayprotocol/relay-sdk";
+import { adaptEthersSigner } from "@relayprotocol/relay-ethers-wallet-adapter";
 import { useSigner } from "wagmi";
 
 const { data: signer } = useSigner();

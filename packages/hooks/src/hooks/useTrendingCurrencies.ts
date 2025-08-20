@@ -7,7 +7,7 @@ import {
   setParams,
   type paths,
   MAINNET_RELAY_API
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import fetcher from '../fetcher.js'
 
 export type TrendingCurrenciesQuery =

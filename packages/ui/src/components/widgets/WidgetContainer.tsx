@@ -4,7 +4,11 @@ import { TransactionModal } from '../common/TransactionModal/TransactionModal.js
 import { DepositAddressModal } from '../common/TransactionModal/DepositAddressModal.js'
 import { useMounted } from '../../hooks/index.js'
 import type { ChildrenProps } from './SwapWidgetRenderer.js'
-import type { RelayChain, AdaptedWallet, Execute } from '@reservoir0x/relay-sdk'
+import type {
+  RelayChain,
+  AdaptedWallet,
+  Execute
+} from '@relayprotocol/relay-sdk'
 import { useAccount } from 'wagmi'
 import type { LinkedWallet } from '../../types/index.js'
 

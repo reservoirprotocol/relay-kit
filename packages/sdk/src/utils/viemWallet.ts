@@ -252,27 +252,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
       })
 
       try {
-        // Step 1: Check smart wallet capabilities first
-        console.log('📋 Checking capabilities...')
-        const capabilities = await wallet.getCapabilities({
-          account: wallet.account,
-          chainId
-        })
-
-        const hasCapabilities = !!(
-          capabilities &&
-          typeof capabilities === 'object' &&
-          Object.keys(capabilities).length > 0
-        )
-
-        console.log('📋 Capabilities check:', {
-          capabilities,
-          hasCapabilities,
-          capabilityKeys: capabilities ? Object.keys(capabilities) : []
-        })
-
-        // Step 2: Always check code deployment regardless of capabilities
-        console.log('🏗️ Checking deployed code....')
+        console.log('🏗️ Checking deployed code...')
         const client = getClient()
         const chain = client.chains.find((chain) => chain.id === chainId)
         const rpcUrl = chain?.httpRpcUrl
@@ -299,26 +279,14 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
           hasCode
         })
 
-        // Final determination logic
-        let isEOA = false
-        let reason = ''
-
-        if (hasCapabilities) {
-          isEOA = false
-          reason = 'Has capabilities -> Smart Wallet'
-        } else if (hasCode) {
-          isEOA = false
-          reason =
-            'Has deployed code -> Smart Wallet (possibly EIP-7702 delegated)'
-        } else {
-          isEOA = true
-          reason = 'No capabilities + no code -> EOA'
-        }
+        const isEOA = !hasCode
+        const reason = hasCode
+          ? 'Has deployed code -> Smart Wallet (including EIP-7702 delegated)'
+          : 'No deployed code -> EOA'
 
         console.log('✅ EOA Detection Complete:', {
           address: walletAddress,
           chainId,
-          hasCapabilities,
           hasCode,
           isEOA,
           reason,

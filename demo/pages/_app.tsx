@@ -1,4 +1,4 @@
-import '@reservoir0x/relay-kit-ui/styles.css'
+import '@relayprotocol/relay-kit-ui/styles.css'
 import '../fonts.css'
 import '../global.css'
 
@@ -13,7 +13,7 @@ import {
   TESTNET_RELAY_API,
   configureViemChain,
   type RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { ThemeProvider } from 'next-themes'
 import { useRouter } from 'next/router'
 import {
@@ -32,7 +32,7 @@ import { useWalletFilter, WalletFilterProvider } from 'context/walletFilter'
 import { EclipseWalletConnectors } from '@dynamic-labs/eclipse'
 import { AbstractEvmWalletConnectors } from '@dynamic-labs-connectors/abstract-global-wallet-evm'
 import { MoonPayProvider } from 'context/MoonpayProvider'
-import { queryRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { queryRelayChains } from '@relayprotocol/relay-kit-hooks'
 import { RelayKitProviderWrapper } from 'components/providers/RelayKitProviderWrapper'
 
 type AppWrapperProps = {

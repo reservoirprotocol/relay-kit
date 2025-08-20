@@ -1,4 +1,4 @@
-import { type RelayChain } from '@reservoir0x/relay-sdk'
+import { type RelayChain } from '@relayprotocol/relay-sdk'
 import type { FC } from 'react'
 import {
   Flex,

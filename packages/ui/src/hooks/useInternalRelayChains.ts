@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useRelayChains } from '@reservoir0x/relay-kit-hooks'
+import { useRelayChains } from '@relayprotocol/relay-kit-hooks'
 import { useRelayClient } from './index.js'
 import { ProviderOptionsContext } from '../providers/RelayKitProvider.js'
 

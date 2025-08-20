@@ -7,7 +7,7 @@ import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import FetchingQuoteLoader from '../widgets/FetchingQuoteLoader.js'
 import SwapRouteSelector from '../widgets/SwapRouteSelector.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import {
   CollapsibleContent,
   CollapsibleRoot,

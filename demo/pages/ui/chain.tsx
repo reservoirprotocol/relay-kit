@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import { LinkedWallet, SwapWidget } from '@reservoir0x/relay-kit-ui'
+import { LinkedWallet, SwapWidget } from '@relayprotocol/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import {
   useDynamicContext,
@@ -15,15 +15,15 @@ import {
   AdaptedWallet,
   adaptViemWallet,
   RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
+import { adaptSolanaWallet } from '@relayprotocol/relay-svm-wallet-adapter'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { useWalletFilter } from 'context/walletFilter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
-import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
+import { adaptBitcoinWallet } from '@relayprotocol/relay-bitcoin-wallet-adapter'
 import { convertToLinkedWallet } from 'utils/dynamic'
-import { Token } from '@reservoir0x/relay-kit-ui'
+import { Token } from '@relayprotocol/relay-kit-ui'
 
 const ChainWidgetPage: NextPage = () => {
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
