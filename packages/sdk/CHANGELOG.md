@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.4.1
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+
 ## 2.4.0
 
 ### Minor Changes
