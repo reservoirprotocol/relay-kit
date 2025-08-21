@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 2.17.5
+
+### Patch Changes
+
+- 5c97c8d: Fix modal gap on mobile
+
 ## 2.17.4
 
 ### Patch Changes
