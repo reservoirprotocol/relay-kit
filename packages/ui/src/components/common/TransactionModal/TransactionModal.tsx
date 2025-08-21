@@ -233,7 +233,10 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       css={{
         overflow: 'hidden',
         p: '4',
-        maxWidth: '412px !important'
+        maxWidth: '412px !important',
+        '@media(max-width: 520px)': {
+          maxWidth: 'unset !important'
+        }
       }}
       showCloseButton={true}
       onPointerDownOutside={(e) => {
