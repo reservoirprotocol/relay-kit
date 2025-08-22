@@ -1,6 +1,6 @@
 {
   "name": "@relayprotocol/relay-kit-hooks",
-  "version": "0.0.0-canary-20250820191554",
+  "version": "0.0.0-canary-20250822181909",
   "type": "module",
   "main": "./_cjs/src/index.js",
   "module": "./_esm/src/index.js",

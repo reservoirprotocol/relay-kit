@@ -1,6 +1,6 @@
 {
     "name": "@relayprotocol/relay-svm-wallet-adapter",
-    "version": "0.0.0-canary-20250820191554",
+    "version": "0.0.0-canary-20250822181909",
     "description": "An SVM (Solana Virtual Machine) adapter for use in @relayprotocol/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",

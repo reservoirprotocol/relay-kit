@@ -1,5 +1,14 @@
 # @reservoir0x/relay-kit-ui
 
+## 0.0.0-canary-20250822181909
+
+### Patch Changes
+
+- cd12eb9: Implement final share link
+- Updated dependencies [cd12eb9]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250822181909
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822181909
+
 ## 0.0.0-canary-20250820191554
 
 ### Patch Changes
@@ -38,6 +47,7 @@
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
   - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250813132716
+
 ## 2.17.5
 
 ### Patch Changes

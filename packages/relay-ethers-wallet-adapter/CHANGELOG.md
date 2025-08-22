@@ -1,5 +1,13 @@
 # @reservoir0x/relay-ethers-wallet-adapter
 
+## 0.0.0-canary-20250822181909
+
+### Patch Changes
+
+- cd12eb9: Implement final share link
+- Updated dependencies [cd12eb9]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822181909
+
 ## 0.0.0-canary-20250820191554
 
 ### Patch Changes

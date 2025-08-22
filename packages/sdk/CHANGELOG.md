@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20250822181909
+
+### Patch Changes
+
+- cd12eb9: Implement final share link
+
 ## 0.0.0-canary-20250820191554
 
 ### Patch Changes
