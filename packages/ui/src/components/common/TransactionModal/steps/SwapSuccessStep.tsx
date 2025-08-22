@@ -442,7 +442,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
             css={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1'
+              gap: '1',
+              ml: 'auto'
             }}
           >
             Share on <XIcon width={14} height={14} />
