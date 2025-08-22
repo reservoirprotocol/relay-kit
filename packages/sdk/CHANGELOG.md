@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 0.0.0-canary-20250822183549
+
+### Patch Changes
+
+- 4395d49: Fix Unverified modal buttons
+
 ## 0.0.0-canary-20250822181909
 
 ### Patch Changes

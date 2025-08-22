@@ -1,6 +1,6 @@
 {
     "name": "@relayprotocol/relay-bitcoin-wallet-adapter",
-    "version": "0.0.0-canary-20250822181909",
+    "version": "0.0.0-canary-20250822183549",
     "description": "A Bitcoin adapter for use in @relayprotocol/relay-sdk",
     "type": "module",
     "source": "./src/index.ts",
