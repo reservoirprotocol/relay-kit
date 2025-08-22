@@ -38,6 +38,11 @@
 - Updated dependencies [ef840d0]
   - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
   - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250813132716
+## 2.17.5
+
+### Patch Changes
+
+- 5c97c8d: Fix modal gap on mobile
 
 ## 2.17.4
 
