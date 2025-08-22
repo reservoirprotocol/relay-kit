@@ -103,7 +103,6 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
 
   useEffect(() => {
     if (document) {
-      console.log(chivo)
       const styleElement = document.createElement('style')
 
       styleElement.textContent = `
