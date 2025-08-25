@@ -1,5 +1,16 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.13.0
+
+### Minor Changes
+
+- 2ad3c52: Update relay branding
+
+### Patch Changes
+
+- Updated dependencies [2ad3c52]
+  - @relayprotocol/relay-sdk@2.4.2
+
 ## 0.0.0-canary-20250822183549
 
 ### Patch Changes
