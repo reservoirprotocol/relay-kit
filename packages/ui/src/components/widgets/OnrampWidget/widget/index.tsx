@@ -628,6 +628,7 @@ const OnrampWidget: FC<OnrampWidgetProps> = ({
               </Flex>
             </Flex>
             <Button
+              cta={true}
               css={{ width: '100%', justifyContent: 'center' }}
               disabled={notEnoughFiat}
               onClick={() => {

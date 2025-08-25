@@ -250,6 +250,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         <Button
+          cta={true}
           color={'secondary'}
           onClick={() => {
             onOpenChange(false)
@@ -264,6 +265,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         {delayedTxUrl ? (
           <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
             <Button
+              cta={true}
               color={'primary'}
               css={{
                 justifyContent: 'center',
@@ -435,12 +437,13 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         >
           <Text style="subtitle2">You've completed a free USDC bridge!</Text>
           <Anchor
-            href="https://x.com/intent/post?text=Just%20instantly%20bridged%20USDC%20with%20ZERO%20price%20impact%2C%20thanks%20to%20%40RelayProtcol%20%27s%20Fee-Free%20September.%0A%0ATry%20it%20yourself%3A%20relay.link%2Fbridge"
+            href="https://x.com/intent/post?text=Just%20instantly%20bridged%20USDC%20with%20ZERO%20price%20impact%2C%20thanks%20to%20%40RelayProtcol%20%27s%20Fee-Free%20September.%0A%0ATry%20it%20yourself%3A%20go.relay.link%2Ffreeusdc"
             target="_blank"
             css={{
               display: 'flex',
               alignItems: 'center',
-              gap: '1'
+              gap: '1',
+              ml: 'auto'
             }}
           >
             Share on <XIcon width={14} height={14} />
@@ -460,6 +463,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           >
             <Button
               color="secondary"
+              cta={true}
               css={{
                 justifyContent: 'center',
                 width: 'max-content'
@@ -470,6 +474,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           </a>
         ) : null}
         <Button
+          cta={true}
           onClick={() => {
             onOpenChange(false)
           }}
