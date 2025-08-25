@@ -1621,6 +1621,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     {promptSwitchRoute ? (
                       <Button
                         color="primary"
+                        cta={true}
                         css={{ flexGrow: '1', justifyContent: 'center' }}
                         onClick={() => {
                           setUseExternalLiquidity(true)

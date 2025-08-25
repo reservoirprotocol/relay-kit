@@ -64,6 +64,7 @@ const SwapButton: FC<SwapButtonProps> = ({
         css={{ justifyContent: 'center' }}
         color={showHighPriceImpactWarning ? 'error' : 'primary'}
         aria-label={context}
+        cta={true}
         disabled={
           isFetchingQuote ||
           (isValidToAddress &&
@@ -87,6 +88,7 @@ const SwapButton: FC<SwapButtonProps> = ({
 
   return (
     <Button
+      cta={true}
       css={{ justifyContent: 'center' }}
       aria-label="Connect wallet"
       onClick={() => {
