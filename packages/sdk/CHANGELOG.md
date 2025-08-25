@@ -1,5 +1,11 @@
 # @reservoir0x/relay-sdk
 
+## 2.4.2
+
+### Patch Changes
+
+- 2ad3c52: Update relay branding
+
 ## 0.0.0-canary-20250822183549
 
 ### Patch Changes
