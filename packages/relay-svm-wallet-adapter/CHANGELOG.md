@@ -1,5 +1,13 @@
 # @reservoir0x/relay-svm-wallet-adapter
 
+## 11.0.2
+
+### Patch Changes
+
+- 2ad3c52: Update relay branding
+- Updated dependencies [2ad3c52]
+  - @relayprotocol/relay-sdk@2.4.2
+
 ## 0.0.0-canary-20250822183549
 
 ### Patch Changes
