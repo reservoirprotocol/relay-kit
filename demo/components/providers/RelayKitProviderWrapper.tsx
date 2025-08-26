@@ -28,7 +28,7 @@ export const RelayKitProviderWrapper: FC<{
         themeScheme: theme === 'dark' ? 'dark' : 'light',
         appFees: [
           {
-            fee: '4000',
+            fee: '1000',
             recipient:
               process.env.NEXT_PUBLIC_FEE_RECIPIENT ??
               '0x03508bB71268BBA25ECaCC8F620e01866650532c'
