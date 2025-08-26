@@ -39,7 +39,7 @@ export const RelayKitProviderWrapper: FC<{
         privateChainIds: process.env.NEXT_PUBLIC_INCLUDE_CHAINS?.split(','),
         appName: 'Relay Demo',
         useGasFeeEstimations: true,
-        pollingInterval: 1000,,
+        pollingInterval: 1000,
         confirmationPollingInterval: 1000,
         themeScheme: theme === 'dark' ? 'dark' : 'light',
         websocket: {
