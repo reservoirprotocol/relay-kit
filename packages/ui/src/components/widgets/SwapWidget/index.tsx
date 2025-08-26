@@ -54,7 +54,7 @@ type BaseSwapWidgetProps = {
   setToToken?: (token?: Token) => void
   defaultToAddress?: Address
   defaultAmount?: string
-  defaultTradeType?: 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
+  defaultTradeType?: 'EXACT_INPUT' | 'EXACT_OUTPUT'
   slippageTolerance?: string
   lockToToken?: boolean
   lockFromToken?: boolean
@@ -532,7 +532,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
             setIsUsdInputMode(true)
 
             // Default to EXACT_INPUT unless we're currently in EXPECTED_OUTPUT mode with a valid USD output value
-            if (tradeType !== 'EXPECTED_OUTPUT' || !newUsdOutputValue) {
+            if (tradeType !== 'EXACT_OUTPUT' || !newUsdOutputValue) {
               setTradeType('EXACT_INPUT')
             }
           } else {
@@ -572,7 +572,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         //Update token output value when USD output changes in USD mode
         useEffect(() => {
-          if (isUsdInputMode && tradeType === 'EXPECTED_OUTPUT') {
+          if (isUsdInputMode && tradeType === 'EXACT_OUTPUT') {
             if (
               toTokenPriceData?.price &&
               toTokenPriceData.price > 0 &&
@@ -602,7 +602,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         useEffect(() => {
           if (isUsdInputMode) {
             // For EXPECTED_OUTPUT, don't override user's typed value
-            if (tradeType === 'EXPECTED_OUTPUT') {
+            if (tradeType === 'EXACT_OUTPUT') {
               // User is controlling the output value directly
               return
             }
@@ -641,7 +641,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
 
         //Update USD input value when in EXPECTED_OUTPUT mode
         useEffect(() => {
-          if (isUsdInputMode && tradeType === 'EXPECTED_OUTPUT') {
+          if (isUsdInputMode && tradeType === 'EXACT_OUTPUT') {
             if (quote?.details?.currencyIn?.amountUsd && !isFetchingQuote) {
               // Use quote USD value when available
               const quoteUsdValue = Number(quote.details.currencyIn.amountUsd)
@@ -840,13 +840,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             lineHeight: '36px',
                             py: 0,
                             color:
-                              isFetchingQuote && tradeType === 'EXPECTED_OUTPUT'
+                              isFetchingQuote && tradeType === 'EXACT_OUTPUT'
                                 ? 'text-subtle'
                                 : 'input-color',
                             _placeholder: {
                               color:
-                                isFetchingQuote &&
-                                tradeType === 'EXPECTED_OUTPUT'
+                                isFetchingQuote && tradeType === 'EXACT_OUTPUT'
                                   ? 'text-subtle'
                                   : 'input-color'
                             }
@@ -1206,7 +1205,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               } else {
                                 // Token-denominated mode: maintain current behaviour when swapping token order
                                 if (tradeType === 'EXACT_INPUT') {
-                                  setTradeType('EXPECTED_OUTPUT')
+                                  setTradeType('EXACT_OUTPUT')
                                   setAmountInputValue('')
                                   setAmountOutputValue(amountInputValue)
                                 } else {
@@ -1342,7 +1341,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           value={
                             isUsdInputMode
                               ? usdOutputValue
-                              : tradeType === 'EXPECTED_OUTPUT'
+                              : tradeType === 'EXACT_OUTPUT'
                                 ? amountOutputValue
                                 : amountOutputValue
                                   ? formatFixedLength(amountOutputValue, 8)
@@ -1351,7 +1350,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           setValue={(e) => {
                             if (isUsdInputMode) {
                               setUsdOutputValue(e)
-                              setTradeType('EXPECTED_OUTPUT')
+                              setTradeType('EXACT_OUTPUT')
                               if (Number(e) === 0) {
                                 setAmountInputValue('')
                                 setUsdInputValue('')
@@ -1359,7 +1358,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               }
                             } else {
                               setAmountOutputValue(e)
-                              setTradeType('EXPECTED_OUTPUT')
+                              setTradeType('EXACT_OUTPUT')
                               if (Number(e) === 0) {
                                 setAmountInputValue('')
                                 debouncedAmountOutputControls.flush()

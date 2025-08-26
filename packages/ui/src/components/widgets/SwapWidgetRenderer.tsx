@@ -53,7 +53,7 @@ import { sha256 } from '../../utils/hashing.js'
 import { get15MinuteInterval } from '../../utils/time.js'
 import type { FeeBreakdown } from '../../types/FeeBreakdown.js'
 
-export type TradeType = 'EXACT_INPUT' | 'EXPECTED_OUTPUT'
+export type TradeType = 'EXACT_INPUT' | 'EXACT_OUTPUT'
 
 type SwapWidgetRendererProps = {
   transactionModalOpen: boolean
@@ -219,7 +219,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     useState<boolean>(false)
   const address = useWalletAddress(wallet, linkedWallets)
 
-  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXPECTED_OUTPUT'>(
+  const [tradeType, setTradeType] = useState<'EXACT_INPUT' | 'EXACT_OUTPUT'>(
     defaultTradeType ?? 'EXACT_INPUT'
   )
   const queryClient = useQueryClient()
@@ -248,7 +248,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     setValue: setAmountOutputValue,
     debouncedControls: debouncedAmountOutputControls
   } = useDebounceState<string>(
-    defaultTradeType === 'EXPECTED_OUTPUT' ? (defaultAmount ?? '') : '',
+    defaultTradeType === 'EXACT_OUTPUT' ? (defaultAmount ?? '') : '',
     500
   )
 
@@ -663,7 +663,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         debouncedInputAmountValue &&
         debouncedInputAmountValue.length > 0 &&
         Number(debouncedInputAmountValue) !== 0) ||
-        (tradeType === 'EXPECTED_OUTPUT' &&
+        (tradeType === 'EXACT_OUTPUT' &&
           debouncedOutputAmountValue &&
           debouncedOutputAmountValue.length > 0 &&
           Number(debouncedOutputAmountValue) !== 0)) &&
@@ -742,7 +742,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
             )
           : ''
       )
-    } else if (tradeType === 'EXPECTED_OUTPUT') {
+    } else if (tradeType === 'EXACT_OUTPUT') {
       const amountIn = quote?.details?.currencyIn?.amount ?? ''
       setAmountInputValue(
         amountIn !== ''
