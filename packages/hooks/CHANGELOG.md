@@ -1,5 +1,120 @@
 # @reservoir0x/relay-kit-hooks
 
+## 1.13.0
+
+### Minor Changes
+
+- 2ad3c52: Update relay branding
+
+### Patch Changes
+
+- Updated dependencies [2ad3c52]
+  - @relayprotocol/relay-sdk@2.4.2
+
+## 0.0.0-canary-20250822183549
+
+### Patch Changes
+
+- 4395d49: Fix Unverified modal buttons
+- Updated dependencies [4395d49]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822183549
+
+## 0.0.0-canary-20250822181909
+
+### Patch Changes
+
+- cd12eb9: Implement final share link
+- Updated dependencies [cd12eb9]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822181909
+
+## 0.0.0-canary-20250820191554
+
+### Patch Changes
+
+- 7badf0a: Sync with main branch
+- Updated dependencies [7badf0a]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191554
+
+## 0.0.0-canary-20250820191315
+
+### Patch Changes
+
+- e3566e9: Sync with the latest main branch
+- Updated dependencies [e3566e9]
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191315
+
+## 0.0.0-canary-20250814020954
+
+### Patch Changes
+
+- 1d46491: Rebuild canary build
+- Updated dependencies [1d46491]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250814020954
+
+## 0.0.0-canary-20250813132716
+
+### Patch Changes
+
+- Updated dependencies [ef840d0]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+
+## 1.12.1
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-sdk@2.4.1
+
+## 1.12.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
+### Patch Changes
+
+- Updated dependencies [6400542]
+  - @reservoir0x/relay-sdk@2.4.0
+
+## 1.11.3
+
+### Patch Changes
+
+- Updated dependencies [1a88de0]
+  - @reservoir0x/relay-sdk@2.3.2
+
+## 1.11.2
+
+### Patch Changes
+
+- Updated dependencies [d1aeceb]
+  - @reservoir0x/relay-sdk@2.3.1
+
+## 1.11.1
+
+### Patch Changes
+
+- 7985e6b: Add relay trending tokens to token selector
+
+## 1.11.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-sdk@2.3.0
+
+## 1.10.6
+
+### Patch Changes
+
+- Updated dependencies [3dbf1be]
+  - @reservoir0x/relay-sdk@2.2.0
+
 ## 1.10.5
 
 ### Patch Changes

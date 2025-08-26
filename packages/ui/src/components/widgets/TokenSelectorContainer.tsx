@@ -1,6 +1,6 @@
 import { type FC, type PropsWithChildren } from 'react'
 import { Flex } from '../primitives/index.js'
-import { type Styles } from '@reservoir0x/relay-design-system/css'
+import { type Styles } from '@relayprotocol/relay-design-system/css'
 
 const TokenSelectorContainer: FC<
   PropsWithChildren & { css?: Styles; id?: string }

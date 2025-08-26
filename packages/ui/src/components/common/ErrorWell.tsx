@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Text } from '../primitives/index.js'
 import type { AxiosError } from 'axios'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 
 interface Props {
   error?: Error | null | AxiosError

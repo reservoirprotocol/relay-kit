@@ -2,7 +2,7 @@ import {
   cva,
   css as designCss,
   type Styles
-} from '@reservoir0x/relay-design-system/css'
+} from '@relayprotocol/relay-design-system/css'
 import type { FC, PropsWithChildren } from 'react'
 
 const TextCss = cva({
@@ -12,6 +12,12 @@ const TextCss = cva({
   },
   variants: {
     style: {
+      h1: {
+        fontWeight: 800,
+        fontSize: '64px',
+        fontStyle: 'italic',
+        fontFamily: 'heading'
+      },
       h2: {
         fontWeight: 700,
         fontSize: '48px'

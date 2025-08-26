@@ -13,8 +13,17 @@ import {
   getClient,
   type AdaptedWallet,
   type TransactionStepItem
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 
+/**
+ * Adapts a Solana wallet to work with the Relay SDK
+ * @param walletAddress - The public key address of the Solana wallet
+ * @param chainId - The chain ID for the Solana network (e.g., 101 for mainnet, 102 for testnet)
+ * @param connection - The Solana web3.js Connection instance for interacting with the network
+ * @param signAndSendTransaction - Function to sign and send a transaction, returning a promise with the transaction signature
+ * @param payerKey - Optional public key of the account that will pay for transaction fees (defaults to walletAddress)
+ * @returns An AdaptedWallet object that conforms to the Relay SDK interface
+ */
 export const adaptSolanaWallet = (
   walletAddress: string,
   chainId: number,
@@ -26,7 +35,8 @@ export const adaptSolanaWallet = (
     rawInstructions?: TransactionStepItem['data']['instructions']
   ) => Promise<{
     signature: TransactionSignature
-  }>
+  }>,
+  payerKey?: string
 ): AdaptedWallet => {
   let _chainId = chainId
   const getChainId = async () => {
@@ -60,7 +70,7 @@ export const adaptSolanaWallet = (
         ) ?? []
 
       const messageV0 = new TransactionMessage({
-        payerKey: new PublicKey(walletAddress),
+        payerKey: new PublicKey(payerKey ?? walletAddress),
         instructions,
         recentBlockhash: await connection
           .getLatestBlockhash()

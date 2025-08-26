@@ -3,7 +3,7 @@ import {
   axios,
   getClient,
   type AdaptedWallet
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import * as bitcoin from 'bitcoinjs-lib'
 
 type DynamicSignPsbtParams = {

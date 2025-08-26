@@ -2,7 +2,7 @@ import {
   cva,
   css as designCss,
   type Styles
-} from '@reservoir0x/relay-design-system/css'
+} from '@relayprotocol/relay-design-system/css'
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 
 const ButtonCss = cva({
@@ -41,29 +41,12 @@ const ButtonCss = cva({
           color: 'primary-button-hover-color'
         }
       },
-      primaryOutline: {
-        backgroundColor: 'transparent',
-        color: 'gray12',
-        '--border-color': 'primary-outline-button-color',
-        border: '1px solid var(--border-color)',
-        '&:hover': {
-          color: 'primary-outline-button-hover-color'
-        }
-      },
       secondary: {
         backgroundColor: 'secondary-button-background',
         color: 'secondary-button-color',
         '&:hover': {
           backgroundColor: 'secondary-button-hover-background',
           color: 'secondary-button-hover-color'
-        }
-      },
-      tertiary: {
-        backgroundColor: 'tertiary-button-background',
-        color: 'tertiary-button-color',
-        '&:hover': {
-          backgroundColor: 'tertiary-button-hover-background',
-          color: 'tertiary-button-hover-color'
         }
       },
       ghost: {
@@ -92,6 +75,13 @@ const ButtonCss = cva({
         '&:hover': {
           backgroundColor: 'amber4',
           color: 'amber11'
+        }
+      },
+      grey: {
+        backgroundColor: 'gray3',
+        color: 'gray11',
+        '&:hover': {
+          backgroundColor: 'gray4'
         }
       }
     },
@@ -134,6 +124,16 @@ const ButtonCss = cva({
         py: '4',
         minHeight: 52
       }
+    },
+    cta: {
+      true: {
+        '&:not(:disabled)': {
+          fontFamily: 'heading',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          fontStyle: 'italic'
+        }
+      }
     }
   },
   defaultVariants: {
@@ -150,13 +150,13 @@ const Button = forwardRef<
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'ref'> &
     ButtonCssProps & { css?: Styles }
 >(({ css, children, ...props }, forwardedRef) => {
-  const { color, size, corners, ...buttonProps } = { ...props }
+  const { color, size, corners, cta, ...buttonProps } = { ...props }
   return (
     <button
       {...buttonProps}
       ref={forwardedRef}
       className={designCss(
-        ButtonCss.raw({ color, size, corners }),
+        ButtonCss.raw({ color, size, corners, cta }),
         designCss.raw(css)
       )}
     >

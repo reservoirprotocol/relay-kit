@@ -5,7 +5,7 @@ import type { LinkedWallet } from '../../types/index.js'
 import { truncateAddress } from '../../utils/truncate.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import { eclipse, eclipseWallets, solana } from '../../utils/solana.js'
 import { useENSResolver } from '../../hooks/index.js'
 import { EventNames } from '../../constants/events.js'
@@ -98,7 +98,9 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
   const showDropdown = context !== 'origin' || filteredWallets.length > 0
 
   const { displayName } = useENSResolver(selectedWalletAddress, {
-    enabled: chain?.vmType === 'evm' && isSupportedSelectedWallet
+    enabled:
+      (chain?.vmType === 'evm' || chain?.vmType === 'hypevm') &&
+      isSupportedSelectedWallet
   })
 
   return (
@@ -163,7 +165,8 @@ export const MultiWalletDropdown: FC<MultiWalletDropdownProps> = ({
               {isSupportedSelectedWallet &&
               selectedWalletAddress &&
               selectedWalletAddress != ''
-                ? displayName && chain?.vmType === 'evm'
+                ? displayName &&
+                  (chain?.vmType === 'evm' || chain?.vmType === 'hypevm')
                   ? displayName
                   : truncateAddress(selectedWalletAddress)
                 : 'Select wallet'}

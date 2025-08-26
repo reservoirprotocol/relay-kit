@@ -86,6 +86,7 @@ export const TokenTrigger: FC<TokenTriggerProps> = ({
     <Button
       color={address ? 'primary' : 'secondary'}
       corners="pill"
+      cta={true}
       css={{
         height: 50,
         minHeight: 50,

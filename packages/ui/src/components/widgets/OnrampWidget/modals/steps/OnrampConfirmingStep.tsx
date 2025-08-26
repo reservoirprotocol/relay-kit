@@ -9,7 +9,7 @@ import {
 } from '../../../../primitives/index.js'
 import type { Token } from '../../../../../types/index.js'
 import { OnrampStep } from '../OnrampModal.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import { LoadingSpinner } from '../../../../common/LoadingSpinner.js'
 import { EventNames } from '../../../../../constants/events.js'
 
@@ -111,6 +111,7 @@ export const OnrampConfirmingStep: FC<OnrampConfirmingStepProps> = ({
         </Anchor>
       </Text>
       <Button
+        cta={true}
         disabled={!depositAddress || isFetchingQuote}
         css={{ justifyContent: 'center' }}
         onClick={(e) => {

@@ -8,7 +8,7 @@ import {
 import { useBalance, useReadContract } from 'wagmi'
 import { erc20Abi } from 'viem'
 import type { QueryKey } from '@tanstack/react-query'
-import type { AdaptedWallet, RelayChain } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet, RelayChain } from '@relayprotocol/relay-sdk'
 import useDuneBalances from './useDuneBalances.js'
 import useBitcoinBalance from './useBitcoinBalance.js'
 import useSuiBalance from './useSuiBalance.js'
@@ -17,6 +17,7 @@ import { isValidAddress } from '../utils/address.js'
 import useRelayClient from './useRelayClient.js'
 import useEclipseBalance from '../hooks/useEclipseBalance.js'
 import { eclipse } from '../utils/solana.js'
+import useHyperliquidUsdcBalance from './useHyperliquidUsdcBalance.js'
 
 type UseBalanceProps = {
   chain?: RelayChain
@@ -166,6 +167,19 @@ const useCurrencyBalance = ({
     )
   })
 
+  const hyperliquidUsdcBalance = useHyperliquidUsdcBalance(address, {
+    enabled: Boolean(
+      !adaptedWalletBalanceIsEnabled &&
+        chain &&
+        chain.vmType === 'hypevm' &&
+        address &&
+        _isValidAddress &&
+        enabled
+    ),
+    gcTime: refreshInterval,
+    staleTime: refreshInterval
+  })
+
   if (adaptedWalletBalanceIsEnabled) {
     return {
       value: adaptedWalletBalance.data,
@@ -265,6 +279,15 @@ const useCurrencyBalance = ({
       isLoading: suiBalances.isLoading,
       isError: suiBalances.isError,
       error: suiBalances.error,
+      isDuneBalance: false
+    }
+  } else if (chain?.vmType === 'hypevm') {
+    return {
+      value: hyperliquidUsdcBalance.balance,
+      queryKey: hyperliquidUsdcBalance.queryKey,
+      isLoading: hyperliquidUsdcBalance.isLoading,
+      isError: hyperliquidUsdcBalance.isError,
+      error: hyperliquidUsdcBalance.error,
       isDuneBalance: false
     }
   } else {

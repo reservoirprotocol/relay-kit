@@ -3,11 +3,11 @@
 ### Installation
 
 ```
-yarn add @reservoir0x/relay-svm-wallet-adapter @reservoir0x/relay-sdk
+yarn add @relayprotocol/relay-svm-wallet-adapter @relayprotocol/relay-sdk
 ```
 
 Also make sure to install the peer dependencies required by the adapter if your application doesn't already include them:
 
 ```
-yarn add viem @reservoir0x/relay-sdk
+yarn add viem @relayprotocol/relay-sdk
 ```

@@ -1,4 +1,4 @@
-import { type AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { type AdaptedWallet } from '@relayprotocol/relay-sdk'
 import { useState, useEffect, useMemo } from 'react'
 
 interface AtomicBatchSupportState {

@@ -7,7 +7,7 @@ import {
   faChevronDown,
   faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
-import type { ChainVM, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, RelayChain } from '@relayprotocol/relay-sdk'
 import AllChainsLogo from '../../../img/AllChainsLogo.js'
 import { TagPill } from './TagPill.js'
 import Fuse from 'fuse.js'

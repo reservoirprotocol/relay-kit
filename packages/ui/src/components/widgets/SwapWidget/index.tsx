@@ -1,5 +1,12 @@
 import { Flex, Button, Text, Box } from '../../primitives/index.js'
-import { useContext, useEffect, useMemo, useState, type FC } from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type FC
+} from 'react'
 import { useRelayClient } from '../../../hooks/index.js'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
@@ -13,7 +20,7 @@ import {
 import AmountInput from '../../common/AmountInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SwitchIcon } from '../../../icons/index.js'
-import type { ChainVM, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type { ChainVM, Execute, RelayChain } from '@relayprotocol/relay-sdk'
 import { getFeeBufferAmount } from '../../../utils/nativeMaxAmount.js'
 import { WidgetErrorWell } from '../WidgetErrorWell.js'
 import { BalanceDisplay } from '../../common/BalanceDisplay.js'
@@ -25,10 +32,10 @@ import TokenSelectorContainer from '../TokenSelectorContainer.js'
 import FeeBreakdown from '../FeeBreakdown.js'
 import { faArrowDown, faClipboard } from '@fortawesome/free-solid-svg-icons'
 import { TokenTrigger } from '../../common/TokenSelector/triggers/TokenTrigger.js'
-import type { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import type { AdaptedWallet } from '@relayprotocol/relay-sdk'
 import { MultiWalletDropdown } from '../../common/MultiWalletDropdown.js'
 import { findSupportedWallet } from '../../../utils/address.js'
-import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
+import { isDeadAddress, tronDeadAddress } from '@relayprotocol/relay-sdk'
 import SwapRouteSelector from '../SwapRouteSelector.js'
 import { ProviderOptionsContext } from '../../../providers/RelayKitProvider.js'
 import { findBridgableToken } from '../../../utils/tokens.js'
@@ -37,15 +44,8 @@ import TokenSelector from '../../common/TokenSelector/TokenSelector.js'
 import { UnverifiedTokenModal } from '../../common/UnverifiedTokenModal.js'
 import { alreadyAcceptedToken } from '../../../utils/localStorage.js'
 import GasTopUpSection from './GasTopUpSection.js'
-import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
-import { getSwapEventData } from '../../../utils/quote.js'
-
-// shared query options for useTokenPrice
-const tokenPriceQueryOptions = {
-  staleTime: 60 * 1000, // 1 minute
-  refetchInterval: 30 * 1000, // 30 seconds
-  refetchOnWindowFocus: false
-}
+import { calculateUsdValue, getSwapEventData } from '../../../utils/quote.js'
+import { PriceImpact } from './PriceImpact.js'
 
 type BaseSwapWidgetProps = {
   fromToken?: Token
@@ -65,6 +65,7 @@ type BaseSwapWidgetProps = {
   disableInputAutoFocus?: boolean
   popularChainIds?: number[]
   disablePasteWalletAddressOption?: boolean
+  sponsoredTokens?: string[]
   onFromTokenChange?: (token?: Token) => void
   onToTokenChange?: (token?: Token) => void
   onConnectWallet?: () => void
@@ -113,16 +114,27 @@ const SwapWidget: FC<SwapWidgetProps> = ({
   disableInputAutoFocus = false,
   popularChainIds,
   disablePasteWalletAddressOption,
+  sponsoredTokens,
   onSetPrimaryWallet,
   onLinkNewWallet,
   onFromTokenChange,
   onToTokenChange,
   onConnectWallet,
-  onAnalyticEvent,
+  onAnalyticEvent: _onAnalyticEvent,
   onSwapSuccess,
   onSwapValidating,
   onSwapError
 }): JSX.Element => {
+  const onAnalyticEvent = useCallback(
+    (eventName: string, data?: any) => {
+      try {
+        _onAnalyticEvent?.(eventName, data)
+      } catch (e) {
+        console.error('Error in onAnalyticEvent', eventName, data, e)
+      }
+    },
+    [_onAnalyticEvent]
+  )
   const relayClient = useRelayClient()
   const providerOptionsContext = useContext(ProviderOptionsContext)
   const connectorKeyOverrides = providerOptionsContext.vmConnectorKeyOverrides
@@ -178,6 +190,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
       onSwapError={onSwapError}
       onAnalyticEvent={onAnalyticEvent}
       supportedWalletVMs={supportedWalletVMs}
+      sponsoredTokens={sponsoredTokens}
     >
       {({
         quote,
@@ -248,72 +261,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
         invalidateQuoteQuery,
         quoteInProgress,
         setQuoteInProgress,
-        abortController
+        abortController,
+        fromTokenPriceData,
+        toTokenPriceData,
+        isLoadingFromTokenPrice,
+        isLoadingToTokenPrice
       }) => {
-        // helper to calculate the USD value of a token
-        const calculateUsdValue = (
-          price?: number,
-          amountString?: string
-        ): number | undefined => {
-          if (price && price > 0 && amountString && Number(amountString) > 0) {
-            try {
-              return parseFloat(amountString) * price
-            } catch (e) {
-              console.error(
-                'Failed to parse amount string for USD calculation',
-                amountString,
-                e
-              )
-            }
-          }
-          return undefined
-        }
-
-        //  Retrieve the price of the `from` token
-        const { data: fromTokenPriceData, isLoading: isLoadingFromTokenPrice } =
-          useTokenPrice(
-            relayClient?.baseApiUrl,
-            {
-              address: fromToken?.address ?? '',
-              chainId: fromToken?.chainId ?? 0,
-              referrer: relayClient?.source
-            },
-            {
-              enabled: !!(
-                fromToken?.address &&
-                fromToken.chainId &&
-                ((amountInputValue && Number(amountInputValue) > 0) ||
-                  (isUsdInputMode &&
-                    usdInputValue &&
-                    Number(usdInputValue) > 0))
-              ),
-              ...tokenPriceQueryOptions
-            }
-          )
-
-        // Retrieve the price of the `to` token
-        const { data: toTokenPriceData, isLoading: isLoadingToTokenPrice } =
-          useTokenPrice(
-            relayClient?.baseApiUrl,
-            {
-              address: toToken?.address ?? '',
-              chainId: toToken?.chainId ?? 0,
-              referrer: relayClient?.source
-            },
-            {
-              enabled: !!(
-                toToken?.address &&
-                toToken.chainId &&
-                ((amountOutputValue && Number(amountOutputValue) > 0) ||
-                  (isUsdInputMode &&
-                    tradeType === 'EXPECTED_OUTPUT' &&
-                    usdOutputValue &&
-                    Number(usdOutputValue) > 0))
-              ),
-              ...tokenPriceQueryOptions
-            }
-          )
-
         // Calculate the USD value of the input amount
         const inputAmountUsd = useMemo(() => {
           return calculateUsdValue(fromTokenPriceData?.price, amountInputValue)
@@ -1025,6 +978,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             )}
                           </Text>
                           <Button
+                            aria-label="Switch Input Mode"
                             size="none"
                             color="ghost"
                             css={{
@@ -1213,6 +1167,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       ((isSvmSwap || isBvmSwap) &&
                         !multiWalletSupportEnabled) ? null : (
                         <Button
+                          aria-label="Swap Tokens Direction"
                           size="none"
                           color="white"
                           css={{
@@ -1555,18 +1510,12 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               '$0.00'
                             )}
                           </Text>
-                          {!isUsdInputMode &&
-                          toToken &&
-                          quote?.details?.currencyOut?.amountUsd &&
-                          !isFetchingQuote &&
-                          quote.details.totalImpact?.percent ? (
-                            <Text
-                              style="subtitle3"
-                              color={feeBreakdown?.totalFees.priceImpactColor}
-                            >
-                              ({feeBreakdown?.totalFees.priceImpactPercentage})
-                            </Text>
-                          ) : null}
+                          <PriceImpact
+                            toToken={toToken}
+                            isFetchingQuote={isFetchingQuote}
+                            feeBreakdown={feeBreakdown}
+                            quote={quote}
+                          />
                         </Flex>
                         <Flex css={{ marginLeft: 'auto' }}>
                           {toToken ? (
@@ -1613,6 +1562,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                           onExternalLiquidityChange={(selected) => {
                             setUseExternalLiquidity(selected)
                           }}
+                          error={error}
                         />
                       </Box>
                     ) : null}
@@ -1642,6 +1592,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       supportsExternalLiquidity={supportsExternalLiquidity}
                       useExternalLiquidity={useExternalLiquidity}
                       isAutoSlippage={isAutoSlippage}
+                      slippageInputBps={slippageTolerance}
                       toChain={toChain}
                       setUseExternalLiquidity={(enabled) => {
                         setUseExternalLiquidity(enabled)
@@ -1652,6 +1603,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                       canonicalTimeEstimate={canonicalTimeEstimate}
                       isSingleChainLocked={isSingleChainLocked}
                       fromChainWalletVMSupported={fromChainWalletVMSupported}
+                      error={error}
                     />
                     <WidgetErrorWell
                       hasInsufficientBalance={hasInsufficientBalance}
@@ -1677,6 +1629,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                     {promptSwitchRoute ? (
                       <Button
                         color="primary"
+                        cta={true}
                         css={{ flexGrow: '1', justifyContent: 'center' }}
                         onClick={() => {
                           setUseExternalLiquidity(true)

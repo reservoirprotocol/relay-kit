@@ -1,4 +1,4 @@
-export { executeSteps } from './executeSteps.js'
+export { executeSteps } from './executeSteps/index.js'
 export { setParams } from './params.js'
 export { pollUntilOk, pollUntilHasData } from './pollApi.js'
 export { request, APIError, isAPIError } from './request.js'
@@ -15,3 +15,4 @@ export {
 } from './simulateContract.js'
 export { safeStructuredClone } from './structuredClone.js'
 export { repeatUntilOk } from './repeatUntilOk.js'
+export { prepareHyperliquidSignatureStep } from './hyperliquid.js'

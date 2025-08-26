@@ -1,5 +1,256 @@
 # @reservoir0x/relay-kit-ui
 
+## 3.0.0
+
+### Major Changes
+
+- 2ad3c52: Update relay branding
+
+### Patch Changes
+
+- Updated dependencies [2ad3c52]
+  - @relayprotocol/relay-kit-hooks@1.13.0
+  - @relayprotocol/relay-sdk@2.4.2
+
+## 0.0.0-canary-20250822183549
+
+### Patch Changes
+
+- 4395d49: Fix Unverified modal buttons
+- Updated dependencies [4395d49]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250822183549
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822183549
+
+## 0.0.0-canary-20250822181909
+
+### Patch Changes
+
+- cd12eb9: Implement final share link
+- Updated dependencies [cd12eb9]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250822181909
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250822181909
+
+## 0.0.0-canary-20250820191554
+
+### Patch Changes
+
+- 7badf0a: Sync with main branch
+- Updated dependencies [7badf0a]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250820191554
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191554
+
+## 0.0.0-canary-20250820191315
+
+### Patch Changes
+
+- e3566e9: Sync with the latest main branch
+- Updated dependencies [e3566e9]
+  - @relayprotocol/relay-kit-hooks@0.0.0-canary-20250820191315
+  - @relayprotocol/relay-sdk@0.0.0-canary-20250820191315
+
+## 0.0.0-canary-20250814020954
+
+### Patch Changes
+
+- 1d46491: Rebuild canary build
+- Updated dependencies [1d46491]
+  - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250814020954
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250814020954
+
+## 0.0.0-canary-20250813132716
+
+### Minor Changes
+
+- ef840d0: Update theme to better match Relay brand
+
+### Patch Changes
+
+- Updated dependencies [ef840d0]
+  - @reservoir0x/relay-sdk@0.0.0-canary-20250813132716
+  - @reservoir0x/relay-kit-hooks@0.0.0-canary-20250813132716
+
+## 2.17.5
+
+### Patch Changes
+
+- 5c97c8d: Fix modal gap on mobile
+
+## 2.17.4
+
+### Patch Changes
+
+- fd0b328: Add gas sponsorship functionality
+- Updated dependencies [fd0b328]
+  - @relayprotocol/relay-kit-hooks@1.12.1
+  - @relayprotocol/relay-sdk@2.4.1
+
+## 2.17.3
+
+### Patch Changes
+
+- b2d6c8c: Always show price impact regardless of input mode
+
+## 2.17.2
+
+### Patch Changes
+
+- 8a8d560: Reenable solana for protocolv2
+
+## 2.17.1
+
+### Patch Changes
+
+- a50bea6: Disable protocol v2 on solana
+
+## 2.17.0
+
+### Minor Changes
+
+- 6400542: Add websocket support and refactor executeSteps
+
+### Patch Changes
+
+- Updated dependencies [6400542]
+  - @reservoir0x/relay-kit-hooks@1.12.0
+  - @reservoir0x/relay-sdk@2.4.0
+
+## 2.16.2
+
+### Patch Changes
+
+- c309276: Increase prefers v2 threshold to $100
+
+## 2.16.1
+
+### Patch Changes
+
+- a284af5: revert overflow fix
+
+## 2.16.0
+
+### Minor Changes
+
+- bb08004: Fix token amount overflow on success screen
+
+### Patch Changes
+
+- 09ccc5c: Fix Hyperliquid wallet compatability
+- 2669722: Bump USD threshold for protocolv2 logic
+- a437ede: Improve ui when no route are available
+
+## 2.15.11
+
+### Patch Changes
+
+- 762dc3c: Add refundTo for HL withdrawals
+
+## 2.15.10
+
+### Patch Changes
+
+- dce6e56: Prevent onAnalyticEvent from throwing errors internally
+- 1a88de0: Add hyperliquid usd send functionality
+- Updated dependencies [1a88de0]
+  - @reservoir0x/relay-sdk@2.3.2
+  - @reservoir0x/relay-kit-hooks@1.11.3
+
+## 2.15.9
+
+### Patch Changes
+
+- cfad35b: Fix bug with selecting token from trending tokens list
+- d1aeceb: Enable protocol v2 for chains programatically
+- 2bc1938: Add context to CURRENCY_STEP_CHAIN_FILTER event
+- Updated dependencies [d1aeceb]
+  - @reservoir0x/relay-sdk@2.3.1
+  - @reservoir0x/relay-kit-hooks@1.11.2
+
+## 2.15.8
+
+### Patch Changes
+
+- fbb50ac: Add log to AGW check error
+- 1627058: Add usd values to swap events
+- 54e4628: Use max slippage between user input and quote for display
+- 7985e6b: Add relay trending tokens to token selector
+- a95050e: Enable more v2 protocol chains
+- Updated dependencies [7985e6b]
+  - @reservoir0x/relay-kit-hooks@1.11.1
+
+## 2.15.7
+
+### Patch Changes
+
+- 96351f0: Add more protocol v2 chains
+
+## 2.15.6
+
+### Patch Changes
+
+- 506f105: Address accessibility issues
+- ff38840: Add protocol v2 enabled chains
+
+## 2.15.5
+
+### Patch Changes
+
+- 7e4273d: Enable preferv2 protocol for more chains (Ethereum, Polygon, BNB, OP, Zksync)
+
+## 2.15.4
+
+### Patch Changes
+
+- 1aae32c: Reenable prefers protocolv2 for a subset of chains
+
+## 2.15.3
+
+### Patch Changes
+
+- 4334b2f: Disable protocolv2 usage
+
+## 2.15.2
+
+### Patch Changes
+
+- be1ec2c: Enable prefersV2 for Avalanche, unichain and Gnosis
+
+## 2.15.1
+
+### Patch Changes
+
+- c8ef9b5: Disable gas top up by default
+
+## 2.15.0
+
+### Minor Changes
+
+- aee47ea: Upgrade viem to >=2.26.0
+
+### Patch Changes
+
+- Updated dependencies [aee47ea]
+  - @reservoir0x/relay-kit-hooks@1.11.0
+  - @reservoir0x/relay-sdk@2.3.0
+
+## 2.14.0
+
+### Minor Changes
+
+- 3dbf1be: Upgrade sdk types and add custom logic for blast protocol v2 configuration
+
+### Patch Changes
+
+- dad85e2: Check custom address against CEX address list
+- Updated dependencies [3dbf1be]
+  - @reservoir0x/relay-sdk@2.2.0
+  - @reservoir0x/relay-kit-hooks@1.10.6
+
+## 2.13.3
+
+### Patch Changes
+
+- 1b67ee5: Add warning for missing token price detection + add stroke to all alerts
+
 ## 2.13.2
 
 ### Patch Changes

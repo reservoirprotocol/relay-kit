@@ -7,11 +7,13 @@ import {
 import type { LinkedWallet } from '../types/index.js'
 import { isAddress } from 'viem'
 import useIsAGW from './useIsAGW.js'
+import useCexAddresses from './useCexAddresses.js'
 
 export default (
   chainId?: number,
   address?: string,
-  wallets?: LinkedWallet[]
+  wallets?: LinkedWallet[],
+  onAnalyticEvent?: (event: string, data: Record<string, any>) => void
 ) => {
   const normalizedAddress =
     address && isAddress(address) ? address.toLowerCase() : address
@@ -21,14 +23,27 @@ export default (
         ? wallet.address.toLowerCase()
         : wallet.address) === normalizedAddress
   )
-  const isRecipientAGW = useIsAGW(address, !linkedWallet)
+  const isRecipientAGW = useIsAGW(address, !linkedWallet, onAnalyticEvent)
+  const { data: cexAddresses } = useCexAddresses()
+  const isRecipientCEX = cexAddresses?.addresses.includes(
+    normalizedAddress ?? ''
+  )
 
   return useMemo(() => {
     if (!chainId || !address) {
       return true
     }
 
+    //Hyperliquid operates as a CEX, so there's no need to check for wallet compatibility
+    if (chainId === 1337) {
+      return true
+    }
+
     if (!linkedWallet) {
+      if (isRecipientCEX) {
+        return false
+      }
+
       return isRecipientAGW ? chainId === 2741 : true
     }
     const normalizedWalletName =
@@ -45,5 +60,5 @@ export default (
     }
 
     return true
-  }, [chainId, address, linkedWallet, isRecipientAGW])
+  }, [chainId, address, linkedWallet, isRecipientAGW, isRecipientCEX])
 }

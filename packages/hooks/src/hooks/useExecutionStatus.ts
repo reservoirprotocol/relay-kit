@@ -5,7 +5,7 @@ import {
   type Execute,
   type paths,
   type ProgressData
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import fetcher from '../fetcher.js'
 import {
   useQuery,

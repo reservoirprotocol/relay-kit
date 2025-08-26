@@ -4,7 +4,7 @@ import {
   type Execute,
   type paths,
   type RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Modal } from '../../../common/Modal.js'
 import type { FiatCurrency, Token } from '../../../../types/index.js'
@@ -15,7 +15,7 @@ import {
   useQuote,
   useRequests,
   useTokenPrice
-} from '@reservoir0x/relay-kit-hooks'
+} from '@relayprotocol/relay-kit-hooks'
 import { extractDepositRequestId } from '../../../../utils/relayTransaction.js'
 import { parseUnits, zeroAddress } from 'viem'
 import {
@@ -430,7 +430,10 @@ export const OnrampModal: FC<OnrampModalProps> = ({
       css={{
         overflow: 'hidden',
         p: '4',
-        maxWidth: '412px !important'
+        maxWidth: '412px !important',
+        '@media(max-width: 520px)': {
+          maxWidth: 'unset !important'
+        }
       }}
     >
       {step === OnrampStep.Confirming ? (

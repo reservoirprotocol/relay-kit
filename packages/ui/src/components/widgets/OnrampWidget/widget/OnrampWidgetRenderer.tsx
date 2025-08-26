@@ -17,7 +17,7 @@ import {
   useFallbackState
 } from '../../../../hooks/index.js'
 import { zeroAddress } from 'viem'
-import { type ChainVM, type RelayChain } from '@reservoir0x/relay-sdk'
+import { type ChainVM, type RelayChain } from '@relayprotocol/relay-sdk'
 import type {
   FiatCurrency,
   LinkedWallet,
@@ -29,7 +29,7 @@ import {
   isValidAddress
 } from '../../../../utils/address.js'
 import useWalletAddress from '../../../../hooks/useWalletAddress.js'
-import { useTokenPrice } from '@reservoir0x/relay-kit-hooks'
+import { useTokenPrice } from '@relayprotocol/relay-kit-hooks'
 import { formatBN } from '../../../../utils/numbers.js'
 import { UnsupportedDepositAddressChainIds } from '../../../../constants/depositAddresses.js'
 

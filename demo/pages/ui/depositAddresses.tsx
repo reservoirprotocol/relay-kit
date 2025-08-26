@@ -3,7 +3,7 @@ import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import { Address, zeroAddress } from 'viem'
 import { useState } from 'react'
-import { Execute, getQuote, GetQuoteParameters } from '@reservoir0x/relay-sdk'
+import { Execute, getQuote, GetQuoteParameters } from '@relayprotocol/relay-sdk'
 
 const DepositAddressesPage: NextPage = () => {
   const { theme } = useTheme()

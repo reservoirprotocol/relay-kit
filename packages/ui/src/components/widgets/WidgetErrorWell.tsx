@@ -1,5 +1,5 @@
-import { type Execute } from '@reservoir0x/relay-sdk'
-import { isDeadAddress, tronDeadAddress } from '@reservoir0x/relay-sdk'
+import { type Execute } from '@relayprotocol/relay-sdk'
+import { isDeadAddress, tronDeadAddress } from '@relayprotocol/relay-sdk'
 import { type FC } from 'react'
 import { Box, Flex, Text } from '../primitives/index.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,8 +7,8 @@ import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclama
 import { type Currency } from '../../constants/currencies.js'
 import Tooltip from '../primitives/Tooltip.js'
 import { useMediaQuery } from 'usehooks-ts'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
-import type { QuoteResponse } from '@reservoir0x/relay-kit-hooks'
+import type { Styles } from '@relayprotocol/relay-design-system/css'
+import type { QuoteResponse } from '@relayprotocol/relay-kit-hooks'
 import type { LinkedWallet } from '../../types/index.js'
 
 type Props = {
@@ -60,8 +60,15 @@ export const WidgetErrorWell: FC<Props> = ({
     isHighPriceImpact && totalImpactUsd && Number(totalImpactUsd) <= -10
   const isInsufficientLiquidityError =
     fetchQuoteErrorMessage?.includes('No quotes found')
+  const isMissingUsdTokenPrice =
+    quote?.details?.currencyOut &&
+    (quote?.details?.currencyOut?.amountUsd === undefined ||
+      quote?.details?.currencyOut?.amountUsd === '0')
+  const isNoAvailableRoutesError =
+    error?.response?.data?.errorCode === 'NO_SWAP_ROUTES_FOUND' ||
+    error?.response?.data?.errorCode === 'UNSUPPORTED_ROUTE'
 
-  if (isInsufficientLiquidityError) {
+  if (isInsufficientLiquidityError || isNoAvailableRoutesError) {
     return null
   }
 
@@ -87,6 +94,8 @@ export const WidgetErrorWell: FC<Props> = ({
           gap: '2',
           p: '3',
           backgroundColor: 'amber2',
+          '--borderColor': 'colors.amber4',
+          border: '1px solid var(--borderColor)',
           borderRadius: 12,
           mb: '3',
           ...containerCss
@@ -113,6 +122,8 @@ export const WidgetErrorWell: FC<Props> = ({
             gap: '2',
             p: '3',
             backgroundColor: 'amber2',
+            '--borderColor': 'colors.amber4',
+            border: '1px solid var(--borderColor)',
             borderRadius: 12,
             mb: '3',
             ...containerCss
@@ -141,6 +152,8 @@ export const WidgetErrorWell: FC<Props> = ({
             gap: '2',
             p: '3',
             backgroundColor: 'red2',
+            '--borderColor': 'colors.red4',
+            border: '1px solid var(--borderColor)',
             borderRadius: 12,
             mb: '3',
             ...containerCss
@@ -163,6 +176,8 @@ export const WidgetErrorWell: FC<Props> = ({
             gap: '2',
             p: '3',
             backgroundColor: 'red2',
+            '--borderColor': 'colors.red4',
+            border: '1px solid var(--borderColor)',
             borderRadius: 12,
             mb: '3',
             ...containerCss
@@ -205,6 +220,8 @@ export const WidgetErrorWell: FC<Props> = ({
             py: '3',
             px: '3',
             backgroundColor: 'amber2',
+            '--borderColor': 'colors.amber4',
+            border: '1px solid var(--borderColor)',
             borderRadius: 12,
             mb: '3',
             ...containerCss
@@ -230,19 +247,49 @@ export const WidgetErrorWell: FC<Props> = ({
           gap: '2',
           py: '2',
           px: '3',
-          backgroundColor: 'red2',
+          backgroundColor: 'amber2',
+          '--borderColor': 'colors.amber4',
+          border: '1px solid var(--borderColor)',
           borderRadius: 12,
           mb: '3',
           ...containerCss
         }}
         id={'widget-error-well-section'}
       >
-        <Box css={{ color: 'red9' }}>
+        <Box css={{ color: 'amber10' }}>
           <FontAwesomeIcon icon={faExclamationCircle} width={16} />
         </Box>
         <Text style="subtitle3" css={{ color: 'amber12' }}>
           The price impact is currently high (
           {quote?.details?.totalImpact?.percent}%).
+        </Text>
+      </Flex>
+    )
+  }
+
+  if (isMissingUsdTokenPrice) {
+    return (
+      <Flex
+        align="center"
+        css={{
+          gap: '2',
+          py: '2',
+          px: '3',
+          backgroundColor: 'amber2',
+          '--borderColor': 'colors.amber4',
+          border: '1px solid var(--borderColor)',
+          borderRadius: 12,
+          mb: '3',
+          ...containerCss
+        }}
+        id={'widget-error-well-section'}
+      >
+        <Box css={{ color: 'amber10' }}>
+          <FontAwesomeIcon icon={faExclamationCircle} width={16} />
+        </Box>
+        <Text style="subtitle3" css={{ color: 'amber12' }}>
+          Unable to detect token price. Please confirm expected output before
+          submitting.
         </Text>
       </Flex>
     )
@@ -257,6 +304,8 @@ export const WidgetErrorWell: FC<Props> = ({
           py: '3',
           px: '3',
           backgroundColor: 'amber2',
+          '--borderColor': 'colors.amber4',
+          border: '1px solid var(--borderColor)',
           borderRadius: 12,
           mb: '3',
           ...containerCss

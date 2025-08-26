@@ -10,7 +10,6 @@ import {
   hexToBigInt,
   http
 } from 'viem'
-import { eip5792Actions } from 'viem/experimental'
 
 export function isViemWalletClient(
   wallet: WalletClient | AdaptedWallet
@@ -57,14 +56,18 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
             })
           }
         } else if (signData.signatureKind === 'eip712') {
-          client.log(['Execute Steps: Signing with eip712'], LogLevel.Verbose)
-          signature = await wallet.signTypedData({
+          const signatureData = {
             account: wallet.account as Account,
             domain: signData.domain as any,
             types: signData.types as any,
             primaryType: signData.primaryType,
             message: signData.value
-          })
+          }
+          client.log(
+            ['Execute Steps: Signing with eip712', signatureData],
+            LogLevel.Verbose
+          )
+          signature = await wallet.signTypedData(signatureData)
         }
       }
       return signature
@@ -191,11 +194,12 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
     supportsAtomicBatch: async (chainId) => {
       if (!wallet.account) return false
       try {
-        const eip5792Wallet = wallet.extend(eip5792Actions())
-        const capabilities = await eip5792Wallet.getCapabilities({
-          account: eip5792Wallet.account
+        const capabilities = await wallet.getCapabilities({
+          account: wallet.account,
+          chainId
         })
-        return capabilities[chainId]?.atomicBatch?.supported
+
+        return capabilities?.atomicBatch?.supported
       } catch {
         return false
       }
@@ -218,8 +222,6 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         })
       }))
 
-      const eip5792Wallet = wallet.extend(eip5792Actions())
-
       const client = getClient()
       const chain = client.chains.find(
         (chain) => chain.id === chainId
@@ -229,7 +231,7 @@ export const adaptViemWallet = (wallet: WalletClient): AdaptedWallet => {
         throw 'Chain not found when sending transaction'
       }
 
-      const id = await eip5792Wallet.sendCalls({
+      const { id } = await wallet.sendCalls({
         chain,
         account: wallet.account as Account,
         calls

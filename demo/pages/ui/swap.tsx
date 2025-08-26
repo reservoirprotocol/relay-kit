@@ -1,5 +1,8 @@
 import { NextPage, GetServerSideProps } from 'next'
-import { SlippageToleranceConfig, SwapWidget } from '@reservoir0x/relay-kit-ui'
+import {
+  SlippageToleranceConfig,
+  SwapWidget
+} from '@relayprotocol/relay-kit-ui'
 import { Layout } from 'components/Layout'
 import { useTheme } from 'next-themes'
 import {
@@ -13,22 +16,22 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isEthereumWallet } from '@dynamic-labs/ethereum'
 import { isSolanaWallet } from '@dynamic-labs/solana'
-import { adaptSolanaWallet } from '@reservoir0x/relay-svm-wallet-adapter'
+import { adaptSolanaWallet } from '@relayprotocol/relay-svm-wallet-adapter'
 import {
   AdaptedWallet,
   adaptViemWallet,
   ChainVM,
   RelayChain
-} from '@reservoir0x/relay-sdk'
+} from '@relayprotocol/relay-sdk'
 import { useWalletFilter } from 'context/walletFilter'
-import { LinkedWallet } from '@reservoir0x/relay-kit-ui'
-import { adaptBitcoinWallet } from '@reservoir0x/relay-bitcoin-wallet-adapter'
+import { LinkedWallet } from '@relayprotocol/relay-kit-ui'
+import { adaptBitcoinWallet } from '@relayprotocol/relay-bitcoin-wallet-adapter'
 import { isBitcoinWallet } from '@dynamic-labs/bitcoin'
 import { convertToLinkedWallet } from 'utils/dynamic'
 import { isEclipseWallet } from '@dynamic-labs/eclipse'
-import { type Token } from '@reservoir0x/relay-kit-ui'
+import { type Token } from '@relayprotocol/relay-kit-ui'
 import { isSuiWallet, SuiWallet } from '@dynamic-labs/sui'
-import { adaptSuiWallet } from '@reservoir0x/relay-sui-wallet-adapter'
+import { adaptSuiWallet } from '@relayprotocol/relay-sui-wallet-adapter'
 import Head from 'next/head'
 
 const WALLET_VM_TYPES = ['evm', 'bvm', 'svm', 'suivm'] as const
@@ -48,14 +51,14 @@ const SwapWidgetPage: NextPage = () => {
     symbol: 'ETH',
     logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
   })
-  // const [toToken, setToToken] = useState<Token | undefined>({
-  //   chainId: 10,
-  //   address: '0xbb586ed34974b15049a876fd5366a4c2d1203115',
-  //   decimals: 18,
-  //   name: 'ETH',
-  //   symbol: 'ETH',
-  //   logoURI: 'https://assets.relay.link/icons/currencies/eth.png',
-  // })
+  const [toToken, setToToken] = useState<Token | undefined>({
+    chainId: 10,
+    address: '0xbb586ed34974b15049a876fd5366a4c2d1203115',
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+    logoURI: 'https://assets.relay.link/icons/currencies/eth.png'
+  })
   const { setWalletFilter } = useWalletFilter()
   const { setShowAuthFlow, primaryWallet } = useDynamicContext()
   const { theme } = useTheme()
@@ -216,10 +219,20 @@ const SwapWidgetPage: NextPage = () => {
             lockChainId={singleChainMode ? 8453 : undefined}
             singleChainMode={singleChainMode}
             supportedWalletVMs={supportedWalletVMs}
+            sponsoredTokens={
+              toToken?.chainId !== 1
+                ? [
+                    '8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+                    '42161:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+                    '10:0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+                    '1:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+                  ]
+                : undefined
+            }
             // popularChainIds={[]}
             // disableInputAutoFocus={true}
-            // toToken={toToken}
-            // setToToken={setToToken}
+            toToken={toToken}
+            setToToken={setToToken}
             // lockToToken={true}
             // lockFromToken={true}
             fromToken={fromToken}

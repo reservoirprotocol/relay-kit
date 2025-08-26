@@ -7,7 +7,8 @@ import {
   Text,
   ChainTokenIcon,
   ChainIcon,
-  Skeleton
+  Skeleton,
+  Anchor
 } from '../../../primitives/index.js'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,14 +16,15 @@ import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
 import { type TxHashes } from '../TransactionModalRenderer.js'
 import { type Token } from '../../../../types/index.js'
-import type { useRequests } from '@reservoir0x/relay-kit-hooks'
+import type { useRequests } from '@relayprotocol/relay-kit-hooks'
 import { useRelayClient } from '../../../../hooks/index.js'
 import { faClockFour } from '@fortawesome/free-solid-svg-icons/faClockFour'
-import type { Execute } from '@reservoir0x/relay-sdk'
+import type { Execute } from '@relayprotocol/relay-sdk'
 import { bitcoin } from '../../../../utils/bitcoin.js'
 import { formatBN } from '../../../../utils/numbers.js'
 import { TransactionsByChain } from './TransactionsByChain.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { XIcon } from '../../../../icons/index.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -39,6 +41,7 @@ type SwapSuccessStepProps = {
   isLoadingTransaction?: boolean
   onOpenChange: (open: boolean) => void
   requestId: string | null
+  isGasSponsored?: boolean
 }
 
 export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
@@ -55,7 +58,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   details,
   isLoadingTransaction,
   onOpenChange,
-  requestId
+  requestId,
+  isGasSponsored
 }) => {
   const relayClient = useRelayClient()
   const isWrap = details?.operation === 'wrap'
@@ -246,6 +250,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         <Button
+          cta={true}
           color={'secondary'}
           onClick={() => {
             onOpenChange(false)
@@ -260,6 +265,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         {delayedTxUrl ? (
           <a href={delayedTxUrl} style={{ width: '100%' }} target="_blank">
             <Button
+              cta={true}
               color={'primary'}
               css={{
                 justifyContent: 'center',
@@ -418,6 +424,33 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
         )}
       </Flex>
 
+      {isGasSponsored && _toToken?.symbol === 'USDC' ? (
+        <Flex
+          css={{
+            p: '3',
+            gap: '3',
+            width: '100%',
+            borderRadius: 12,
+            background: 'primary2',
+            justifyItems: 'space-between'
+          }}
+        >
+          <Text style="subtitle2">You've completed a free USDC bridge!</Text>
+          <Anchor
+            href="https://x.com/intent/post?text=Just%20instantly%20bridged%20USDC%20with%20ZERO%20price%20impact%2C%20thanks%20to%20%40RelayProtcol%20%27s%20Fee-Free%20September.%0A%0ATry%20it%20yourself%3A%20go.relay.link%2Ffreeusdc"
+            target="_blank"
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1',
+              ml: 'auto'
+            }}
+          >
+            Share on <XIcon width={14} height={14} />
+          </Anchor>
+        </Flex>
+      ) : null}
+
       <Flex css={{ width: '100%', mt: 8, gap: '3' }}>
         {requestId ? (
           <a
@@ -430,6 +463,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           >
             <Button
               color="secondary"
+              cta={true}
               css={{
                 justifyContent: 'center',
                 width: 'max-content'
@@ -440,6 +474,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
           </a>
         ) : null}
         <Button
+          cta={true}
           onClick={() => {
             onOpenChange(false)
           }}

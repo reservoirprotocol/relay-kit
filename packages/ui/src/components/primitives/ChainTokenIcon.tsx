@@ -3,7 +3,7 @@ import Flex from './Flex.js'
 import ChainIcon from './ChainIcon.js'
 import Box from './Box.js'
 import Text from './Text.js'
-import type { Styles } from '@reservoir0x/relay-design-system/css'
+import type { Styles } from '@relayprotocol/relay-design-system/css'
 
 type Size = 'md' | 'lg'
 

@@ -1,4 +1,4 @@
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 
 const getChainBlockExplorerUrl = (chainId?: number, chains?: RelayChain[]) => {
   let blockExplorerUrl =

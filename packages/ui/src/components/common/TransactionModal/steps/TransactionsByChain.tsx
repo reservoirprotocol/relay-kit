@@ -15,8 +15,8 @@ import {
   faRotateRight
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
-import type { useRequests } from '@reservoir0x/relay-kit-hooks'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
+import type { useRequests } from '@relayprotocol/relay-kit-hooks'
 
 type TransactionsByChainProps = {
   allTxHashes: TxHashes
@@ -79,7 +79,11 @@ export const TransactionsByChain: FC<TransactionsByChainProps> = ({
       return (
         <Flex justify="between" key={idx}>
           <Flex css={{ alignItems: 'center', gap: '2' }}>
-            <Text style="subtitle2" color="subtle">
+            <Text
+              style="subtitle2"
+              color="subtle"
+              css={{ alignSelf: 'flex-start' }}
+            >
               View {chain?.displayName} Tx
             </Text>
             {isRefundChain ? (

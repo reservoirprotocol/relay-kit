@@ -1,15 +1,15 @@
 import { NextPage } from 'next'
-import { MAINNET_RELAY_API } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API } from '@relayprotocol/relay-sdk'
 
-import { useRequests } from '@reservoir0x/relay-kit-hooks'
+import { useRequests } from '@relayprotocol/relay-kit-hooks'
 import { useState } from 'react'
 
 const UseRequests: NextPage = () => {
-  const [originChainId, setOriginChainId] = useState<string | undefined>(
+  const [originChainId, setOriginChainId] = useState<number | undefined>(
     undefined
   )
   const [destinationChainId, setDestinationChainId] = useState<
-    string | undefined
+    number | undefined
   >(undefined)
   const [limit, setLimit] = useState<number>(20)
   const [user, setUser] = useState<string | undefined>()
@@ -17,7 +17,7 @@ const UseRequests: NextPage = () => {
     {
       originChainId,
       destinationChainId,
-      limit: `${limit}`,
+      limit,
       user
     },
     MAINNET_RELAY_API
@@ -53,7 +53,7 @@ const UseRequests: NextPage = () => {
             type="number"
             placeholder="Which origin chain?"
             value={originChainId}
-            onChange={(e) => setOriginChainId(e.target.value)}
+            onChange={(e) => setOriginChainId(+e.target.value)}
           />
         </div>
         <div>
@@ -62,7 +62,7 @@ const UseRequests: NextPage = () => {
             type="number"
             placeholder="Which destination chain?"
             value={destinationChainId}
-            onChange={(e) => setDestinationChainId(e.target.value)}
+            onChange={(e) => setDestinationChainId(+e.target.value)}
           />
         </div>
         <div>

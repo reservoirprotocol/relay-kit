@@ -1,4 +1,8 @@
-import type { AdaptedWallet, Execute, RelayChain } from '@reservoir0x/relay-sdk'
+import type {
+  AdaptedWallet,
+  Execute,
+  RelayChain
+} from '@relayprotocol/relay-sdk'
 import { type Address } from 'viem'
 import { type Dispatch, type FC, type SetStateAction, useEffect } from 'react'
 import {
@@ -117,6 +121,8 @@ export const TransactionModal: FC<TransactionModalProps> = (
           currency_in: fromToken?.symbol,
           chain_id_out: toToken?.chainId,
           currency_out: toToken?.symbol,
+          currency_in_usd: details?.currencyIn?.amountUsd,
+          currency_out_usd: details?.currencyOut?.amountUsd,
           is_canonical: useExternalLiquidity,
           quote_id: quoteId,
           txHashes: steps
@@ -188,7 +194,8 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
   toChain,
   isLoadingTransaction,
   setQuote,
-  requestId
+  requestId,
+  isGasSponsored
 }) => {
   useEffect(() => {
     if (!open) {
@@ -226,7 +233,10 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
       css={{
         overflow: 'hidden',
         p: '4',
-        maxWidth: '412px !important'
+        maxWidth: '412px !important',
+        '@media(max-width: 520px)': {
+          maxWidth: 'unset !important'
+        }
       }}
       showCloseButton={true}
       onPointerDownOutside={(e) => {
@@ -281,6 +291,7 @@ const InnerTransactionModal: FC<InnerTransactionModalProps> = ({
             details={details}
             isLoadingTransaction={isLoadingTransaction}
             requestId={requestId}
+            isGasSponsored={isGasSponsored}
           />
         ) : null}
         {progressStep === TransactionProgressStep.Error ? (

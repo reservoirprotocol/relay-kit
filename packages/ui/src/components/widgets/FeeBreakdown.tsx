@@ -7,7 +7,7 @@ import { faGasPump } from '@fortawesome/free-solid-svg-icons/faGasPump'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import FetchingQuoteLoader from '../widgets/FetchingQuoteLoader.js'
 import SwapRouteSelector from '../widgets/SwapRouteSelector.js'
-import type { RelayChain } from '@reservoir0x/relay-sdk'
+import type { RelayChain } from '@relayprotocol/relay-sdk'
 import {
   CollapsibleContent,
   CollapsibleRoot,
@@ -40,6 +40,8 @@ type Props = Pick<
   isSingleChainLocked?: boolean
   fromChainWalletVMSupported?: boolean
   isAutoSlippage: boolean
+  slippageInputBps?: string
+  error?: any
 }
 
 const formatSwapRate = (rate: number) => {
@@ -60,7 +62,9 @@ const FeeBreakdown: FC<Props> = ({
   canonicalTimeEstimate,
   isSingleChainLocked,
   fromChainWalletVMSupported,
-  isAutoSlippage
+  isAutoSlippage,
+  slippageInputBps,
+  error
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const swapRate = quote?.details?.rate
@@ -79,12 +83,16 @@ const FeeBreakdown: FC<Props> = ({
     quote?.details?.slippageTolerance?.origin?.percent
   const destinationSlippageTolerance =
     quote?.details?.slippageTolerance?.destination?.percent
-  const slippage =
+  const quoteSlippage =
     (isSameChain
       ? destinationSlippageTolerance === '0'
         ? originSlippageTolerance
         : destinationSlippageTolerance
       : destinationSlippageTolerance) ?? '0'
+  const slippageInputNumber = Number(
+    (Number(slippageInputBps ?? '0') / 100).toFixed(2)
+  )
+  const slippage = `${Math.max(Number(quoteSlippage), slippageInputNumber)}`
 
   const slippageRating = getSlippageRating(slippage)
   const slippageRatingColor = ratingToColor[slippageRating]
@@ -107,7 +115,7 @@ const FeeBreakdown: FC<Props> = ({
             gap: '1',
             color:
               timeEstimate && timeEstimate.time <= 30
-                ? '{colors.green.9}'
+                ? '{colors.grass.9}'
                 : '{colors.amber.9}'
           }}
         >
@@ -212,6 +220,7 @@ const FeeBreakdown: FC<Props> = ({
             setUseExternalLiquidity(selected)
           }}
           canonicalTimeEstimate={canonicalTimeEstimate?.formattedTime}
+          error={error}
           trigger={
             <Button color="ghost" size="none">
               <Flex css={{ gap: '2', alignItems: 'center' }}>
@@ -316,7 +325,7 @@ const FeeBreakdown: FC<Props> = ({
               gap: '2',
               color:
                 timeEstimate && timeEstimate.time <= 30
-                  ? '{colors.green.9}'
+                  ? '{colors.grass.9}'
                   : '{colors.amber.9}',
               flexShrink: 0
             }}
