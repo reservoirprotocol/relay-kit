@@ -117,24 +117,12 @@ const AppWrapper: FC<AppWrapperProps> = ({ children, dynamicChains }) => {
   }, [])
 
   return (
-<<<<<<< HEAD
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <RelayKitProviderWrapper
-        relayApi={'https://api.dev.relay.link'}
-        dynamicChains={dynamicChains}
-=======
     <div>
       <ThemeProvider
         attribute="class"
         defaultTheme="light"
         enableSystem
         disableTransitionOnChange
->>>>>>> bafbd4fe415f0222edff95f19edd2304f203018f
       >
         <RelayKitProviderWrapper
           relayApi={relayApi}
