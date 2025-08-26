@@ -47,6 +47,14 @@ export const RelayKitProviderWrapper: FC<{
           enabled: websocketsEnabled,
           url: MAINNET_RELAY_WS
         },
+        appFees: [
+          {
+            fee: '1000',
+            recipient:
+              process.env.NEXT_PUBLIC_FEE_RECIPIENT ??
+              '0x03508bB71268BBA25ECaCC8F620e01866650532c'
+          }
+        ],
         secureBaseUrl: process.env.NEXT_PUBLIC_RELAY_SECURE_API_URL
       }}
     >
