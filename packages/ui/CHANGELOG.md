@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 3.0.1
+
+### Patch Changes
+
+- 0dae775: Add data tracking for gas subsidization
+
 ## 3.0.0
 
 ### Major Changes
