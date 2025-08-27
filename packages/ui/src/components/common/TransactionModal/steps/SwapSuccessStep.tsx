@@ -1,4 +1,4 @@
-import { type FC } from 'react'
+import { useContext, type FC } from 'react'
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import { formatBN } from '../../../../utils/numbers.js'
 import { TransactionsByChain } from './TransactionsByChain.js'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { XIcon } from '../../../../icons/index.js'
+import { ProviderOptionsContext } from '../../../../providers/RelayKitProvider.js'
 
 type SwapSuccessStepProps = {
   fromToken?: Token
@@ -64,6 +65,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
   const relayClient = useRelayClient()
   const isWrap = details?.operation === 'wrap'
   const isUnwrap = details?.operation === 'unwrap'
+  const providerOptionsContext = useContext(ProviderOptionsContext)
 
   const _fromAmountFormatted = transaction?.data?.metadata?.currencyIn?.amount
     ? formatBN(
@@ -128,6 +130,8 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
 
   const showDetails =
     !allTxHashes.every((tx) => tx.isBatchTx) || formattedGasTopUpAmount
+  const shareIconFill =
+    providerOptionsContext.themeScheme === 'dark' ? '#fff' : '#000'
 
   return isDelayedTx ? (
     <>
@@ -449,7 +453,7 @@ export const SwapSuccessStep: FC<SwapSuccessStepProps> = ({
               ml: 'auto'
             }}
           >
-            Share on <XIcon width={14} height={14} />
+            Share on <XIcon width={14} height={14} fill={shareIconFill} />
           </Anchor>
         </Flex>
       ) : null}
