@@ -908,6 +908,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       const swapEventData = {
         ...getSwapEventData(
           quote?.details,
+          quote?.fees,
           currentSteps ?? null,
           linkedWallet?.connector,
           quoteParameters
@@ -968,6 +969,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
     try {
       const swapEventData = getSwapEventData(
         quote?.details,
+        quote?.fees,
         quote?.steps ? (quote?.steps as Execute['steps']) : null,
         linkedWallet?.connector,
         quoteParameters
@@ -1018,6 +1020,7 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
         const { step, stepItem } = getCurrentStep(currentSteps)
         const swapEventData = getSwapEventData(
           quote?.details,
+          quote?.fees,
           currentSteps,
           linkedWallet?.connector,
           quoteParameters

@@ -1712,6 +1712,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             } else {
                               const swapEventData = getSwapEventData(
                                 quote?.details,
+                                quote?.fees,
                                 quote?.steps
                                   ? (quote?.steps as Execute['steps'])
                                   : null,

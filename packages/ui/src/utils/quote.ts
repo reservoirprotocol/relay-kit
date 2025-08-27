@@ -268,6 +268,7 @@ export const getCurrentStep = (steps?: Execute['steps'] | null) => {
 
 export const getSwapEventData = (
   details: Execute['details'],
+  fees: Execute['fees'],
   steps: Execute['steps'] | null,
   connector?: string,
   quoteParameters?: Parameters<typeof useQuote>['2']
@@ -298,9 +299,11 @@ export const getSwapEventData = (
     quote_id: steps ? extractQuoteId(steps) : undefined,
     amount_in: details?.currencyIn?.amount,
     currency_in: details?.currencyIn?.currency?.symbol,
+    currency_in_address: details?.currencyIn?.currency?.address,
     chain_id_in: details?.currencyIn?.currency?.chainId,
     amount_out: details?.currencyOut?.amount,
     currency_out: details?.currencyOut?.currency?.symbol,
+    currency_out_address: details?.currencyOut?.currency?.address,
     chain_id_out: details?.currencyOut?.currency?.chainId,
     currency_in_usd: details?.currencyIn?.amountUsd,
     currency_out_usd: details?.currencyOut?.amountUsd,
@@ -333,7 +336,11 @@ export const getSwapEventData = (
         })
         return checkStatuses
       })
-      .flat()
+      .flat(),
+    subsidized:
+      fees?.subsidized !== undefined && fees.subsidized.amount !== '0'
+        ? true
+        : false
   }
 }
 
