@@ -1,5 +1,11 @@
 # @reservoir0x/relay-bitcoin-wallet-adapter
 
+## 10.0.3
+
+### Patch Changes
+
+- 7615501: Allow default sighash when sending tx
+
 ## 10.0.2
 
 ### Patch Changes
