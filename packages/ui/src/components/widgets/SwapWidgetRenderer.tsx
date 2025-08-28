@@ -527,7 +527,8 @@ const SwapWidgetRenderer: FC<SwapWidgetRendererProps> = ({
       }
     )
   const originChainSupportsProtocolv2 =
-    fromChain?.protocol?.v2?.depository !== undefined
+    fromChain?.protocol?.v2?.depository !== undefined &&
+    toChain?.protocol?.v2?.chainId !== undefined
 
   const quoteProtocol = useMemo(() => {
     //Enabled only on certain chains
