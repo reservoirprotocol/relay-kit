@@ -1,5 +1,12 @@
 # @reservoir0x/relay-kit-ui
 
+## 3.0.2
+
+### Patch Changes
+
+- 34fa345: Enable protocolv2 only if destination chain supports settlement
+- de102bb: Fix share icon color
+
 ## 3.0.1
 
 ### Patch Changes
