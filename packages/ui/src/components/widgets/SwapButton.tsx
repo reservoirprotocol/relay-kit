@@ -77,6 +77,7 @@ const SwapButton: FC<SwapButtonProps> = ({
               isSameCurrencySameRecipientSwap ||
               !recipientWalletSupportsChain))
         }
+        data-testid="swap-button"
         onClick={() => {
           onClick()
         }}
@@ -101,6 +102,7 @@ const SwapButton: FC<SwapButtonProps> = ({
           context
         })
       }}
+      data-testid="widget-connect-wallet-button"
     >
       Connect Wallet
     </Button>
