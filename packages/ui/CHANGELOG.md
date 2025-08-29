@@ -1,5 +1,11 @@
 # @reservoir0x/relay-kit-ui
 
+## 3.0.3
+
+### Patch Changes
+
+- dc26d7b: Add test ids for automation
+
 ## 3.0.2
 
 ### Patch Changes
