@@ -791,6 +791,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             setAddressModalOpen={setAddressModalOpen}
                             wallets={linkedWallets!}
                             onAnalyticEvent={onAnalyticEvent}
+                            testId="origin-wallet-select-button"
                           />
                         ) : null}
                       </Flex>
@@ -899,8 +900,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               <TokenTrigger
                                 token={fromToken}
                                 locked={lockFromToken}
-                                isSingleChainLocked={isSingleChainLocked}
                                 address={address}
+                                testId="origin-token-select-button"
                               />
                             </div>
                           }
@@ -1274,6 +1275,7 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                             setAddressModalOpen={setAddressModalOpen}
                             wallets={linkedWallets!}
                             onAnalyticEvent={onAnalyticEvent}
+                            testId="destination-wallet-select-button"
                           />
                         ) : null}
 
@@ -1420,8 +1422,8 @@ const SwapWidget: FC<SwapWidgetProps> = ({
                               <TokenTrigger
                                 token={toToken}
                                 locked={lockToToken}
-                                isSingleChainLocked={isSingleChainLocked}
                                 address={address}
+                                testId="destination-token-select-button"
                               />
                             </div>
                           }
