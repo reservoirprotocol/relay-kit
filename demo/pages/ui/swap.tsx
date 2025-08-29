@@ -53,7 +53,7 @@ const SwapWidgetPage: NextPage = () => {
   })
   const [toToken, setToToken] = useState<Token | undefined>({
     chainId: 10,
-    address: '0xbb586ed34974b15049a876fd5366a4c2d1203115',
+    address: '0x0000000000000000000000000000000000000000',
     decimals: 18,
     name: 'ETH',
     symbol: 'ETH',
