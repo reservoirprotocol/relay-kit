@@ -262,6 +262,7 @@ export const CustomAddressModal: FC<Props> = ({
             }
             onOpenChange(false)
           }}
+          data-testid="save-button"
         >
           Save
         </Button>
